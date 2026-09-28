@@ -2226,6 +2226,12 @@
   .story-stage.zooming .story-dot-pulse .core { fill: #fff; }
   .story-logo-button:hover .story-dot-pulse .core { fill: #fff; }
 
+  /* Mobile browsers paint a translucent tap highlight on the touched button.
+     The Story logo button becomes full-screen when the zoom starts, so that
+     highlight tinted the whole page. Our own hover/active states replace it. */
+  html { -webkit-tap-highlight-color: transparent; }
+  .story-logo-button { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
+  .story-logo-button:focus:not(:focus-visible) { outline: none; }
 </style>
 </head>
 <body>
