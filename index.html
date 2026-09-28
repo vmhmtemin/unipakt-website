@@ -2222,19 +2222,6 @@
   .story-stage.story-complete .story-dot-pulse { display: none; }
   .story-logo-button:hover .story-dot-pulse .core { fill: #fff; }
 
-  .story-swipe-hint { display: none; }
-  @media (hover: none) {
-    .story-stage:not(.story-complete):not(.zooming) .story-swipe-hint {
-      display: block; position: absolute; left: 0; right: 0; margin: 0 auto;
-      bottom: calc(28px + env(safe-area-inset-bottom, 0px));
-      width: 44px; height: 44px; color: #fff; opacity: .8;
-      animation: introArrowBob 1.6s ease-in-out infinite; pointer-events: none;
-    }
-    .story-swipe-hint svg {
-      width: 100%; height: 100%; fill: none; stroke: currentColor;
-      stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
-    }
-  }
 </style>
 </head>
 <body>
@@ -2432,7 +2419,7 @@ fill="currentColor" stroke="none">
           </svg>
         </svg>
       </button>
-      <span class="story-swipe-hint" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 4v15M5.5 12.5 12 19l6.5-6.5"/></svg></span>
+
 
       <div class="story-team" id="storyTeam" aria-label="UniPakt ekibi">
         <article class="story-card" tabindex="0" role="button" aria-label="Ekip üyesi kartı 1">
