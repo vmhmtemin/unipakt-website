@@ -353,179 +353,34 @@
     to   { opacity: 1; transform: scale(1); }
   }
 
-  /* Moving bar: no rotation, no scaling, no bounce, no visit to ? */
-  /* Moving bar: its CENTER is always exactly over the station center.
-     Route: Üniversite 100 -> Kulüp 330 -> UniPakt 560 -> İstanbul 790.
-     The future (?) stop at 1010 is never visited. */
-  .pakt-mover {
-    animation: routeLoop 11s linear infinite;
-    transform-box: fill-box;
-    transform-origin: center;
-    will-change: transform;
-  }
-
-  @keyframes routeLoop {
-    /* OUTBOUND — each station is passed continuously, with a soft slowdown */
-    0%    { transform: translateX(100px); }
-    8%    { transform: translateX(180px); }
-    13%   { transform: translateX(270px); }
-    16%   { transform: translateX(315px); }
-    18%   { transform: translateX(330px); }
-    20%   { transform: translateX(345px); }
-    27%   { transform: translateX(445px); }
-    32%   { transform: translateX(525px); }
-    34%   { transform: translateX(548px); }
-    35%   { transform: translateX(554px); }
-    36%   { transform: translateX(560px); }
-    37%   { transform: translateX(568px); }
-    38%   { transform: translateX(578px); }
-    39%   { transform: translateX(590px); }
-    41%   { transform: translateX(612px); }
-    43%   { transform: translateX(638px); }
-    45%   { transform: translateX(670px); }
-    47%   { transform: translateX(705px); }
-    49%   { transform: translateX(742px); }
-    50%   { transform: translateX(755px); }
-    51%   { transform: translateX(775px); }
-    52%   { transform: translateX(785px); }
-    53%   { transform: translateX(790px); }
-
-    /* RETURN — same continuous slowdown through UniPakt, no stop */
-    60%   { transform: translateX(685px); }
-    63%   { transform: translateX(625px); }
-    66%   { transform: translateX(600px); }
-    68%   { transform: translateX(582px); }
-    69%   { transform: translateX(570px); }
-    70%   { transform: translateX(560px); }
-    71%   { transform: translateX(552px); }
-    72%   { transform: translateX(545px); }
-    74%   { transform: translateX(525px); }
-    77%   { transform: translateX(475px); }
-    80%   { transform: translateX(425px); }
-    82%   { transform: translateX(380px); }
-    83%   { transform: translateX(350px); }
-    84%   { transform: translateX(330px); }
-    86%   { transform: translateX(315px); }
-    91%   { transform: translateX(235px); }
-    96%   { transform: translateX(150px); }
-    98%   { transform: translateX(110px); }
-    100%  { transform: translateX(100px); }
-  }
-
-  .mover-bar {
-    fill: var(--paper);
+  /* Mini Metro style train. Position, passengers and the mobile
+     camera are driven from JS (initMetroLine). */
+  .metro-train {
+    fill: var(--ink);
     stroke: var(--ink);
-    stroke-width: 1.7;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
   }
-
-  /* People = small squares. They exist at the first three stations
-     until the mover reaches them, then ride on the bar. */
-  .home-person,
-  .carried-square,
-  .carried-shape {
-    fill: var(--paper);
+  .metro-train-group,
+  .metro-passengers,
+  .metro-riders {
+    opacity: 0;
+    transition: opacity .5s ease .4s;
+  }
+  .pakt-diagram.in-view .metro-train-group,
+  .pakt-diagram.in-view .metro-passengers,
+  .pakt-diagram.in-view .metro-riders { opacity: 1; }
+  /* Mobile: the camera follows the train, so clip to the viewBox. */
+  .pakt-diagram.metro-zoomed svg { overflow: hidden; }
+  /* Passengers are hollow: outline only. On the train they switch to
+     paper color so they read against the solid train body. */
+  .metro-passenger {
+    fill: none;
     stroke: var(--ink);
-    stroke-width: 1.25;
+    stroke-width: 1.6;
+    stroke-linejoin: round;
   }
-
-  .home-person {
-    animation-duration: 11s;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-  }
-  .home-person.uni  { animation-name: homeUni2; }
-  .home-person.club { animation-name: homeClub2; }
-  .home-person.pakt { animation-name: homePakt2; }
-
-  /* Each home square disappears exactly when the mover CENTER reaches
-     its station, and only reappears at the final reset. */
-  @keyframes homeUni2 {
-    0%, 0.9% { opacity: 1; }
-    1.0%, 98.9% { opacity: 0; }
-    99.2%, 100% { opacity: 1; }
-  }
-  @keyframes homeClub2 {
-    0%, 17.9% { opacity: 1; }
-    18.0%, 98.9% { opacity: 0; }
-    99.2%, 100% { opacity: 1; }
-  }
-  @keyframes homePakt2 {
-    0%, 33.9% { opacity: 1; }
-    34.0%, 98.9% { opacity: 0; }
-    99.2%, 100% { opacity: 1; }
-  }
-
-  /* Outbound payloads stay attached to the mover. They vanish exactly
-     when the mover center reaches İstanbul at 50%. */
-  .carried-square {
-    animation-duration: 11s;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-  }
-  .carried-square.uni  { animation-name: carryUni2; }
-  .carried-square.club { animation-name: carryClub2; }
-  .carried-square.pakt { animation-name: carryPakt2; }
-
-  @keyframes carryUni2 {
-    0%, 1.0% { opacity: 0; }
-    1.1%, 49.9% { opacity: 1; }
-    50.0%, 100% { opacity: 0; }
-  }
-  @keyframes carryClub2 {
-    0%, 18.0% { opacity: 0; }
-    18.1%, 49.9% { opacity: 1; }
-    50.0%, 100% { opacity: 0; }
-  }
-  @keyframes carryPakt2 {
-    0%, 34.0% { opacity: 0; }
-    34.1%, 49.9% { opacity: 1; }
-    50.0%, 100% { opacity: 0; }
-  }
-
-  /* İstanbul receives the three squares, then becomes the origin of
-     triangle + star + circle for the return journey. */
-  .istanbul-shapes {
-    animation: istanbulShapes2 11s linear infinite;
-  }
-  /* İstanbul's △ ★ ○ are visible at the beginning and again until
-     the return journey starts. */
-  @keyframes istanbulShapes2 {
-    0%, 50.0% { opacity: 1; }
-    50.1%, 99.1% { opacity: 0; }
-    99.2%, 100% { opacity: 1; }
-  }
-
-  /* Return payload: circle -> UniPakt, star -> Kulüp, triangle -> Üniversite.
-     Their visibility ends exactly at the destination station centers. */
-  .carried-shape {
-    animation-duration: 11s;
-    transform-box: fill-box;
-    transform-origin: center;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-  }
-  .carried-shape.circle { animation-name: returnCircle2; }
-  .carried-shape.star   { animation-name: returnStar2; }
-  .carried-shape.tri    { animation-name: returnTri2; }
-
-  /* Keep the three returning symbols evenly grouped on the mover.
-     Their spacing comes only from their SVG positions; there are no
-     extra per-symbol translations that can spread them apart. */
-  @keyframes returnCircle2 {
-    0%, 50.0% { opacity: 0; transform: translateX(0); }
-    50.1%, 65.9% { opacity: 1; transform: translateX(0); }
-    66.0%, 100% { opacity: 0; transform: translateX(0); }
-  }
-  @keyframes returnStar2 {
-    0%, 50.0% { opacity: 0; transform: translateX(0); }
-    50.1%, 81.9% { opacity: 1; transform: translateX(0); }
-    82.0%, 100% { opacity: 0; transform: translateX(0); }
-  }
-  @keyframes returnTri2 {
-    0%, 50.0% { opacity: 0; transform: translateX(0); }
-    50.1%, 97.9% { opacity: 1; transform: translateX(0); }
-    98.0%, 100% { opacity: 0; transform: translateX(0); }
-  }
+  .metro-passenger.riding { stroke: var(--paper); }
 
   /* The final stop uses the exact supplied artwork. It is static and
      completely outside the mover's route. */
@@ -537,6 +392,10 @@
     height: 72px;
     image-rendering: auto;
   }
+  :root[data-theme="light"] .future-art { filter: invert(1); }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) .future-art { filter: invert(1); }
+  }
   .future-question {
     font-family: 'Archivo', sans-serif;
     font-size: 18px;
@@ -544,29 +403,6 @@
     fill: var(--ink);
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .pakt-mover {
-      animation: none !important;
-      transform: translateX(0) !important;
-    }
-    .home-person.uni,
-    .home-person.club,
-    .home-person.pakt {
-      animation: none !important;
-      opacity: 1 !important;
-    }
-    .carried-square,
-    .carried-shape {
-      animation: none !important;
-      opacity: 0 !important;
-    }
-    .istanbul-shapes {
-      animation: none !important;
-      opacity: 1 !important;
-    }
-  }
-
-  
   /* ---------- section title component ---------- */
   .section-title { max-width: 640px; margin-bottom: clamp(40px, 5vw, 64px); }
   .section-title h2 { font-size: clamp(34px, 4.6vw, 54px); }
@@ -1625,33 +1461,14 @@
               <text class="future-question" x="1010" y="202" text-anchor="middle">?</text>
             </g>
 
-            <!-- Three square people waiting at the first three stops. -->
-            <rect class="home-person uni" x="92" y="76" width="16" height="16"/>
-            <rect class="home-person club" x="322" y="76" width="16" height="16"/>
-            <rect class="home-person pakt" x="552" y="76" width="16" height="16"/>
+            <!-- Waiting / boarding / riding passengers are created by JS. -->
+            <g class="metro-passengers" id="metroPassengers"></g>
 
-            <!-- Istanbul starts with triangle + star + circle. -->
-            <g class="istanbul-shapes">
-              <polygon class="shape-mark" points="768,73 775,86 761,86"/>
-              <polygon class="shape-mark" points="790,66 793.4,73.2 801.3,73.7 795.3,78.8 797.2,86.4 790,82.1 782.8,86.4 784.7,78.8 778.7,73.7 786.6,73.2"/>
-              <circle class="shape-mark" cx="810" cy="78" r="7"/>
+            <!-- The train (moved by JS). Riding passengers are drawn above it. -->
+            <g class="metro-train-group" id="metroTrain">
+              <rect class="metro-train" x="-36" y="-17" width="72" height="34" rx="4"/>
             </g>
-
-            <!-- The only moving object: a simple horizontal rectangle. -->
-            <g class="pakt-mover">
-              <rect class="mover-bar" x="-35" y="121" width="70" height="18"/>
-
-              <!-- Outbound: three square people ride to İstanbul. -->
-              <rect class="carried-square uni" x="-27" y="99" width="16" height="16"/>
-              <rect class="carried-square club" x="-8" y="99" width="16" height="16"/>
-              <rect class="carried-square pakt" x="11" y="99" width="16" height="16"/>
-
-              <!-- Return: circle -> UniPakt, star -> Kulüp, triangle -> Üniversite. -->
-              <!-- Returning symbols are spaced as one compact, non-overlapping group. -->
-              <circle class="carried-shape circle" cx="24" cy="108" r="7.5"/>
-              <polygon class="carried-shape star" points="0,100 2.6,106 9,106.5 4.1,110.5 5.7,116.5 0,113.2 -5.7,116.5 -4.1,110.5 -9,106.5 -2.6,106"/>
-              <polygon class="carried-shape tri" points="-24,100 -17,114 -31,114"/>
-            </g>
+            <g class="metro-riders" id="metroRiders"></g>
           </svg>
         </div>
       </div>
@@ -2767,7 +2584,13 @@ fill="currentColor" stroke="none">
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let revealObserver;
   function observeReveals() {
-    if (reduceMotion) return;
+    if (reduceMotion) {
+      // No reveal animation, but content that waits for .in-view
+      // (e.g. the metro diagram) must still become visible.
+      document.querySelectorAll('.page.active #paktDiagram, .page.active #growDots')
+        .forEach(el => el.classList.add('in-view'));
+      return;
+    }
     if (revealObserver) revealObserver.disconnect();
     revealObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -2867,6 +2690,247 @@ fill="currentColor" stroke="none">
     }, { threshold: 0.05 });
 
     visibilityObserver.observe(wrap);
+  })();
+
+  /* ---------- UniPakt metro line (Mini Metro style) ----------
+     The train picks up passengers shaped like each station
+     (△ Üniversite, ★ Kulüp, ○ UniPakt), drops them at İstanbul and
+     returns empty. Speed eases toward (but never reaches) zero at the
+     stations. On narrow screens the camera follows the train, so the
+     train stays put and the line slides underneath it. */
+  (function initMetroLine() {
+    const wrap = document.getElementById('paktDiagram');
+    if (!wrap) return;
+    const svg = wrap.querySelector('svg');
+    const train = document.getElementById('metroTrain');
+    const passengerLayer = document.getElementById('metroPassengers');
+    const riderLayer = document.getElementById('metroRiders');
+    if (!svg || !train || !passengerLayer || !riderLayer) return;
+
+    const NS = 'http://www.w3.org/2000/svg';
+    const LINE_Y = 130;
+    const WAIT_Y = 76;
+    const START_X = 100, END_X = 790;
+    const PICKUPS = [
+      { x: 100, shape: 'tri' },
+      { x: 330, shape: 'star' },
+      { x: 560, shape: 'circle' }
+    ];
+    const PER_STATION = 2;
+    // Seat grid inside the 72×34 train: 3 columns × 2 rows.
+    const SEATS = [[-22, -8], [0, -8], [22, -8], [-22, 8], [0, 8], [22, 8]];
+    const SIZE = 11;
+
+    // Speed profile (SVG units per second).
+    const V_MAX = 280, V_MIN = 14, SLOW_RADIUS = 90;
+    const BOARD_MS = 650, ALIGHT_MS = 700, SPAWN_MS = 450;
+
+    function shapePath(type, r) {
+      if (type === 'circle') {
+        return `M ${-r} 0 a ${r} ${r} 0 1 0 ${2 * r} 0 a ${r} ${r} 0 1 0 ${-2 * r} 0 Z`;
+      }
+      if (type === 'tri') {
+        const h = r * 1.1;
+        return `M 0 ${-h} L ${h} ${h * 0.8} L ${-h} ${h * 0.8} Z`;
+      }
+      // five-point star
+      let d = '';
+      for (let i = 0; i < 10; i++) {
+        const rad = i % 2 ? r * 0.48 : r * 1.15;
+        const a = -Math.PI / 2 + i * Math.PI / 5;
+        d += `${i ? 'L' : 'M'} ${(Math.cos(a) * rad).toFixed(2)} ${(Math.sin(a) * rad).toFixed(2)} `;
+      }
+      return d + 'Z';
+    }
+
+    const smooth = (u) => u * u * (3 - 2 * u);
+    const easeInOut = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+    const lerp = (a, b, t) => a + (b - a) * t;
+
+    const passengers = [];
+    PICKUPS.forEach((station, si) => {
+      for (let k = 0; k < PER_STATION; k++) {
+        const el = document.createElementNS(NS, 'path');
+        el.setAttribute('class', 'metro-passenger');
+        el.setAttribute('d', shapePath(station.shape, SIZE / 2));
+        passengerLayer.appendChild(el);
+        passengers.push({
+          el,
+          station,
+          waitX: station.x + (k - (PER_STATION - 1) / 2) * 19,
+          seat: SEATS[si * PER_STATION + k],
+          state: 'waiting',
+          t0: 0,
+          from: null
+        });
+      }
+    });
+
+    let x = START_X;
+    let dir = 1;
+    let zoomed = false;
+
+    const seatPos = (p) => ({ x: x + p.seat[0], y: LINE_Y + p.seat[1] });
+
+    function place(p, px, py, opacity) {
+      p.el.setAttribute('transform', `translate(${px.toFixed(2)} ${py.toFixed(2)})`);
+      p.el.style.opacity = opacity;
+    }
+
+    // Passengers under the (solid) train are hidden by it; riders sit
+    // above the train in paper color.
+    function setLayer(p, riding) {
+      const layer = riding ? riderLayer : passengerLayer;
+      if (p.el.parentNode !== layer) layer.appendChild(p.el);
+      p.el.classList.toggle('riding', riding);
+    }
+
+    function board(p, now) {
+      // A passenger still fading in can board too; never leave one behind.
+      if (p.state !== 'waiting' && p.state !== 'spawning') return;
+      p.state = 'boarding';
+      p.t0 = now;
+      p.from = { x: p.waitX, y: WAIT_Y };
+    }
+
+    function spawn(p, now) {
+      p.state = 'spawning';
+      p.t0 = now;
+      setLayer(p, false);
+    }
+
+    function speedAt(pos) {
+      // Outbound: slow at every station. Return (empty): only at the ends.
+      const stops = dir > 0 ? [START_X, 330, 560, END_X] : [END_X, START_X];
+      let d = Infinity;
+      for (const s of stops) d = Math.min(d, Math.abs(pos - s));
+      return V_MIN + (V_MAX - V_MIN) * smooth(Math.min(1, d / SLOW_RADIUS));
+    }
+
+    function step(dt, now) {
+      const prev = x;
+      x += dir * speedAt(x) * dt;
+
+      if (dir > 0) {
+        PICKUPS.forEach((st) => {
+          if (prev < st.x && x >= st.x) {
+            passengers.filter(p => p.station === st).forEach(p => board(p, now));
+          }
+        });
+        if (x >= END_X) {
+          x = END_X;
+          dir = -1;
+          passengers.forEach((p) => {
+            if (p.state === 'riding' || p.state === 'boarding') {
+              p.from = seatPos(p);
+              p.state = 'alighting';
+              p.t0 = now;
+              setLayer(p, false);
+            }
+          });
+        }
+      } else {
+        // Empty return: new passengers appear once the train has passed.
+        PICKUPS.forEach((st) => {
+          if (st.x === START_X) return;
+          if (prev >= st.x - 60 && x < st.x - 60) {
+            passengers.filter(p => p.station === st && p.state === 'gone').forEach(p => spawn(p, now));
+          }
+        });
+        if (x <= START_X) {
+          x = START_X;
+          dir = 1;
+          passengers.filter(p => p.station.x === START_X).forEach(p => board(p, now));
+        }
+      }
+    }
+
+    function render(now) {
+      train.setAttribute('transform', `translate(${x.toFixed(2)} ${LINE_Y})`);
+
+      passengers.forEach((p) => {
+        const t = now - p.t0;
+        switch (p.state) {
+          case 'waiting':
+            place(p, p.waitX, WAIT_Y, 1);
+            break;
+          case 'spawning': {
+            const k = Math.min(1, t / SPAWN_MS);
+            place(p, p.waitX, WAIT_Y - 8 * (1 - k), k);
+            if (k >= 1) p.state = 'waiting';
+            break;
+          }
+          case 'boarding': {
+            const k = Math.min(1, t / BOARD_MS);
+            const e = easeInOut(k);
+            const to = seatPos(p);
+            place(p, lerp(p.from.x, to.x, e), lerp(p.from.y, to.y, e), 1);
+            if (k >= 1) { p.state = 'riding'; setLayer(p, true); }
+            break;
+          }
+          case 'riding': {
+            const s = seatPos(p);
+            place(p, s.x, s.y, 1);
+            break;
+          }
+          case 'alighting': {
+            const k = Math.min(1, t / ALIGHT_MS);
+            const e = easeInOut(k);
+            const tx = END_X + p.seat[0] * 0.9, ty = WAIT_Y + 4;
+            place(p, lerp(p.from.x, tx, e), lerp(p.from.y, ty, e), 1 - Math.max(0, (k - 0.55) / 0.45));
+            if (k >= 1) {
+              p.state = 'gone';
+              place(p, p.waitX, WAIT_Y, 0);
+              // Üniversite is far from the train now; refill it right away.
+              if (p.station.x === START_X) spawn(p, now);
+            }
+            break;
+          }
+          default:
+            p.el.style.opacity = 0;
+        }
+      });
+
+      if (zoomed) {
+        const w = 320, h = 150;
+        svg.setAttribute('viewBox', `${(x - w / 2).toFixed(2)} 58 ${w} ${h}`);
+      }
+    }
+
+    // Narrow screens: follow the train with a zoomed-in camera.
+    const mobileQuery = window.matchMedia('(max-width: 700px)');
+    function applyMode() {
+      zoomed = mobileQuery.matches;
+      wrap.classList.toggle('metro-zoomed', zoomed);
+      if (!zoomed) svg.setAttribute('viewBox', '0 0 1120 230');
+      render(performance.now());
+    }
+    mobileQuery.addEventListener('change', applyMode);
+
+    let raf = null;
+    let last = 0;
+    const frame = (now) => {
+      // Clamp dt so a background tab doesn't teleport the train.
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      step(dt, now);
+      render(now);
+      raf = requestAnimationFrame(frame);
+    };
+
+    passengers.filter(p => p.station.x === START_X).forEach(p => board(p, 0));
+    applyMode();
+
+    const visibility = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && raf === null) {
+        last = performance.now();
+        raf = requestAnimationFrame(frame);
+      } else if (!entry.isIntersecting && raf !== null) {
+        cancelAnimationFrame(raf);
+        raf = null;
+      }
+    }, { threshold: 0.05 });
+    visibility.observe(wrap);
   })();
 
   function handleJoin(e, statusId) {
