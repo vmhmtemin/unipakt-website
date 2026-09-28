@@ -1,4 +1,4 @@
-Aynen, README burada daha çok **ürünün ne olduğunu, ne sunduğunu ve teknik olarak projeyi** ciddi şekilde anlatmalı. Pazarlama sloganı ağırlıklı değil. Şöyle daha profesyonel olur:
+
 
 # UniPakt
 
