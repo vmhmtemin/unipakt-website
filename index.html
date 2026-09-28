@@ -2,6 +2,8 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
+<!-- Only Google Fonts and the FormSubmit endpoint may be contacted. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://formsubmit.co; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'; upgrade-insecure-requests">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>UniPakt</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%23000%27/%3E%3Cpath d=%27M16 14v20c0 10 5 16 14 16s14-6 14-16V14h-8v20c0 5-2 8-6 8s-6-3-6-8V14z%27 fill=%27%23fff%27/%3E%3Ccircle cx=%2751%27 cy=%2746%27 r=%275%27 fill=%27%23fff%27/%3E%3C/svg%3E">
@@ -2029,6 +2031,81 @@
   }
   .form-status.is-ok, .form-status.is-error { animation: statusIn .4s ease both; }
   @keyframes statusIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  /* Outside-İstanbul mode: selects replace the free-text university field. */
+  .university-picker.is-collapsed { display: none; }
+  .outside-istanbul-back {
+    margin-top: 10px; padding: 0; border: 0; background: none; cursor: pointer;
+    font: 500 14px/1.4 'Inter', sans-serif; color: var(--accent);
+  }
+  .outside-istanbul-back:hover { text-decoration: underline; text-underline-offset: 4px; }
+  .club-details-empty a, .kampus-selected-card .club-contact a { color: var(--accent); text-decoration: none; }
+  .club-details-empty a:hover, .kampus-selected-card .club-contact a:hover { text-decoration: underline; }
+  /* ---- University dropdown inside the join form ----
+     `.minimal-form button` is more specific than the option styles and
+     stripped their background/padding, so restyle them from the form. */
+  .minimal-form .university-results {
+    background: color-mix(in srgb, var(--ink) 5%, var(--paper));
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    box-shadow: 0 18px 40px rgba(0,0,0,.45);
+    padding: 6px;
+    max-height: 320px;
+  }
+  .minimal-form .university-results button {
+    display: block; width: 100%; margin: 0; text-align: left;
+    padding: 12px 14px; border: 0; border-radius: 10px;
+    background: transparent; color: var(--ink);
+    font: 500 15px/1.35 'Inter', sans-serif; cursor: pointer;
+  }
+  .minimal-form .university-results button:hover,
+  .minimal-form .university-results button:focus-visible { background: color-mix(in srgb, var(--ink) 10%, transparent); outline: none; }
+  .minimal-form .university-results .university-city-action {
+    color: var(--accent); font-weight: 600;
+    border-bottom: 1px solid var(--border); border-radius: 10px 10px 0 0; margin-bottom: 4px;
+  }
+  .minimal-form .university-results div.university-option { padding: 12px 14px; font-size: 15px; opacity: .55; }
+  .minimal-form .outside-istanbul-back {
+    margin: 12px 0 0; padding: 0; border: 0; background: none;
+    font: 500 14px/1.4 'Inter', sans-serif; color: var(--accent);
+  }
+  /* Browser autofill keeps our dark field instead of its own blue/yellow. */
+  .minimal-form input:-webkit-autofill,
+  .minimal-form input:-webkit-autofill:hover,
+  .minimal-form input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--ink);
+    caret-color: var(--ink);
+    box-shadow: 0 0 0 1000px var(--paper-soft) inset;
+    transition: background-color 9999s ease 0s;
+  }
+  /* Dropdown lists scroll (the rounded-corner rule had set overflow: hidden). */
+  .minimal-form .university-results,
+  .kampus-university-results { overflow-y: auto; overscroll-behavior: contain; }
+  .minimal-form .select-picker .university-results { z-index: 25; }
+  .minimal-form .select-picker input:disabled { opacity: .5; cursor: not-allowed; }
+  /* ---- Club contact: the same rows for every club ---- */
+  .club-contact-title {
+    font: 500 12px/1 'Inter', sans-serif; letter-spacing: .08em; text-transform: uppercase;
+    opacity: .5; margin: 4px 0 12px;
+  }
+  .club-contact-grid { display: grid; gap: 8px; max-width: 560px; }
+  .club-contact-row {
+    display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; align-items: center; gap: 14px;
+    padding: 12px 16px; border: 1px solid var(--border-strong); border-radius: 12px;
+    color: var(--ink); text-decoration: none;
+    transition: border-color .2s ease, background .2s ease;
+  }
+  .club-contact-row:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .club-contact-label { font-size: 13px; opacity: .55; }
+  .club-contact-value { font-size: 15px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .club-contact-go { color: var(--accent); font-size: 15px; transition: transform .2s ease; }
+  .club-contact-row:hover .club-contact-go { transform: translate(2px, -2px); }
+  .club-contact-note { margin: 2px 0 0; font-size: 13px; opacity: .55; }
+  .kampus-selected-card .club-contact-grid { margin-top: 10px; }
+  .kampus-selected-card .club-contact-row { border-color: rgba(255,255,255,.25); color: #fff; }
+  @media (max-width: 560px) {
+    .club-contact-row { grid-template-columns: 76px minmax(0, 1fr) auto; padding: 11px 13px; gap: 10px; }
+  }
+  .club-row .cat:empty { display: none; }
 </style>
 </head>
 <body>
@@ -2502,6 +2579,7 @@ fill="currentColor" stroke="none">
               </select>
             </div>
             <p class="outside-istanbul-hint">İstanbul dışındaki üniversiteni buradan seçebilirsin.</p>
+            <button type="button" class="outside-istanbul-back" id="backToIstanbul">← Üniversitem İstanbul'da</button>
           </div>
 
           <div class="represented-notice" id="representedNotice" role="status" aria-live="polite">
@@ -2571,7 +2649,10 @@ fill="currentColor" stroke="none">
 <script>
   /* ---------- Data (ClubList component data source) ---------- */
   const CLUBS = [
-    { name: 'GDG on Campus', uni: 'İstinye Üniversitesi', cat: 'Yazılım', contact: [] },
+    // contact: fill any of email / instagram / linkedin / x / tiktok / web.
+    // Handles (e.g. 'gdgistinye') or full links both work. Empty = hidden.
+    { name: 'GDG on Campus', uni: 'İstinye Üniversitesi', cat: 'Yazılım',
+      contact: { email: 'iletisim@unipakt.com', instagram: 'unipakt', linkedin: 'https://www.linkedin.com/company/unipakt/', x: 'UniPakt', tiktok: 'unipakt', web: '' } },
   ];
 
   function normalizeClubSearch(value) {
@@ -2583,23 +2664,59 @@ fill="currentColor" stroke="none">
       .trim();
   }
 
-  function clubContactMarkup(c) {
-    const contacts = Array.isArray(c.contact) ? c.contact.filter(item => item && item.label && item.value) : [];
-    if (!contacts.length) {
-      return '<div class="club-details-empty">İletişim bilgisi henüz eklenmemiş.</div>';
+  // Escape any data before it is written as HTML. Data is static today,
+  // but this keeps the page safe if clubs later come from a sheet or API.
+  function esc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  }
+
+  // Fixed contact layout for every club: the same rows in the same order.
+  const CONTACT_FIELDS = [
+    { key: 'email',     label: 'E-posta' },
+    { key: 'instagram', label: 'Instagram', base: 'https://www.instagram.com/' },
+    { key: 'linkedin',  label: 'LinkedIn',  base: 'https://www.linkedin.com/company/' },
+    { key: 'x',         label: 'X',         base: 'https://x.com/' },
+    { key: 'tiktok',    label: 'TikTok',    base: 'https://www.tiktok.com/@' },
+    { key: 'web',       label: 'Web' }
+  ];
+  const UNIPAKT_EMAIL = 'iletisim@unipakt.com';
+
+  function contactLink(field, value) {
+    const raw = String(value || '').trim();
+    if (!raw) return null;
+    if (field.key === 'email') {
+      return /^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/.test(raw) ? { href: `mailto:${raw}`, text: raw } : null;
     }
-    return `
-      <div class="club-contact-title">İletişim</div>
-      <div class="club-contact-list">
-        ${contacts.map(item => {
-          const raw = String(item.value);
-          const href = /^https?:\/\//i.test(raw) ? raw : (item.type === 'email' ? `mailto:${raw}` : '');
-          const valueHtml = href
-            ? `<a href="${href}" target="_blank" rel="noopener noreferrer">${raw}</a>`
-            : `<span style="opacity:.75;">${raw}</span>`;
-          return `<div class="club-contact"><span>${item.label}</span>${valueHtml}</div>`;
-        }).join('')}
-      </div>`;
+    if (/^https?:\/\/[^\s"'<>]+$/i.test(raw)) {
+      // Show a clean handle for social links, the host for websites.
+      const handle = raw.replace(/\/+$/, '').split('/').pop().replace(/^@/, '');
+      return { href: raw, text: field.base ? `@${handle}` : raw.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/+$/, '') };
+    }
+    const handle = raw.replace(/^@/, '');
+    if (field.base && /^[\w.-]+$/.test(handle)) return { href: `${field.base}${handle}/`, text: `@${handle}` };
+    return null;
+  }
+
+  function clubContactMarkup(c) {
+    const info = c.contact && !Array.isArray(c.contact) ? c.contact : {};
+    const rows = CONTACT_FIELDS
+      .map(field => ({ field, link: contactLink(field, info[field.key]) }))
+      .filter(r => r.link);
+    const body = rows.length
+      ? rows.map(({ field, link }) => `
+          <a class="club-contact-row" href="${esc(link.href)}" ${field.key === 'email' ? '' : 'target="_blank" rel="noopener noreferrer"'}>
+            <span class="club-contact-label">${esc(field.label)}</span>
+            <span class="club-contact-value">${esc(link.text)}</span>
+            <span class="club-contact-go" aria-hidden="true">↗</span>
+          </a>`).join('')
+      : `
+          <a class="club-contact-row" href="mailto:${UNIPAKT_EMAIL}">
+            <span class="club-contact-label">E-posta</span>
+            <span class="club-contact-value">${UNIPAKT_EMAIL}</span>
+            <span class="club-contact-go" aria-hidden="true">↗</span>
+          </a>
+          <p class="club-contact-note">Kulübün iletişim bilgileri henüz eklenmedi, UniPakt üzerinden ulaşabilirsin.</p>`;
+    return `<div class="club-contact-title">İletişim</div><div class="club-contact-grid">${body}</div>`;
   }
 
   function renderClubList(container, list, { placeholder = false, expandable = false } = {}) {
@@ -2607,8 +2724,8 @@ fill="currentColor" stroke="none">
       <div class="club-item" data-club-index="${CLUBS.indexOf(c)}">
         <div class="club-row" ${expandable ? 'role="button" tabindex="0" aria-expanded="false"' : ''}>
           <div class="idx">${String(i + 1).padStart(2, '0')}.</div>
-          <div class="name-uni"><div class="name">${c.name}</div><div class="uni">${c.uni}</div></div>
-          <div class="cat">${c.cat}</div>
+          <div class="name-uni"><div class="name">${esc(c.name)}</div><div class="uni">${esc(c.uni)}</div></div>
+          <div class="cat">${esc(c.cat)}</div>
           <div class="dotmark"></div>
           ${expandable ? '<span class="club-open-arrow" aria-hidden="true">→</span>' : ''}
         </div>
@@ -2656,7 +2773,9 @@ fill="currentColor" stroke="none">
   clubChips.className = 'club-chips';
   clubChips.setAttribute('role', 'group');
   clubChips.setAttribute('aria-label', 'Kategoriye göre filtrele');
-  ['', ...new Set(CLUBS.map(c => c.cat))].forEach((cat) => {
+  // Fixed categories so the filter is always there, even for empty ones.
+  const CLUB_CATEGORIES = ['Yazılım', 'Tasarım', 'Girişim', 'Eğlence'];
+  ['', ...CLUB_CATEGORIES].forEach((cat) => {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'club-chip' + (cat === '' ? ' active' : '');
@@ -2664,7 +2783,7 @@ fill="currentColor" stroke="none">
     b.textContent = cat || 'Tümü';
     clubChips.appendChild(b);
   });
-  if (clubChips.children.length > 2) document.querySelector('.club-search-wrap')?.after(clubChips);
+  document.querySelector('.club-search-wrap')?.after(clubChips);
   clubChips.addEventListener('click', (e) => {
     const b = e.target.closest('.club-chip');
     if (!b) return;
@@ -2693,7 +2812,9 @@ fill="currentColor" stroke="none">
     if (!filteredClubs.length) {
       const empty = document.createElement('div');
       empty.className = 'club-no-results';
-      empty.textContent = 'Aramana uygun kulüp bulunamadı.';
+      empty.textContent = clubCategory && !normalizeClubSearch(clubSearch?.value)
+        ? 'Bu kategoride henüz kulüp yok.'
+        : 'Aramana uygun kulüp bulunamadı.';
       const placeholder = fullClubList.querySelector('.club-item:last-child');
       if (placeholder) placeholder.before(empty);
       else fullClubList.appendChild(empty);
@@ -2878,7 +2999,7 @@ fill="currentColor" stroke="none">
     const q = normalizeClubSearch(query);
     const matches = ISTANBUL_UNIVERSITIES.filter(uni => !q || normalizeClubSearch(uni).includes(q));
     kampusUniversityResults.innerHTML = matches.length
-      ? matches.map(uni => `<button type="button" class="kampus-university-option" data-university="${uni.replace(/"/g, '&quot;')}">${uni}</button>`).join('')
+      ? matches.map(uni => `<button type="button" class="kampus-university-option" data-university="${esc(uni)}">${esc(uni)}</button>`).join('')
       : '<div class="kampus-university-option" style="cursor:default;opacity:.55;">Üniversite bulunamadı.</div>';
     kampusUniversityResults.classList.add('open');
   }
@@ -2888,16 +3009,12 @@ fill="currentColor" stroke="none">
     const needle = normalizeClubSearch(university);
     const clubs = CLUBS.filter(c => normalizeClubSearch(c.uni) === needle);
     if (!clubs.length) {
-      kampusSelectedClub.innerHTML = `<div class="kampus-selected-empty"><strong>${university}</strong> — Bu üniversitede henüz UniPakt temsilcisi görünmüyor.</div>`;
+      kampusSelectedClub.innerHTML = `<div class="kampus-selected-empty"><strong>${esc(university)}</strong> — Bu üniversitede henüz UniPakt temsilcisi görünmüyor.</div>`;
       return;
     }
-    kampusSelectedClub.innerHTML = clubs.map(c => {
-      const contacts = Array.isArray(c.contact) ? c.contact.filter(item => item && item.label && item.value) : [];
-      const contactHtml = contacts.length
-        ? contacts.map(item => `<div class="club-contact"><strong>${item.label}:</strong> ${item.value}</div>`).join('')
-        : '<div class="club-contact" style="opacity:.55;">İletişim bilgisi henüz eklenmemiş.</div>';
-      return `<div class="kampus-selected-card"><div class="club-name">${c.name}</div><div class="club-meta">${c.uni} · ${c.cat}</div>${contactHtml}</div>`;
-    }).join('');
+    kampusSelectedClub.innerHTML = clubs.map(c =>
+      `<div class="kampus-selected-card"><div class="club-name">${esc(c.name)}</div><div class="club-meta">${esc(c.uni)} · ${esc(c.cat)}</div>${clubContactMarkup(c)}</div>`
+    ).join('');
   }
 
   kampusUniversitySearch?.addEventListener('focusin', () => renderKampusUniversityResults(kampusUniversitySearch.value));
@@ -2944,7 +3061,7 @@ fill="currentColor" stroke="none">
     universityResults.innerHTML = `
       <button type="button" class="university-city-action" id="notIstanbulAction" role="option">Kulübüm İstanbul'da değil.</button>
       ${matches.length
-        ? matches.map(uni => `<button type="button" class="university-option" role="option" data-university="${uni.replace(/"/g, '&quot;')}">${uni}</button>`).join('')
+        ? matches.map(uni => `<button type="button" class="university-option" role="option" data-university="${esc(uni)}">${esc(uni)}</button>`).join('')
         : '<div class="university-option" style="cursor:default; opacity:.55;">Üniversite bulunamadı.</div>'}
     `;
     universityResults.classList.add('open');
@@ -2953,7 +3070,8 @@ fill="currentColor" stroke="none">
   function populateCities() {
     if (!citySelect) return;
     const cities = Object.keys(NON_ISTANBUL_UNIVERSITIES);
-    citySelect.innerHTML = '<option value="">Şehir seç...</option>' + cities.map(city => `<option value="${city}">${city}</option>`).join('');
+    citySelect.innerHTML = '<option value="">Şehir seç...</option>' + cities.map(city => `<option value="${esc(city)}">${esc(city)}</option>`).join('');
+    syncOutsidePickers();
   }
 
   function populateOutsideUniversities(city) {
@@ -2962,13 +3080,21 @@ fill="currentColor" stroke="none">
     outsideUniversitySelect.disabled = !city;
     outsideUniversitySelect.innerHTML = city
       ? (universities.length
-          ? '<option value="">Üniversite seç...</option>' + universities.map(uni => `<option value="${uni}">${uni}</option>`).join('')
+          ? '<option value="">Üniversite seç...</option>' + universities.map(uni => `<option value="${esc(uni)}">${esc(uni)}</option>`).join('')
           : '<option value="">Bu şehir için üniversite eklenmemiş.</option>')
       : '<option value="">Önce şehir seç...</option>';
+    syncOutsidePickers();
   }
+
+  const universityPicker = document.querySelector('.university-picker');
 
   function enterOutsideIstanbulMode() {
     outsideIstanbulFields?.classList.add('show');
+    // City + university selects replace the free-text field here.
+    universityPicker?.classList.add('is-collapsed');
+    if (universityInput) universityInput.value = '';
+    cityPicker?.input.setAttribute('required', '');
+    outsideUniPicker?.input.setAttribute('required', '');
     universityResults?.classList.remove('open');
     setRepresentedState('');
     universityInput?.removeAttribute('required');
@@ -2979,6 +3105,9 @@ fill="currentColor" stroke="none">
 
   function exitOutsideIstanbulMode() {
     outsideIstanbulFields?.classList.remove('show');
+    universityPicker?.classList.remove('is-collapsed');
+    cityPicker?.input.removeAttribute('required');
+    outsideUniPicker?.input.removeAttribute('required');
     if (universityInput) {
       universityInput.setAttribute('required', '');
       universityInput.focus();
@@ -3034,16 +3163,92 @@ fill="currentColor" stroke="none">
 
   citySelect?.addEventListener('change', () => {
     populateOutsideUniversities(citySelect.value);
-    if (citySelect.value) {
-      universityInput.value = `${citySelect.value} (İstanbul dışı)`;
-    }
   });
 
-  outsideUniversitySelect?.addEventListener('change', () => {
-    const value = outsideUniversitySelect.value;
-    if (value && citySelect?.value) {
-      universityInput.value = `${value} — ${citySelect.value}`;
+  /* ---------- Themed pickers for city / outside university ----------
+     The native <select>s stay (hidden) as the source of truth; a text
+     field + list in the same style as the university picker sits on top. */
+  function makeSelectPicker(select, placeholder) {
+    const shell = document.createElement('div');
+    shell.className = 'join-field-shell select-picker';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = `${select.id}-input`;
+    input.autocomplete = 'off';
+    input.spellcheck = false;
+    input.placeholder = placeholder;
+    input.setAttribute('role', 'combobox');
+    input.setAttribute('aria-autocomplete', 'list');
+    const list = document.createElement('div');
+    list.className = 'university-results';
+    list.setAttribute('role', 'listbox');
+    shell.append(input, list);
+    select.after(shell);
+    select.hidden = true;
+    select.tabIndex = -1;
+    const label = select.closest('.f')?.querySelector('label');
+    if (label) label.htmlFor = input.id;
+
+    const options = () => [...select.options].filter(o => o.value);
+    const choose = (opt) => {
+      select.value = opt.value;
+      input.value = opt.text;
+      input.setCustomValidity('');
+      list.classList.remove('open');
+      select.dispatchEvent(new Event('change'));
+    };
+    function render(query = '') {
+      const q = normalizeClubSearch(query);
+      const matches = options().filter(o => !q || normalizeClubSearch(o.text).includes(q));
+      list.innerHTML = matches.length
+        ? matches.map(o => `<button type="button" class="university-option" role="option" data-value="${esc(o.value)}">${esc(o.text)}</button>`).join('')
+        : '<div class="university-option">Sonuç bulunamadı.</div>';
+      list.classList.add('open');
     }
+    input.addEventListener('focus', () => render(''));
+    input.addEventListener('input', () => {
+      render(input.value);
+      // Typed text only counts once an item from the list is picked.
+      input.setCustomValidity(input.value ? 'Listeden bir seçenek seç.' : '');
+      if (select.value) { select.value = ''; select.dispatchEvent(new Event('change')); }
+    });
+    input.addEventListener('blur', () => setTimeout(() => {
+      if (!input.value || select.value) return;
+      const exact = options().find(o => normalizeClubSearch(o.text) === normalizeClubSearch(input.value));
+      if (exact) choose(exact);
+    }, 150));
+    input.addEventListener('keydown', (e) => { if (e.key === 'Escape') list.classList.remove('open'); });
+    list.addEventListener('mousedown', (e) => {
+      const btn = e.target.closest('[data-value]');
+      if (!btn) return;
+      e.preventDefault();
+      const opt = options().find(o => o.value === btn.dataset.value);
+      if (opt) choose(opt);
+    });
+    document.addEventListener('click', (e) => { if (!shell.contains(e.target)) list.classList.remove('open'); });
+
+    return {
+      input,
+      sync() {
+        input.disabled = select.disabled;
+        input.placeholder = select.disabled ? (select.options[0]?.text || placeholder) : placeholder;
+        if (!select.value) { input.value = ''; input.setCustomValidity(''); }
+        list.classList.remove('open');
+      }
+    };
+  }
+
+  const cityPicker = citySelect ? makeSelectPicker(citySelect, 'Şehrini seç ya da yaz...') : null;
+  const outsideUniPicker = outsideUniversitySelect ? makeSelectPicker(outsideUniversitySelect, 'Üniversiteni seç ya da yaz...') : null;
+  function syncOutsidePickers() {
+    cityPicker?.sync();
+    outsideUniPicker?.sync();
+  }
+  syncOutsidePickers();
+
+  document.getElementById('backToIstanbul')?.addEventListener('click', () => {
+    exitOutsideIstanbulMode();
+    renderUniversityResults('');
   });
 
   universityInput?.addEventListener('keydown', (event) => {
@@ -3960,7 +4165,8 @@ fill="currentColor" stroke="none">
      address below. The very first submission triggers a one-time
      activation e-mail to that inbox; after it is confirmed, every
      message arrives as a normal e-mail. */
-  const FORM_ENDPOINT = 'https://formsubmit.co/ajax/iletisim@unipakt.com';
+  // FormSubmit alias for iletisim@unipakt.com (keeps the address out of the endpoint).
+  const FORM_ENDPOINT = 'https://formsubmit.co/ajax/d88d61503469b642c1f496bd3e6d244b';
 
   function fieldValue(id) {
     const el = document.getElementById(id);
