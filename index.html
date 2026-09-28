@@ -701,7 +701,11 @@
     transform: translateY(4px);
     transition: opacity .25s ease, transform .25s ease;
   }
-  .story-logo-button:hover,
+  /* Lift only for real mouse hover / keyboard focus. On phones a tap also
+     triggers :hover, which nudged the logo up just before the zoom. */
+  @media (hover: hover) and (pointer: fine) {
+    .story-logo-button:hover { transform: translateY(-5px); }
+  }
   .story-logo-button:focus-visible {
     transform: translateY(-5px);
     outline: none;
@@ -2224,7 +2228,9 @@
   .story-stage.zooming .story-dot-pulse .ring,
   .story-stage.story-complete .story-dot-pulse { display: none; }
   .story-stage.zooming .story-dot-pulse .core { fill: #fff; }
-  .story-logo-button:hover .story-dot-pulse .core { fill: #fff; }
+  @media (hover: hover) and (pointer: fine) {
+    .story-logo-button:hover .story-dot-pulse .core { fill: #fff; }
+  }
 
   /* Mobile browsers paint a translucent tap highlight on the touched button.
      The Story logo button becomes full-screen when the zoom starts, so that
