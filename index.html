@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>UniPakt</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%23000%27/%3E%3Cpath d=%27M16 14v20c0 10 5 16 14 16s14-6 14-16V14h-8v20c0 5-2 8-6 8s-6-3-6-8V14z%27 fill=%27%23fff%27/%3E%3Ccircle cx=%2751%27 cy=%2746%27 r=%275%27 fill=%27%23fff%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Caveat:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1767,6 +1768,267 @@
     .site-footer .footer-col a { font-size: 17px; }
     .site-footer .footer-bottom { flex-direction: column; align-items: flex-start; gap: 10px; }
   }
+  /* ============================================================
+     DESIGN PASS 3 — review fixes
+     ============================================================ */
+
+  /* ---- Rhythm: one consistent section spacing ---- */
+  .section { padding: clamp(64px, 8vw, 112px) 0; }
+
+  /* ---- Readability: body copy a bit larger and brighter ---- */
+  .section-title p, .what-copy, .qa-row p, .kampus-list p, .join-way p,
+  .contact-layout > div:first-child > p {
+    font-size: 17px; line-height: 1.65; opacity: .84;
+  }
+  .qa-row h3 { font-size: 21px; }
+
+  /* ---- Nav: "Bize Katıl" is the primary action ---- */
+  nav.links a[data-route="katil"] {
+    opacity: 1; padding: 9px 18px; border-radius: 999px;
+    background: var(--ink); color: var(--paper); font-weight: 600;
+    transition: background .2s ease, color .2s ease, box-shadow .2s ease;
+    box-shadow: inset 0 0 0 1.5px var(--ink);
+  }
+  nav.links a[data-route="katil"]:hover { background: transparent; color: var(--ink); }
+  nav.links a[data-route="katil"]::before,
+  nav.links a[data-route="katil"].active::after { display: none; }
+  @media (max-width: 900px) {
+    nav.links.open a[data-route="katil"] { width: auto; margin-top: 10px; padding: 12px 22px; }
+  }
+
+  /* ---- Metro line: readable station names ---- */
+  @media (min-width: 901px) {
+    .pakt-diagram .node-label { font-size: 16px; }
+    .future-question { font-size: 21px; }
+  }
+
+  /* ---- Club lists: category as an outlined tag ---- */
+  .club-row .cat {
+    opacity: .8; font-size: 12.5px; font-weight: 500; letter-spacing: .01em;
+    padding: 5px 12px; border: 1px solid var(--border-strong); border-radius: 999px;
+    white-space: nowrap;
+  }
+  .club-row .idx { opacity: .45; }
+
+  /* ---- Ortak Kulüpler: category filters + show more ---- */
+  .club-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: -6px 0 26px; }
+  .club-chip {
+    font: 500 14px/1 'Inter', sans-serif; color: var(--ink); cursor: pointer;
+    padding: 10px 16px; border-radius: 999px;
+    border: 1px solid var(--border-strong); background: transparent;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .club-chip:hover { border-color: var(--ink); }
+  .club-chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .club-more {
+    display: block; width: 100%; margin: 8px 0; padding: 18px 0;
+    font: 600 15px/1 'Inter', sans-serif; color: var(--ink); cursor: pointer;
+    background: transparent; border: 1px dashed var(--border-strong); border-radius: 14px;
+    transition: border-color .2s ease, background .2s ease;
+  }
+  .club-more:hover { border-color: var(--ink); background: var(--paper-soft); }
+
+  /* ---- Hakkımızda: 1 / 10 / 100 as real dots ---- */
+  .grow-dots { margin-top: clamp(56px, 7vw, 90px); display: grid; gap: 22px; }
+  .grow-row { grid-template-columns: 120px minmax(0, 1fr); align-items: start; }
+  .grow-row .label { font-size: 16px; opacity: .8; padding-top: 1px; }
+  .grow-row .dots {
+    max-width: none !important; overflow: visible; white-space: normal;
+    display: flex; flex-wrap: wrap; gap: 7px; font-size: 0; letter-spacing: 0;
+  }
+  .grow-row .dots i {
+    width: 10px; height: 10px; border-radius: 50%; background: var(--ink);
+    opacity: 0; transform: scale(0);
+  }
+  .grow-dots.in-view .grow-row .dots i {
+    animation: dotPop .45s cubic-bezier(.3,1.6,.5,1) forwards;
+    animation-delay: calc(var(--k) * 12ms + .1s);
+  }
+  .grow-dots.in-view .grow-row:nth-child(2) .dots i { animation-delay: calc(var(--k) * 45ms + .35s); }
+  .grow-dots.in-view .grow-row:nth-child(3) .dots i { animation-delay: calc(var(--k) * 12ms + .8s); }
+  @keyframes dotPop { to { opacity: 1; transform: none; } }
+
+  /* ---- Kampüs: bigger network, centered against the list ---- */
+  @media (min-width: 801px) {
+    .kampus-layout { grid-template-columns: .95fr 1.05fr; align-items: center; }
+    .network-wrap { width: 112%; margin-right: -6%; }
+  }
+  .kampus-list { gap: 26px; }
+  .kampus-list h3 { font-size: 18px; }
+
+  /* ---- İletişim: wider form, aligned with the headline ---- */
+  @media (min-width: 801px) {
+    .contact-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); align-items: start; }
+    .contact-layout .minimal-form { max-width: 600px; width: 100%; justify-self: end; padding-top: 8px; }
+  }
+
+  /* ---- Bize Katıl: clickable cards, two-column form ---- */
+  .join-way.is-link { cursor: pointer; }
+  .join-way.is-link:hover, .join-way.is-link:focus-visible { background: var(--paper-soft); outline: none; }
+  .join-way.is-link:hover h3 { text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1px; }
+  @media (min-width: 901px) {
+    .join-form {
+      max-width: none !important;
+      grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+      column-gap: clamp(40px, 7vw, 120px);
+      align-items: start;
+    }
+    .join-form > * { grid-column: 2; }
+    .join-form > .join-form-heading {
+      grid-column: 1; grid-row: 1 / span 30;
+      position: sticky; top: calc(var(--nav-h) + 40px);
+    }
+  }
+
+  /* ---- The Story: framed team cards, pull quote ---- */
+  .story-card-face {
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 22px;
+    background: #050505;
+    transition: border-color .3s ease;
+  }
+  .story-card:hover .story-card-face,
+  .story-card:focus-visible .story-card-face { border-color: rgba(255,255,255,.4); }
+  .story-person.initials {
+    display: grid; place-items: center;
+    font-family: 'Archivo', sans-serif; font-weight: 900; letter-spacing: -0.02em;
+    font-size: clamp(34px, 4vw, 52px); color: #fff;
+  }
+  .story-after-copy p:has(> strong:only-child) {
+    margin: 18px 0; padding-left: clamp(18px, 2.5vw, 30px);
+    border-left: 3px solid #fff; opacity: 1;
+  }
+  .story-after-copy p > strong:only-child {
+    display: block;
+    font-family: 'Archivo', sans-serif; font-weight: 900;
+    font-size: clamp(28px, 3.6vw, 48px); line-height: 1.08; letter-spacing: -0.03em;
+  }
+  @media (max-width: 800px) {
+    /* The team block must span the page; it used to shrink to 0 width. */
+    .story-team,
+    .story-stage.story-complete .story-team {
+      width: 100%; justify-self: stretch;
+      grid-template-columns: minmax(0, 1fr); justify-items: center;
+      gap: 16px; padding: 40px 20px;
+    }
+    .story-card { width: 100%; max-width: 360px; height: 300px; min-height: 0; }
+    .story-person { width: 116px; margin-bottom: 20px; }
+    .story-name { font-size: 22px; min-height: 0; }
+  }
+
+  /* ---- Mobile hero: orbit above the headline, actions on one line ---- */
+  @media (max-width: 900px) {
+    .hero { padding: 36px 0 56px; }
+    .hero-inner { padding-top: 0; }
+    .hero .hero-orbit {
+      position: relative; right: auto; top: auto;
+      width: min(74vw, 300px); margin: 0 auto 30px; opacity: 1;
+    }
+    .hero-actions { flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 20px; }
+    .hero-actions .link-arrow { white-space: nowrap; }
+  }
+  /* The contact arrow icon is a white PNG; darken it on light paper. */
+  :root[data-theme="light"] .contact-rows a::after { filter: invert(1); }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) .contact-rows a::after { filter: invert(1); }
+  }
+  /* ============================================================
+     ACCENT — one signal colour next to black and white.
+     Used only for actions, motion and emphasis (the "line colour"
+     of the UniPakt metro), never for large surfaces.
+     ============================================================ */
+  :root { --accent: #FF5A1F; --on-accent: #000; }
+  :root[data-theme="light"] { --accent: #F04A0F; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --accent: #F04A0F; } }
+
+  ::selection { background: var(--accent); color: var(--on-accent); }
+  .scroll-progress { background: var(--accent); }
+
+  /* Actions */
+  .btn-pill, .minimal-form .btn-pill {
+    background: var(--accent); border-color: var(--accent); color: var(--on-accent);
+  }
+  .btn-pill:hover, .btn-pill:focus-visible { background: transparent; color: var(--accent); border-color: var(--accent); }
+  nav.links a[data-route="katil"] {
+    background: var(--accent); color: var(--on-accent); box-shadow: inset 0 0 0 1.5px var(--accent);
+  }
+  nav.links a[data-route="katil"]:hover { background: transparent; color: var(--accent); }
+  nav.links a.active::after { color: var(--accent); }
+  .club-chip.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .link-arrow:hover, .site-footer .footer-col a:hover { color: var(--accent); }
+
+  /* Handwritten accents */
+  .eyebrow-split .b, .section-title .impact-slogan, .site-footer .footer-kicker, .hero .note { color: var(--accent); opacity: 1; }
+
+  /* Form focus */
+  .minimal-form input:focus, .minimal-form textarea:focus,
+  .outside-istanbul-fields select:focus, .club-search:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  .kampus-university-search input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+
+  /* Metro: the line and the train carry the colour, like Mini Metro */
+  .pakt-diagram .route-line { stroke: var(--accent); stroke-width: 3; }
+  .metro-train { fill: var(--accent); stroke: var(--accent); }
+  .metro-passenger.riding { stroke: var(--on-accent); }
+
+  /* Hero orbit: an opened club lights up */
+  .orbit-club.open {
+    background: var(--accent); color: var(--on-accent);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+
+  /* Campus network: the cursor node is the accent */
+  .network-cursor { fill: var(--accent); }
+  .network-cursor-ring, .network-cursor-link { stroke: var(--accent); }
+
+  /* Hakkımızda: the very first club is the accent dot */
+  .grow-row:first-child .dots i { background: var(--accent); }
+
+  /* The Story: pull quote rule */
+  .story-after-copy p:has(> strong:only-child) { border-left-color: var(--accent); }
+
+  /* Club list: the dot marker lights up on hover / open */
+  .club-row:hover .dotmark, .club-item.expanded .club-row .dotmark { background: var(--accent); }
+  /* Spam trap: invisible to people, filled in by bots. */
+  .hp-field { position: absolute !important; left: -9999px !important; width: 1px; height: 1px; opacity: 0; }
+  .form-status.is-ok { color: var(--accent); opacity: 1; }
+  .form-status.is-error { color: #ff6b6b; opacity: 1; }
+  .minimal-form .btn-pill:disabled { opacity: .55; cursor: wait; }
+  /* Native controls (select popups, scrollbars) follow the theme,
+     so dropdown options are never white-on-white. */
+  :root { color-scheme: light; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme: dark; } }
+  :root[data-theme="dark"] { color-scheme: dark; }
+  .outside-istanbul-fields select option,
+  .minimal-form select option { background: var(--paper); color: var(--ink); }
+  /* ---- Form submit: loading dots inside the button, calm result line ---- */
+  .btn-pill { position: relative; }
+  .btn-pill.is-loading { color: transparent !important; pointer-events: none; }
+  .btn-pill.is-loading::after {
+    content: ""; position: absolute; left: 50%; top: 50%;
+    width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
+    background: var(--on-accent);
+    box-shadow: -12px 0 0 var(--on-accent), 12px 0 0 var(--on-accent);
+    animation: btnDots .9s ease-in-out infinite;
+  }
+  @keyframes btnDots {
+    0%, 100% { box-shadow: -12px 0 0 var(--on-accent), 12px 0 0 color-mix(in srgb, var(--on-accent) 35%, transparent); background: color-mix(in srgb, var(--on-accent) 65%, transparent); }
+    33%      { box-shadow: -12px 0 0 color-mix(in srgb, var(--on-accent) 35%, transparent), 12px 0 0 color-mix(in srgb, var(--on-accent) 65%, transparent); background: var(--on-accent); }
+    66%      { box-shadow: -12px 0 0 color-mix(in srgb, var(--on-accent) 65%, transparent), 12px 0 0 var(--on-accent); background: color-mix(in srgb, var(--on-accent) 35%, transparent); }
+  }
+  .minimal-form .btn-pill:disabled { opacity: 1; cursor: wait; }
+  .form-status { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; margin-top: 18px; min-height: 0; }
+  .form-status:empty { display: none; }
+  .form-status.is-ok::before, .form-status.is-error::before {
+    content: ""; flex: 0 0 8px; height: 8px; margin-top: .55em; border-radius: 50%; background: currentColor;
+  }
+  .form-status.is-ok, .form-status.is-error { animation: statusIn .4s ease both; }
+  @keyframes statusIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 </style>
 </head>
 <body>
@@ -2164,6 +2426,7 @@ fill="currentColor" stroke="none">
           </div>
         </div>
         <form class="minimal-form" onsubmit="handleJoin(event, 'contactStatus')" data-reveal>
+          <input class="hp-field" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
           <div class="f"><label for="c-ad">Adın</label><input id="c-ad" type="text" placeholder="Adın soyadın" required></div>
           <div class="form-dot">.</div>
           <div class="f"><label for="c-mail">E-mail</label><input id="c-mail" type="email" placeholder="ornek@mail.com" required></div>
@@ -2208,7 +2471,8 @@ fill="currentColor" stroke="none">
      
     <div class="section" style="border-bottom:none;">
       <div class="wrap">
-        <form class="minimal-form" style="max-width:520px;" onsubmit="handleJoin(event, 'joinStatus')">
+        <form class="minimal-form join-form" onsubmit="handleJoin(event, 'joinStatus')">
+          <input class="hp-field" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
           <div class="join-form-heading"><h2>Sen de pakta katıl.</h2></div>
 
           <!-- İlk soru: Ad Soyad. Temsilci bulunan üniversite seçilince bu alan da notice ile birlikte gizlenir. -->
@@ -2437,13 +2701,48 @@ fill="currentColor" stroke="none">
     console.log(`[UniPakt] Görünen ortak kulüp sayısı: ${count}`);
   }
 
+  // Category chips + paging for the full club list.
+  const CLUB_PAGE = 12;
+  let clubCategory = '';
+  let clubShown = CLUB_PAGE;
+  const clubChips = document.createElement('div');
+  clubChips.className = 'club-chips';
+  clubChips.setAttribute('role', 'group');
+  clubChips.setAttribute('aria-label', 'Kategoriye göre filtrele');
+  ['', ...new Set(CLUBS.map(c => c.cat))].forEach((cat) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'club-chip' + (cat === '' ? ' active' : '');
+    b.dataset.cat = cat;
+    b.textContent = cat || 'Tümü';
+    clubChips.appendChild(b);
+  });
+  document.querySelector('.club-search-wrap')?.after(clubChips);
+  clubChips.addEventListener('click', (e) => {
+    const b = e.target.closest('.club-chip');
+    if (!b) return;
+    clubCategory = b.dataset.cat;
+    clubChips.querySelectorAll('.club-chip').forEach(x => x.classList.toggle('active', x === b));
+    clubShown = CLUB_PAGE;
+    filterClubList();
+  });
+
   function filterClubList() {
     const query = normalizeClubSearch(clubSearch?.value);
-    filteredClubs = !query ? CLUBS.slice() : CLUBS.filter(c => {
-      const haystack = normalizeClubSearch(`${c.name} ${c.uni} ${c.cat}`);
-      return haystack.includes(query);
+    filteredClubs = CLUBS.filter(c => {
+      if (clubCategory && c.cat !== clubCategory) return false;
+      return !query || normalizeClubSearch(`${c.name} ${c.uni} ${c.cat}`).includes(query);
     });
-    renderClubList(fullClubList, filteredClubs, { placeholder: true, expandable: true });
+    renderClubList(fullClubList, filteredClubs.slice(0, clubShown), { placeholder: true, expandable: true });
+    if (filteredClubs.length > clubShown) {
+      const more = document.createElement('button');
+      more.type = 'button';
+      more.className = 'club-more';
+      more.textContent = `Daha fazla göster (${filteredClubs.length - clubShown})`;
+      more.addEventListener('click', () => { clubShown += CLUB_PAGE; filterClubList(); });
+      const placeholder = fullClubList.querySelector('.club-item:last-child');
+      placeholder ? placeholder.before(more) : fullClubList.appendChild(more);
+    }
     if (!filteredClubs.length) {
       const empty = document.createElement('div');
       empty.className = 'club-no-results';
@@ -2457,7 +2756,7 @@ fill="currentColor" stroke="none">
 
   filterClubList();
 
-  clubSearch?.addEventListener('input', filterClubList);
+  clubSearch?.addEventListener('input', () => { clubShown = CLUB_PAGE; filterClubList(); });
 
   // Ortak Kulüpler listesindeki satırları sadece bu liste içinde aç/kapat.
   fullClubList?.addEventListener('click', (event) => {
@@ -3662,11 +3961,134 @@ fill="currentColor" stroke="none">
     if (mark && logo) mark.src = logo.src;
   })();
 
-  function handleJoin(e, statusId) {
+  /* ---------- Small UI details ---------- */
+  (function initDetails() {
+    // Hakkımızda: real dots for 1 / 10 / 100 clubs.
+    document.querySelectorAll('#growDots .grow-row').forEach((row, i) => {
+      const box = row.querySelector('.dots');
+      if (!box) return;
+      const n = [1, 10, 100][i] || 1;
+      box.textContent = '';
+      for (let k = 0; k < n; k++) {
+        const d = document.createElement('i');
+        d.style.setProperty('--k', k);
+        box.appendChild(d);
+      }
+    });
+
+    // Team cards without a photo show the person's initials.
+    document.querySelectorAll('.story-card').forEach((card) => {
+      const person = card.querySelector('.story-person');
+      const name = card.querySelector('.story-card-front .story-name')?.textContent.trim();
+      if (person && !person.querySelector('img') && name) {
+        person.classList.add('initials');
+        person.textContent = name.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toLocaleUpperCase('tr-TR');
+      }
+    });
+
+    // Bize Katıl: the three cards lead somewhere.
+    const ways = [...document.querySelectorAll('.join-way')];
+    const toForm = () => {
+      document.querySelector('.join-form-heading')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => document.getElementById('j-ad')?.focus({ preventScroll: true }), 600);
+    };
+    const actions = [
+      toForm,
+      () => { toForm(); if (typeof enterOutsideIstanbulMode === 'function') enterOutsideIstanbulMode(); },
+      () => { location.hash = 'kulupler'; }
+    ];
+    ways.forEach((way, i) => {
+      if (!actions[i]) return;
+      way.classList.add('is-link');
+      way.tabIndex = 0;
+      way.setAttribute('role', 'button');
+      way.addEventListener('click', actions[i]);
+      way.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); actions[i](); } });
+    });
+  })();
+
+  /* ---------- Forms → e-mail (FormSubmit, no backend needed) ----------
+     Both forms post to FormSubmit, which forwards the message to the
+     address below. The very first submission triggers a one-time
+     activation e-mail to that inbox; after it is confirmed, every
+     message arrives as a normal e-mail. */
+  const FORM_ENDPOINT = 'https://formsubmit.co/ajax/iletisim@unipakt.com';
+
+  function fieldValue(id) {
+    const el = document.getElementById(id);
+    return el && !el.closest('.hidden') ? el.value.trim() : '';
+  }
+
+  async function handleJoin(e, statusId) {
     e.preventDefault();
+    const form = e.target;
     const status = document.getElementById(statusId);
-    status.textContent = 'Teşekkürler, mesajın bize ulaştı.';
-    e.target.reset();
+    const button = form.querySelector('button[type="submit"]');
+    const isContact = statusId === 'contactStatus';
+
+    const payload = isContact
+      ? {
+          _subject: 'UniPakt · İletişim formu',
+          'Ad Soyad': fieldValue('c-ad'),
+          'E-mail': fieldValue('c-mail'),
+          'Mesaj': fieldValue('c-msg')
+        }
+      : {
+          _subject: 'UniPakt · Bize Katıl başvurusu',
+          'Ad Soyad': fieldValue('j-ad'),
+          'Üniversite': fieldValue('j-universite'),
+          'Şehir': fieldValue('j-sehir'),
+          'İstanbul dışı üniversite': fieldValue('j-dis-universite'),
+          'Kulüp': fieldValue('j-kulup'),
+          'E-mail': fieldValue('j-mail'),
+          'Mesaj': fieldValue('j-msg')
+        };
+    Object.keys(payload).forEach(k => { if (payload[k] === '') delete payload[k]; });
+    payload._template = 'table';
+    payload._captcha = 'false';
+    payload._honey = form.querySelector('.hp-field')?.value || '';
+    const replyTo = payload['E-mail'];
+    if (replyTo) payload._replyto = replyTo;
+
+    status.classList.remove('is-error', 'is-ok');
+    status.textContent = '';
+    if (button) {
+      // Loading state lives inside the button: three bouncing dots.
+      button.disabled = true;
+      button.classList.add('is-loading');
+      button.setAttribute('aria-busy', 'true');
+    }
+    try {
+      const res = await fetch(FORM_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || String(data.success) === 'false') throw new Error(data.message || `HTTP ${res.status}`);
+      status.classList.add('is-ok');
+      status.textContent = 'Teşekkürler, mesajın bize ulaştı.';
+      form.reset();
+      if (!isContact && typeof setRepresentedState === 'function') setRepresentedState('');
+    } catch (err) {
+      const reason = String(err && err.message || '');
+      console.warn('[UniPakt form]', reason);
+      status.classList.add('is-error');
+      if (/activat/i.test(reason)) {
+        // First submission: FormSubmit mailed a one-time activation link.
+        status.textContent = 'Form henüz etkinleştirilmemiş. iletisim@unipakt.com kutusuna gelen FormSubmit e-postasındaki "Activate Form" butonuna basıp tekrar dene.';
+      } else if (/web server/i.test(reason)) {
+        status.textContent = 'Form, dosya doğrudan açıldığında çalışmaz. Siteyi bir web sunucusu (ör. localhost) üzerinden aç.';
+      } else {
+        status.textContent = `Mesaj gönderilemedi${reason ? ` (${reason})` : ''}. Tekrar dene ya da iletisim@unipakt.com adresine yaz.`;
+      }
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.classList.remove('is-loading');
+        button.removeAttribute('aria-busy');
+      }
+    }
   }
 
 
