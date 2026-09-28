@@ -1349,6 +1349,156 @@
     }
   }
 
+  /* ============================================================
+     DESIGN PASS — layered on top of the original styles.
+     Same identity (black/white, dots, Archivo + Caveat + Inter);
+     tighter type scale, clearer actions and small motion details.
+     ============================================================ */
+  ::selection { background: var(--ink); color: var(--paper); }
+  body { text-rendering: optimizeLegibility; }
+  p { text-wrap: pretty; }
+  h1, h2, h3 { text-wrap: balance; }
+
+  /* ---- One consistent type scale for page titles ---- */
+  .section-title h1,
+  .contact-layout > div:first-child h1,
+  .manifesto {
+    font-size: clamp(44px, 6.2vw, 84px);
+    letter-spacing: -0.03em;
+    line-height: .98;
+  }
+  .section-title h2,
+  .join-form-heading h2 {
+    font-size: clamp(36px, 5vw, 64px);
+    letter-spacing: -0.028em;
+    line-height: 1;
+  }
+  .section-title { max-width: 780px; }
+  .section-title p { font-size: 17px; line-height: 1.65; margin-top: 20px; }
+  .what-title {
+    font-size: clamp(34px, 4.6vw, 58px);
+    letter-spacing: -0.028em;
+    max-width: 16ch;
+    opacity: 1;
+    margin-bottom: clamp(36px, 5vw, 60px);
+  }
+  .what-copy { font-size: 18px; line-height: 1.7; max-width: 52ch; }
+  .fragment-stack div { letter-spacing: -0.01em; }
+  .hero h1 { letter-spacing: -0.035em; line-height: .95; }
+  .hero .note { margin-top: 6px; }
+
+  /* ---- Reveal: a touch of blur makes the fade feel softer ---- */
+  [data-reveal], [data-reveal-stagger] > * {
+    filter: blur(6px);
+    transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1), filter .8s ease;
+  }
+  [data-reveal].in-view, [data-reveal-stagger].in-view > * { filter: none; }
+  @media (prefers-reduced-motion: reduce) {
+    /* No reveal runs here, so the blur must never apply. */
+    [data-reveal], [data-reveal-stagger] > * { filter: none !important; }
+  }
+
+  /* ---- Page switch: each page fades up when opened ---- */
+  .page.active { animation: pageIn .55s cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes pageIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ---- Primary action: solid pill ---- */
+  .btn-pill,
+  .minimal-form .btn-pill {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 24px;
+    border-radius: 999px;
+    border: 1.5px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 16px;
+    text-decoration: none; white-space: nowrap; cursor: pointer;
+    transition: background .25s ease, color .25s ease, transform .25s ease;
+  }
+  .btn-pill:hover, .btn-pill:focus-visible {
+    background: transparent; color: var(--ink);
+  }
+  .btn-pill:active { transform: scale(.97); }
+  .btn-pill .arr { transition: transform .25s ease; }
+  .btn-pill:hover .arr { transform: translateX(4px); }
+  .minimal-form .btn-pill { margin-top: 32px; justify-self: start; }
+
+  /* ---- Text links: underline that draws in ---- */
+  .link-arrow {
+    border-bottom: none;
+    background: linear-gradient(currentColor, currentColor) left bottom / 100% 1px no-repeat;
+    padding-bottom: 3px;
+    transition: background-size .35s ease, opacity .2s ease;
+  }
+  .link-arrow.quiet { background-size: 0 1px; opacity: .65; }
+  .link-arrow.quiet:hover { background-size: 100% 1px; opacity: 1; }
+  .hero-actions { gap: 26px; }
+
+  /* ---- Nav: hover underline, active dot kept ---- */
+  nav.links a::before {
+    content: ""; position: absolute; left: 2px; right: 2px; bottom: 0; height: 1px;
+    background: currentColor; transform: scaleX(0); transform-origin: left;
+    transition: transform .3s ease;
+  }
+  nav.links a:hover::before { transform: scaleX(1); }
+  nav.links a.active::before { display: none; }
+  nav.links.open { animation: menuDown .28s ease both; }
+  @keyframes menuDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
+  /* ---- Club list: rows lean in on hover ---- */
+  .club-row { transition: padding-left .3s ease, background .3s ease; }
+  .club-row:hover { padding-left: 10px; background: var(--paper-soft); }
+
+  /* ---- Q&A rows and join cards ---- */
+  .qa-row h3 { transition: transform .3s ease; }
+  .qa-row:hover h3 { transform: translateX(6px); }
+  .join-way { transition: background .3s ease; position: relative; }
+  .join-way:hover { background: var(--paper-soft); }
+  .join-way .n { opacity: .5; font-size: 14px; letter-spacing: .01em; }
+  .join-way h3 { font-size: 21px; letter-spacing: -0.01em; }
+
+  /* ---- Forms: the active field's line lights up ---- */
+  .minimal-form .f { position: relative; }
+  .minimal-form .f::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px;
+    background: var(--ink); transform: scaleX(0); transform-origin: left;
+    transition: transform .4s ease;
+  }
+  .minimal-form .f:focus-within::after { transform: scaleX(1); }
+  .minimal-form .f:focus-within label { opacity: .9; }
+  .minimal-form label { transition: opacity .2s ease; letter-spacing: .01em; }
+
+  /* ---- Contact rows ---- */
+  .contact-rows a { transition: opacity .2s ease; }
+  .contact-rows .row:hover a { opacity: .7; }
+
+  /* ---- Footer: aligned rows with a quiet top rule ---- */
+  footer {
+    border-top: 1px solid var(--border);
+    opacity: 1;
+    color: color-mix(in srgb, var(--ink) 60%, transparent);
+    row-gap: 14px;
+  }
+  .footer-links { border-top: 1px dashed var(--border); padding-top: 16px; gap: 22px; }
+  .footer-links a { position: relative; }
+  .footer-links a:hover { opacity: 1; color: var(--ink); }
+
+  @media (max-width: 900px) {
+    .section-title h1,
+    .contact-layout > div:first-child h1,
+    .manifesto { font-size: clamp(40px, 11.5vw, 60px); }
+    .section-title h2,
+    .join-form-heading h2 { font-size: clamp(34px, 9.5vw, 50px); }
+    .what-title { font-size: clamp(32px, 9vw, 44px); }
+    .what-copy { font-size: 16.5px; }
+    .btn-pill { padding: 13px 22px; font-size: 15px; }
+    /* Keep the orbit logo fully inside the screen on phones. */
+    .hero-orbit { width: 170px; right: -28px; top: -40px; }
+    .club-row:hover { padding-left: 0; background: none; }
+  }
 </style>
 </head>
 <body>
@@ -1394,7 +1544,7 @@
         <div class="sub" data-reveal>Hiçbir kulüp yalnız değil.</div>
         <div class="note" data-reveal>(UniPakt'taysa tabii.)</div>
         <div class="hero-actions" data-reveal>
-          <a class="link-arrow" href="#katil" data-route="katil">Bize Katıl →</a>
+          <a class="btn-pill" href="#katil" data-route="katil">Bize Katıl <span class="arr">→</span></a>
           <a class="link-arrow quiet" href="#kulupler" data-route="kulupler">Kulüplere bak</a>
         </div>
       </div>
@@ -1750,7 +1900,7 @@ fill="currentColor" stroke="none">
           <div class="form-dot">.</div>
           <div class="f"><label for="c-msg">Mesajın</label><textarea id="c-msg"></textarea></div>
           <div class="form-dot">.</div>
-          <button type="submit">Gönder <span class="arr">→</span></button>
+          <button type="submit" class="btn-pill">Gönder <span class="arr">→</span></button>
           <p class="form-status" id="contactStatus"></p>
         </form>
       </div>
@@ -1833,7 +1983,7 @@ fill="currentColor" stroke="none">
             <div class="f"><label for="j-mail">E-mail</label><input id="j-mail" type="email" required></div>
             <div class="form-dot">.</div>
             <div class="f"><label for="j-msg">Mesajın</label><textarea id="j-msg"></textarea></div>
-            <button type="submit" class="link-arrow" style="border:none; background:none; cursor:pointer; padding:0;">Başvur <span class="arr">→</span></button>
+            <button type="submit" class="btn-pill">Başvur <span class="arr">→</span></button>
             <p class="form-status" id="joinStatus"></p>
           </div>
         </form>
@@ -2677,6 +2827,11 @@ fill="currentColor" stroke="none">
     };
 
     let animationFrame = null;
+    // Draw the links once right away so the network never shows bare nodes.
+    update(0);
+    cancelAnimationFrame(animationFrame);
+    animationFrame = null;
+
     const reduceMotionNetwork = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduceMotionNetwork) return;
 
