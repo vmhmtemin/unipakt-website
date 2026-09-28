@@ -5,7 +5,28 @@
 <!-- Only Google Fonts and the FormSubmit endpoint may be contacted. -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://formsubmit.co; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'; upgrade-insecure-requests">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>UniPakt</title>
+<title>UniPakt — İstanbul Üniversite Kulüpleri Ağı</title>
+<meta name="description" content="UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.">
+<link rel="canonical" href="https://unipakt.com/">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#000000">
+<!-- Link previews (WhatsApp, Instagram, LinkedIn, X) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="UniPakt">
+<meta property="og:locale" content="tr_TR">
+<meta property="og:url" content="https://unipakt.com/">
+<meta property="og:title" content="UniPakt — İstanbul Üniversite Kulüpleri Ağı">
+<meta property="og:description" content="UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.">
+<meta property="og:image" content="https://unipakt.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="UniPakt — İstanbul Üniversite Kulüpleri Ağı">
+<meta name="twitter:description" content="UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.">
+<meta name="twitter:image" content="https://unipakt.com/og-image.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"UniPakt","url":"https://unipakt.com/","logo":"https://unipakt.com/og-image.png","email":"iletisim@unipakt.com","description":"UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.","areaServed":"İstanbul","sameAs":["https://www.instagram.com/unipakt/","https://x.com/UniPakt","https://www.tiktok.com/@unipakt","https://www.linkedin.com/company/unipakt/"]}
+</script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%23000%27/%3E%3Cpath d=%27M16 14v20c0 10 5 16 14 16s14-6 14-16V14h-8v20c0 5-2 8-6 8s-6-3-6-8V14z%27 fill=%27%23fff%27/%3E%3Ccircle cx=%2751%27 cy=%2746%27 r=%275%27 fill=%27%23fff%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2156,6 +2177,64 @@
     .club-contact-tile .club-contact-label { font-size: 11.5px; }
     .club-contact-tile .club-contact-value { display: none; }
   }
+  /* ---- The Story: centred logo + "tap to open" hint ---- */
+  .story-stage:not(.story-complete) {
+    min-height: calc(100svh - var(--nav-h));
+    padding-top: 0; padding-bottom: 0;
+    align-content: center; row-gap: clamp(28px, 5vh, 48px);
+  }
+  /* Before opening, the (invisible) team must not take space. */
+  .story-stage:not(.story-complete) .story-team { position: absolute; inset: 0; min-height: 0; }
+  .story-stage:not(.story-complete):not(.zooming) .story-logo { animation: storyBreath 3.2s ease-in-out infinite; }
+  /* Opacity only: the zoom measures the logo, so its size must not change. */
+  @keyframes storyBreath { 0%, 100% { opacity: 1; } 50% { opacity: .72; } }
+  .story-hint {
+    display: inline-flex; align-items: center; gap: 12px; margin: 0;
+    font: 500 15px/1 'Inter', sans-serif; color: #fff; opacity: .8;
+    pointer-events: none;
+  }
+  .story-hint-dot {
+    position: relative; width: 10px; height: 10px; border-radius: 50%; background: var(--accent);
+  }
+  .story-hint-dot::after {
+    content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--accent);
+    animation: hintPing 1.6s cubic-bezier(0,0,.2,1) infinite;
+  }
+  @keyframes hintPing { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(3.2); opacity: 0; } }
+  .story-stage.zooming .story-hint,
+  .story-stage.story-complete .story-hint { display: none; }
+  .story-logo-button::before, .story-logo-button::after { display: none; }
+  @media (max-width: 800px) {
+    .story-hint { font-size: 14px; }
+  }
+  /* ---- The Story: no text hint; the logo's own dot calls for a tap ---- */
+  .story-hint { display: none !important; }
+  .story-dot-pulse .core { fill: var(--accent); }
+  .story-dot-pulse .ring {
+    fill: none; stroke: var(--accent); stroke-width: 3;
+    transform-box: fill-box; transform-origin: center;
+    animation: storyDotRing 2s cubic-bezier(0,0,.2,1) infinite;
+  }
+  .story-dot-pulse .ring.r2 { animation-delay: 1s; }
+  @keyframes storyDotRing { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(3.4); opacity: 0; } }
+  /* During the zoom the original white dot takes over again. */
+  .story-stage.zooming .story-dot-pulse,
+  .story-stage.story-complete .story-dot-pulse { display: none; }
+  .story-logo-button:hover .story-dot-pulse .core { fill: #fff; }
+
+  .story-swipe-hint { display: none; }
+  @media (hover: none) {
+    .story-stage:not(.story-complete):not(.zooming) .story-swipe-hint {
+      display: block; position: absolute; left: 0; right: 0; margin: 0 auto;
+      bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+      width: 44px; height: 44px; color: #fff; opacity: .8;
+      animation: introArrowBob 1.6s ease-in-out infinite; pointer-events: none;
+    }
+    .story-swipe-hint svg {
+      width: 100%; height: 100%; fill: none; stroke: currentColor;
+      stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+    }
+  }
 </style>
 </head>
 <body>
@@ -2345,9 +2424,15 @@ fill="currentColor" stroke="none">
 <path d="M10563 5866 c-100 -47 -151 -161 -119 -268 65 -226 385 -214 437 16
 17 76 -7 152 -65 211 -70 69 -160 84 -253 41z"/>
 </g>
+          <g class="story-dot-pulse" aria-hidden="true">
+            <circle class="ring r1" cx="1065.48" cy="687.38" r="23"/>
+            <circle class="ring r2" cx="1065.48" cy="687.38" r="23"/>
+            <circle class="core" cx="1065.48" cy="687.38" r="23.5"/>
+          </g>
           </svg>
         </svg>
       </button>
+      <span class="story-swipe-hint" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 4v15M5.5 12.5 12 19l6.5-6.5"/></svg></span>
 
       <div class="story-team" id="storyTeam" aria-label="UniPakt ekibi">
         <article class="story-card" tabindex="0" role="button" aria-label="Ekip üyesi kartı 1">
@@ -3482,6 +3567,18 @@ fill="currentColor" stroke="none">
     };
 
     logoButton.addEventListener('click', openStory);
+
+    // Touch: swiping up (the natural "scroll down" gesture) opens it too.
+    let swipeStartY = null;
+    window.addEventListener('touchstart', (e) => {
+      swipeStartY = e.touches.length ? e.touches[0].clientY : null;
+    }, { passive: true });
+    window.addEventListener('touchmove', (e) => {
+      if (opened || swipeStartY === null || !document.body.classList.contains('story-locked')) return;
+      if (!document.getElementById('page-story')?.classList.contains('active')) return;
+      if (swipeStartY - e.touches[0].clientY > 40) { swipeStartY = null; openStory(); }
+    }, { passive: true });
+
 
     cards.forEach(card => {
       const flip = () => card.classList.toggle('flipped');
