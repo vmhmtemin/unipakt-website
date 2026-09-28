@@ -1421,7 +1421,10 @@
   }
 
   /* ---- Page switch: each page fades up when opened ---- */
-  .page.active { animation: pageIn .55s cubic-bezier(.2,.7,.2,1) both; }
+  /* `backwards`, not `both`: a transform animation that keeps filling after it
+     ends makes the page a containing block for position:fixed children, which
+     shifted The Story's full-screen zoom by the header height. */
+  .page.active { animation: pageIn .55s cubic-bezier(.2,.7,.2,1) backwards; }
   @keyframes pageIn {
     from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: none; }
@@ -2185,7 +2188,6 @@
   }
   /* Before opening, the (invisible) team must not take space. */
   .story-stage:not(.story-complete) .story-team { position: absolute; inset: 0; min-height: 0; }
-  .story-stage:not(.story-complete):not(.zooming) .story-logo { animation: storyBreath 3.2s ease-in-out infinite; }
   /* Opacity only: the zoom measures the logo, so its size must not change. */
   @keyframes storyBreath { 0%, 100% { opacity: 1; } 50% { opacity: .72; } }
   .story-hint {
@@ -2218,8 +2220,10 @@
   .story-dot-pulse .ring.r2 { animation-delay: 1s; }
   @keyframes storyDotRing { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(3.4); opacity: 0; } }
   /* During the zoom the original white dot takes over again. */
-  .story-stage.zooming .story-dot-pulse,
+  .story-dot-pulse .core { transition: fill .35s ease; }
+  .story-stage.zooming .story-dot-pulse .ring,
   .story-stage.story-complete .story-dot-pulse { display: none; }
+  .story-stage.zooming .story-dot-pulse .core { fill: #fff; }
   .story-logo-button:hover .story-dot-pulse .core { fill: #fff; }
 
 </style>
@@ -3521,6 +3525,13 @@ fill="currentColor" stroke="none">
       // Move the SVG itself to a full-screen canvas, but preserve the logo's
       // exact current size/position through the inner camera on the first frame.
       setOuterCanvas(viewportW, viewportH);
+      // Size the full-screen canvas to the *visible* viewport. CSS 100vh is
+      // taller than innerHeight on phones (address bar), which made the
+      // logo jump and stretch on the first frame.
+      [logoButton, logoSvg].forEach(el => {
+        el.style.width = `${viewportW}px`;
+        el.style.height = `${viewportH}px`;
+      });
       setCamera(
         { x: rect.left, y: rect.top, w: rect.width, h: rect.height },
         startViewBox
