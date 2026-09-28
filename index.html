@@ -1460,31 +1460,36 @@
     user-select: none;
     -webkit-user-drag: none;
   }
+  /* Centered at the bottom; left/right + auto margin keeps it centered
+     without using transform, which the pulse animation owns. */
   .intro-scroll-hint {
     position: absolute;
-    right: clamp(22px, 4vw, 52px);
-    bottom: clamp(20px, 4vw, 42px);
-    width: 34px;
-    height: 34px;
+    left: 0;
+    right: 0;
+    bottom: clamp(28px, 6vh, 64px);
+    width: 64px;
+    height: 64px;
     border: 0;
     padding: 0;
-    margin: 0;
+    margin: 0 auto;
     background: transparent;
     color: #fff;
-    font: 400 25px/1 Inter, sans-serif;
+    font: 400 46px/1 Inter, sans-serif;
     cursor: pointer;
     display: grid;
     place-items: center;
-    opacity: .82;
-    animation: introArrowFloat 1.8s ease-in-out infinite;
+    animation: introArrowPulse 1.6s ease-in-out infinite;
   }
   .intro-scroll-hint:focus-visible {
     outline: 1px solid #fff;
     outline-offset: 5px;
   }
-  @keyframes introArrowFloat {
-    0%, 100% { transform: translateY(0); opacity: .68; }
-    50% { transform: translateY(5px); opacity: 1; }
+  @keyframes introArrowPulse {
+    0%, 100% { transform: scale(1); opacity: .7; }
+    50% { transform: scale(1.3); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .intro-scroll-hint { animation: none; opacity: 1; }
   }
   body.intro-locked { overflow: hidden; }
   /* The Story is a locked intro until the logo is opened. */
@@ -1496,9 +1501,10 @@
       max-width: calc(100vw - 32px);
     }
     .intro-scroll-hint {
-      right: 18px;
-      bottom: 18px;
-      font-size: 22px;
+      width: 56px;
+      height: 56px;
+      bottom: 32px;
+      font-size: 40px;
     }
   }
 
