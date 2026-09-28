@@ -1282,9 +1282,8 @@
   }
   .intro-screen.is-dismissed {
     transform: translateY(-100%);
-    opacity: 0;
     visibility: hidden;
-    transition: transform .78s cubic-bezier(.76,0,.18,1), opacity .25s ease .15s, visibility 0s linear .78s;
+    transition: transform .9s cubic-bezier(.65,0,.25,1), visibility 0s linear .9s;
     pointer-events: none;
   }
   .intro-logo {
@@ -1597,6 +1596,177 @@
     .orbit-club-label b { font-size: 11px; }
     .orbit-club-label small { display: none; }
   }
+  /* ---- Intro exit: header + page rise from below in step with the
+     intro sliding up, so it reads as one continuous scroll. ---- */
+  body.intro-enter header.nav,
+  body.intro-enter main {
+    animation: introPageUp .9s cubic-bezier(.65,0,.25,1) both;
+  }
+  @keyframes introPageUp { from { transform: translateY(100vh); } to { transform: none; } }
+
+  /* ---- Text fields: clearly visible boxes instead of bare lines ---- */
+  .minimal-form { gap: 4px; }
+  .minimal-form .form-dot { display: none; }
+  .minimal-form .f,
+  .outside-istanbul-fields .f { padding: 10px 0; border-bottom: none; }
+  .minimal-form .f::after { display: none; }
+  .minimal-form label,
+  .club-search-label,
+  .kampus-university-search label {
+    font-size: 13px; font-weight: 500; opacity: .75; margin-bottom: 8px; letter-spacing: .01em;
+  }
+  .minimal-form input,
+  .minimal-form textarea,
+  .outside-istanbul-fields select,
+  .club-search {
+    box-sizing: border-box;
+    width: 100%;
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--ink) 4%, transparent);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 17px;
+    padding: 14px 16px;
+    transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+  }
+  .minimal-form textarea { min-height: 130px; line-height: 1.5; }
+  .outside-istanbul-fields select { appearance: auto; padding-right: 12px; }
+  .minimal-form input::placeholder,
+  .minimal-form textarea::placeholder,
+  .club-search::placeholder { color: var(--ink); opacity: .38; }
+  .minimal-form input:hover,
+  .minimal-form textarea:hover,
+  .outside-istanbul-fields select:hover,
+  .club-search:hover { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
+  .minimal-form input:focus,
+  .minimal-form textarea:focus,
+  .outside-istanbul-fields select:focus,
+  .club-search:focus {
+    outline: none;
+    border-color: var(--ink);
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--ink) 12%, transparent);
+  }
+  /* The campus section is always dark. */
+  .kampus-university-search input {
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 14px;
+    background: rgba(255,255,255,.05);
+    padding: 14px 16px;
+    font-size: 18px;
+    transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+  }
+  .kampus-university-search input:hover { border-color: rgba(255,255,255,.5); }
+  .kampus-university-search input:focus {
+    border-color: #fff; background: rgba(255,255,255,.08);
+    box-shadow: 0 0 0 4px rgba(255,255,255,.12);
+  }
+  .kampus-university-search input::placeholder { opacity: .45; }
+  .university-results, .kampus-university-results { border-radius: 14px; overflow: hidden; }
+  @media (max-width: 900px) {
+    .minimal-form input, .minimal-form textarea, .club-search, .kampus-university-search input { font-size: 16px; }
+  }
+  /* ---- Hero layout: headline left, orbit right, both the same distance
+     from the page edges. The hero fills the first screen, no rule below. */
+  .hero { border-bottom: none; }
+  @media (min-width: 901px) {
+    .hero { min-height: calc(100svh - var(--nav-h)); padding: clamp(40px, 6vh, 80px) 0; }
+    .hero .wrap.hero-inner {
+      max-width: 1560px;
+      width: 100%;
+      padding-left: clamp(32px, 6vw, 110px);
+      padding-right: clamp(32px, 6vw, 110px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: clamp(32px, 5vw, 90px);
+      align-items: center;
+    }
+    .hero .hero-inner > :not(.hero-orbit) { grid-column: 1; }
+    .hero .hero-orbit {
+      position: relative; right: auto; top: auto;
+      grid-column: 2; grid-row: 1 / span 5;
+      width: clamp(320px, 28vw, 500px);
+      opacity: 1;
+    }
+    .hero h1 { font-size: clamp(52px, 5.6vw, 104px); max-width: none; }
+  }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .hero .hero-orbit { width: clamp(280px, 32vw, 340px); }
+  }
+  /* ---- Header: taller bar, larger logo and menu type ---- */
+  :root { --nav-h: 86px; }
+  .nav-row { min-height: var(--nav-h); padding-top: 18px; padding-bottom: 18px; }
+  .logo-img { width: 146px; max-height: 40px; }
+  nav.links { gap: clamp(18px, 2.2vw, 36px); }
+  nav.links a { font-size: 16.5px; }
+  nav.links a.active::after { bottom: -12px; }
+  html { scroll-padding-top: calc(var(--nav-h) + 12px + env(safe-area-inset-top, 0px)); }
+  @media (max-width: 1180px) and (min-width: 901px) {
+    nav.links a { font-size: 15px; }
+    nav.links { gap: 16px; }
+  }
+  @media (max-width: 900px) {
+    :root { --nav-h: 70px; }
+    .nav-row { min-height: var(--nav-h); padding-top: 12px; padding-bottom: 12px; }
+    .logo-img { width: 118px; max-height: 34px; }
+    .menu-toggle { min-width: 46px; min-height: 42px; font-size: 20px; }
+    nav.links.open a { font-size: 18px; padding: 11px 0; }
+  }
+  /* ============ FOOTER (rebuilt) ============ */
+  footer.site-footer {
+    display: block; opacity: 1; color: var(--ink);
+    font-size: 16px;
+    border-top: 1px solid var(--border);
+    padding: clamp(72px, 9vw, 130px) clamp(20px, 5vw, 64px) calc(clamp(28px, 3vw, 44px) + env(safe-area-inset-bottom, 0px));
+    overflow: hidden;
+  }
+  .site-footer .footer-top {
+    display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; flex-wrap: wrap;
+    padding-bottom: clamp(48px, 6vw, 80px);
+    border-bottom: 1px solid var(--border);
+  }
+  .site-footer .footer-kicker { margin: 0 0 10px; font-size: clamp(26px, 2.6vw, 36px); opacity: .7; }
+  .site-footer .footer-title { font-size: clamp(40px, 6vw, 88px); letter-spacing: -0.035em; line-height: .96; }
+  .site-footer .footer-cta { font-size: 17px; padding: 16px 28px; }
+  .site-footer .footer-cols {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px;
+    padding: clamp(40px, 5vw, 64px) 0;
+  }
+  .site-footer .footer-col { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+  .site-footer .footer-col h3 {
+    font-family: 'Inter', sans-serif; font-weight: 500; font-size: 13px;
+    letter-spacing: .08em; text-transform: uppercase; opacity: .5; margin-bottom: 6px;
+  }
+  .site-footer .footer-col a {
+    text-decoration: none; font-size: 18px; font-weight: 500; opacity: .85;
+    background: linear-gradient(currentColor, currentColor) left bottom / 0 1px no-repeat;
+    padding-bottom: 2px; transition: background-size .3s ease, opacity .2s ease;
+  }
+  .site-footer .footer-col a:hover { opacity: 1; background-size: 100% 1px; }
+  .site-footer .footer-col p { margin: 4px 0 0; font-size: 15px; opacity: .55; }
+  .site-footer .footer-bottom {
+    display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
+    padding-top: 22px; border-top: 1px solid var(--border);
+    font-size: 14px; color: color-mix(in srgb, var(--ink) 60%, transparent);
+  }
+  /* Full-width logo as the final flourish. */
+  .site-footer .footer-wordmark {
+    display: block; width: 100%; height: auto; margin-top: clamp(28px, 4vw, 56px);
+    opacity: .08; user-select: none; pointer-events: none;
+  }
+  :root[data-theme="dark"] .site-footer .footer-wordmark { filter: invert(1); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .site-footer .footer-wordmark { filter: invert(1); }
+  }
+  @media (max-width: 900px) {
+    footer.site-footer { padding: 64px 20px calc(28px + env(safe-area-inset-bottom, 0px)); }
+    .site-footer .footer-top { align-items: flex-start; flex-direction: column; }
+    .site-footer .footer-cols { grid-template-columns: 1fr 1fr; row-gap: 40px; }
+    .site-footer .footer-col:last-child { grid-column: 1 / -1; }
+    .site-footer .footer-col a { font-size: 17px; }
+    .site-footer .footer-bottom { flex-direction: column; align-items: flex-start; gap: 10px; }
+  }
 </style>
 </head>
 <body>
@@ -1644,7 +1814,7 @@
         <div class="sub" data-reveal>Hiçbir kulüp yalnız değil.</div>
         <div class="note" data-reveal>(UniPakt'taysa tabii.)</div>
         <div class="hero-actions" data-reveal>
-          <a class="btn-pill" href="#katil" data-route="katil">Bize Katıl <span class="arr">→</span></a>
+          <a class="btn-pill" href="#katil" data-route="katil">Bize Katıl</a>
           <a class="link-arrow quiet" href="#kulupler" data-route="kulupler">Kulüplere bak</a>
         </div>
       </div>
@@ -1994,13 +2164,13 @@ fill="currentColor" stroke="none">
           </div>
         </div>
         <form class="minimal-form" onsubmit="handleJoin(event, 'contactStatus')" data-reveal>
-          <div class="f"><label for="c-ad">Adın</label><input id="c-ad" type="text" required></div>
+          <div class="f"><label for="c-ad">Adın</label><input id="c-ad" type="text" placeholder="Adın soyadın" required></div>
           <div class="form-dot">.</div>
-          <div class="f"><label for="c-mail">E-mail</label><input id="c-mail" type="email" required></div>
+          <div class="f"><label for="c-mail">E-mail</label><input id="c-mail" type="email" placeholder="ornek@mail.com" required></div>
           <div class="form-dot">.</div>
-          <div class="f"><label for="c-msg">Mesajın</label><textarea id="c-msg"></textarea></div>
+          <div class="f"><label for="c-msg">Mesajın</label><textarea id="c-msg" placeholder="Mesajını buraya yaz..."></textarea></div>
           <div class="form-dot">.</div>
-          <button type="submit" class="btn-pill">Gönder <span class="arr">→</span></button>
+          <button type="submit" class="btn-pill">Gönder</button>
           <p class="form-status" id="contactStatus"></p>
         </form>
       </div>
@@ -2042,7 +2212,7 @@ fill="currentColor" stroke="none">
           <div class="join-form-heading"><h2>Sen de pakta katıl.</h2></div>
 
           <!-- İlk soru: Ad Soyad. Temsilci bulunan üniversite seçilince bu alan da notice ile birlikte gizlenir. -->
-          <div class="f" id="joinNameField"><label for="j-ad">Ad Soyad</label><input id="j-ad" type="text" required></div>
+          <div class="f" id="joinNameField"><label for="j-ad">Ad Soyad</label><input id="j-ad" type="text" placeholder="Adın soyadın" required></div>
           <div class="form-dot" id="joinNameDot">.</div>
 
           <div class="f university-picker">
@@ -2078,12 +2248,12 @@ fill="currentColor" stroke="none">
 
           <div class="join-conditional-fields" id="joinConditionalFields">
             <div class="form-dot">.</div>
-            <div class="f"><label for="j-kulup">Kulübün</label><input id="j-kulup" type="text"></div>
+            <div class="f"><label for="j-kulup">Kulübün</label><input id="j-kulup" type="text" placeholder="Kulübünün adı"></div>
             <div class="form-dot">.</div>
-            <div class="f"><label for="j-mail">E-mail</label><input id="j-mail" type="email" required></div>
+            <div class="f"><label for="j-mail">E-mail</label><input id="j-mail" type="email" placeholder="ornek@mail.com" required></div>
             <div class="form-dot">.</div>
-            <div class="f"><label for="j-msg">Mesajın</label><textarea id="j-msg"></textarea></div>
-            <button type="submit" class="btn-pill">Başvur <span class="arr">→</span></button>
+            <div class="f"><label for="j-msg">Mesajın</label><textarea id="j-msg" placeholder="Mesajını buraya yaz..."></textarea></div>
+            <button type="submit" class="btn-pill">Başvur</button>
             <p class="form-status" id="joinStatus"></p>
           </div>
         </form>
@@ -2093,17 +2263,45 @@ fill="currentColor" stroke="none">
 
 </main>
 
-<footer>
-  <span>© 2026 UniPakt</span>
-  <span class="dot-row" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
-  <span>İstanbul üniversite kulüpleri ağı</span>
-  <div class="footer-links" aria-label="UniPakt bağlantıları">
-    <a href="https://www.instagram.com/unipakt/" target="_blank" rel="noopener noreferrer">Instagram</a>
-    <a href="https://x.com/UniPakt" target="_blank" rel="noopener noreferrer">X</a>
-    <a href="https://www.tiktok.com/@unipakt?is_from_webapp=1&amp;sender_device=pc" target="_blank" rel="noopener noreferrer">TikTok</a>
-    <a href="https://www.linkedin.com/company/unipakt/home/?viewAsMember=true" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-    <a href="mailto:iletisim@unipakt.com">iletisim@unipakt.com</a>
+<footer class="site-footer">
+  <div class="footer-top">
+    <div class="footer-lead">
+      <p class="footer-kicker script">Bir nokta bırak.</p>
+      <h2 class="footer-title">Hiçbir kulüp<br>yalnız değil.</h2>
+    </div>
+    <a class="btn-pill footer-cta" href="#iletisim" data-route="iletisim">Bize ulaş</a>
   </div>
+
+  <div class="footer-cols">
+    <nav class="footer-col" aria-label="Sayfalar">
+      <h3>Sayfalar</h3>
+      <a href="#ana-sayfa" data-route="ana-sayfa">Ana Sayfa</a>
+      <a href="#story" data-route="story">The Story</a>
+      <a href="#kulupler" data-route="kulupler">Ortak Kulüpler</a>
+      <a href="#hakkimizda" data-route="hakkimizda">Hakkımızda</a>
+      <a href="#kampus" data-route="kampus">Kampüsünde UniPakt</a>
+      <a href="#katil" data-route="katil">Bize Katıl</a>
+    </nav>
+    <div class="footer-col">
+      <h3>Takip et</h3>
+      <a href="https://www.instagram.com/unipakt/" target="_blank" rel="noopener noreferrer">Instagram</a>
+      <a href="https://x.com/UniPakt" target="_blank" rel="noopener noreferrer">X</a>
+      <a href="https://www.tiktok.com/@unipakt?is_from_webapp=1&amp;sender_device=pc" target="_blank" rel="noopener noreferrer">TikTok</a>
+      <a href="https://www.linkedin.com/company/unipakt/home/?viewAsMember=true" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    </div>
+    <div class="footer-col">
+      <h3>İletişim</h3>
+      <a href="mailto:iletisim@unipakt.com">iletisim@unipakt.com</a>
+      <p>İstanbul üniversite kulüpleri ağı</p>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2026 UniPakt</span>
+    <span class="dot-row" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+    <span>İstanbul'da, öğrenciler tarafından.</span>
+  </div>
+  <img class="footer-wordmark" id="footerWordmark" alt="" aria-hidden="true">
 </footer>
 
 <script>
@@ -3068,7 +3266,7 @@ fill="currentColor" stroke="none">
       btn.type = 'button';
       btn.tabIndex = -1; // decorative: the same clubs are in the list below
       btn.className = `orbit-club ${RINGS[ring].cls}`;
-      btn.style.setProperty('--s', `${[7, 5, 6][slot % 3]}px`);
+      btn.style.setProperty('--s', `${[11, 9, 10][slot % 3]}px`);
       btn.innerHTML = `<span class="orbit-club-label"><b></b><small></small></span>`;
       btn.querySelector('b').textContent = club.name;
       btn.querySelector('small').textContent = club.uni;
@@ -3092,17 +3290,49 @@ fill="currentColor" stroke="none">
     }
 
     items.forEach((it) => {
-      it.btn.addEventListener('mouseenter', () => setOpen(it));
-      it.btn.addEventListener('mouseleave', () => setOpen(null));
       it.btn.addEventListener('click', (e) => {
         // Touch: first tap opens the name, second tap goes to the club list.
         if (e.pointerType !== 'mouse' && open !== it) { setOpen(it); return; }
-        sessionStorage.setItem('unipakt-pending-club-search', it.club.name);
-        location.hash = 'kulupler';
+        goToClub(it);
       });
     });
+
+    function goToClub(it) {
+      sessionStorage.setItem('unipakt-pending-club-search', it.club.name);
+      location.hash = 'kulupler';
+    }
+
+    // Mouse: open the club nearest to the cursor. Distance-based, so every
+    // dot reacts even while it moves or sits under the headline text.
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    let cursor = null;
+    if (finePointer) {
+      addEventListener('mousemove', (e) => { cursor = { x: e.clientX, y: e.clientY }; }, { passive: true });
+      document.addEventListener('mouseleave', () => { cursor = null; });
+      // A click anywhere inside an open club (even through the headline) opens the list.
+      document.addEventListener('click', (e) => {
+        if (!open || e.target.closest('.orbit-club')) return;
+        const r = open.btn.getBoundingClientRect();
+        if (Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)) < r.width / 2) goToClub(open);
+      });
+    }
+    function pickByCursor() {
+      if (!cursor) { if (finePointer) setOpen(null); return; }
+      if (open) {
+        const r = open.btn.getBoundingClientRect();
+        // Stay open while the cursor is inside the opened circle.
+        if (Math.hypot(cursor.x - (r.left + r.width / 2), cursor.y - (r.top + r.height / 2)) < r.width / 2 + 6) return;
+      }
+      let best = null, bestD = 26;
+      items.forEach((it) => {
+        const r = it.btn.getBoundingClientRect();
+        const d = Math.hypot(cursor.x - (r.left + r.width / 2), cursor.y - (r.top + r.height / 2));
+        if (d < bestD) { bestD = d; best = it; }
+      });
+      setOpen(best);
+    }
     document.addEventListener('pointerdown', (e) => {
-      if (open && !e.target.closest('.orbit-club')) setOpen(null);
+      if (!finePointer && open && !e.target.closest('.orbit-club')) setOpen(null);
     });
 
     function frame(now) {
@@ -3120,6 +3350,7 @@ fill="currentColor" stroke="none">
         it.btn.style.left = `${(50 + Math.cos(a) * ring.r * 100).toFixed(3)}%`;
         it.btn.style.top = `${(50 + Math.sin(a) * ring.r * 100).toFixed(3)}%`;
       });
+      if (finePointer) pickByCursor();
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
@@ -3424,6 +3655,13 @@ fill="currentColor" stroke="none">
     visibility.observe(wrap);
   })();
 
+  /* ---------- Footer wordmark: reuse the header logo image ---------- */
+  (function initFooterWordmark() {
+    const mark = document.getElementById('footerWordmark');
+    const logo = document.querySelector('.logo-img');
+    if (mark && logo) mark.src = logo.src;
+  })();
+
   function handleJoin(e, statusId) {
     e.preventDefault();
     const status = document.getElementById(statusId);
@@ -3467,6 +3705,9 @@ fill="currentColor" stroke="none">
       // Do not carry the same wheel/touch gesture into the homepage.
       window.scrollTo(0, 0);
       intro.classList.add('is-dismissed');
+      // The page slides up together with the intro, as if scrolled into view.
+      document.body.classList.add('intro-enter');
+      window.setTimeout(() => document.body.classList.remove('intro-enter'), 1000);
       window.removeEventListener('wheel', onWheel);
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('keydown', onKeyDown);
