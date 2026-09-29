@@ -1122,6 +1122,16 @@
   .final-cta h2 { font-size: clamp(38px, 6vw, 72px); max-width: 14ch; }
   .final-cta .link-arrow { margin-top: 30px; font-size: 20px; display: inline-block; }
 
+  /* ---------- Google sitelink anchors ---------- */
+  .seo-anchor {
+    display: block;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    position: relative;
+    top: -1px;
+  }
+
   /* ---------- footer ---------- */
   footer {
     padding: 30px clamp(20px, 5vw, 64px) calc(30px + env(safe-area-inset-bottom, 0px));
@@ -2306,6 +2316,37 @@
   .story-contact-links a:hover, .story-contact-links a:focus-visible { border-bottom-color: #fff; opacity: 1; outline: none; }
   .story-contact-label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; opacity: .42; margin-bottom: 3px; }
 </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "name": "UniPakt",
+        "alternateName": "UniPakt.",
+        "url": "https://unipakt.com/",
+        "hasPart": [
+          {"@type":"WebPage","name":"Ana Sayfa","url":"https://unipakt.com/#ana-sayfa"},
+          {"@type":"WebPage","name":"The Story","url":"https://unipakt.com/#story"},
+          {"@type":"WebPage","name":"Ortak Kulüpler","url":"https://unipakt.com/#kulupler"},
+          {"@type":"WebPage","name":"İletişim","url":"https://unipakt.com/#iletisim"}
+        ]
+      },
+      {
+        "@type": "Organization",
+        "name": "UniPakt",
+        "url": "https://unipakt.com/",
+        "logo": "https://unipakt.com/favicon.png",
+        "sameAs": [
+          "https://www.instagram.com/unipakt/",
+          "https://www.linkedin.com/company/unipakt/",
+          "https://www.tiktok.com/@unipakt",
+          "https://x.com/UniPakt"
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
 <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
@@ -2338,10 +2379,7 @@
       <a href="#ana-sayfa" data-route="ana-sayfa">Ana Sayfa</a>
       <a href="#story" data-route="story">The Story</a>
       <a href="#kulupler" data-route="kulupler">Ortak Kulüpler</a>
-      <a href="#hakkimizda" data-route="hakkimizda">Hakkımızda</a>
-      <a href="#kampus" data-route="kampus">Kampüsünde UniPakt</a>
       <a href="#iletisim" data-route="iletisim">İletişim</a>
-      <a href="#katil" data-route="katil">Bize Katıl</a>
     </nav>
     <button class="menu-toggle" id="menuToggle" aria-label="Menüyü aç" aria-expanded="false">☰</button>
   </div>
@@ -2350,7 +2388,8 @@
 <main>
 
   <!-- ================= ANA SAYFA ================= -->
-  <section class="page" id="page-ana-sayfa" data-page="ana-sayfa">
+  <a class="seo-anchor" id="ana-sayfa" aria-hidden="true"></a>
+    <section class="page" id="page-ana-sayfa" data-page="ana-sayfa">
 
     <div class="hero" id="heroZone">
       <div class="dot-grid-bg" aria-hidden="true"></div>
@@ -2462,7 +2501,8 @@
 
   <!-- ================= KULÜPLERİMİZ ================= -->
   <!-- ================= THE STORY / 1.4 ================= -->
-  <section class="page story-page" id="page-story" data-page="story">
+  <a class="seo-anchor" id="story" aria-hidden="true"></a>
+    <section class="page story-page" id="page-story" data-page="story">
     <div class="story-stage" id="storyStage">
       <button class="story-logo-button" id="storyLogoButton" type="button" aria-label="The Story'a gir">
         <svg class="story-logo" viewBox="220 500 880 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UniPakt." preserveAspectRatio="xMidYMid meet">
@@ -2605,7 +2645,8 @@ fill="currentColor" stroke="none">
   </section>
 
   <!-- ================= İLETİŞİM ================= -->
-  <section class="page" id="page-kulupler" data-page="kulupler">
+  <a class="seo-anchor" id="kulupler" aria-hidden="true"></a>
+    <section class="page" id="page-kulupler" data-page="kulupler">
     <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
       <div class="wrap">
         <div class="section-title">
@@ -2623,7 +2664,8 @@ fill="currentColor" stroke="none">
   </section>
 
   <!-- ================= HAKKIMIZDA ================= -->
-  <section class="page" id="page-hakkimizda" data-page="hakkimizda">
+  <a class="seo-anchor" id="hakkimizda" aria-hidden="true"></a>
+    <section class="page" id="page-hakkimizda" data-page="hakkimizda">
     <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
       <div class="wrap">
         <h1 class="manifesto" data-reveal>İstanbul'daki kulüpleri<br>birbirine bağlamak.</h1>
@@ -2657,7 +2699,8 @@ fill="currentColor" stroke="none">
   </section>
 
   <!-- ================= KAMPÜSÜNDE UNİPAKT ================= -->
-  <section class="page" id="page-kampus" data-page="kampus">
+  <a class="seo-anchor" id="kampus" aria-hidden="true"></a>
+    <section class="page" id="page-kampus" data-page="kampus">
     <div class="section kampus-section" style="padding-top: clamp(90px, 12vw, 130px);">
       <div class="kampus-dot-grid" aria-hidden="true"></div>
       <div class="wrap">
@@ -2714,7 +2757,8 @@ fill="currentColor" stroke="none">
   </section>
 
 
-  <section class="page" id="page-iletisim" data-page="iletisim">
+  <a class="seo-anchor" id="iletisim" aria-hidden="true"></a>
+    <section class="page" id="page-iletisim" data-page="iletisim">
     <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
       <div class="wrap contact-layout">
         <div>
@@ -2749,7 +2793,8 @@ fill="currentColor" stroke="none">
   </section>
 
   <!-- ================= BİZE KATIL ================= -->
-  <section class="page" id="page-katil" data-page="katil">
+  <a class="seo-anchor" id="katil" aria-hidden="true"></a>
+    <section class="page" id="page-katil" data-page="katil">
     <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
       <div class="wrap">
         <div class="section-title">
@@ -2851,9 +2896,7 @@ fill="currentColor" stroke="none">
       <a href="#ana-sayfa" data-route="ana-sayfa">Ana Sayfa</a>
       <a href="#story" data-route="story">The Story</a>
       <a href="#kulupler" data-route="kulupler">Ortak Kulüpler</a>
-      <a href="#hakkimizda" data-route="hakkimizda">Hakkımızda</a>
-      <a href="#kampus" data-route="kampus">Kampüsünde UniPakt</a>
-      <a href="#katil" data-route="katil">Bize Katıl</a>
+      <a href="#iletisim" data-route="iletisim">İletişim</a>
     </nav>
     <div class="footer-col">
       <h3>Takip et</h3>
