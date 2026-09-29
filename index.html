@@ -2284,17 +2284,19 @@
   .story-logo-button { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
   .story-logo-button:focus:not(:focus-visible) { outline: none; }
 
-  /* ---- The Story: clickable card arrows + contact backs ---- */
+  /* ---- The Story: contact backs + Mehmet card interaction cue ---- */
   .story-card-face { position: absolute; }
-  .story-card-face::after {
-    content: '↗'; position: absolute; top: 16px; right: 18px;
-    font-family: Arial, sans-serif; font-size: 18px; line-height: 1;
-    color: currentColor; opacity: .48; transition: opacity .2s ease, transform .2s ease;
-    pointer-events: none;
-  }
-  .story-card:hover .story-card-face::after,
-  .story-card:focus-visible .story-card-face::after { opacity: 1; transform: translate(2px, -2px); }
   .story-card-back { display: flex; align-items: center; justify-content: center; gap: 12px; }
+  @keyframes storyMehmetSpin {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(360deg); }
+  }
+  .story-card.story-mehmet-spin .story-card-inner {
+    animation: storyMehmetSpin 1.25s cubic-bezier(.22,.8,.24,1) 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .story-card.story-mehmet-spin .story-card-inner { animation: none; }
+  }
   .story-contact-links { display: grid; gap: 12px; width: min(100%, 270px); text-align: center; }
   .story-contact-links a {
     color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.28);
@@ -3665,6 +3667,16 @@ fill="currentColor" stroke="none">
       stage.classList.remove('zooming', 'story-transforming');
       team.classList.add('show');
       unlockStory();
+
+      // Remove the corner arrows and use Mehmet's card as the visual cue:
+      // it performs one full 360° turn after the team appears.
+      const mehmetCard = cards.find((card) =>
+        card.querySelector('.story-card-front .story-name')?.textContent.trim() === 'Mehmet Emin Soyal'
+      );
+      if (mehmetCard) {
+        setTimeout(() => mehmetCard.classList.add('story-mehmet-spin'), 650);
+        setTimeout(() => mehmetCard.classList.remove('story-mehmet-spin'), 2200);
+      }
     };
 
     logoButton.addEventListener('click', openStory);
