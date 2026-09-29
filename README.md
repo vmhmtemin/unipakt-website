@@ -104,3 +104,6 @@ This project is currently under development. Licensing information will be added
 
 **UniPakt**
 A platform for discovering events, communities, and opportunities within university life.
+
+
+Crafted digitally by Flower Software.
