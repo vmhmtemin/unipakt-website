@@ -27,7 +27,7 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Organization","name":"UniPakt","url":"https://unipakt.com/","logo":"https://unipakt.com/og-image.png","email":"iletisim@unipakt.com","description":"UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.","areaServed":"İstanbul","sameAs":["https://www.instagram.com/unipakt/","https://x.com/UniPakt","https://www.tiktok.com/@unipakt","https://www.linkedin.com/company/unipakt/"]}
 </script>
-<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" href="/favicon.png">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%23000%27/%3E%3Cpath d=%27M16 14v20c0 10 5 16 14 16s14-6 14-16V14h-8v20c0 5-2 8-6 8s-6-3-6-8V14z%27 fill=%27%23fff%27/%3E%3Ccircle cx=%2751%27 cy=%2746%27 r=%275%27 fill=%27%23fff%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Caveat:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1122,16 +1122,6 @@
   .final-cta h2 { font-size: clamp(38px, 6vw, 72px); max-width: 14ch; }
   .final-cta .link-arrow { margin-top: 30px; font-size: 20px; display: inline-block; }
 
-  /* ---------- Google sitelink anchors ---------- */
-  .seo-anchor {
-    display: block;
-    width: 0;
-    height: 0;
-    overflow: hidden;
-    position: relative;
-    top: -1px;
-  }
-
   /* ---------- footer ---------- */
   footer {
     padding: 30px clamp(20px, 5vw, 64px) calc(30px + env(safe-area-inset-bottom, 0px));
@@ -1800,9 +1790,24 @@
     nav.links.open a { font-size: 18px; padding: 11px 0; }
   }
   /* ============ FOOTER (rebuilt) ============ */
-  .footer-credit { display:inline-flex; align-items:center; gap:8px; white-space:nowrap; }
-  .footer-credit img { width:16px; height:20px; object-fit:cover; object-position:center; display:block; flex:none; }
-  @media (max-width: 600px) { .footer-credit { gap:6px; } .footer-credit img { width:14px; height:18px; } }
+  .footer-credit {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .footer-credit img {
+    width: 16px;
+    height: 20px;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    flex: none;
+  }
+  @media (max-width: 600px) {
+    .footer-credit { gap: 6px; }
+    .footer-credit img { width: 14px; height: 18px; }
+  }
 
   footer.site-footer {
     display: block; opacity: 1; color: var(--ink);
@@ -2320,31 +2325,6 @@
   .story-contact-links a:hover, .story-contact-links a:focus-visible { border-bottom-color: #fff; opacity: 1; outline: none; }
   .story-contact-label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; opacity: .42; margin-bottom: 3px; }
 </style>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "WebSite",
-        "name": "UniPakt",
-        "alternateName": "UniPakt.",
-        "url": "https://unipakt.com/"
-      },
-      {
-        "@type": "Organization",
-        "name": "UniPakt",
-        "url": "https://unipakt.com/",
-        "logo": "https://unipakt.com/favicon.png",
-        "sameAs": [
-          "https://www.instagram.com/unipakt/",
-          "https://www.linkedin.com/company/unipakt/",
-          "https://www.tiktok.com/@unipakt",
-          "https://x.com/UniPakt"
-        ]
-      }
-    ]
-  }
-  </script>
 </head>
 <body>
 <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
@@ -2389,8 +2369,7 @@
 <main>
 
   <!-- ================= ANA SAYFA ================= -->
-  <a class="seo-anchor" id="ana-sayfa" aria-hidden="true"></a>
-    <section class="page" id="page-ana-sayfa" data-page="ana-sayfa">
+  <section class="page" id="page-ana-sayfa" data-page="ana-sayfa">
 
     <div class="hero" id="heroZone">
       <div class="dot-grid-bg" aria-hidden="true"></div>
@@ -2502,8 +2481,7 @@
 
   <!-- ================= KULÜPLERİMİZ ================= -->
   <!-- ================= THE STORY / 1.4 ================= -->
-  <a class="seo-anchor" id="story" aria-hidden="true"></a>
-    <section class="page story-page" id="page-story" data-page="story">
+  <section class="page story-page" id="page-story" data-page="story">
     <div class="story-stage" id="storyStage">
       <button class="story-logo-button" id="storyLogoButton" type="button" aria-label="The Story'a gir">
         <svg class="story-logo" viewBox="220 500 880 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UniPakt." preserveAspectRatio="xMidYMid meet">
@@ -2646,8 +2624,7 @@ fill="currentColor" stroke="none">
   </section>
 
   <!-- ================= İLETİŞİM ================= -->
-  <a class="seo-anchor" id="kulupler" aria-hidden="true"></a>
-    <section class="page" id="page-kulupler" data-page="kulupler">
+  <section class="page" id="page-kulupler" data-page="kulupler">
     <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
       <div class="wrap">
         <div class="section-title">
@@ -2665,8 +2642,7 @@ fill="currentColor" stroke="none">
   </section>
 
   <!-- ================= HAKKIMIZDA ================= -->
-  <a class="seo-anchor" id="hakkimizda" aria-hidden="true"></a>
-    <section class="page" id="page-hakkimizda" data-page="hakkimizda">
+  <section class="page" id="page-hakkimizda" data-page="hakkimizda">
     <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
       <div class="wrap">
         <h1 class="manifesto" data-reveal>İstanbul'daki kulüpleri<br>birbirine bağlamak.</h1>
@@ -2700,8 +2676,7 @@ fill="currentColor" stroke="none">
   </section>
 
   <!-- ================= KAMPÜSÜNDE UNİPAKT ================= -->
-  <a class="seo-anchor" id="kampus" aria-hidden="true"></a>
-    <section class="page" id="page-kampus" data-page="kampus">
+  <section class="page" id="page-kampus" data-page="kampus">
     <div class="section kampus-section" style="padding-top: clamp(90px, 12vw, 130px);">
       <div class="kampus-dot-grid" aria-hidden="true"></div>
       <div class="wrap">
@@ -2758,8 +2733,7 @@ fill="currentColor" stroke="none">
   </section>
 
 
-  <a class="seo-anchor" id="iletisim" aria-hidden="true"></a>
-    <section class="page" id="page-iletisim" data-page="iletisim">
+  <section class="page" id="page-iletisim" data-page="iletisim">
     <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
       <div class="wrap contact-layout">
         <div>
@@ -2794,8 +2768,7 @@ fill="currentColor" stroke="none">
   </section>
 
   <!-- ================= BİZE KATIL ================= -->
-  <a class="seo-anchor" id="katil" aria-hidden="true"></a>
-    <section class="page" id="page-katil" data-page="katil">
+  <section class="page" id="page-katil" data-page="katil">
     <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
       <div class="wrap">
         <div class="section-title">
@@ -2899,7 +2872,6 @@ fill="currentColor" stroke="none">
       <a href="#kulupler" data-route="kulupler">Ortak Kulüpler</a>
       <a href="#hakkimizda" data-route="hakkimizda">Hakkımızda</a>
       <a href="#kampus" data-route="kampus">Kampüsünde UniPakt</a>
-      <a href="#iletisim" data-route="iletisim">İletişim</a>
       <a href="#katil" data-route="katil">Bize Katıl</a>
     </nav>
     <div class="footer-col">
