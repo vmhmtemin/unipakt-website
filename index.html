@@ -2321,6 +2321,17 @@
   }
   .story-contact-links a:hover, .story-contact-links a:focus-visible { border-bottom-color: #fff; opacity: 1; outline: none; }
   .story-contact-label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; opacity: .42; margin-bottom: 3px; }
+  /* ---- Story cards: "about to turn" wiggle ----
+     Runs on the OUTER card so it never touches the inner element's
+     transform — otherwise the browser skips the flip transition.
+     The class is added from JS (mouse enter, or a timer on touch). */
+  @keyframes storyTease {
+    0%   { transform: perspective(1200px) rotateY(0deg); }
+    30%  { transform: perspective(1200px) rotateY(30deg); }
+    62%  { transform: perspective(1200px) rotateY(-11deg); }
+    100% { transform: perspective(1200px) rotateY(0deg); }
+  }
+  .story-card.story-tease { animation: storyTease .95s cubic-bezier(.3,.7,.3,1) 1; }
 </style>
 </head>
 <body>
@@ -3693,6 +3704,10 @@ fill="currentColor" stroke="none">
         setTimeout(() => mehmetCard.classList.add('story-mehmet-spin'), 650);
         setTimeout(() => mehmetCard.classList.remove('story-mehmet-spin'), 2200);
       }
+      if (typeof teaseCards === 'function' && typeof touchOnly !== 'undefined' && touchOnly) {
+        // First wiggle after Mehmet's spin, then every 4.5 s.
+        setTimeout(() => { teaseCards(); setInterval(teaseCards, 4500); }, 2400);
+      }
     };
 
     logoButton.addEventListener('click', openStory);
@@ -3709,8 +3724,42 @@ fill="currentColor" stroke="none">
     }, { passive: true });
 
 
+    // Cards flip on click / tap / Enter. To show that they can turn:
+    // mouse users get a small "about to turn" wiggle on hover (CSS),
+    // touch users see the cards wiggle every few seconds until they
+    // flip one themselves.
+    let userFlipped = false;
+    const touchOnly = !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const teaseCards = () => {
+      if (userFlipped || !stage.classList.contains('story-complete')) return;
+      if (!document.getElementById('page-story')?.classList.contains('active')) return;
+      const r = team.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > innerHeight) return;   // not on screen
+      cards.forEach((card, i) => {
+        if (card.classList.contains('flipped') || card.classList.contains('story-mehmet-spin')) return;
+        setTimeout(() => {
+          card.classList.add('story-tease');
+          setTimeout(() => card.classList.remove('story-tease'), 1000);
+        }, i * 160);
+      });
+    };
+    // The repeat timer starts when the story opens (see openStory).
+
     cards.forEach(card => {
-      const flip = () => card.classList.toggle('flipped');
+      const flip = () => {
+        userFlipped = true;
+        // No new hover wiggle until the mouse leaves and comes back.
+        card.classList.add('story-just-flipped');
+        card.classList.toggle('flipped');
+      };
+      card.addEventListener('mouseleave', () => card.classList.remove('story-just-flipped'));
+      // Mouse: wiggle once when the pointer arrives over a front-facing card.
+      card.addEventListener('mouseenter', () => {
+        if (touchOnly || card.classList.contains('flipped') || card.classList.contains('story-just-flipped')) return;
+        if (card.classList.contains('story-tease') || card.classList.contains('story-mehmet-spin')) return;
+        card.classList.add('story-tease');
+        setTimeout(() => card.classList.remove('story-tease'), 1000);
+      });
       card.addEventListener('click', flip);
       card.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' || event.key === ' ') {
