@@ -2306,13 +2306,6 @@
   /* ---- The Story: contact backs + Mehmet card interaction cue ---- */
   .story-card-face { position: absolute; }
   .story-card-back { display: flex; align-items: center; justify-content: center; gap: 12px; }
-  @keyframes storyMehmetSpin {
-    0% { transform: rotateY(0deg); }
-    100% { transform: rotateY(360deg); }
-  }
-  .story-card.story-mehmet-spin .story-card-inner {
-    animation: storyMehmetSpin 1.25s cubic-bezier(.22,.8,.24,1) 1;
-  }
   .story-contact-links { display: grid; gap: 12px; width: min(100%, 270px); text-align: center; }
   .story-contact-links a {
     color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.28);
@@ -3695,18 +3688,9 @@ fill="currentColor" stroke="none">
       team.classList.add('show');
       unlockStory();
 
-      // Remove the corner arrows and use Mehmet's card as the visual cue:
-      // it performs one full 360° turn after the team appears.
-      const mehmetCard = cards.find((card) =>
-        card.querySelector('.story-card-front .story-name')?.textContent.trim() === 'Mehmet Emin Soyal'
-      );
-      if (mehmetCard) {
-        setTimeout(() => mehmetCard.classList.add('story-mehmet-spin'), 650);
-        setTimeout(() => mehmetCard.classList.remove('story-mehmet-spin'), 2200);
-      }
       if (typeof teaseCards === 'function' && typeof touchOnly !== 'undefined' && touchOnly) {
-        // First wiggle after Mehmet's spin, then every 4.5 s.
-        setTimeout(() => { teaseCards(); setInterval(teaseCards, 4500); }, 2400);
+        // First wiggle once the team has appeared, then every 4.5 s.
+        setTimeout(() => { teaseCards(); setInterval(teaseCards, 4500); }, 1200);
       }
     };
 
@@ -3736,7 +3720,7 @@ fill="currentColor" stroke="none">
       const r = team.getBoundingClientRect();
       if (r.bottom < 0 || r.top > innerHeight) return;   // not on screen
       cards.forEach((card, i) => {
-        if (card.classList.contains('flipped') || card.classList.contains('story-mehmet-spin')) return;
+        if (card.classList.contains('flipped')) return;
         setTimeout(() => {
           card.classList.add('story-tease');
           setTimeout(() => card.classList.remove('story-tease'), 1000);
@@ -3756,7 +3740,7 @@ fill="currentColor" stroke="none">
       // Mouse: wiggle once when the pointer arrives over a front-facing card.
       card.addEventListener('mouseenter', () => {
         if (touchOnly || card.classList.contains('flipped') || card.classList.contains('story-just-flipped')) return;
-        if (card.classList.contains('story-tease') || card.classList.contains('story-mehmet-spin')) return;
+        if (card.classList.contains('story-tease')) return;
         card.classList.add('story-tease');
         setTimeout(() => card.classList.remove('story-tease'), 1000);
       });
