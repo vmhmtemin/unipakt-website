@@ -268,7 +268,10 @@
   .checks label:hover { background: #151515; }
   .checks input { width: 17px; height: 17px; accent-color: var(--accent); flex: none; }
   .form-error { color: var(--no); font-size: 13px; }
-  .form-section { margin-top: 6px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 13px; font-weight: 600; opacity: .7; }
+  .item .meta a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+  .item .meta a:hover { color: var(--accent); }
+  .item .meta .bad { color: var(--no); }
+  .form-section { line-height: 1.5; margin-top: 6px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 13px; font-weight: 600; opacity: .7; }
   .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
 
   .toast {
@@ -345,6 +348,24 @@
   const CLUB_CATEGORIES = ['Yazılım', 'Tasarım', 'Girişim', 'Eğlence'];
   // Same keys as the public site's club contact tiles.
   const CONTACT_KEYS = [['email', 'E-posta'], ['instagram', 'Instagram'], ['linkedin', 'LinkedIn'], ['x', 'X'], ['tiktok', 'TikTok'], ['web', 'Web sitesi']];
+  const CONTACT_BASE = { instagram: 'https://www.instagram.com/', linkedin: 'https://www.linkedin.com/company/', x: 'https://x.com/', tiktok: 'https://www.tiktok.com/@' };
+  const EMAIL_RE = /^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/;
+  // Same rules as the public site: a user name or a full link both become a link;
+  // anything else is not shown there. Returns null for a value the site would hide.
+  const contactLink = (key, value) => {
+    const raw = String(value || '').trim();
+    if (!raw) return null;
+    if (key === 'email') return EMAIL_RE.test(raw) ? { href: `mailto:${raw}`, text: raw } : null;
+    const base = CONTACT_BASE[key];
+    let url = raw;
+    if (!/^https?:\/\//i.test(url) && /^[\w-]+(\.[\w-]+)+(\/|$)/.test(url) && (url.includes('/') || !base)) url = `https://${url}`;
+    if (/^https?:\/\/[^\s"'<>]+$/i.test(url)) {
+      const clean = url.split(/[?#]/)[0].replace(/\/+$/, '');
+      return { href: url, text: base ? `@${clean.split('/').pop().replace(/^@/, '')}` : clean.replace(/^https?:\/\/(www\.)?/i, '') };
+    }
+    const handle = raw.replace(/^@/, '');
+    return base && /^[\w.-]+$/.test(handle) ? { href: `${base}${handle}/`, text: `@${handle}` } : null;
+  };
 
   // Supabase project. The publishable key is meant to be public; access is
   // enforced by the row level security rules in supabase/schema.sql.
@@ -632,7 +653,12 @@
     // club-account Edge Function. Returns a warning text when that part could not be done.
     async account(body) {
       try { return await call('/functions/v1/club-account', { method: 'POST', body }); }
-      catch (e) { throw e.status === 404 ? new Error('hesap fonksiyonu (club-account) Supabase’e henüz kurulmamış') : e; }
+      catch (e) {
+        if (e.status === 404) throw new Error('hesap fonksiyonu (club-account) Supabase’e henüz kurulmamış.');
+        if (/already been registered|already exists/i.test(e.message)) throw new Error('bu e-posta ile zaten bir hesap var. Başka bir e-posta kullan.');
+        if (/password/i.test(e.message) && /weak|short|least/i.test(e.message)) throw new Error('şifre çok zayıf ya da kısa. Daha uzun bir şifre seç.');
+        throw e;
+      }
     },
     async saveClub(id, fields, account) {
       const row = { name: fields.name, university: fields.uni, category: fields.category || null };
@@ -641,12 +667,12 @@
       else id = (await rest('clubs', { method: 'POST', body: row, headers: { Prefer: 'return=representation' } }))[0].id;
       if (!account.email) return '';
       try { await remote.account({ action: 'set', club_id: id, email: account.email, password: account.password }); return ''; }
-      catch (e) { if (!state.user) throw e; return `Kulüp kaydedildi ama giriş hesabı ayarlanamadı: ${e.message}`; }
+      catch (e) { if (!state.user) throw e; return `Kulüp kaydedildi. Hesap açılamadı, çünkü ${e.message.replace(/^./, (ch) => ch.toLocaleLowerCase('tr'))}`; }
     },
     async removeClub(id) {
       let warning = '';
       try { await remote.account({ action: 'remove', club_id: id }); }
-      catch (e) { if (!state.user) throw e; warning = `Kulüp silindi ama giriş hesabı silinemedi: ${e.message}`; }
+      catch (e) { if (!state.user) throw e; warning = `Kulüp silindi. Hesabı silinemedi, çünkü ${e.message.replace(/^./, (ch) => ch.toLocaleLowerCase('tr'))}`; }
       await rest(`clubs?${eq(id)}`, { method: 'DELETE' });
       return warning;
     },
@@ -791,6 +817,17 @@
     dlg.close();
     if (typeof problem === 'string') toast(problem);   // signed out while the dialog was open
     render();
+  });
+
+  let pendingNotice = null;
+  const notice = (title, message) => { pendingNotice = { title, message }; };
+  dlg.addEventListener('close', () => {
+    if (!pendingNotice) return;
+    const { title, message } = pendingNotice; pendingNotice = null;
+    dlgForm.innerHTML = `<h2>${esc(title)}</h2><p class="lead">${esc(message)}</p>
+      <div class="dialog-actions"><button type="button" class="btn" data-close>Tamam</button></div>`;
+    dlgSubmit = null;
+    dlg.showModal();
   });
 
   const field = (label, control) => `<label class="field"><span>${label}</span>${control}</label>`;
@@ -1173,7 +1210,11 @@
           <article class="card item">
             <div class="meta top">${c.category ? `<span class="tag">${esc(c.category)}</span>` : '<span class="tag wait">Kategori yok</span>'}<span>${esc(c.uni)}</span></div>
             <h3>${esc(c.name)}</h3>
-            <div class="meta">${filled.length ? filled.map(([k, label]) => `<span>${label}: ${esc(c.contact[k])}</span>`).join('') : '<span>İletişim bilgisi eklenmemiş</span>'}</div>
+            <div class="meta">${filled.length ? filled.map(([k, label]) => {
+              const link = contactLink(k, c.contact[k]);
+              return link ? `<span>${label}: <a href="${esc(link.href)}" ${k === 'email' ? '' : 'target="_blank" rel="noopener noreferrer"'}>${esc(link.text)}</a></span>`
+                : `<span class="bad">${label}: ${esc(c.contact[k])} (geçersiz, sitede görünmez)</span>`;
+            }).join('') : '<span>İletişim bilgisi eklenmemiş</span>'}</div>
             <div class="meta"><span>${accountLine(c)}</span></div>
             <div class="actions">
               <button class="btn ghost small" data-act="club-edit" data-id="${esc(c.id)}">Düzenle</button>
@@ -1354,23 +1395,28 @@
         fields: text('name', 'Kulüp adı', c && c.name, 'required maxlength="120"')
           + text('uni', 'Üniversite', c && c.uni, 'required maxlength="120"')
           + field('Kategori', `<select name="category"><option value="">Seç</option>${CLUB_CATEGORIES.map((k) => `<option ${c && c.category === k ? 'selected' : ''}>${k}</option>`).join('')}</select>`)
-          + '<p class="form-section">İletişim · sitede görünür</p>'
-          + `<div class="field-row">${text('email', 'E-posta', c && c.contact.email, 'type="email" maxlength="200"')}${text('instagram', 'Instagram', c && c.contact.instagram, 'maxlength="200" placeholder="kullanıcı adı"')}</div>`
-          + `<div class="field-row">${text('x', 'X', c && c.contact.x, 'maxlength="200" placeholder="kullanıcı adı"')}${text('tiktok', 'TikTok', c && c.contact.tiktok, 'maxlength="200" placeholder="kullanıcı adı"')}</div>`
-          + `<div class="field-row">${text('linkedin', 'LinkedIn', c && c.contact.linkedin, 'maxlength="200" placeholder="bağlantı"')}${text('web', 'Web sitesi', c && c.contact.web, 'maxlength="200" placeholder="https://"')}</div>`
+          + '<p class="form-section">İletişim · sitede tıklanabilir bağlantı olarak görünür. Kullanıcı adı ya da tam bağlantı yazabilirsin; boş bıraktığın sitede hiç çıkmaz.</p>'
+          + `<div class="field-row">${text('email', 'E-posta', c && c.contact.email, 'type="email" maxlength="200"')}${text('instagram', 'Instagram', c && c.contact.instagram, 'maxlength="200" placeholder="kullanıcı adı ya da bağlantı"')}</div>`
+          + `<div class="field-row">${text('x', 'X', c && c.contact.x, 'maxlength="200" placeholder="kullanıcı adı ya da bağlantı"')}${text('tiktok', 'TikTok', c && c.contact.tiktok, 'maxlength="200" placeholder="kullanıcı adı ya da bağlantı"')}</div>`
+          + `<div class="field-row">${text('linkedin', 'LinkedIn', c && c.contact.linkedin, 'maxlength="200" placeholder="kullanıcı adı ya da bağlantı"')}${text('web', 'Web sitesi', c && c.contact.web, 'maxlength="200" placeholder="https://"')}</div>`
           + '<p class="form-section">Panel girişi · kulüp başkanının hesabı</p>'
           + `<div class="field-row">${text('accountEmail', 'Giriş e-postası', known, 'type="email" maxlength="200" autocomplete="off"')}${text('accountPassword', known ? 'Yeni şifre (boşsa değişmez)' : 'Şifre (en az 8 karakter)', '', 'type="password" minlength="8" maxlength="72" autocomplete="new-password"')}</div>`,
         submit: c ? 'Kaydet' : 'Ekle',
         onSubmit: async (fd) => {
           const account = { email: val(fd, 'accountEmail').toLowerCase(), password: String(fd.get('accountPassword') || '') };
+          const contact = Object.fromEntries(CONTACT_KEYS.map(([k]) => [k, val(fd, k)]));
+          const bad = CONTACT_KEYS.find(([k]) => contact[k] && !contactLink(k, contact[k]));
+          if (bad) return `${bad[1]} geçerli değil. ${bad[0] === 'email' ? 'ornek@kulup.com gibi bir adres yaz.' : 'Kullanıcı adı ya da tam bağlantı yaz.'}`;
           if (account.password && !account.email) return 'Şifre için giriş e-postası da gerekli.';
+          if (account.email && !EMAIL_RE.test(account.email)) return 'Giriş e-postası geçerli değil. ornek@kulup.com gibi bir adres yaz.';
+          if (account.password && account.password.length < 8) return 'Şifre en az 8 karakter olmalı.';
           if (account.email && !known && !account.password) return 'Yeni hesap için şifre gir.';
           if (account.email === known && !account.password) account.email = '';   // nothing to change
-          const fields = { name: val(fd, 'name'), uni: val(fd, 'uni'), category: val(fd, 'category'),
-            contact: Object.fromEntries(CONTACT_KEYS.map(([k]) => [k, val(fd, k)])) };
+          const fields = { name: val(fd, 'name'), uni: val(fd, 'uni'), category: val(fd, 'category'), contact };
           const warning = await api.saveClub(id || null, fields, account);
           state.accounts = null;
-          toast(warning || (c ? 'Kulüp güncellendi.' : 'Kulüp eklendi.'));
+          if (warning) notice('Giriş hesabı ayarlanamadı', `${warning} Kulübü “Düzenle” ile açıp giriş e-postası ve şifresini yeniden girebilirsin.`);
+          else toast(c ? 'Kulüp güncellendi.' : 'Kulüp eklendi.');
         },
       });
     },
@@ -1384,7 +1430,7 @@
           if (val(fd, 'confirm') !== c.name) return 'Kulüp adı eşleşmiyor.';
           const warning = await api.removeClub(id);
           state.accounts = null;
-          toast(warning || 'Kulüp silindi.');
+          if (warning) notice('Giriş hesabı silinemedi', warning); else toast('Kulüp silindi.');
         },
       });
     },

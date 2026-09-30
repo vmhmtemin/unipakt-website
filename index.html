@@ -2325,6 +2325,95 @@
     100% { transform: perspective(1200px) rotateY(0deg); }
   }
   .story-card.story-tease { animation: storyTease .95s cubic-bezier(.3,.7,.3,1) 1; }
+
+  /* ============================================================
+     TAKVİM — public calendar page
+     ============================================================ */
+  .site-cal-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+  .site-cal-head h2 { font-size: clamp(26px, 3vw, 36px); margin: 0; }
+  .site-cal-nav { display: flex; gap: 8px; }
+  .site-cal-btn {
+    font: 500 14px/1 'Inter', sans-serif; color: var(--ink); cursor: pointer;
+    padding: 10px 16px; border-radius: 999px; border: 1px solid var(--border-strong); background: transparent;
+    transition: border-color .2s ease, color .2s ease;
+  }
+  .site-cal-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .site-cal-grid {
+    display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
+    border: 1px solid var(--border); border-radius: 22px; overflow: hidden; background: var(--paper-soft);
+  }
+  .site-cal-dow { padding: 12px 8px; font-size: 12.5px; font-weight: 600; text-align: center; opacity: .55; border-bottom: 1px solid var(--border); }
+  .site-cal-day {
+    min-height: 108px; padding: 9px; text-align: left; display: flex; flex-direction: column; gap: 6px;
+    font: inherit; color: var(--ink); cursor: pointer; background: transparent; border: 0;
+    border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    transition: background .15s ease;
+  }
+  .site-cal-day:nth-child(7n) { border-right: 0; }
+  .site-cal-day.last-row { border-bottom: 0; }
+  .site-cal-day:hover { background: color-mix(in srgb, var(--ink) 5%, transparent); }
+  .site-cal-day.out { opacity: .3; }
+  .site-cal-day .num { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .site-cal-day.today .num { background: var(--ink); color: var(--paper); }
+  .site-cal-day.selected { box-shadow: inset 0 0 0 1.5px var(--accent); background: color-mix(in srgb, var(--accent) 7%, transparent); }
+  .site-cal-day .chips { display: grid; gap: 3px; width: 100%; }
+  .site-cal-day .chip {
+    display: block; padding: 3px 8px; border-radius: 7px; background: var(--accent); color: var(--on-accent);
+    font-size: 12px; font-weight: 600; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .site-cal-lists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px clamp(28px, 5vw, 72px); margin-top: clamp(36px, 5vw, 56px); }
+  .site-cal-sub { font-size: clamp(20px, 2.2vw, 26px); margin: 0 0 16px; }
+  .site-cal-events { list-style: none; margin: 0; padding: 0; }
+  .site-cal-event { display: flex; gap: 18px; align-items: flex-start; padding: 18px 0; border-top: 1px solid var(--border); }
+  .site-cal-event:last-child { border-bottom: 1px solid var(--border); }
+  .site-cal-event h3 { margin: 0; font-size: 19px; line-height: 1.25; overflow-wrap: anywhere; }
+  .site-cal-meta { margin: 6px 0 0; font-size: 14.5px; opacity: .65; }
+  .site-cal-desc { margin: 10px 0 0; font-size: 15.5px; line-height: 1.6; opacity: .85; white-space: pre-line; overflow-wrap: anywhere; }
+  .site-cal-date {
+    flex: none; width: 62px; padding: 10px 4px; text-align: center; cursor: pointer;
+    font: inherit; color: var(--ink); background: transparent; border: 1px solid var(--border-strong); border-radius: 14px;
+    transition: border-color .2s ease;
+  }
+  .site-cal-date:hover { border-color: var(--accent); }
+  .site-cal-date b { display: block; font: 900 24px/1 'Archivo', sans-serif; letter-spacing: -0.03em; }
+  .site-cal-date span { display: block; margin-top: 4px; font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; opacity: .7; }
+  .site-cal-empty { margin: 0; padding: 22px; border: 1px dashed var(--border-strong); border-radius: 16px; text-align: center; opacity: .6; }
+  @media (max-width: 800px) {
+    .site-cal-lists { grid-template-columns: minmax(0, 1fr); }
+    .site-cal-day { min-height: 60px; padding: 6px 2px; align-items: center; gap: 4px; }
+    .site-cal-day .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; }
+    .site-cal-day .chip { width: 7px; height: 7px; padding: 0; border-radius: 50%; font-size: 0; }
+    .site-cal-dow { padding: 10px 2px; font-size: 11.5px; }
+    .site-cal-grid { border-radius: 18px; }
+    .site-cal-btn { padding: 9px 13px; font-size: 13px; }
+  }
+
+  /* Eight links in the header: keep them on one line at every desktop width. */
+  @media (min-width: 901px) {
+    nav.links { flex-wrap: nowrap; }
+    nav.links a { white-space: nowrap; }
+  }
+  @media (max-width: 1400px) and (min-width: 901px) {
+    nav.links { gap: 20px; }
+    nav.links a { font-size: 15.5px; }
+  }
+  @media (max-width: 1180px) and (min-width: 901px) {
+    nav.links { gap: 14px; }
+    nav.links a { font-size: 14.5px; }
+    nav.links a[data-route="katil"] { padding: 8px 14px; }
+  }
+  @media (max-width: 1100px) and (min-width: 901px) {
+    nav.links { gap: 10px; }
+    nav.links a { font-size: 13.5px; }
+    nav.links a[data-route="katil"] { padding: 7px 12px; }
+    .logo-img { width: 118px; }
+  }
+  @media (max-width: 990px) and (min-width: 901px) {
+    nav.links { gap: 7px; }
+    nav.links a { font-size: 13px; }
+    nav.links a[data-route="katil"] { padding: 7px 10px; }
+    .logo-img { width: 98px; }
+  }
 </style>
 </head>
 <body>
@@ -2357,6 +2446,7 @@
     <nav class="links" id="navLinks">
       <a href="#ana-sayfa" data-route="ana-sayfa">Ana Sayfa</a>
       <a href="#story" data-route="story">The Story</a>
+      <a href="#takvim" data-route="takvim">Takvim</a>
       <a href="#kulupler" data-route="kulupler">Ortak Kulüpler</a>
       <a href="#hakkimizda" data-route="hakkimizda">Hakkımızda</a>
       <a href="#kampus" data-route="kampus">Kampüsünde UniPakt</a>
@@ -2642,6 +2732,19 @@ fill="currentColor" stroke="none">
     </div>
   </section>
 
+  <!-- ================= TAKVİM ================= -->
+  <section class="page" id="page-takvim" data-page="takvim">
+    <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
+      <div class="wrap">
+        <div class="section-title">
+          <h1 data-reveal>Takvim</h1>
+          <p data-reveal>UniPakt ağındaki kulüplerin ortak etkinlikleri, tek takvimde.</p>
+        </div>
+        <div class="site-cal" id="siteCal"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= HAKKIMIZDA ================= -->
   <section class="page" id="page-hakkimizda" data-page="hakkimizda">
     <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
@@ -2870,6 +2973,7 @@ fill="currentColor" stroke="none">
       <h3>Sayfalar</h3>
       <a href="#ana-sayfa" data-route="ana-sayfa">Ana Sayfa</a>
       <a href="#story" data-route="story">The Story</a>
+      <a href="#takvim" data-route="takvim">Takvim</a>
       <a href="#kulupler" data-route="kulupler">Ortak Kulüpler</a>
       <a href="#hakkimizda" data-route="hakkimizda">Hakkımızda</a>
       <a href="#kampus" data-route="kampus">Kampüsünde UniPakt</a>
@@ -2959,10 +3063,14 @@ fill="currentColor" stroke="none">
     if (field.key === 'email') {
       return /^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/.test(raw) ? { href: `mailto:${raw}`, text: raw } : null;
     }
-    if (/^https?:\/\/[^\s"'<>]+$/i.test(raw)) {
+    // A link typed without the protocol ("instagram.com/kulup", "www.kulup.org").
+    let url = raw;
+    if (!/^https?:\/\//i.test(url) && /^[\w-]+(\.[\w-]+)+(\/|$)/.test(url) && (url.includes('/') || !field.base)) url = `https://${url}`;
+    if (/^https?:\/\/[^\s"'<>]+$/i.test(url)) {
       // Show a clean handle for social links, the host for websites.
-      const handle = raw.replace(/\/+$/, '').split('/').pop().replace(/^@/, '');
-      return { href: raw, text: field.base ? `@${handle}` : raw.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/+$/, '') };
+      const clean = url.split(/[?#]/)[0].replace(/\/+$/, '');
+      const handle = clean.split('/').pop().replace(/^@/, '');
+      return { href: url, text: field.base ? `@${handle}` : clean.replace(/^https?:\/\/(www\.)?/i, '') };
     }
     const handle = raw.replace(/^@/, '');
     if (field.base && /^[\w.-]+$/.test(handle)) return { href: `${field.base}${handle}/`, text: `@${handle}` };
@@ -3114,11 +3222,129 @@ fill="currentColor" stroke="none">
         setClubs(next);
         renderClubList(document.getElementById('homeClubList'), CLUBS.slice(0, 3));
         filterClubList();
+        window.rebuildOrbitClubs?.();
       })
       .catch(() => { /* offline or not set up yet: keep what is shown */ });
   })();
 
   clubSearch?.addEventListener('input', () => { clubShown = CLUB_PAGE; filterClubList(); });
+
+  /* ---------- Takvim: public calendar of the network's published events ----------
+     Events are published from the UniPakt panel. Visitors only get the fields the
+     public_events() database function returns (no internal notes or requests). */
+  (function initSiteCalendar() {
+    const host = document.getElementById('siteCal');
+    if (!host) return;
+    const SOURCE = 'https://hcgotmcbwmleeklbvawb.supabase.co/rest/v1/rpc/public_events';
+    const CACHE = 'unipaktEvents.v1';
+    const MONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+    const MONTHS_SHORT = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+    const DOW = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+    const pad = n => String(n).padStart(2, '0');
+    const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const parse = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+    const longDate = (s) => { const d = parse(s); return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; };
+
+    function eventsFromRows(rows) {
+      if (!Array.isArray(rows)) return null;
+      return rows.filter(r => r && clubText(r.title) && /^\d{4}-\d{2}-\d{2}$/.test(r.event_date || '')).slice(0, 500).map(r => ({
+        title: clubText(r.title, 120), date: r.event_date,
+        time: /^\d{2}:\d{2}/.test(r.event_time || '') ? r.event_time.slice(0, 5) : '',
+        place: clubText(r.place, 120), desc: clubText(r.description, 1200), by: clubText(r.organizer, 120) || 'UniPakt'
+      })).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+    }
+
+    const now = new Date();
+    const view = { y: now.getFullYear(), m: now.getMonth(), sel: ymd(now) };
+    let events = [];
+    let loaded = false;
+    try {
+      const cached = eventsFromRows(JSON.parse(localStorage.getItem(CACHE)));
+      if (cached) { events = cached; loaded = true; }
+    } catch (_) { /* no cache yet, or storage is blocked */ }
+
+    const eventRow = (e, withDate) => `
+      <li class="site-cal-event">
+        ${withDate ? `<button type="button" class="site-cal-date" data-cal="${e.date}" aria-label="${esc(longDate(e.date))} gününü göster"><b>${parse(e.date).getDate()}</b><span>${MONTHS_SHORT[parse(e.date).getMonth()]}</span></button>` : ''}
+        <div>
+          <h3>${esc(e.title)}</h3>
+          <p class="site-cal-meta">${esc([withDate ? '' : e.time, withDate && e.time ? `${longDate(e.date)} · ${e.time}` : withDate ? longDate(e.date) : '', e.place, e.by].filter(Boolean).join(' · '))}</p>
+          ${!withDate && e.desc ? `<p class="site-cal-desc">${esc(e.desc)}</p>` : ''}
+        </div>
+      </li>`;
+
+    function render() {
+      const { y, m, sel } = view;
+      const today = ymd(new Date());
+      const offset = (new Date(y, m, 1).getDay() + 6) % 7;            // Monday first
+      const days = new Date(y, m + 1, 0).getDate();
+      const cells = Math.ceil((offset + days) / 7) * 7;
+      const byDay = {};
+      events.forEach((e) => { (byDay[e.date] = byDay[e.date] || []).push(e); });
+      let grid = DOW.map(d => `<div class="site-cal-dow">${d}</div>`).join('');
+      for (let i = 0; i < cells; i++) {
+        const d = new Date(y, m, i - offset + 1);
+        const key = ymd(d);
+        const list = byDay[key] || [];
+        const cls = ['site-cal-day', d.getMonth() !== m ? 'out' : '', key === today ? 'today' : '', key === sel ? 'selected' : '',
+          list.length ? 'has-events' : '', i >= cells - 7 ? 'last-row' : ''].filter(Boolean).join(' ');
+        grid += `<button type="button" class="${cls}" data-cal="${key}" aria-label="${esc(longDate(key))}${list.length ? `, ${list.length} etkinlik` : ''}">
+          <span class="num">${d.getDate()}</span>
+          <span class="chips">${list.slice(0, 3).map(e => `<span class="chip">${esc(e.title)}</span>`).join('')}</span>
+        </button>`;
+      }
+      const selected = byDay[sel] || [];
+      const upcoming = events.filter(e => e.date >= today).slice(0, 5);
+      host.innerHTML = `
+        <div class="site-cal-head">
+          <h2>${MONTHS[m]} ${y}</h2>
+          <div class="site-cal-nav">
+            <button type="button" class="site-cal-btn" data-cal="prev" aria-label="Önceki ay">‹ Önceki</button>
+            <button type="button" class="site-cal-btn" data-cal="today">Bugün</button>
+            <button type="button" class="site-cal-btn" data-cal="next" aria-label="Sonraki ay">Sonraki ›</button>
+          </div>
+        </div>
+        <div class="site-cal-grid">${grid}</div>
+        <div class="site-cal-lists">
+          <section>
+            <h2 class="site-cal-sub">${esc(longDate(sel))}</h2>
+            ${selected.length ? `<ul class="site-cal-events">${selected.map(e => eventRow(e, false)).join('')}</ul>`
+              : '<p class="site-cal-empty">Bu günde etkinlik yok.</p>'}
+          </section>
+          <section>
+            <h2 class="site-cal-sub">Yaklaşan etkinlikler</h2>
+            ${upcoming.length ? `<ul class="site-cal-events">${upcoming.map(e => eventRow(e, true)).join('')}</ul>`
+              : `<p class="site-cal-empty">${loaded ? 'Şu an yaklaşan etkinlik yok.' : 'Etkinlikler yükleniyor…'}</p>`}
+          </section>
+        </div>`;
+    }
+
+    host.addEventListener('click', (event) => {
+      const btn = event.target.closest('[data-cal]');
+      if (!btn) return;
+      const v = btn.dataset.cal;
+      if (v === 'prev' || v === 'next') {
+        const d = new Date(view.y, view.m + (v === 'next' ? 1 : -1), 1);
+        view.y = d.getFullYear(); view.m = d.getMonth();
+      } else {
+        const d = v === 'today' ? new Date() : parse(v);
+        view.y = d.getFullYear(); view.m = d.getMonth(); view.sel = ymd(d);
+      }
+      render();
+    });
+
+    render();
+    fetch(SOURCE, { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: '{}' })
+      .then(r => (r.ok ? r.json() : Promise.reject(new Error(r.status))))
+      .then((rows) => {
+        const next = eventsFromRows(rows);
+        if (!next) return;
+        try { localStorage.setItem(CACHE, JSON.stringify(rows)); } catch (_) {}
+        events = next; loaded = true;
+        render();
+      })
+      .catch(() => { loaded = true; render(); /* offline or not set up yet: show what we have */ });
+  })();
 
   // Ortak Kulüpler listesindeki satırları sadece bu liste içinde aç/kapat.
   fullClubList?.addEventListener('click', (event) => {
@@ -3796,7 +4022,7 @@ fill="currentColor" stroke="none">
   const routeLinks = document.querySelectorAll('[data-route]');
   const menuToggle = document.getElementById('menuToggle');
   const navLinks = document.getElementById('navLinks');
-  const validRoutes = ['ana-sayfa','kulupler','hakkimizda','kampus','story','iletisim','katil'];
+  const validRoutes = ['ana-sayfa','kulupler','hakkimizda','kampus','story','takvim','iletisim','katil'];
 
   function showRoute(route) {
     if (!validRoutes.includes(route)) route = 'ana-sayfa';
@@ -4061,26 +4287,7 @@ fill="currentColor" stroke="none">
       { r: 0.29, period: 24, dir: 1,  cls: 'r3', start: 2.1 }
     ];
     const MAX = 9;
-    const clubs = CLUBS.slice(0, MAX);
-    const perRing = [0, 0, 0];
-    const items = clubs.map((club, i) => {
-      const ring = i % RINGS.length;
-      const slot = perRing[ring]++;
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.tabIndex = -1; // decorative: the same clubs are in the list below
-      btn.className = `orbit-club ${RINGS[ring].cls}`;
-      btn.style.setProperty('--s', `${[11, 9, 10][slot % 3]}px`);
-      btn.innerHTML = `<span class="orbit-club-label"><b></b><small></small></span>`;
-      btn.querySelector('b').textContent = club.name;
-      btn.querySelector('small').textContent = club.uni;
-      layer.appendChild(btn);
-      return { btn, club, ring, slot };
-    });
-    // Spread each ring's clubs evenly around it.
-    const counts = [...perRing];
-    items.forEach(it => { it.offset = (it.slot / Math.max(1, counts[it.ring])) * Math.PI * 2; });
-
+    let items = [];
     let open = null;
     let speed = 1;
     let angle = [0, 0, 0];
@@ -4093,13 +4300,37 @@ fill="currentColor" stroke="none">
       it?.btn.classList.add('open');
     }
 
-    items.forEach((it) => {
-      it.btn.addEventListener('click', (e) => {
-        // Touch: first tap opens the name, second tap goes to the club list.
-        if (e.pointerType !== 'mouse' && open !== it) { setOpen(it); return; }
-        goToClub(it);
+    // Draws one dot per club. Runs again when the club list changes, so a club
+    // added from the panel shows up on the orbit without a reload.
+    function build() {
+      open = null;
+      layer.textContent = '';
+      const perRing = [0, 0, 0];
+      items = CLUBS.slice(0, MAX).map((club, i) => {
+        const ring = i % RINGS.length;
+        const slot = perRing[ring]++;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.tabIndex = -1; // decorative: the same clubs are in the list below
+        btn.className = `orbit-club ${RINGS[ring].cls}`;
+        btn.style.setProperty('--s', `${[11, 9, 10][slot % 3]}px`);
+        btn.innerHTML = `<span class="orbit-club-label"><b></b><small></small></span>`;
+        btn.querySelector('b').textContent = club.name;
+        btn.querySelector('small').textContent = club.uni;
+        layer.appendChild(btn);
+        const it = { btn, club, ring, slot };
+        btn.addEventListener('click', (e) => {
+          // Touch: first tap opens the name, second tap goes to the club list.
+          if (e.pointerType !== 'mouse' && open !== it) { setOpen(it); return; }
+          goToClub(it);
+        });
+        return it;
       });
-    });
+      // Spread each ring's clubs evenly around it.
+      items.forEach(it => { it.offset = (it.slot / Math.max(1, perRing[it.ring])) * Math.PI * 2; });
+    }
+    build();
+    window.rebuildOrbitClubs = build;
 
     function goToClub(it) {
       sessionStorage.setItem('unipakt-pending-club-search', it.club.name);
