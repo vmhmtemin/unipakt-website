@@ -3014,13 +3014,13 @@ fill="currentColor" stroke="none">
   // read-only for visitors). The list above is only the fallback. The copy from the
   // last visit is used straight away so nothing on the page waits for the network;
   // the fresh list replaces it a moment later (see refreshClubs below).
-  const CLUBS_SOURCE = 'https://hcgotmcbwmleeklbvawb.supabase.co/rest/v1/clubs?select=name,university,category,email,instagram,linkedin,x,tiktok,web&order=created_at';
+  const CLUBS_SOURCE = 'https://hcgotmcbwmleeklbvawb.supabase.co/rest/v1/clubs?select=name,university,category,email,instagram,linkedin,x,tiktok,web,visible&visible=eq.true&order=created_at';
   const CLUBS_KEY = 'sb_publishable_RcHJDYGkpd-01DPYG9o3HQ_8prlhUQn';
-  const CLUBS_CACHE = 'unipaktClubs.v1';
+  const CLUBS_CACHE = 'unipaktClubs.v3';
   const clubText = (value, max = 200) => (typeof value === 'string' ? value.trim().slice(0, max) : '');
   function clubsFromRows(rows) {
     if (!Array.isArray(rows)) return null;
-    return rows.filter(r => r && clubText(r.name) && clubText(r.university)).slice(0, 500).map(r => ({
+    return rows.filter(r => r && r.visible !== false && clubText(r.name) && clubText(r.university)).slice(0, 500).map(r => ({
       name: clubText(r.name, 120), uni: clubText(r.university, 120), cat: clubText(r.category, 40),
       contact: { email: clubText(r.email), instagram: clubText(r.instagram), linkedin: clubText(r.linkedin), x: clubText(r.x), tiktok: clubText(r.tiktok), web: clubText(r.web) }
     }));
