@@ -960,7 +960,7 @@
     .story-after-copy p { font-size: 16px; line-height: 1.58; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .story-logo-button, .story-logo, .story-card-inner { transition: none !important; }
+    .story-logo-button, .story-logo { transition: none !important; }
     .story-stage.zooming .story-logo { transform: none; }
     .story-stage.story-transforming::after, .story-team.show { animation: none !important; }
     .story-team.show { opacity: 1; transform: none; }
@@ -2312,9 +2312,6 @@
   }
   .story-card.story-mehmet-spin .story-card-inner {
     animation: storyMehmetSpin 1.25s cubic-bezier(.22,.8,.24,1) 1;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .story-card.story-mehmet-spin .story-card-inner { animation: none; }
   }
   .story-contact-links { display: grid; gap: 12px; width: min(100%, 270px); text-align: center; }
   .story-contact-links a {
