@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://*.supabase.co; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'">
 <meta name="robots" content="noindex, nofollow">
 <title>UniPakt Panel</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -80,6 +80,11 @@
   .account small { display: block; opacity: .6; font-size: 13px; margin-top: 2px; }
   .account .role { font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--border-strong); white-space: nowrap; }
   .account.is-admin .role { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .login-form { display: grid; gap: 16px; }
+  .login-form .btn { justify-self: start; padding: 14px 28px; font-size: 15px; }
+  .btn:disabled { opacity: .55; cursor: progress; }
+  .loading { opacity: .6; }
+  button.proof { background: transparent; cursor: pointer; text-align: left; }
   .demo-note { margin-top: 22px; font-size: 13px; line-height: 1.6; opacity: .6; }
 
   /* ---- App shell ---- */
@@ -240,7 +245,7 @@
   .field input[type="file"] { padding: 10px; font-size: 13px; }
 
   /* ---- Dialog & form ---- */
-  dialog { width: min(100% - 32px, 540px); max-height: calc(100dvh - 32px); padding: 0; border: 1px solid var(--border-strong); border-radius: 22px; background: #0B0B0B; color: var(--ink); }
+  dialog { width: min(100% - 32px, 560px); max-height: calc(100dvh - 32px); padding: 0; border: 1px solid var(--border-strong); border-radius: 22px; background: #0B0B0B; color: var(--ink); }
   dialog::backdrop { background: rgba(0, 0, 0, .72); }
   dialog form { padding: 26px; display: grid; gap: 16px; }
   dialog h2 { font: 900 26px/1.1 'Archivo', sans-serif; letter-spacing: -0.03em; }
@@ -263,6 +268,7 @@
   .checks label:hover { background: #151515; }
   .checks input { width: 17px; height: 17px; accent-color: var(--accent); flex: none; }
   .form-error { color: var(--no); font-size: 13px; }
+  .form-section { margin-top: 6px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 13px; font-weight: 600; opacity: .7; }
   .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
 
   .toast {
@@ -332,10 +338,21 @@
      Everything lives in this browser's localStorage. When the real
      backend arrives, only `load`, `save` and the login need to change.
      ------------------------------------------------------------------ */
-  const KEY = 'unipaktPanelDemo.v2';
+  const KEY = 'unipaktPanelDemo.v3';
   const SESSION = 'unipaktPanelUser';
   const ADMIN = 'unipakt';
   const OTHER = 'Etkinlik dışı';
+  const CLUB_CATEGORIES = ['Yazılım', 'Tasarım', 'Girişim', 'Eğlence'];
+  // Same keys as the public site's club contact tiles.
+  const CONTACT_KEYS = [['email', 'E-posta'], ['instagram', 'Instagram'], ['linkedin', 'LinkedIn'], ['x', 'X'], ['tiktok', 'TikTok'], ['web', 'Web sitesi']];
+
+  // Supabase project. The publishable key is meant to be public; access is
+  // enforced by the row level security rules in supabase/schema.sql.
+  const SUPABASE_URL = 'https://hcgotmcbwmleeklbvawb.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_RcHJDYGkpd-01DPYG9o3HQ_8prlhUQn';
+  // panel.html?demo keeps everything in this browser and needs no account.
+  const DEMO = new URLSearchParams(location.search).has('demo');
+  const MAX_FILE = (DEMO ? 1 : 5) * 1024 * 1024;
 
   const pad = (n) => String(n).padStart(2, '0');
   const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -352,10 +369,11 @@
 
   const seed = () => ({
     clubs: [
-      { id: 'c1', name: 'GDG on Campus', uni: 'İstinye Üniversitesi' },
-      { id: 'c2', name: 'Örnek Tasarım Kulübü', uni: 'Marmara Üniversitesi' },
-      { id: 'c3', name: 'Örnek Girişimcilik Kulübü', uni: 'Boğaziçi Üniversitesi' },
-      { id: 'c4', name: 'Örnek Müzik Kulübü', uni: 'Yıldız Teknik Üniversitesi' },
+      { id: 'c1', name: 'GDG on Campus', uni: 'İstinye Üniversitesi', category: 'Yazılım', account: 'gdg@ornek.com',
+        contact: { email: 'iletisim@unipakt.com', instagram: 'unipakt', linkedin: 'https://www.linkedin.com/company/unipakt/', x: 'UniPakt', tiktok: 'unipakt', web: '' } },
+      { id: 'c2', name: 'Örnek Tasarım Kulübü', uni: 'Marmara Üniversitesi', category: 'Tasarım', account: 'tasarim@ornek.com', contact: {} },
+      { id: 'c3', name: 'Örnek Girişimcilik Kulübü', uni: 'Boğaziçi Üniversitesi', category: 'Girişim', account: '', contact: {} },
+      { id: 'c4', name: 'Örnek Müzik Kulübü', uni: 'Yıldız Teknik Üniversitesi', category: 'Eğlence', account: '', contact: {} },
     ],
     announcements: [
       { id: 'a1', title: 'Panele hoş geldiniz', body: 'UniPakt paneli artık açık. Duyurularınızı, ortak aradığınız etkinlikleri ve görevlerinizi buradan yönetebilirsiniz.', authorId: ADMIN, status: 'published', createdAt: isoOffset(-6), decidedAt: isoOffset(-6) },
@@ -396,8 +414,8 @@
     ],
   });
 
-  let db;
-  const load = () => {
+  let db = null;
+  const loadLocal = () => {
     try {
       const raw = localStorage.getItem(KEY);
       db = raw ? JSON.parse(raw) : null;
@@ -406,6 +424,258 @@
   };
   // Returns false when the browser refuses (private mode, or an attachment over the quota).
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); return true; } catch (_) { return false; } };
+
+  /* ------------------------------------------------------------------
+     SUPABASE CLIENT (plain fetch: auth, REST, storage)
+     ------------------------------------------------------------------ */
+  const TOKENS = 'unipaktPanelSession';
+  let session = null;   // { access_token, refresh_token, expires_at, user_id }
+  const writeSession = (next) => {
+    session = next;
+    try { next ? localStorage.setItem(TOKENS, JSON.stringify(next)) : localStorage.removeItem(TOKENS); } catch (_) {}
+  };
+  const readSession = () => {
+    try { session = JSON.parse(localStorage.getItem(TOKENS)); } catch (_) { session = null; }
+    if (!session || !session.access_token || !session.refresh_token) session = null;
+  };
+  const signedOut = (message) => { writeSession(null); state.user = null; db = null; return new Error(message); };
+
+  const authCall = async (grant, body) => {
+    let r, data = {};
+    try {
+      r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=${grant}`, {
+        method: 'POST', headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      data = await r.json().catch(() => ({}));
+    } catch (_) { throw new Error('Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.'); }
+    if (!r.ok || !data.access_token) { const e = new Error(data.msg || data.error_description || 'Giriş yapılamadı.'); e.status = r.status; throw e; }
+    writeSession({ access_token: data.access_token, refresh_token: data.refresh_token,
+      expires_at: Date.now() + (data.expires_in || 3600) * 1000, user_id: data.user.id });
+  };
+  let refreshing = null;
+  const token = async () => {
+    if (!session) throw signedOut('Oturum kapalı. Tekrar giriş yap.');
+    if (Date.now() > session.expires_at - 60000) {
+      refreshing = refreshing || authCall('refresh_token', { refresh_token: session.refresh_token }).finally(() => { refreshing = null; });
+      try { await refreshing; } catch (e) {
+        if (e.status) throw signedOut('Oturumun süresi doldu. Tekrar giriş yap.');
+        throw e;
+      }
+    }
+    return session.access_token;
+  };
+  const call = async (path, { method = 'GET', body, raw = false, headers = {} } = {}) => {
+    const auth = await token();
+    let r;
+    try {
+      r = await fetch(SUPABASE_URL + path, {
+        method,
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${auth}`, ...(body !== undefined && !raw ? { 'Content-Type': 'application/json' } : {}), ...headers },
+        body: body === undefined ? undefined : raw ? body : JSON.stringify(body),
+      });
+    } catch (_) { throw new Error('Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.'); }
+    const text = await r.text();
+    let data = null;
+    try { data = text ? JSON.parse(text) : null; } catch (_) {}
+    if (r.status === 401) throw signedOut('Oturumun süresi doldu. Tekrar giriş yap.');
+    if (!r.ok) { const e = new Error((data && (data.message || data.error || data.msg)) || 'İşlem yapılamadı.'); e.status = r.status; throw e; }
+    return data;
+  };
+  const rest = (query, opts) => call(`/rest/v1/${query}`, opts);
+  const eq = (id) => `id=eq.${encodeURIComponent(id)}`;
+
+  // Reads everything this account is allowed to see into the same shape the demo uses.
+  const loadRemote = async () => {
+    const profiles = await rest(`profiles?select=role,club_id&id=eq.${encodeURIComponent(session.user_id)}`);
+    const profile = profiles && profiles[0];
+    if (!profile) throw signedOut('Bu hesaba panel yetkisi verilmemiş. UniPakt ile iletişime geç.');
+    const [clubs, anns, events, apps, tasks, points, board] = await Promise.all([
+      rest('clubs?select=*&order=name'), rest('announcements?select=*'), rest('events?select=*'),
+      rest('event_applications?select=*&order=created_at'), rest('tasks?select=*'), rest('point_entries?select=*'),
+      rest('rpc/leaderboard', { method: 'POST', body: {} }),
+    ]);
+    const owner = (clubId) => clubId || ADMIN;
+    db = {
+      clubs: clubs.map((c) => ({ id: c.id, name: c.name, uni: c.university, category: c.category || '',
+        contact: Object.fromEntries(CONTACT_KEYS.map(([k]) => [k, c[k] || ''])) })),
+      announcements: anns.map((a) => ({ id: a.id, title: a.title, body: a.body, authorId: owner(a.club_id), status: a.status, note: a.note || '', createdAt: a.created_at, decidedAt: a.decided_at })),
+      events: events.map((e) => ({ id: e.id, title: e.title, desc: e.description, date: e.event_date, time: (e.event_time || '').slice(0, 5), place: e.place || '', seeking: e.seeking || '',
+        ownerId: owner(e.club_id), status: e.status, note: e.note || '', createdAt: e.created_at, decidedAt: e.decided_at,
+        applications: apps.filter((p) => p.event_id === e.id).map((p) => ({ id: p.id, clubId: p.club_id, note: p.note, status: p.status, createdAt: p.created_at })) })),
+      tasks: tasks.map((t) => ({ id: t.id, title: t.title, desc: t.description || '', due: t.due_date || '', clubId: t.club_id, status: t.status,
+        doneText: t.proof_text || '', doneFile: t.proof_path ? { name: t.proof_name || 'dosya', path: t.proof_path } : null, doneAt: t.done_at, createdAt: t.created_at })),
+      pointLog: points.map((l) => ({ id: l.id, clubId: l.club_id, eventId: l.event_id || '', label: l.label, delta: l.delta, note: l.note || '', at: l.created_at })),
+      board: board.map((b) => ({ id: b.club_id, name: b.name, uni: b.university, points: Number(b.points) })),
+    };
+    state.user = profile.role === 'admin' ? ADMIN : profile.club_id;
+  };
+
+  const stamp = () => new Date().toISOString();
+  const clubOrNull = () => (isAdmin() ? null : state.user);
+  const readDataUrl = (file) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error('Dosya okunamadı.'));
+    reader.readAsDataURL(file);
+  });
+
+  /* ------------------------------------------------------------------
+     API — one set of operations, two homes: this browser (demo) or Supabase.
+     Every call resolves once `db` reflects the change.
+     ------------------------------------------------------------------ */
+  const local = {
+    async addAnnouncement({ title, body }) {
+      const at = stamp();
+      db.announcements.push({ id: uid(), title, body, authorId: state.user, status: isAdmin() ? 'published' : 'pending', createdAt: at, decidedAt: isAdmin() ? at : undefined });
+      save();
+    },
+    async decideAnnouncement(id, status, note = '') {
+      const a = db.announcements.find((x) => x.id === id); if (!a) return;
+      Object.assign(a, { status, note, decidedAt: stamp() }); save();
+    },
+    async removeAnnouncement(id) { db.announcements = db.announcements.filter((x) => x.id !== id); save(); },
+    async addEvent(f) {
+      db.events.push({ id: uid(), ...f, ownerId: state.user, status: isAdmin() ? 'published' : 'pending', createdAt: stamp(), applications: [] });
+      save();
+    },
+    async decideEvent(id, status, note = '') {
+      const e = db.events.find((x) => x.id === id); if (!e) return;
+      Object.assign(e, { status, note, decidedAt: stamp() }); save();
+    },
+    async removeEvent(id) { db.events = db.events.filter((x) => x.id !== id); save(); },
+    async applyEvent(eventId, note) {
+      const e = db.events.find((x) => x.id === eventId); if (!e) return;
+      if (e.applications.some((p) => p.clubId === state.user)) throw new Error('Bu etkinliğe zaten başvurdun.');
+      e.applications.push({ id: uid(), clubId: state.user, note, status: 'pending', createdAt: stamp() }); save();
+    },
+    async decideApplication(eventId, appId, status) {
+      const p = db.events.find((x) => x.id === eventId)?.applications.find((x) => x.id === appId); if (!p) return;
+      p.status = status; save();
+    },
+    async addTasks(clubIds, { title, desc, due }) {
+      const at = stamp();
+      clubIds.forEach((clubId) => db.tasks.push({ id: uid(), title, desc, due, clubId, status: 'open', createdAt: at }));
+      save();
+    },
+    async completeTask(task, text, file) {
+      const doneFile = file ? { name: file.name.slice(0, 120), type: file.type, data: await readDataUrl(file) } : null;
+      Object.assign(task, { status: 'done', doneText: text, doneFile, doneAt: stamp() });
+      if (!save()) {
+        Object.assign(task, { status: 'open', doneText: undefined, doneFile: undefined, doneAt: undefined });
+        throw new Error('Dosya bu demoda saklanamadı. Daha küçük bir dosya dene.');
+      }
+    },
+    async removeTask(id) { db.tasks = db.tasks.filter((x) => x.id !== id); save(); },
+    async addPoints(entry) { db.pointLog.push({ id: uid(), ...entry, at: stamp() }); save(); },
+    async saveClub(id, fields, account) {
+      let c = id ? club(id) : null;
+      if (!c) db.clubs.push(c = { id: uid(), account: '' });
+      Object.assign(c, fields);
+      if (account.email) c.account = account.email;
+      save();
+    },
+    async removeClub(id) {
+      db.clubs = db.clubs.filter((c) => c.id !== id);
+      db.announcements = db.announcements.filter((a) => a.authorId !== id);
+      db.events = db.events.filter((e) => e.ownerId !== id);
+      db.events.forEach((e) => { e.applications = e.applications.filter((p) => p.clubId !== id); });
+      db.tasks = db.tasks.filter((t) => t.clubId !== id);
+      db.pointLog = db.pointLog.filter((l) => l.clubId !== id);
+      save();
+    },
+    async accounts() { return Object.fromEntries(db.clubs.map((c) => [c.id, c.account || ''])); },
+    async refresh() { loadLocal(); },
+  };
+
+  const remote = {
+    async addAnnouncement({ title, body }) {
+      await rest('announcements', { method: 'POST', body: isAdmin()
+        ? { title, body, status: 'published', decided_at: stamp() }
+        : { title, body, club_id: state.user } });
+    },
+    async decideAnnouncement(id, status, note = '') {
+      await rest(`announcements?${eq(id)}`, { method: 'PATCH', body: { status, note: note || null, decided_at: stamp() } });
+    },
+    async removeAnnouncement(id) { await rest(`announcements?${eq(id)}`, { method: 'DELETE' }); },
+    async addEvent(f) {
+      const row = { title: f.title, description: f.desc, event_date: f.date, event_time: f.time || null, place: f.place || null, seeking: f.seeking || null, club_id: clubOrNull() };
+      if (isAdmin()) Object.assign(row, { status: 'published', decided_at: stamp() });
+      await rest('events', { method: 'POST', body: row });
+    },
+    async decideEvent(id, status, note = '') {
+      await rest(`events?${eq(id)}`, { method: 'PATCH', body: { status, note: note || null, decided_at: stamp() } });
+    },
+    async removeEvent(id) { await rest(`events?${eq(id)}`, { method: 'DELETE' }); },
+    async applyEvent(eventId, note) {
+      await rest('event_applications', { method: 'POST', body: { event_id: eventId, club_id: state.user, note } });
+    },
+    async decideApplication(eventId, appId, status) {
+      await rest(`event_applications?${eq(appId)}`, { method: 'PATCH', body: { status, decided_at: stamp() } });
+    },
+    async addTasks(clubIds, { title, desc, due }) {
+      await rest('tasks', { method: 'POST', body: clubIds.map((club_id) => ({ club_id, title, description: desc || null, due_date: due || null })) });
+    },
+    async completeTask(task, text, file) {
+      let path = null;
+      if (file) {
+        // Storage keys only accept plain ASCII; the original name is kept in proof_name.
+        const safe = file.name.normalize('NFKD').replace(/[^A-Za-z0-9._-]+/g, '_').slice(-80) || 'dosya';
+        path = `${state.user}/${task.id}/${Date.now()}-${safe}`;
+        await call(`/storage/v1/object/task-proofs/${path}`, { method: 'POST', body: file, raw: true, headers: { 'Content-Type': file.type } });
+      }
+      await rest('rpc/complete_task', { method: 'POST', body: { p_task: task.id, p_text: text, p_path: path, p_name: file ? file.name.slice(0, 120) : null } });
+    },
+    async removeTask(id) { await rest(`tasks?${eq(id)}`, { method: 'DELETE' }); },
+    async addPoints({ clubId, eventId, label, delta, note }) {
+      await rest('point_entries', { method: 'POST', body: { club_id: clubId, event_id: eventId || null, label, delta, note: note || null } });
+    },
+    // Accounts live in Supabase Auth and need the service key, so they go through the
+    // club-account Edge Function. Returns a warning text when that part could not be done.
+    async account(body) {
+      try { return await call('/functions/v1/club-account', { method: 'POST', body }); }
+      catch (e) { throw e.status === 404 ? new Error('hesap fonksiyonu (club-account) Supabase’e henüz kurulmamış') : e; }
+    },
+    async saveClub(id, fields, account) {
+      const row = { name: fields.name, university: fields.uni, category: fields.category || null };
+      CONTACT_KEYS.forEach(([k]) => { row[k] = fields.contact[k] || null; });
+      if (id) await rest(`clubs?${eq(id)}`, { method: 'PATCH', body: row });
+      else id = (await rest('clubs', { method: 'POST', body: row, headers: { Prefer: 'return=representation' } }))[0].id;
+      if (!account.email) return '';
+      try { await remote.account({ action: 'set', club_id: id, email: account.email, password: account.password }); return ''; }
+      catch (e) { if (!state.user) throw e; return `Kulüp kaydedildi ama giriş hesabı ayarlanamadı: ${e.message}`; }
+    },
+    async removeClub(id) {
+      let warning = '';
+      try { await remote.account({ action: 'remove', club_id: id }); }
+      catch (e) { if (!state.user) throw e; warning = `Kulüp silindi ama giriş hesabı silinemedi: ${e.message}`; }
+      await rest(`clubs?${eq(id)}`, { method: 'DELETE' });
+      return warning;
+    },
+    async accounts() {
+      const data = await remote.account({ action: 'list' });
+      return Object.fromEntries((data.accounts || []).map((a) => [a.club_id, a.email]));
+    },
+    async refresh() { await loadRemote(); },
+    async proofUrl(path) {
+      const data = await call(`/storage/v1/object/sign/task-proofs/${path}`, { method: 'POST', body: { expiresIn: 120 } });
+      return `${SUPABASE_URL}/storage/v1${data.signedURL}`;
+    },
+    async login(email, password) {
+      try { await authCall('password', { email, password }); }
+      catch (e) { throw e.status === 400 ? new Error('E-posta ya da şifre hatalı.') : e; }
+      await loadRemote();
+    },
+    async logout() {
+      const auth = session && session.access_token;
+      writeSession(null);
+      if (auth) fetch(`${SUPABASE_URL}/auth/v1/logout?scope=local`, { method: 'POST', headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${auth}` } }).catch(() => {});
+    },
+  };
+
+  // Remote writes are followed by a fresh read, so the screen shows what the server kept.
+  const api = DEMO ? local : new Proxy(remote, {
+    get: (target, name) => (['refresh', 'proofUrl', 'login', 'logout', 'accounts', 'account'].includes(name) ? target[name]
+      : async (...args) => { const result = await target[name](...args); await loadRemote(); return result; }),
+  });
 
   /* ------------------------------------------------------------------
      STATE
@@ -417,8 +687,9 @@
     cal: { y: now.getFullYear(), m: now.getMonth(), sel: ymd(now) },
     taskTab: 'open',
     taskClub: 'all',
+    accounts: null,   // { clubId: login e-mail } once loaded, 'loading', or 'unavailable'
   };
-  try { state.user = sessionStorage.getItem(SESSION); } catch (_) {}
+  if (DEMO) { try { state.user = sessionStorage.getItem(SESSION); } catch (_) {} }
 
   const isAdmin = () => state.user === ADMIN;
   const club = (id) => db.clubs.find((c) => c.id === id);
@@ -437,8 +708,11 @@
   const publishedEvents = () => db.events.filter((e) => e.status === 'published').sort(byDate);
   const upcomingEvents = () => publishedEvents().filter((e) => e.date >= today());
   const visibleTasks = () => (isAdmin() ? db.tasks : db.tasks.filter((t) => t.clubId === state.user));
-  const pts = (id) => db.pointLog.filter((l) => l.clubId === id).reduce((sum, l) => sum + l.delta, 0);
-  const ranking = () => db.clubs.map((c) => ({ ...c, points: pts(c.id) })).sort((a, b) => b.points - a.points || a.name.localeCompare(b.name, 'tr'));
+  // With Supabase a club cannot read other clubs' entries, so totals come from the leaderboard.
+  const pts = (id) => (db.board ? (db.board.find((b) => b.id === id)?.points || 0)
+    : db.pointLog.filter((l) => l.clubId === id).reduce((sum, l) => sum + l.delta, 0));
+  const ranking = () => (db.board ? db.board.map((b) => ({ ...b })) : db.clubs.map((c) => ({ ...c, points: pts(c.id) })))
+    .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name, 'tr'));
   const signed = (n) => `${n >= 0 ? '+' : '−'}${Math.abs(n)}`;
 
   const NAV = () => {
@@ -452,6 +726,7 @@
     ];
     if (isAdmin()) items.push(['onaylar', 'Onaylamalar', pendingCount()]);
     items.push(['vanguard', 'UniPakt.Vanguard']);
+    if (isAdmin()) items.push(['kulupler', 'Kulüpler']);
     if (!isAdmin()) items.push(['basvuru', 'Başvurular']);
     return items;
   };
@@ -498,16 +773,23 @@
   };
   dlgForm.addEventListener('click', (e) => { if (e.target.closest('[data-close]')) dlg.close(); });
   dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
-  dlgForm.addEventListener('submit', (e) => {
+  dlgForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const err = dlgForm.querySelector('#dlgError');
+    const button = dlgForm.querySelector('button[type="submit"]');
+    if (button.disabled) return;
     const invalid = [...dlgForm.elements].find((el) => el.willValidate && !el.checkValidity());
     if (invalid) {
       err.textContent = 'Lütfen zorunlu alanları doldur.'; err.hidden = false; invalid.focus(); return;
     }
-    const problem = dlgSubmit ? dlgSubmit(new FormData(dlgForm)) : null;
-    if (typeof problem === 'string') { err.textContent = problem; err.hidden = false; return; }
+    err.hidden = true; button.disabled = true;
+    let problem = null;
+    try { problem = dlgSubmit ? await dlgSubmit(new FormData(dlgForm)) : null; }
+    catch (error) { problem = error.message || 'İşlem yapılamadı.'; }
+    button.disabled = false;
+    if (typeof problem === 'string' && state.user) { err.textContent = problem; err.hidden = false; return; }
     dlg.close();
+    if (typeof problem === 'string') toast(problem);   // signed out while the dialog was open
     render();
   });
 
@@ -577,7 +859,8 @@
     </div>`;
 
   const FILE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf'];
-  const proofFile = (f) => {
+  const proofFile = (f, taskId) => {
+    if (f && f.path) return `<button type="button" class="proof" data-act="proof-open" data-id="${esc(taskId)}"><span>Ek: ${esc(f.name)}</span></button>`;
     if (!f || !FILE_TYPES.includes(f.type) || !String(f.data).startsWith(`data:${f.type};base64,`)) return '';
     const image = f.type.startsWith('image/');
     return `<a class="proof ${image ? 'is-image' : ''}" href="${esc(f.data)}" download="${esc(f.name)}">${image ? `<img src="${esc(f.data)}" alt="">` : ''}<span>Ek: ${esc(f.name)}</span></a>`;
@@ -593,7 +876,7 @@
       </div>
       <h3>${esc(t.title)}</h3>
       ${t.desc ? `<p class="body">${esc(t.desc)}</p>` : ''}
-      ${t.status === 'done' ? `<div class="quote"><small>Kanıt · ${fmtStamp(t.doneAt)}</small>${esc(t.doneText || '')}${proofFile(t.doneFile)}</div>` : ''}
+      ${t.status === 'done' ? `<div class="quote"><small>Kanıt · ${fmtStamp(t.doneAt)}</small>${esc(t.doneText || '')}${proofFile(t.doneFile, t.id)}</div>` : ''}
       <div class="actions">
         ${!isAdmin() && t.status === 'open' ? `<button class="btn small" data-act="task-done" data-id="${t.id}">Görevi bitir</button>` : ''}
         ${isAdmin() ? `<button class="btn ghost small" data-act="task-remove" data-id="${t.id}">Sil</button>` : ''}
@@ -868,6 +1151,37 @@
         ${board}`;
     },
 
+    kulupler() {
+      if (state.accounts === null) {
+        state.accounts = 'loading';
+        api.accounts().then((map) => { state.accounts = map; }, () => { state.accounts = 'unavailable'; })
+          .then(() => { if (state.view === 'kulupler' && state.user && !dlg.open) render(); });
+      }
+      const accountLine = (c) => {
+        if (state.accounts === 'loading') return 'Giriş hesabı: yükleniyor…';
+        if (state.accounts === 'unavailable') return 'Giriş hesabı: bilgi alınamadı';
+        const email = state.accounts[c.id];
+        return email ? `Giriş hesabı: ${esc(email)}` : '<span class="tag no">Giriş hesabı yok</span>';
+      };
+      const list = [...db.clubs].sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+      return `
+        ${head('Kulüpler', 'Buradaki kulüpler unipakt.com’daki Ortak Kulüpler sayfasında görünür. İletişim bilgilerini değiştirdiğinde sitede de değişir.',
+          '<button class="btn" data-act="club-new">Kulüp ekle</button>')}
+        <div class="stack">${list.length ? list.map((c) => {
+          const filled = CONTACT_KEYS.filter(([k]) => c.contact && c.contact[k]);
+          return `
+          <article class="card item">
+            <div class="meta top">${c.category ? `<span class="tag">${esc(c.category)}</span>` : '<span class="tag wait">Kategori yok</span>'}<span>${esc(c.uni)}</span></div>
+            <h3>${esc(c.name)}</h3>
+            <div class="meta">${filled.length ? filled.map(([k, label]) => `<span>${label}: ${esc(c.contact[k])}</span>`).join('') : '<span>İletişim bilgisi eklenmemiş</span>'}</div>
+            <div class="meta"><span>${accountLine(c)}</span></div>
+            <div class="actions">
+              <button class="btn ghost small" data-act="club-edit" data-id="${esc(c.id)}">Düzenle</button>
+              <button class="btn danger small" data-act="club-remove" data-id="${esc(c.id)}">Sil</button>
+            </div>
+          </article>`; }).join('') : empty('Henüz kulüp yok.')}</div>`;
+    },
+
     basvuru() {
       const anns = db.announcements.filter((a) => a.authorId === state.user).sort(byNewest);
       const evs = db.events.filter((e) => e.ownerId === state.user).sort(byNewest);
@@ -899,11 +1213,11 @@
     title, lead: 'İstersen kulübe kısa bir not bırak.',
     fields: field('Not (isteğe bağlı)', '<textarea name="note" maxlength="400"></textarea>'),
     submit: 'Reddet', danger: true,
-    onSubmit: (fd) => { apply(val(fd, 'note')); save(); toast('Reddedildi.'); },
+    onSubmit: async (fd) => { await apply(val(fd, 'note')); toast('Reddedildi.'); },
   });
-  const confirmRemove = (title, lead, apply) => openForm({
-    title, lead, submit: 'Kaldır', danger: true,
-    onSubmit: () => { apply(); save(); toast('Kaldırıldı.'); },
+  const confirmRemove = (title, lead, apply, submit = 'Kaldır') => openForm({
+    title, lead, submit, danger: true,
+    onSubmit: async () => { await apply(); toast(submit === 'Sil' ? 'Silindi.' : 'Kaldırıldı.'); },
   });
 
   const actions = {
@@ -914,25 +1228,15 @@
         fields: field('Başlık', '<input name="title" required maxlength="120">')
           + field('Duyuru metni', '<textarea name="body" required maxlength="1500"></textarea>'),
         submit: isAdmin() ? 'Yayınla' : 'Onaya gönder',
-        onSubmit: (fd) => {
-          const stamp = new Date().toISOString();
-          db.announcements.push({ id: uid(), title: val(fd, 'title'), body: val(fd, 'body'), authorId: state.user,
-            status: isAdmin() ? 'published' : 'pending', createdAt: stamp, decidedAt: isAdmin() ? stamp : undefined });
-          save(); toast(isAdmin() ? 'Duyuru yayınlandı.' : 'Duyuru onaya gönderildi.');
+        onSubmit: async (fd) => {
+          await api.addAnnouncement({ title: val(fd, 'title'), body: val(fd, 'body') });
+          toast(isAdmin() ? 'Duyuru yayınlandı.' : 'Duyuru onaya gönderildi.');
         },
       });
     },
-    'ann-approve'(id) {
-      const a = db.announcements.find((x) => x.id === id); if (!a) return;
-      a.status = 'published'; a.decidedAt = new Date().toISOString(); save(); toast('Duyuru yayınlandı.'); render();
-    },
-    'ann-reject'(id) {
-      const a = db.announcements.find((x) => x.id === id); if (!a) return;
-      rejectWithNote('Duyuruyu reddet', (note) => { a.status = 'rejected'; a.note = note; a.decidedAt = new Date().toISOString(); });
-    },
-    'ann-remove'(id) {
-      confirmRemove('Duyuruyu kaldır', 'Duyuru tüm kulüplerin panelinden kalkar.', () => { db.announcements = db.announcements.filter((x) => x.id !== id); });
-    },
+    async 'ann-approve'(id) { await api.decideAnnouncement(id, 'published'); toast('Duyuru yayınlandı.'); render(); },
+    'ann-reject'(id) { rejectWithNote('Duyuruyu reddet', (note) => api.decideAnnouncement(id, 'rejected', note)); },
+    'ann-remove'(id) { confirmRemove('Duyuruyu kaldır', 'Duyuru tüm kulüplerin panelinden kalkar.', () => api.removeAnnouncement(id)); },
 
     'event-new'() {
       openForm({
@@ -944,65 +1248,44 @@
           + field('Yer', '<input name="place" maxlength="120">')
           + field('Nasıl bir ortak arıyorsun?', '<input name="seeking" maxlength="200">'),
         submit: isAdmin() ? 'Yayınla' : 'Onaya gönder',
-        onSubmit: (fd) => {
-          db.events.push({ id: uid(), title: val(fd, 'title'), desc: val(fd, 'desc'), date: val(fd, 'date'), time: val(fd, 'time'),
-            place: val(fd, 'place'), seeking: val(fd, 'seeking'), ownerId: state.user,
-            status: isAdmin() ? 'published' : 'pending', createdAt: new Date().toISOString(), applications: [] });
-          save(); toast(isAdmin() ? 'Etkinlik yayınlandı.' : 'Etkinlik onaya gönderildi.');
+        onSubmit: async (fd) => {
+          await api.addEvent({ title: val(fd, 'title'), desc: val(fd, 'desc'), date: val(fd, 'date'), time: val(fd, 'time'), place: val(fd, 'place'), seeking: val(fd, 'seeking') });
+          toast(isAdmin() ? 'Etkinlik yayınlandı.' : 'Etkinlik onaya gönderildi.');
         },
       });
     },
-    'event-approve'(id) {
-      const e = db.events.find((x) => x.id === id); if (!e) return;
-      e.status = 'published'; e.decidedAt = new Date().toISOString(); save(); toast('Etkinlik yayınlandı.'); render();
-    },
-    'event-reject'(id) {
-      const e = db.events.find((x) => x.id === id); if (!e) return;
-      rejectWithNote('Etkinliği reddet', (note) => { e.status = 'rejected'; e.note = note; e.decidedAt = new Date().toISOString(); });
-    },
-    'event-remove'(id) {
-      confirmRemove('Etkinliği kaldır', 'Etkinlik ve ortaklık başvuruları tüm panellerden kalkar.', () => { db.events = db.events.filter((x) => x.id !== id); });
-    },
+    async 'event-approve'(id) { await api.decideEvent(id, 'published'); toast('Etkinlik yayınlandı.'); render(); },
+    'event-reject'(id) { rejectWithNote('Etkinliği reddet', (note) => api.decideEvent(id, 'rejected', note)); },
+    'event-remove'(id) { confirmRemove('Etkinliği kaldır', 'Etkinlik ve ortaklık başvuruları tüm panellerden kalkar.', () => api.removeEvent(id)); },
     'event-apply'(id) {
       const e = db.events.find((x) => x.id === id); if (!e) return;
       openForm({
         title: 'Ortak ol', lead: `“${e.title}” için ortaklık başvurusu. UniPakt onayladığında ortak olarak görünürsün.`,
         fields: field('Nasıl katkı sağlayacaksınız?', '<textarea name="note" required maxlength="500"></textarea>'),
         submit: 'Başvur',
-        onSubmit: (fd) => {
-          if (e.applications.some((p) => p.clubId === state.user)) return 'Bu etkinliğe zaten başvurdun.';
-          e.applications.push({ id: uid(), clubId: state.user, note: val(fd, 'note'), status: 'pending', createdAt: new Date().toISOString() });
-          save(); toast('Başvurun onaya gönderildi.');
-        },
+        onSubmit: async (fd) => { await api.applyEvent(id, val(fd, 'note')); toast('Başvurun onaya gönderildi.'); },
       });
     },
-    'app-approve'(id, sub) {
-      const p = db.events.find((x) => x.id === id)?.applications.find((x) => x.id === sub); if (!p) return;
-      p.status = 'approved'; save(); toast('Ortaklık onaylandı.'); render();
-    },
-    'app-reject'(id, sub) {
-      const p = db.events.find((x) => x.id === id)?.applications.find((x) => x.id === sub); if (!p) return;
-      p.status = 'rejected'; save(); toast('Başvuru reddedildi.'); render();
-    },
+    async 'app-approve'(id, sub) { await api.decideApplication(id, sub, 'approved'); toast('Ortaklık onaylandı.'); render(); },
+    async 'app-reject'(id, sub) { await api.decideApplication(id, sub, 'rejected'); toast('Başvuru reddedildi.'); render(); },
 
     'task-new'() {
       openForm({
         title: 'Görev ata',
         fields: `<div class="field"><span>Kulüpler</span><div class="checks">
             <label><input type="checkbox" id="allClubs"> <strong>Tüm kulüpler</strong></label>
-            ${db.clubs.map((c) => `<label><input type="checkbox" name="club" value="${c.id}"> ${esc(c.name)}</label>`).join('')}
+            ${db.clubs.map((c) => `<label><input type="checkbox" name="club" value="${esc(c.id)}"> ${esc(c.name)}</label>`).join('')}
           </div></div>`
           + field('Görev', '<input name="title" required maxlength="120">')
           + field('Açıklama (isteğe bağlı)', '<textarea name="desc" maxlength="1000"></textarea>')
           + field('Son tarih (isteğe bağlı)', '<input type="date" name="due">'),
         submit: 'Ata',
-        onSubmit: (fd) => {
+        onSubmit: async (fd) => {
           const ids = fd.getAll('club');
           if (!ids.length) return 'En az bir kulüp seç.';
-          const stamp = new Date().toISOString();
-          ids.forEach((clubId) => db.tasks.push({ id: uid(), title: val(fd, 'title'), desc: val(fd, 'desc'), due: val(fd, 'due'), clubId, status: 'open', createdAt: stamp }));
+          await api.addTasks(ids, { title: val(fd, 'title'), desc: val(fd, 'desc'), due: val(fd, 'due') });
           state.taskTab = 'open';
-          save(); toast(ids.length > 1 ? `Görev ${ids.length} kulübe atandı.` : 'Görev atandı.');
+          toast(ids.length > 1 ? `Görev ${ids.length} kulübe atandı.` : 'Görev atandı.');
         },
       });
       const all = dlgForm.querySelector('#allClubs');
@@ -1012,58 +1295,96 @@
     },
     'task-done'(id) {
       const t = db.tasks.find((x) => x.id === id); if (!t || t.clubId !== state.user) return;
-      let file = null;
       openForm({
         title: 'Görevi bitir', lead: `“${t.title}” için kanıtını bırak: mesaj, dosya ya da ikisi birden. UniPakt görür.`,
         fields: field('Mesaj', '<textarea name="text" maxlength="1500"></textarea>')
-          + field('Dosya (PNG, JPG, WEBP ya da PDF · en çok 1 MB)', `<input type="file" name="file" id="proofInput" accept="${FILE_TYPES.join(',')}">`),
+          + field(`Dosya (PNG, JPG, WEBP ya da PDF · en çok ${MAX_FILE / 1048576} MB)`, `<input type="file" name="file" accept="${FILE_TYPES.join(',')}">`),
         submit: 'Görevi bitir',
-        onSubmit: (fd) => {
+        onSubmit: async (fd) => {
           const text = val(fd, 'text');
-          if (file === 'loading') return 'Dosya hâlâ okunuyor, bir saniye sonra tekrar dene.';
-          if (file === 'bad') return 'Dosya PNG, JPG, WEBP ya da PDF olmalı ve 1 MB’ı geçmemeli.';
+          const picked = fd.get('file');
+          const file = picked && picked.size ? picked : null;
+          if (file && (!FILE_TYPES.includes(file.type) || file.size > MAX_FILE)) return `Dosya PNG, JPG, WEBP ya da PDF olmalı ve ${MAX_FILE / 1048576} MB’ı geçmemeli.`;
           if (!text && !file) return 'Bir mesaj yaz ya da dosya ekle.';
-          Object.assign(t, { status: 'done', doneText: text, doneFile: file, doneAt: new Date().toISOString() });
-          if (!save()) {
-            Object.assign(t, { status: 'open', doneText: undefined, doneFile: undefined, doneAt: undefined });
-            return 'Dosya bu demoda saklanamadı. Daha küçük bir dosya dene.';
-          }
+          await api.completeTask(t, text, file);
           toast('Görev tamamlandı.');
         },
       });
-      dlgForm.querySelector('#proofInput').addEventListener('change', (e) => {
-        const f = e.target.files[0];
-        if (!f) { file = null; return; }
-        if (!FILE_TYPES.includes(f.type) || f.size > 1024 * 1024) { file = 'bad'; return; }
-        file = 'loading';
-        const reader = new FileReader();
-        reader.onload = () => { file = { name: f.name.slice(0, 120), type: f.type, data: String(reader.result) }; };
-        reader.onerror = () => { file = 'bad'; };
-        reader.readAsDataURL(f);
-      });
     },
-    'task-remove'(id) {
-      openForm({ title: 'Görevi sil', lead: 'Görev kulübün panelinden de silinir.', submit: 'Sil', danger: true,
-        onSubmit: () => { db.tasks = db.tasks.filter((x) => x.id !== id); save(); toast('Görev silindi.'); } });
-    },
+    'task-remove'(id) { confirmRemove('Görevi sil', 'Görev kulübün panelinden de silinir.', () => api.removeTask(id), 'Sil'); },
     'task-tab'(id) { state.taskTab = id; render(); },
+    // Opened before the request so the browser does not treat it as a pop-up.
+    async 'proof-open'(id) {
+      const t = db.tasks.find((x) => x.id === id); if (!t || !t.doneFile || !t.doneFile.path) return;
+      const tab = window.open('', '_blank');
+      try {
+        const url = await api.proofUrl(t.doneFile.path);
+        if (tab) { tab.opener = null; tab.location.href = url; } else location.href = url;
+      } catch (error) { if (tab) tab.close(); throw error; }
+    },
 
     'pts-new'(id) {
       const events = [...publishedEvents()].reverse();
       openForm({
         title: 'Puan gönder', lead: 'Artı ya da eksi puan. Kulüp bu kaydı kendi Vanguard sayfasında görür.',
-        fields: field('Kulüp', `<select name="club" required><option value="">Kulüp seç</option>${db.clubs.map((c) => `<option value="${c.id}" ${c.id === id ? 'selected' : ''}>${esc(c.name)} (${pts(c.id)})</option>`).join('')}</select>`)
-          + field('Etkinlik', `<select name="event"><option value="">${OTHER}</option>${events.map((e) => `<option value="${e.id}">${esc(e.title)} · ${fmtDay(e.date)}</option>`).join('')}</select>`)
+        fields: field('Kulüp', `<select name="club" required><option value="">Kulüp seç</option>${db.clubs.map((c) => `<option value="${esc(c.id)}" ${c.id === id ? 'selected' : ''}>${esc(c.name)} (${pts(c.id)})</option>`).join('')}</select>`)
+          + field('Etkinlik', `<select name="event"><option value="">${OTHER}</option>${events.map((e) => `<option value="${esc(e.id)}">${esc(e.title)} · ${fmtDay(e.date)}</option>`).join('')}</select>`)
           + field('Puan (eksi için başına − koy)', '<input type="number" name="delta" required step="1" placeholder="Örn. 20 ya da -10">')
           + field('Açıklama (isteğe bağlı)', '<input name="note" maxlength="120">'),
         submit: 'Gönder',
-        onSubmit: (fd) => {
+        onSubmit: async (fd) => {
           const delta = Math.round(Number(fd.get('delta')));
           if (!Number.isFinite(delta) || delta === 0) return 'Sıfırdan farklı bir puan gir.';
           const c = club(val(fd, 'club')); if (!c) return 'Bir kulüp seç.';
           const ev = db.events.find((e) => e.id === val(fd, 'event'));
-          db.pointLog.push({ id: uid(), clubId: c.id, eventId: ev ? ev.id : '', label: ev ? ev.title : OTHER, delta, note: val(fd, 'note'), at: new Date().toISOString() });
-          save(); toast(`${c.name}: ${signed(delta)} puan`);
+          await api.addPoints({ clubId: c.id, eventId: ev ? ev.id : '', label: ev ? ev.title : OTHER, delta, note: val(fd, 'note') });
+          toast(`${c.name}: ${signed(delta)} puan`);
+        },
+      });
+    },
+
+    'club-new'() { actions['club-edit'](''); },
+    'club-edit'(id) {
+      const c = id ? club(id) : null;
+      if (id && !c) return;
+      const known = state.accounts && typeof state.accounts === 'object' ? state.accounts[id] || '' : '';
+      const text = (name, label, value, extra = '') => field(label, `<input name="${name}" value="${esc(value || '')}" ${extra}>`);
+      openForm({
+        title: c ? 'Kulübü düzenle' : 'Kulüp ekle',
+        fields: text('name', 'Kulüp adı', c && c.name, 'required maxlength="120"')
+          + text('uni', 'Üniversite', c && c.uni, 'required maxlength="120"')
+          + field('Kategori', `<select name="category"><option value="">Seç</option>${CLUB_CATEGORIES.map((k) => `<option ${c && c.category === k ? 'selected' : ''}>${k}</option>`).join('')}</select>`)
+          + '<p class="form-section">İletişim · sitede görünür</p>'
+          + `<div class="field-row">${text('email', 'E-posta', c && c.contact.email, 'type="email" maxlength="200"')}${text('instagram', 'Instagram', c && c.contact.instagram, 'maxlength="200" placeholder="kullanıcı adı"')}</div>`
+          + `<div class="field-row">${text('x', 'X', c && c.contact.x, 'maxlength="200" placeholder="kullanıcı adı"')}${text('tiktok', 'TikTok', c && c.contact.tiktok, 'maxlength="200" placeholder="kullanıcı adı"')}</div>`
+          + `<div class="field-row">${text('linkedin', 'LinkedIn', c && c.contact.linkedin, 'maxlength="200" placeholder="bağlantı"')}${text('web', 'Web sitesi', c && c.contact.web, 'maxlength="200" placeholder="https://"')}</div>`
+          + '<p class="form-section">Panel girişi · kulüp başkanının hesabı</p>'
+          + `<div class="field-row">${text('accountEmail', 'Giriş e-postası', known, 'type="email" maxlength="200" autocomplete="off"')}${text('accountPassword', known ? 'Yeni şifre (boşsa değişmez)' : 'Şifre (en az 8 karakter)', '', 'type="password" minlength="8" maxlength="72" autocomplete="new-password"')}</div>`,
+        submit: c ? 'Kaydet' : 'Ekle',
+        onSubmit: async (fd) => {
+          const account = { email: val(fd, 'accountEmail').toLowerCase(), password: String(fd.get('accountPassword') || '') };
+          if (account.password && !account.email) return 'Şifre için giriş e-postası da gerekli.';
+          if (account.email && !known && !account.password) return 'Yeni hesap için şifre gir.';
+          if (account.email === known && !account.password) account.email = '';   // nothing to change
+          const fields = { name: val(fd, 'name'), uni: val(fd, 'uni'), category: val(fd, 'category'),
+            contact: Object.fromEntries(CONTACT_KEYS.map(([k]) => [k, val(fd, k)])) };
+          const warning = await api.saveClub(id || null, fields, account);
+          state.accounts = null;
+          toast(warning || (c ? 'Kulüp güncellendi.' : 'Kulüp eklendi.'));
+        },
+      });
+    },
+    'club-remove'(id) {
+      const c = club(id); if (!c) return;
+      openForm({
+        title: 'Kulübü sil', submit: 'Kulübü sil', danger: true,
+        lead: `“${c.name}” siteden kalkar; giriş hesabı, duyuruları, etkinlikleri, başvuruları, görevleri ve puanları da silinir. Bu geri alınamaz.`,
+        fields: field(`Onaylamak için kulübün adını yaz: ${esc(c.name)}`, '<input name="confirm" required autocomplete="off">'),
+        onSubmit: async (fd) => {
+          if (val(fd, 'confirm') !== c.name) return 'Kulüp adı eşleşmiyor.';
+          const warning = await api.removeClub(id);
+          state.accounts = null;
+          toast(warning || 'Kulüp silindi.');
         },
       });
     },
@@ -1072,19 +1393,24 @@
     'cal-move'(id) { const d = new Date(state.cal.y, state.cal.m + Number(id), 1); state.cal.y = d.getFullYear(); state.cal.m = d.getMonth(); render(); },
     'cal-today'() { const d = new Date(); state.cal = { y: d.getFullYear(), m: d.getMonth(), sel: ymd(d) }; render(); },
 
+    // Demo only: pick an account, no password.
     login(id) {
+      if (!DEMO) return;
       state.user = id; state.view = 'genel';
       try { sessionStorage.setItem(SESSION, id); } catch (_) {}
-      history.replaceState(null, '', '#genel');
+      history.replaceState(null, '', `${location.pathname}${location.search}#genel`);
       render(); window.scrollTo(0, 0);
     },
     logout() {
       state.user = null;
-      try { sessionStorage.removeItem(SESSION); } catch (_) {}
-      history.replaceState(null, '', location.pathname);
+      if (DEMO) { try { sessionStorage.removeItem(SESSION); } catch (_) {} }
+      else { remote.logout(); db = null; }
+      state.accounts = null;
+      history.replaceState(null, '', location.pathname + location.search);
       render(); window.scrollTo(0, 0);
     },
     reset() {
+      if (!DEMO) return;
       openForm({ title: 'Demo verisini sıfırla', lead: 'Bu tarayıcıdaki tüm panel verisi silinir ve örnek veriler geri gelir.', submit: 'Sıfırla', danger: true,
         onSubmit: () => { db = seed(); save(); toast('Demo verisi sıfırlandı.'); } });
     },
@@ -1100,7 +1426,22 @@
     render(); window.scrollTo(0, 0);
   };
 
-  const renderLogin = () => {
+  const renderLogin = (message = '') => {
+    if (!DEMO) {
+      root.innerHTML = `
+        <main class="login"><div class="login-box">
+          <a class="wordmark" href="https://unipakt.com/">UniPakt<span>.</span></a>
+          <p class="kicker">Panel</p>
+          <form class="login-form" id="loginForm" novalidate>
+            ${field('E-posta', '<input type="email" name="email" required autocomplete="username">')}
+            ${field('Şifre', '<input type="password" name="password" required autocomplete="current-password">')}
+            <p class="form-error" id="loginError" ${message ? '' : 'hidden'}>${esc(message)}</p>
+            <button type="submit" class="btn">Giriş yap</button>
+          </form>
+          <p class="demo-note">Hesabın yoksa UniPakt’tan iste; hesapları yalnızca UniPakt açar.</p>
+        </div></main>`;
+      return;
+    }
     root.innerHTML = `
       <main class="login"><div class="login-box">
         <a class="wordmark" href="https://unipakt.com/">UniPakt<span>.</span></a>
@@ -1110,12 +1451,12 @@
           <button class="account is-admin" data-act="login" data-id="${ADMIN}"><span><strong>UniPakt</strong><small>Tüm panelleri yönetir</small></span><span class="role">UniPakt yetkilisi</span></button>
           ${db.clubs.map((c) => `<button class="account" data-act="login" data-id="${c.id}"><span><strong>${esc(c.name)}</strong><small>${esc(c.uni)}</small></span><span class="role">Kulüp başkanı</span></button>`).join('')}
         </div>
-        <p class="demo-note">Bu bir demo. Şifre yok ve veriler yalnızca bu tarayıcıda saklanıyor; gerçek giriş ve ortak veri için sunucu tarafı eklenecek.</p>
+        <p class="demo-note">Bu bir demo. Şifre yok ve veriler yalnızca bu tarayıcıda saklanıyor.</p>
       </div></main>`;
   };
 
   const render = () => {
-    if (!state.user || (state.user !== ADMIN && !club(state.user))) { state.user = null; renderLogin(); return; }
+    if (!db || !state.user || (state.user !== ADMIN && !club(state.user))) { state.user = null; renderLogin(); return; }
     const nav = NAV();
     if (!nav.some(([id]) => id === state.view)) state.view = 'genel';
     const me = isAdmin() ? { name: 'UniPakt', role: 'UniPakt yetkilisi' } : { name: club(state.user).name, role: 'Kulüp başkanı' };
@@ -1132,35 +1473,80 @@
           <div class="side-foot">
             <div class="side-user"><strong>${esc(me.name)}</strong><small>${me.role}</small></div>
             <div class="row"><button class="btn ghost small" data-act="logout">Çıkış</button></div>
-            <button class="link-btn" data-act="reset">Demo verisini sıfırla</button>
+            ${DEMO ? '<button class="link-btn" data-act="reset">Demo verisini sıfırla</button>' : ''}
           </div>
         </aside>
         <main class="main"><div class="main-inner">
           <p class="mobile-user">${esc(me.name)} · ${me.role}</p>
-          <div class="demo-bar"><span><b>Demo</b> — veriler yalnızca bu tarayıcıda saklanıyor.</span></div>
+          ${DEMO ? '<div class="demo-bar"><span><b>Demo</b> — veriler yalnızca bu tarayıcıda saklanıyor.</span></div>' : ''}
           ${views[state.view]()}
         </div></main>
       </div>`;
     root.querySelector('.nav-item.active')?.scrollIntoView({ block: 'nearest', inline: 'center' });
   };
 
+  // A failed action says why; if it signed the user out, the login screen follows.
+  const fail = (error) => { toast(error.message || 'İşlem yapılamadı.'); if (!state.user) render(); };
+
   document.addEventListener('click', (e) => {
     const goBtn = e.target.closest('[data-go]');
     if (goBtn) { go(goBtn.dataset.go); return; }
     const btn = e.target.closest('[data-act]');
-    if (!btn || dlg.contains(btn)) return;
-    actions[btn.dataset.act]?.(btn.dataset.id, btn.dataset.sub);
+    if (!btn || dlg.contains(btn) || btn.disabled) return;
+    const run = actions[btn.dataset.act];
+    if (!run) return;
+    let result;
+    try { result = run(btn.dataset.id, btn.dataset.sub); } catch (error) { fail(error); return; }
+    if (result && typeof result.then === 'function') {
+      btn.disabled = true;
+      result.catch(fail).finally(() => { btn.disabled = false; });
+    }
   });
   document.addEventListener('change', (e) => {
     if (e.target.id === 'taskClub') { state.taskClub = e.target.value; render(); }
   });
+  document.addEventListener('submit', async (e) => {
+    if (e.target.id !== 'loginForm') return;
+    e.preventDefault();
+    const form = e.target;
+    const err = form.querySelector('#loginError');
+    const button = form.querySelector('button[type="submit"]');
+    const email = form.elements.email.value.trim();
+    const password = form.elements.password.value;
+    if (!email || !password) { err.textContent = 'E-posta ve şifreni yaz.'; err.hidden = false; return; }
+    button.disabled = true; button.textContent = 'Giriş yapılıyor…'; err.hidden = true;
+    try {
+      await remote.login(email, password);
+      state.view = 'genel';
+      render(); window.scrollTo(0, 0);
+    } catch (error) {
+      if (!document.body.contains(form)) { renderLogin(error.message); return; }
+      err.textContent = error.message || 'Giriş yapılamadı.'; err.hidden = false;
+      button.disabled = false; button.textContent = 'Giriş yap';
+    }
+  });
   window.addEventListener('hashchange', () => { state.view = location.hash.slice(1) || 'genel'; if (state.user) render(); });
-  // Another tab changed the data (e.g. the club side next to the UniPakt side).
-  window.addEventListener('storage', (e) => { if (e.key === KEY) { load(); if (!dlg.open) render(); } });
 
-  load();
-  state.view = location.hash.slice(1) || 'genel';
-  render();
+  // Keep the screen current: another tab in the demo, or coming back to the tab with Supabase.
+  let lastSync = Date.now();
+  const sync = async () => {
+    if (!state.user || dlg.open) return;
+    try { await api.refresh(); lastSync = Date.now(); render(); } catch (error) { fail(error); }
+  };
+  if (DEMO) window.addEventListener('storage', (e) => { if (e.key === KEY) sync(); });
+  else document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastSync > 30000) sync(); });
+
+  const start = async () => {
+    state.view = location.hash.slice(1) || 'genel';
+    if (DEMO) { loadLocal(); render(); return; }
+    state.user = null;
+    readSession();
+    if (!session) { renderLogin(); return; }
+    root.innerHTML = '<main class="login"><p class="loading">Yükleniyor…</p></main>';
+    try { await loadRemote(); lastSync = Date.now(); render(); }
+    catch (error) { renderLogin(state.user ? '' : error.message); if (state.user) { state.user = null; renderLogin(error.message); } }
+  };
+  start();
 })();
 </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <!-- Only Google Fonts and the FormSubmit endpoint may be contacted. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://formsubmit.co; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://formsubmit.co https://hcgotmcbwmleeklbvawb.supabase.co; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'; upgrade-insecure-requests">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>UniPakt — İstanbul Üniversite Kulüpleri Ağı</title>
 <meta name="description" content="UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.">
@@ -2906,6 +2906,27 @@ fill="currentColor" stroke="none">
       contact: { email: 'iletisim@unipakt.com', instagram: 'unipakt', linkedin: 'https://www.linkedin.com/company/unipakt/', x: 'UniPakt', tiktok: 'unipakt', web: '' } },
   ];
 
+  // The club list is managed from the UniPakt panel and lives in Supabase (public,
+  // read-only for visitors). The list above is only the fallback. The copy from the
+  // last visit is used straight away so nothing on the page waits for the network;
+  // the fresh list replaces it a moment later (see refreshClubs below).
+  const CLUBS_SOURCE = 'https://hcgotmcbwmleeklbvawb.supabase.co/rest/v1/clubs?select=name,university,category,email,instagram,linkedin,x,tiktok,web&order=created_at';
+  const CLUBS_KEY = 'sb_publishable_RcHJDYGkpd-01DPYG9o3HQ_8prlhUQn';
+  const CLUBS_CACHE = 'unipaktClubs.v1';
+  const clubText = (value, max = 200) => (typeof value === 'string' ? value.trim().slice(0, max) : '');
+  function clubsFromRows(rows) {
+    if (!Array.isArray(rows)) return null;
+    return rows.filter(r => r && clubText(r.name) && clubText(r.university)).slice(0, 500).map(r => ({
+      name: clubText(r.name, 120), uni: clubText(r.university, 120), cat: clubText(r.category, 40),
+      contact: { email: clubText(r.email), instagram: clubText(r.instagram), linkedin: clubText(r.linkedin), x: clubText(r.x), tiktok: clubText(r.tiktok), web: clubText(r.web) }
+    }));
+  }
+  function setClubs(list) { CLUBS.length = 0; CLUBS.push(...list); }
+  try {
+    const cached = clubsFromRows(JSON.parse(localStorage.getItem(CLUBS_CACHE)));
+    if (cached) setClubs(cached);
+  } catch (_) { /* no cache yet, or storage is blocked */ }
+
   function normalizeClubSearch(value) {
     return String(value || '')
       .toLocaleLowerCase('tr-TR')
@@ -3080,6 +3101,22 @@ fill="currentColor" stroke="none">
   }
 
   filterClubList();
+
+  // Bring in the current club list and redraw the two lists if it changed.
+  (function refreshClubs() {
+    fetch(CLUBS_SOURCE, { headers: { apikey: CLUBS_KEY } })
+      .then(r => (r.ok ? r.json() : Promise.reject(new Error(r.status))))
+      .then((rows) => {
+        const next = clubsFromRows(rows);
+        if (!next) return;
+        try { localStorage.setItem(CLUBS_CACHE, JSON.stringify(rows)); } catch (_) {}
+        if (JSON.stringify(next) === JSON.stringify(CLUBS)) return;
+        setClubs(next);
+        renderClubList(document.getElementById('homeClubList'), CLUBS.slice(0, 3));
+        filterClubList();
+      })
+      .catch(() => { /* offline or not set up yet: keep what is shown */ });
+  })();
 
   clubSearch?.addEventListener('input', () => { clubShown = CLUB_PAGE; filterClubList(); });
 
