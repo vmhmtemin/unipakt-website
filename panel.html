@@ -62,6 +62,14 @@
   .btn.danger { background: transparent; color: var(--no); border-color: color-mix(in srgb, var(--no) 45%, transparent); }
   .btn.danger:hover { border-color: var(--no); color: var(--no); }
   .btn.small { padding: 8px 14px; font-size: 13px; }
+  .club-visibility {
+    width: 38px; height: 38px; padding: 0; display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border-strong); border-radius: 10px; background: transparent; color: var(--ink);
+    opacity: .72; transition: opacity .2s ease, border-color .2s ease, color .2s ease;
+  }
+  .club-visibility:hover { opacity: 1; border-color: var(--ink); }
+  .club-visibility.is-hidden { color: var(--no); border-color: color-mix(in srgb, var(--no) 45%, transparent); opacity: 1; }
+  .club-visibility svg { width: 18px; height: 18px; display: block; }
 
   /* ---- Login ---- */
   .login { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: 32px 20px; }
@@ -555,7 +563,7 @@
     ]);
     const owner = (clubId) => clubId || ADMIN;
     db = {
-      clubs: clubs.map((c) => ({ id: c.id, name: c.name, uni: c.university, category: c.category || '',
+      clubs: clubs.map((c) => ({ id: c.id, name: c.name, uni: c.university, category: c.category || '', visible: c.visible !== false,
         contact: Object.fromEntries(CONTACT_KEYS.map(([k]) => [k, c[k] || ''])) })),
       announcements: anns.map((a) => ({ id: a.id, title: a.title, body: a.body, authorId: owner(a.club_id), status: a.status, note: a.note || '', createdAt: a.created_at, decidedAt: a.decided_at })),
       events: events.map((e) => ({ id: e.id, title: e.title, desc: e.description, date: e.event_date, time: (e.event_time || '').slice(0, 5), place: e.place || '', seeking: e.seeking || '',
@@ -637,10 +645,15 @@
     async addPoints(entry) { db.pointLog.push({ id: uid(), ...entry, at: stamp() }); save(); },
     async saveClub(id, fields, account) {
       let c = id ? club(id) : null;
-      if (!c) db.clubs.push(c = { id: uid(), account: '' });
+      if (!c) db.clubs.push(c = { id: uid(), account: '', visible: true });
       Object.assign(c, fields);
+      if (typeof c.visible !== 'boolean') c.visible = true;
       if (account.email) c.account = account.email;
       save();
+    },
+    async setClubVisibility(id, visible) {
+      const c = club(id); if (!c) return;
+      c.visible = !!visible; save();
     },
     async removeClub(id) {
       db.clubs = db.clubs.filter((c) => c.id !== id);
@@ -712,13 +725,16 @@
       }
     },
     async saveClub(id, fields, account) {
-      const row = { name: fields.name, university: fields.uni, category: fields.category || null };
+      const row = { name: fields.name, university: fields.uni, category: fields.category || null, visible: fields.visible !== false };
       CONTACT_KEYS.forEach(([k]) => { row[k] = fields.contact[k] || null; });
       if (id) await rest(`clubs?${eq(id)}`, { method: 'PATCH', body: row });
       else id = (await rest('clubs', { method: 'POST', body: row, headers: { Prefer: 'return=representation' } }))[0].id;
       if (!account.email) return '';
       try { await remote.account({ action: 'set', club_id: id, email: account.email, password: account.password }); return ''; }
       catch (e) { if (!state.user) throw e; return `Kulüp kaydedildi. Hesap açılamadı, çünkü ${e.message.replace(/^./, (ch) => ch.toLocaleLowerCase('tr'))}`; }
+    },
+    async setClubVisibility(id, visible) {
+      await rest(`clubs?${eq(id)}`, { method: 'PATCH', body: { visible: !!visible } });
     },
     async removeClub(id) {
       let warning = '';
@@ -1325,6 +1341,11 @@
             }).join('') : '<span>İletişim bilgisi eklenmemiş</span>'}</div>
             <div class="meta"><span>${accountLine(c)}</span></div>
             <div class="actions">
+              <button class="club-visibility ${c.visible === false ? 'is-hidden' : ''}" data-act="club-visibility" data-id="${esc(c.id)}" aria-label="${c.visible === false ? 'Kulübü sitede görünür yap' : 'Kulübü sitede gizle'}" title="${c.visible === false ? 'Sitede görünür yap' : 'Sitede gizle'}">
+                ${c.visible === false
+                  ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 4.3A11.8 11.8 0 0 1 12 4c5.5 0 9.5 5.7 9.5 8s-1.4 3.4-3.3 4.9"/><path d="M6.1 6.1C3.9 7.7 2.5 10.3 2.5 12c0 2.3 4 8 9.5 8 1 0 2-.2 2.9-.6"/></svg>'
+                  : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z"/><circle cx="12" cy="12" r="2.5"/></svg>'}
+              </button>
               <button class="btn ghost small" data-act="club-edit" data-id="${esc(c.id)}">Düzenle</button>
               <button class="btn danger small" data-act="club-remove" data-id="${esc(c.id)}">Sil</button>
             </div>
@@ -1502,6 +1523,14 @@
       });
     },
 
+    async 'club-visibility'(id) {
+      const c = club(id); if (!c) return;
+      const next = c.visible === false;
+      await api.setClubVisibility(id, next);
+      c.visible = next;
+      toast(next ? 'Kulüp ortak kulüplerde görünür.' : 'Kulüp sitede gizlendi.');
+      render();
+    },
     'club-new'() { actions['club-edit'](''); },
     'club-edit'(id) {
       const c = id ? club(id) : null;
@@ -1530,7 +1559,7 @@
           if (account.password && account.password.length < 8) return 'Şifre en az 8 karakter olmalı.';
           if (account.email && !known && !account.password) return 'Yeni hesap için şifre gir.';
           if (account.email === known && !account.password) account.email = '';   // nothing to change
-          const fields = { name: val(fd, 'name'), uni: val(fd, 'uni'), category: val(fd, 'category'), contact };
+          const fields = { name: val(fd, 'name'), uni: val(fd, 'uni'), category: val(fd, 'category'), contact, visible: c ? c.visible !== false : true };
           const warning = await api.saveClub(id || null, fields, account);
           state.accounts = null;
           if (warning) notice('Giriş hesabı ayarlanamadı', `${warning} Kulübü “Düzenle” ile açıp giriş e-postası ve şifresini yeniden girebilirsin.`);
