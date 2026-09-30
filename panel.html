@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'">
+<meta name="robots" content="noindex, nofollow">
+<title>UniPakt Panel</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Caveat:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: dark;
+    --ink: #FFFFFF;
+    --paper: #000000;
+    --paper-soft: #0A0A0A;
+    --surface: #070707;
+    --border: #FFFFFF20;
+    --border-strong: #FFFFFF35;
+    --accent: #FF5A1F;
+    --on-accent: #000;
+    --ok: #4ADE80;
+    --no: #F87171;
+    --side-w: 264px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 400 15px/1.55 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent); color: var(--on-accent); }
+  h1, h2, h3, p { margin: 0; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+
+  /* ---- Wordmark ---- */
+  .wordmark {
+    display: inline-block; color: var(--ink); text-decoration: none;
+    font: 900 30px/1 'Archivo', sans-serif; letter-spacing: -0.04em;
+  }
+  .wordmark span { color: var(--accent); }
+  .wordmark:hover { opacity: .8; }
+  .kicker { font: 700 22px/1 'Caveat', cursive; color: var(--accent); }
+
+  /* ---- Buttons ---- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 11px 20px; border-radius: 999px; white-space: nowrap;
+    font-weight: 600; font-size: 14px; line-height: 1;
+    background: var(--accent); color: var(--on-accent); border: 1.5px solid var(--accent);
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .btn:hover { background: transparent; color: var(--accent); }
+  .btn.ghost { background: transparent; color: var(--ink); border-color: var(--border-strong); }
+  .btn.ghost:hover { border-color: var(--ink); color: var(--ink); }
+  .btn.danger { background: transparent; color: var(--no); border-color: color-mix(in srgb, var(--no) 45%, transparent); }
+  .btn.danger:hover { border-color: var(--no); color: var(--no); }
+  .btn.small { padding: 8px 14px; font-size: 13px; }
+
+  /* ---- Login ---- */
+  .login { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: 32px 20px; }
+  .login-box { width: min(100%, 520px); }
+  .login-box .wordmark { font-size: clamp(54px, 12vw, 84px); }
+  .login-box .kicker { font-size: 30px; margin: 6px 0 34px; }
+  .login-box h2 { font: 700 15px/1.3 'Inter', sans-serif; opacity: .7; margin-bottom: 14px; }
+  .account-list { display: grid; gap: 10px; }
+  .account {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; text-align: left;
+    padding: 16px 20px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border);
+    transition: border-color .2s ease, background .2s ease;
+  }
+  .account:hover { border-color: var(--accent); background: var(--paper-soft); }
+  .account strong { display: block; font-weight: 600; font-size: 16px; }
+  .account small { display: block; opacity: .6; font-size: 13px; margin-top: 2px; }
+  .account .role { font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--border-strong); white-space: nowrap; }
+  .account.is-admin .role { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .demo-note { margin-top: 22px; font-size: 13px; line-height: 1.6; opacity: .6; }
+
+  /* ---- App shell ---- */
+  .app { display: grid; grid-template-columns: var(--side-w) minmax(0, 1fr); min-height: 100vh; }
+  .side {
+    position: sticky; top: 0; height: 100vh; height: 100dvh; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 26px;
+    padding: 30px 18px 22px; border-right: 1px solid var(--border);
+  }
+  .side-brand { padding: 0 12px; }
+  .side-brand .kicker { margin-top: 4px; }
+  .side-nav { display: grid; gap: 4px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+    padding: 11px 12px; border-radius: 12px; border: 1px solid transparent; background: transparent;
+    font-weight: 500; opacity: .68; transition: opacity .2s ease, background .2s ease;
+  }
+  .nav-item::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--border-strong); flex: none; transition: background .2s ease; }
+  .nav-item:hover { opacity: 1; background: var(--paper-soft); }
+  .nav-item.active { opacity: 1; background: var(--paper-soft); border-color: var(--border); font-weight: 600; }
+  .nav-item.active::before { background: var(--accent); }
+  .nav-item .badge { margin-left: auto; }
+  .badge {
+    min-width: 22px; padding: 3px 7px; border-radius: 999px; text-align: center;
+    background: var(--accent); color: var(--on-accent); font-size: 12px; font-weight: 700; line-height: 1.3;
+  }
+  .side-foot { margin-top: auto; padding: 16px 12px 0; border-top: 1px solid var(--border); display: grid; gap: 12px; }
+  .side-user strong { display: block; font-weight: 600; line-height: 1.3; }
+  .side-user small { opacity: .6; font-size: 13px; }
+  .side-foot .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .link-btn { background: none; border: 0; padding: 0; font-size: 13px; opacity: .55; text-decoration: underline; text-underline-offset: 3px; text-align: left; }
+  .link-btn:hover { opacity: 1; }
+
+  .main { padding: clamp(24px, 4vw, 56px); min-width: 0; }
+  .main-inner { max-width: 1080px; }
+  .demo-bar {
+    display: flex; align-items: center; gap: 10px; margin-bottom: clamp(22px, 3vw, 36px);
+    padding: 10px 16px; border: 1px dashed var(--border-strong); border-radius: 12px;
+    font-size: 13px; opacity: .75;
+  }
+  .demo-bar b { color: var(--accent); font-weight: 600; }
+
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: clamp(24px, 3vw, 38px); }
+  .page-head h1 { font: 900 clamp(36px, 4.6vw, 58px)/1 'Archivo', sans-serif; letter-spacing: -0.04em; }
+  .page-head h1 span { color: var(--accent); }
+  .page-head p { margin-top: 12px; max-width: 60ch; opacity: .68; }
+
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 34px 0 14px; }
+  .section-head:first-child { margin-top: 0; }
+  .section-head h2 { font: 700 19px/1.2 'Archivo', sans-serif; letter-spacing: -0.01em; }
+  .section-head .link-btn { opacity: .7; }
+
+  /* ---- Cards & lists ---- */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 22px; }
+  .stack { display: grid; gap: 12px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; align-items: start; }
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .stat { text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 20px; transition: border-color .2s ease; }
+  button.stat:hover { border-color: var(--border-strong); }
+  .stat b { display: block; font: 900 44px/1 'Archivo', sans-serif; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+  .stat span { display: block; margin-top: 10px; font-size: 13.5px; opacity: .68; }
+  .stat.hot b { color: var(--accent); }
+
+  .item h3 { font: 700 18px/1.3 'Archivo', sans-serif; letter-spacing: -0.01em; overflow-wrap: anywhere; }
+  .item .body { margin-top: 8px; opacity: .82; white-space: pre-line; overflow-wrap: anywhere; }
+  .item .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 14px; font-size: 13px; opacity: .62; }
+  .item .meta.top { margin: 0 0 10px; opacity: 1; }
+  .item .meta.top > span:not(.tag) { opacity: .62; }
+  .item .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .tag { display: inline-block; font-size: 12px; font-weight: 600; line-height: 1; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--border-strong); white-space: nowrap; }
+  .tag.wait { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+  .tag.ok { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
+  .tag.no { color: var(--no); border-color: color-mix(in srgb, var(--no) 45%, transparent); }
+  .quote { margin-top: 14px; padding: 12px 16px; border-left: 3px solid var(--accent); background: var(--paper-soft); border-radius: 0 12px 12px 0; white-space: pre-line; overflow-wrap: anywhere; }
+  .quote small { display: block; font-size: 12px; font-weight: 600; opacity: .6; margin-bottom: 4px; }
+  .empty { padding: 28px 22px; border: 1px dashed var(--border-strong); border-radius: 18px; text-align: center; opacity: .6; }
+
+  .event { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 20px; }
+  .date-block { align-self: start; text-align: center; padding: 12px 6px; border: 1px solid var(--border-strong); border-radius: 14px; }
+  .date-block b { display: block; font: 900 30px/1 'Archivo', sans-serif; letter-spacing: -0.03em; }
+  .date-block span { display: block; margin-top: 4px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; opacity: .7; }
+  .apps { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); display: grid; gap: 10px; }
+  .apps > small { font-size: 12px; font-weight: 600; opacity: .6; }
+  .app-row { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap; }
+  .app-row p { opacity: .82; min-width: 0; overflow-wrap: anywhere; }
+  .app-row .actions { margin: 0; }
+
+  .mini-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--border); }
+  .mini-row:last-child { border-bottom: 0; padding-bottom: 0; }
+  .mini-row:first-child { padding-top: 0; }
+  .mini-row strong { display: block; font-weight: 600; overflow-wrap: anywhere; }
+  .mini-row small { display: block; opacity: .6; font-size: 13px; }
+  .mini-row > :last-child { flex: none; }
+
+  /* ---- Filters ---- */
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .chip { padding: 9px 16px; border-radius: 999px; border: 1px solid var(--border-strong); background: transparent; font-size: 14px; font-weight: 500; transition: border-color .2s ease; }
+  .chip:hover { border-color: var(--ink); }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+
+  /* ---- Calendar ---- */
+  .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .cal-head h2 { font: 900 26px/1 'Archivo', sans-serif; letter-spacing: -0.03em; }
+  .cal-head .row { display: flex; gap: 8px; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; background: var(--surface); }
+  .cal-dow { padding: 11px 8px; font-size: 12px; font-weight: 600; text-align: center; opacity: .55; border-bottom: 1px solid var(--border); }
+  .cal-day {
+    min-height: 98px; padding: 8px; text-align: left; display: flex; flex-direction: column; gap: 5px;
+    background: transparent; border: 0; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    transition: background .15s ease;
+  }
+  .cal-day:nth-child(7n) { border-right: 0; }
+  .cal-day.last-row { border-bottom: 0; }
+  .cal-day:hover { background: var(--paper-soft); }
+  .cal-day.out { opacity: .3; }
+  .cal-day .num { font-size: 13px; font-weight: 600; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; font-variant-numeric: tabular-nums; }
+  .cal-day.today .num { background: var(--ink); color: var(--paper); }
+  .cal-day.selected { background: var(--paper-soft); box-shadow: inset 0 0 0 1.5px var(--accent); }
+  .cal-chip { display: block; width: 100%; font-size: 11.5px; font-weight: 600; line-height: 1.25; padding: 3px 7px; border-radius: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: var(--accent); color: var(--on-accent); }
+  .cal-chip.task { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--border-strong); }
+  .cal-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; font-size: 13px; opacity: .7; }
+  .cal-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 7px; background: var(--accent); }
+  .cal-legend i.task { background: transparent; box-shadow: inset 0 0 0 1px var(--border-strong); }
+
+  /* ---- Vanguard ---- */
+  .rank-row { display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 16px 20px; }
+  .rank-row + .rank-row { border-top: 1px solid var(--border); }
+  .rank-row .pos { font: 900 26px/1 'Archivo', sans-serif; letter-spacing: -0.03em; opacity: .4; font-variant-numeric: tabular-nums; }
+  .rank-row:first-child .pos { color: var(--accent); opacity: 1; }
+  .rank-row.mine { background: var(--paper-soft); }
+  .rank-row strong { display: block; font-weight: 600; overflow-wrap: anywhere; }
+  .rank-row small { display: block; opacity: .6; font-size: 13px; }
+  .rank-row .bar { margin-top: 9px; height: 5px; border-radius: 999px; background: var(--border); overflow: hidden; }
+  .rank-row .bar i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+  .rank-row .pts { display: flex; align-items: center; gap: 8px; }
+  .rank-row .pts b { min-width: 58px; text-align: right; font: 900 24px/1 'Archivo', sans-serif; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+  .delta { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .delta.up { color: var(--ok); }
+  .delta.down { color: var(--no); }
+
+  .stats.two { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 560px; }
+  .chart { display: grid; gap: 16px; }
+  .chart-row { display: grid; grid-template-columns: minmax(0, 210px) minmax(0, 1fr) 52px; align-items: center; gap: 14px; }
+  .chart-label { font-weight: 600; font-size: 14px; overflow-wrap: anywhere; }
+  .chart-track { height: 14px; border-radius: 999px; background: var(--border); overflow: hidden; }
+  .chart-track i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+  .chart-track i.down { background: var(--no); }
+  .chart-row .delta { text-align: right; }
+  @media (max-width: 640px) {
+    .chart-row { grid-template-columns: minmax(0, 1fr) 52px; gap: 6px 12px; }
+    .chart-label { grid-column: 1 / -1; }
+  }
+  .proof { display: flex; width: fit-content; align-items: center; gap: 12px; margin-top: 10px; padding: 8px 14px 8px 8px; border: 1px solid var(--border-strong); border-radius: 12px; color: var(--ink); text-decoration: none; font-size: 13px; font-weight: 600; max-width: 100%; }
+  .proof:not(.is-image) { padding-left: 14px; }
+  .proof:hover { border-color: var(--accent); }
+  .proof img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; flex: none; }
+  .proof span { overflow-wrap: anywhere; min-width: 0; }
+  .field input[type="file"] { padding: 10px; font-size: 13px; }
+
+  /* ---- Dialog & form ---- */
+  dialog { width: min(100% - 32px, 540px); max-height: calc(100dvh - 32px); padding: 0; border: 1px solid var(--border-strong); border-radius: 22px; background: #0B0B0B; color: var(--ink); }
+  dialog::backdrop { background: rgba(0, 0, 0, .72); }
+  dialog form { padding: 26px; display: grid; gap: 16px; }
+  dialog h2 { font: 900 26px/1.1 'Archivo', sans-serif; letter-spacing: -0.03em; }
+  dialog .lead { opacity: .75; }
+  .field { display: grid; gap: 7px; }
+  .field > span { font-size: 13px; font-weight: 600; opacity: .8; }
+  .field input, .field textarea, .field select, .toolbar select {
+    width: 100%; padding: 12px 14px; border-radius: 12px;
+    background: var(--paper-soft); border: 1px solid var(--border-strong); outline: none;
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .toolbar select { width: auto; padding: 9px 14px; border-radius: 999px; }
+  .field textarea { min-height: 110px; resize: vertical; }
+  .field input:focus, .field textarea:focus, .field select:focus, .toolbar select:focus {
+    border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  .field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .checks { display: grid; gap: 4px; max-height: 190px; overflow-y: auto; padding: 8px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--paper-soft); }
+  .checks label { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 8px; cursor: pointer; }
+  .checks label:hover { background: #151515; }
+  .checks input { width: 17px; height: 17px; accent-color: var(--accent); flex: none; }
+  .form-error { color: var(--no); font-size: 13px; }
+  .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 20px); z-index: 50;
+    padding: 12px 20px; border-radius: 999px; background: var(--ink); color: var(--paper);
+    font-weight: 600; font-size: 14px; opacity: 0; pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease; max-width: calc(100% - 32px); text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* ---- Mobile ---- */
+  @media (max-width: 900px) {
+    .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; }
+    .side {
+      position: sticky; top: 0; z-index: 20; height: auto; overflow: visible;
+      flex-direction: row; flex-wrap: wrap; align-items: center; gap: 12px 16px;
+      padding: 14px 16px 0; background: var(--paper); border-right: 0; border-bottom: 1px solid var(--border);
+    }
+    .side-brand { padding: 0; display: flex; align-items: baseline; gap: 10px; }
+    .side-brand .wordmark { font-size: 26px; }
+    .side-brand .kicker { margin: 0; font-size: 20px; }
+    .side-foot { order: 2; margin: 0 0 0 auto; padding: 0; border: 0; display: flex; align-items: center; gap: 12px; }
+    .side-user, .side-foot .link-btn { display: none; }
+    .side-nav { order: 3; width: calc(100% + 32px); margin: 0 -16px; padding: 0 16px 12px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+    .side-nav::-webkit-scrollbar { display: none; }
+    .nav-item { width: auto; flex: none; padding: 9px 14px; border-radius: 999px; border-color: var(--border); gap: 8px; }
+    .nav-item::before { display: none; }
+    .nav-item.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .main { padding: 22px 16px 60px; }
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .stat b { font-size: 36px; }
+    .grid-2 { grid-template-columns: minmax(0, 1fr); }
+    .mobile-user { display: block; }
+  }
+  @media (min-width: 901px) { .mobile-user { display: none; } }
+  .mobile-user { margin-bottom: 18px; font-size: 13px; opacity: .65; }
+  @media (max-width: 640px) {
+    .event { grid-template-columns: 58px minmax(0, 1fr); gap: 14px; }
+    .date-block b { font-size: 24px; }
+    .card { padding: 18px; }
+    .field-row { grid-template-columns: minmax(0, 1fr); }
+    .cal-day { min-height: 58px; padding: 5px 3px; align-items: center; gap: 4px; }
+    .cal-chip { width: 7px; height: 7px; padding: 0; border-radius: 50%; font-size: 0; }
+    .cal-day .chips { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
+    .rank-row { grid-template-columns: 30px minmax(0, 1fr); padding: 16px; gap: 10px 12px; }
+    .rank-row .pos { font-size: 20px; }
+    .rank-row .pts { grid-column: 2; justify-content: flex-start; }
+    .rank-row .pts b { min-width: 0; text-align: left; margin-right: 6px; }
+    dialog form { padding: 20px; }
+    .page-head .btn { width: 100%; }
+  }
+  @media (min-width: 641px) { .cal-day .chips { display: grid; gap: 3px; width: 100%; } }
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+<dialog id="dlg"><form id="dlgForm" novalidate></form></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ------------------------------------------------------------------
+     DEMO DATA LAYER
+     Everything lives in this browser's localStorage. When the real
+     backend arrives, only `load`, `save` and the login need to change.
+     ------------------------------------------------------------------ */
+  const KEY = 'unipaktPanelDemo.v2';
+  const SESSION = 'unipaktPanelUser';
+  const ADMIN = 'unipakt';
+  const OTHER = 'Etkinlik dışı';
+
+  const pad = (n) => String(n).padStart(2, '0');
+  const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const dayOffset = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return ymd(d); };
+  const isoOffset = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString(); };
+  const parseYmd = (s) => { const [y, m, d] = String(s).split('-').map(Number); return new Date(y, m - 1, d); };
+  const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-3);
+  const MONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+  const MONTHS_SHORT = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+  const DOW = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+  const fmtDay = (s) => { const d = parseYmd(s); return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; };
+  const fmtStamp = (iso) => { const d = new Date(iso); return `${d.getDate()} ${MONTHS[d.getMonth()]}`; };
+  const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  const seed = () => ({
+    clubs: [
+      { id: 'c1', name: 'GDG on Campus', uni: 'İstinye Üniversitesi' },
+      { id: 'c2', name: 'Örnek Tasarım Kulübü', uni: 'Marmara Üniversitesi' },
+      { id: 'c3', name: 'Örnek Girişimcilik Kulübü', uni: 'Boğaziçi Üniversitesi' },
+      { id: 'c4', name: 'Örnek Müzik Kulübü', uni: 'Yıldız Teknik Üniversitesi' },
+    ],
+    announcements: [
+      { id: 'a1', title: 'Panele hoş geldiniz', body: 'UniPakt paneli artık açık. Duyurularınızı, ortak aradığınız etkinlikleri ve görevlerinizi buradan yönetebilirsiniz.', authorId: ADMIN, status: 'published', createdAt: isoOffset(-6), decidedAt: isoOffset(-6) },
+      { id: 'a2', title: 'Flutter çalışma grubu başlıyor', body: 'Her salı akşamı çevrim içi toplanıyoruz. Diğer kulüplerden katılmak isteyenlere açık.', authorId: 'c1', status: 'published', createdAt: isoOffset(-3), decidedAt: isoOffset(-2) },
+      { id: 'a3', title: 'Afiş tasarım desteği veriyoruz', body: 'Etkinlik afişi hazırlamakta zorlanan kulüplere gönüllü tasarımcı eşleştiriyoruz.', authorId: 'c2', status: 'pending', createdAt: isoOffset(-1) },
+      { id: 'a4', title: 'Sponsor arıyoruz', body: 'Bahar şenliği için sponsor önerilerinizi bekliyoruz.', authorId: 'c4', status: 'rejected', note: 'Sponsor aramaları için Ortak Etkinlikler sekmesini kullanalım.', createdAt: isoOffset(-5), decidedAt: isoOffset(-4) },
+    ],
+    events: [
+      { id: 'e0a', title: 'Tanışma Kahvaltısı', desc: 'Ağa katılan ilk kulüplerin tanışma buluşması.', date: dayOffset(-24), time: '10:00', place: 'Beşiktaş', seeking: '', ownerId: ADMIN, status: 'published', createdAt: isoOffset(-40), applications: [] },
+      { id: 'e0b', title: 'Hackathon Hazırlık Kampı', desc: 'İki günlük ortak hazırlık kampı.', date: dayOffset(-11), time: '09:30', place: 'İstinye Üniversitesi', seeking: '', ownerId: 'c1', status: 'published', createdAt: isoOffset(-30), applications: [
+        { id: 'p0', clubId: 'c2', note: 'Tasarım mentorluğu.', status: 'approved', createdAt: isoOffset(-26) },
+      ] },
+      { id: 'e1', title: 'Kulüpler Buluşması', desc: 'Ağdaki tüm kulüp başkanlarının tanıştığı açılış buluşması.', date: dayOffset(9), time: '18:30', place: 'Kadıköy', seeking: 'Mekân ve ikram konusunda destek olabilecek kulüpler.', ownerId: ADMIN, status: 'published', createdAt: isoOffset(-5), applications: [
+        { id: 'p1', clubId: 'c3', note: 'İkram sponsorunu biz ayarlayabiliriz.', status: 'approved', createdAt: isoOffset(-3) },
+      ] },
+      { id: 'e2', title: 'Yapay Zekâ Atölyesi', desc: 'Bir günlük uygulamalı atölye. Dizüstü bilgisayar getirmek yeterli.', date: dayOffset(17), time: '13:00', place: 'İstinye Üniversitesi, Topkapı Kampüsü', seeking: 'Görsel tasarım ve duyuru tarafında bir ortak.', ownerId: 'c1', status: 'published', createdAt: isoOffset(-4), applications: [
+        { id: 'p2', clubId: 'c2', note: 'Afiş ve sosyal medya görsellerini üstlenebiliriz.', status: 'pending', createdAt: isoOffset(-1) },
+      ] },
+      { id: 'e3', title: 'Girişim Sohbetleri', desc: 'Üç kurucunun kendi hikâyesini anlattığı akşam söyleşisi.', date: dayOffset(26), time: '19:00', place: 'Boğaziçi Üniversitesi, Güney Kampüs', seeking: 'Teknik kulüplerden konuşmacı önerisi.', ownerId: 'c3', status: 'pending', createdAt: isoOffset(-1), applications: [] },
+    ],
+    tasks: [
+      { id: 't1', title: 'Kulüp tanıtım metnini gönder', desc: 'Sitede kulüp sayfanızda görünecek 3-4 cümlelik tanıtım metni.', due: dayOffset(5), clubId: 'c1', status: 'open', createdAt: isoOffset(-2) },
+      { id: 't2', title: 'Kulüp tanıtım metnini gönder', desc: 'Sitede kulüp sayfanızda görünecek 3-4 cümlelik tanıtım metni.', due: dayOffset(5), clubId: 'c2', status: 'done', doneText: 'Metni hazırladık ve iletisim@unipakt.com adresine gönderdik. Logomuzu da ekledik.', doneAt: isoOffset(-1), createdAt: isoOffset(-2) },
+      { id: 't3', title: 'Buluşma için katılımcı sayısını bildir', desc: 'Kulüpler Buluşması’na kaç kişiyle katılacağınızı yazın.', due: dayOffset(3), clubId: 'c3', status: 'open', createdAt: isoOffset(-2) },
+      { id: 't4', title: 'Sosyal medya hesaplarını paylaş', desc: 'Instagram ve LinkedIn bağlantılarınızı iletin.', due: dayOffset(-2), clubId: 'c4', status: 'open', createdAt: isoOffset(-8) },
+    ],
+    pointLog: [
+      { id: 'l1', clubId: 'c1', eventId: 'e0a', label: 'Tanışma Kahvaltısı', delta: 30, note: 'Katılım', at: isoOffset(-24) },
+      { id: 'l2', clubId: 'c2', eventId: 'e0a', label: 'Tanışma Kahvaltısı', delta: 30, note: 'Katılım', at: isoOffset(-24) },
+      { id: 'l3', clubId: 'c3', eventId: 'e0a', label: 'Tanışma Kahvaltısı', delta: 30, note: 'Katılım', at: isoOffset(-24) },
+      { id: 'l4', clubId: 'c4', eventId: 'e0a', label: 'Tanışma Kahvaltısı', delta: 30, note: 'Katılım', at: isoOffset(-24) },
+      { id: 'l5', clubId: 'c1', eventId: 'e0b', label: 'Hackathon Hazırlık Kampı', delta: 60, note: 'Etkinliği düzenledi', at: isoOffset(-10) },
+      { id: 'l6', clubId: 'c2', eventId: 'e0b', label: 'Hackathon Hazırlık Kampı', delta: 25, note: 'Ortak kulüp', at: isoOffset(-10) },
+      { id: 'l7', clubId: 'c3', eventId: 'e0b', label: 'Hackathon Hazırlık Kampı', delta: 20, note: 'Katılım', at: isoOffset(-10) },
+      { id: 'l8', clubId: 'c4', eventId: 'e0b', label: 'Hackathon Hazırlık Kampı', delta: -5, note: 'Geç iptal', at: isoOffset(-10) },
+      { id: 'l9', clubId: 'c1', eventId: '', label: OTHER, delta: -10, note: 'Geciken görev', at: isoOffset(-5) },
+      { id: 'l10', clubId: 'c2', eventId: '', label: OTHER, delta: 15, note: 'Görev zamanında tamamlandı', at: isoOffset(-1) },
+    ],
+  });
+
+  let db;
+  const load = () => {
+    try {
+      const raw = localStorage.getItem(KEY);
+      db = raw ? JSON.parse(raw) : null;
+    } catch (_) { db = null; }
+    if (!db || !Array.isArray(db.clubs)) { db = seed(); save(); }
+  };
+  // Returns false when the browser refuses (private mode, or an attachment over the quota).
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); return true; } catch (_) { return false; } };
+
+  /* ------------------------------------------------------------------
+     STATE
+     ------------------------------------------------------------------ */
+  const now = new Date();
+  const state = {
+    user: null,
+    view: 'genel',
+    cal: { y: now.getFullYear(), m: now.getMonth(), sel: ymd(now) },
+    taskTab: 'open',
+    taskClub: 'all',
+  };
+  try { state.user = sessionStorage.getItem(SESSION); } catch (_) {}
+
+  const isAdmin = () => state.user === ADMIN;
+  const club = (id) => db.clubs.find((c) => c.id === id);
+  const who = (id) => (id === ADMIN ? 'UniPakt' : (club(id)?.name || 'Silinmiş kulüp'));
+  const today = () => ymd(new Date());
+  const byNewest = (a, b) => String(b.createdAt).localeCompare(String(a.createdAt));
+  const byDate = (a, b) => String(a.date).localeCompare(String(b.date));
+
+  const pendingAnnouncements = () => db.announcements.filter((a) => a.status === 'pending').sort(byNewest);
+  const pendingEvents = () => db.events.filter((e) => e.status === 'pending').sort(byNewest);
+  const pendingApplications = () => db.events.filter((e) => e.status === 'published')
+    .flatMap((e) => e.applications.filter((p) => p.status === 'pending').map((p) => ({ event: e, app: p })));
+  const pendingCount = () => pendingAnnouncements().length + pendingEvents().length + pendingApplications().length;
+  const publishedAnnouncements = () => db.announcements.filter((a) => a.status === 'published')
+    .sort((a, b) => String(b.decidedAt || b.createdAt).localeCompare(String(a.decidedAt || a.createdAt)));
+  const publishedEvents = () => db.events.filter((e) => e.status === 'published').sort(byDate);
+  const upcomingEvents = () => publishedEvents().filter((e) => e.date >= today());
+  const visibleTasks = () => (isAdmin() ? db.tasks : db.tasks.filter((t) => t.clubId === state.user));
+  const pts = (id) => db.pointLog.filter((l) => l.clubId === id).reduce((sum, l) => sum + l.delta, 0);
+  const ranking = () => db.clubs.map((c) => ({ ...c, points: pts(c.id) })).sort((a, b) => b.points - a.points || a.name.localeCompare(b.name, 'tr'));
+  const signed = (n) => `${n >= 0 ? '+' : '−'}${Math.abs(n)}`;
+
+  const NAV = () => {
+    const openMine = visibleTasks().filter((t) => t.status === 'open').length;
+    const items = [
+      ['genel', 'Genel Bakış'],
+      ['duyurular', 'Duyurular'],
+      ['etkinlikler', 'Ortak Etkinlikler'],
+      ['takvim', 'Takvim'],
+      ['gorevler', 'Görevler', isAdmin() ? 0 : openMine],
+    ];
+    if (isAdmin()) items.push(['onaylar', 'Onaylamalar', pendingCount()]);
+    items.push(['vanguard', 'UniPakt.Vanguard']);
+    if (!isAdmin()) items.push(['basvuru', 'Başvurular']);
+    return items;
+  };
+
+  /* ------------------------------------------------------------------
+     SMALL UI HELPERS
+     ------------------------------------------------------------------ */
+  const root = document.getElementById('root');
+  const dlg = document.getElementById('dlg');
+  const dlgForm = document.getElementById('dlgForm');
+  const toastEl = document.getElementById('toast');
+  let toastTimer;
+  const toast = (msg) => {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+  };
+
+  const STATUS = {
+    pending: ['wait', 'Onay bekliyor'],
+    published: ['ok', 'Yayında'],
+    approved: ['ok', 'Onaylandı'],
+    rejected: ['no', 'Reddedildi'],
+  };
+  const tag = (status) => { const [cls, label] = STATUS[status] || ['', status]; return `<span class="tag ${cls}">${label}</span>`; };
+  const empty = (text) => `<div class="empty">${esc(text)}</div>`;
+  const dateBlock = (s) => { const d = parseYmd(s); return `<div class="date-block"><b>${d.getDate()}</b><span>${MONTHS_SHORT[d.getMonth()]}</span></div>`; };
+
+  let dlgSubmit = null;
+  const openForm = ({ title, lead = '', fields = '', submit = 'Kaydet', danger = false, onSubmit }) => {
+    dlgForm.innerHTML = `
+      <h2>${esc(title)}</h2>
+      ${lead ? `<p class="lead">${esc(lead)}</p>` : ''}
+      ${fields}
+      <p class="form-error" id="dlgError" hidden></p>
+      <div class="dialog-actions">
+        <button type="button" class="btn ghost" data-close>Vazgeç</button>
+        <button type="submit" class="btn ${danger ? 'danger' : ''}">${esc(submit)}</button>
+      </div>`;
+    dlgSubmit = onSubmit;
+    dlg.showModal();
+    dlgForm.querySelector('input:not([type=checkbox]), textarea, select')?.focus();
+  };
+  dlgForm.addEventListener('click', (e) => { if (e.target.closest('[data-close]')) dlg.close(); });
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+  dlgForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const err = dlgForm.querySelector('#dlgError');
+    const invalid = [...dlgForm.elements].find((el) => el.willValidate && !el.checkValidity());
+    if (invalid) {
+      err.textContent = 'Lütfen zorunlu alanları doldur.'; err.hidden = false; invalid.focus(); return;
+    }
+    const problem = dlgSubmit ? dlgSubmit(new FormData(dlgForm)) : null;
+    if (typeof problem === 'string') { err.textContent = problem; err.hidden = false; return; }
+    dlg.close();
+    render();
+  });
+
+  const field = (label, control) => `<label class="field"><span>${label}</span>${control}</label>`;
+  const val = (fd, name) => String(fd.get(name) || '').trim();
+
+  /* ------------------------------------------------------------------
+     VIEWS
+     ------------------------------------------------------------------ */
+  const head = (title, sub, action = '') => `
+    <div class="page-head">
+      <div><h1>${title}</h1>${sub ? `<p>${esc(sub)}</p>` : ''}</div>
+      ${action}
+    </div>`;
+
+  const announcementCard = (a, { mine = false } = {}) => `
+    <article class="card item">
+      ${mine ? `<div class="meta top">${tag(a.status)}<span>${fmtStamp(a.createdAt)} tarihinde gönderildi</span></div>` : ''}
+      <h3>${esc(a.title)}</h3>
+      <p class="body">${esc(a.body)}</p>
+      ${mine && a.status === 'rejected' && a.note ? `<div class="quote"><small>UniPakt notu</small>${esc(a.note)}</div>` : ''}
+      ${mine ? '' : `<div class="meta"><span>${esc(who(a.authorId))}</span><span>${fmtStamp(a.decidedAt || a.createdAt)}</span></div>`}
+      ${isAdmin() && !mine ? `<div class="actions"><button class="btn ghost small" data-act="ann-remove" data-id="${a.id}">Kaldır</button></div>` : ''}
+    </article>`;
+
+  const eventCard = (e, { mine = false } = {}) => {
+    const partners = e.applications.filter((p) => p.status === 'approved');
+    const waiting = e.applications.filter((p) => p.status === 'pending');
+    const myApp = !isAdmin() ? e.applications.find((p) => p.clubId === state.user) : null;
+    let action = '';
+    if (!mine && e.status === 'published') {
+      if (isAdmin()) action = `<button class="btn ghost small" data-act="event-remove" data-id="${e.id}">Kaldır</button>`;
+      else if (e.ownerId === state.user) action = '<span class="tag">Senin etkinliğin</span>';
+      else if (myApp) action = myApp.status === 'approved' ? '<span class="tag ok">Ortaksın</span>'
+        : myApp.status === 'pending' ? '<span class="tag wait">Başvurun onay bekliyor</span>'
+        : '<span class="tag no">Başvurun reddedildi</span>';
+      else if (e.date >= today()) action = `<button class="btn small" data-act="event-apply" data-id="${e.id}">Ortak ol</button>`;
+    }
+    return `
+    <article class="card item event">
+      ${dateBlock(e.date)}
+      <div>
+        ${mine ? `<div class="meta top">${tag(e.status)}<span>${fmtStamp(e.createdAt)} tarihinde gönderildi</span></div>` : ''}
+        <h3>${esc(e.title)}</h3>
+        <p class="body">${esc(e.desc)}</p>
+        ${e.seeking ? `<div class="quote"><small>Aranan ortak</small>${esc(e.seeking)}</div>` : ''}
+        ${mine && e.status === 'rejected' && e.note ? `<div class="quote"><small>UniPakt notu</small>${esc(e.note)}</div>` : ''}
+        <div class="meta">
+          <span>${fmtDay(e.date)}${e.time ? ` · ${esc(e.time)}` : ''}</span>
+          ${e.place ? `<span>${esc(e.place)}</span>` : ''}
+          <span>Düzenleyen: ${esc(who(e.ownerId))}</span>
+        </div>
+        ${partners.length ? `<div class="meta"><span>Ortaklar:</span>${partners.map((p) => `<span class="tag ok">${esc(who(p.clubId))}</span>`).join('')}</div>` : ''}
+        ${isAdmin() && !mine && waiting.length ? `<div class="apps"><small>Onay bekleyen ortaklık başvuruları</small>${waiting.map((p) => applicationRow(e, p)).join('')}</div>` : ''}
+        ${action ? `<div class="actions">${action}</div>` : ''}
+      </div>
+    </article>`;
+  };
+
+  const applicationRow = (e, p) => `
+    <div class="app-row">
+      <p><strong>${esc(who(p.clubId))}</strong>${p.note ? ` — ${esc(p.note)}` : ''}</p>
+      <div class="actions">
+        <button class="btn small" data-act="app-approve" data-id="${e.id}" data-sub="${p.id}">Onayla</button>
+        <button class="btn ghost small" data-act="app-reject" data-id="${e.id}" data-sub="${p.id}">Reddet</button>
+      </div>
+    </div>`;
+
+  const FILE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf'];
+  const proofFile = (f) => {
+    if (!f || !FILE_TYPES.includes(f.type) || !String(f.data).startsWith(`data:${f.type};base64,`)) return '';
+    const image = f.type.startsWith('image/');
+    return `<a class="proof ${image ? 'is-image' : ''}" href="${esc(f.data)}" download="${esc(f.name)}">${image ? `<img src="${esc(f.data)}" alt="">` : ''}<span>Ek: ${esc(f.name)}</span></a>`;
+  };
+  const taskCard = (t) => {
+    const late = t.status === 'open' && t.due && t.due < today();
+    return `
+    <article class="card item">
+      <div class="meta top">
+        ${t.status === 'done' ? '<span class="tag ok">Tamamlandı</span>' : late ? '<span class="tag no">Gecikti</span>' : '<span class="tag wait">Açık</span>'}
+        ${isAdmin() ? `<span>${esc(who(t.clubId))}</span>` : ''}
+        ${t.due ? `<span>Son tarih: ${fmtDay(t.due)}</span>` : ''}
+      </div>
+      <h3>${esc(t.title)}</h3>
+      ${t.desc ? `<p class="body">${esc(t.desc)}</p>` : ''}
+      ${t.status === 'done' ? `<div class="quote"><small>Kanıt · ${fmtStamp(t.doneAt)}</small>${esc(t.doneText || '')}${proofFile(t.doneFile)}</div>` : ''}
+      <div class="actions">
+        ${!isAdmin() && t.status === 'open' ? `<button class="btn small" data-act="task-done" data-id="${t.id}">Görevi bitir</button>` : ''}
+        ${isAdmin() ? `<button class="btn ghost small" data-act="task-remove" data-id="${t.id}">Sil</button>` : ''}
+      </div>
+    </article>`;
+  };
+
+  const views = {
+    genel() {
+      const events = upcomingEvents().slice(0, 3);
+      const eventsBlock = `
+        <div>
+          <div class="section-head"><h2>Yaklaşan etkinlikler</h2><button class="link-btn" data-go="takvim">Takvim</button></div>
+          ${events.length ? `<div class="card">${events.map((e) => `
+            <div class="mini-row"><div><strong>${esc(e.title)}</strong><small>${fmtDay(e.date)}${e.time ? ` · ${esc(e.time)}` : ''} · ${esc(who(e.ownerId))}</small></div></div>`).join('')}</div>`
+            : empty('Yaklaşan etkinlik yok.')}
+        </div>`;
+
+      if (isAdmin()) {
+        const pend = [
+          ...pendingAnnouncements().map((a) => ({ kind: 'Duyuru', title: a.title, by: who(a.authorId) })),
+          ...pendingEvents().map((e) => ({ kind: 'Ortak etkinlik', title: e.title, by: who(e.ownerId) })),
+          ...pendingApplications().map(({ event, app }) => ({ kind: 'Ortaklık başvurusu', title: event.title, by: who(app.clubId) })),
+        ];
+        const done = db.tasks.filter((t) => t.status === 'done').sort((a, b) => String(b.doneAt).localeCompare(String(a.doneAt))).slice(0, 3);
+        return `
+          ${head('Genel Bakış', 'Ağda bugün olan biten, tek ekranda.')}
+          <div class="stats">
+            <button class="stat ${pend.length ? 'hot' : ''}" data-go="onaylar"><b>${pend.length}</b><span>Bekleyen onay</span></button>
+            <button class="stat" data-go="duyurular"><b>${publishedAnnouncements().length}</b><span>Yayındaki duyuru</span></button>
+            <button class="stat" data-go="etkinlikler"><b>${upcomingEvents().length}</b><span>Yaklaşan etkinlik</span></button>
+            <button class="stat" data-go="gorevler"><b>${db.tasks.filter((t) => t.status === 'open').length}</b><span>Açık görev</span></button>
+          </div>
+          <div class="grid-2" style="margin-top:34px">
+            <div>
+              <div class="section-head"><h2>Onay bekleyenler</h2><button class="link-btn" data-go="onaylar">Tümü</button></div>
+              ${pend.length ? `<div class="card">${pend.slice(0, 5).map((p) => `
+                <div class="mini-row"><div><strong>${esc(p.title)}</strong><small>${esc(p.kind)} · ${esc(p.by)}</small></div><span class="tag wait">Bekliyor</span></div>`).join('')}</div>`
+                : empty('Bekleyen işlem yok.')}
+            </div>
+            ${eventsBlock}
+            <div>
+              <div class="section-head"><h2>Son biten görevler</h2><button class="link-btn" data-go="gorevler">Görevler</button></div>
+              ${done.length ? `<div class="card">${done.map((t) => `
+                <div class="mini-row"><div><strong>${esc(t.title)}</strong><small>${esc(who(t.clubId))} · ${fmtStamp(t.doneAt)}</small></div><span class="tag ok">Bitti</span></div>`).join('')}</div>`
+                : empty('Henüz biten görev yok.')}
+            </div>
+            <div>
+              <div class="section-head"><h2>Vanguard ilk üç</h2><button class="link-btn" data-go="vanguard">Sıralama</button></div>
+              <div class="card">${ranking().slice(0, 3).map((c, i) => `
+                <div class="mini-row"><div><strong>${i + 1}. ${esc(c.name)}</strong><small>${esc(c.uni)}</small></div><strong>${c.points}</strong></div>`).join('')}</div>
+            </div>
+          </div>`;
+      }
+
+      const me = club(state.user);
+      const rank = ranking().findIndex((c) => c.id === state.user) + 1;
+      const myOpen = visibleTasks().filter((t) => t.status === 'open');
+      const myPending = db.announcements.filter((a) => a.authorId === state.user && a.status === 'pending').length
+        + db.events.filter((e) => e.ownerId === state.user && e.status === 'pending').length
+        + db.events.flatMap((e) => e.applications).filter((p) => p.clubId === state.user && p.status === 'pending').length;
+      const latest = publishedAnnouncements().slice(0, 3);
+      return `
+        ${head('Genel Bakış', `${me.name} · ${me.uni}`)}
+        <div class="stats">
+          <button class="stat hot" data-go="vanguard"><b>${pts(state.user)}</b><span>Vanguard puanı · ${rank}. sıra</span></button>
+          <button class="stat" data-go="gorevler"><b>${myOpen.length}</b><span>Açık görev</span></button>
+          <button class="stat" data-go="basvuru"><b>${myPending}</b><span>Onay bekleyen başvurun</span></button>
+          <button class="stat" data-go="etkinlikler"><b>${upcomingEvents().length}</b><span>Yaklaşan etkinlik</span></button>
+        </div>
+        <div class="grid-2" style="margin-top:34px">
+          <div>
+            <div class="section-head"><h2>Görevlerin</h2><button class="link-btn" data-go="gorevler">Tümü</button></div>
+            ${myOpen.length ? `<div class="card">${myOpen.slice(0, 4).map((t) => `
+              <div class="mini-row"><div><strong>${esc(t.title)}</strong><small>${t.due ? `Son tarih: ${fmtDay(t.due)}` : 'Son tarih yok'}</small></div>${t.due && t.due < today() ? '<span class="tag no">Gecikti</span>' : '<span class="tag wait">Açık</span>'}</div>`).join('')}</div>`
+              : empty('Açık görevin yok.')}
+          </div>
+          ${eventsBlock}
+          <div style="grid-column:1/-1">
+            <div class="section-head"><h2>Son duyurular</h2><button class="link-btn" data-go="duyurular">Tümü</button></div>
+            ${latest.length ? `<div class="card">${latest.map((a) => `
+              <div class="mini-row"><div><strong>${esc(a.title)}</strong><small>${esc(who(a.authorId))} · ${fmtStamp(a.decidedAt || a.createdAt)}</small></div></div>`).join('')}</div>`
+              : empty('Henüz duyuru yok.')}
+          </div>
+        </div>`;
+    },
+
+    duyurular() {
+      const list = publishedAnnouncements();
+      return `
+        ${head('Duyurular',
+          isAdmin() ? 'Senin yayınladıkların ve onay verdiğin kulüp duyuruları. Tüm kulüp başkanları görür.'
+                    : 'UniPakt’ın yayınladığı ve onayladığı duyurular.',
+          isAdmin() ? '<button class="btn" data-act="ann-new">Yeni duyuru</button>' : '<button class="btn ghost" data-go="basvuru">Duyuru başvurusu</button>')}
+        <div class="stack">${list.length ? list.map((a) => announcementCard(a)).join('') : empty('Henüz yayında duyuru yok.')}</div>`;
+    },
+
+    etkinlikler() {
+      const list = publishedEvents();
+      const upcoming = list.filter((e) => e.date >= today());
+      const past = list.filter((e) => e.date < today()).reverse();
+      return `
+        ${head('Ortak Etkinlikler',
+          isAdmin() ? 'Ortak aranan etkinlikler. Ortaklık başvurularını buradan ya da Onaylamalar’dan onaylayabilirsin.'
+                    : 'Ortak aranan etkinlikler. Birine ortak olmak için başvur, UniPakt onaylayınca ortak olursun.',
+          isAdmin() ? '<button class="btn" data-act="event-new">Yeni ortak etkinlik</button>' : '<button class="btn ghost" data-go="basvuru">Etkinlik başvurusu</button>')}
+        <div class="stack">${upcoming.length ? upcoming.map((e) => eventCard(e)).join('') : empty('Yaklaşan ortak etkinlik yok.')}</div>
+        ${past.length ? `<div class="section-head"><h2>Geçmiş etkinlikler</h2></div><div class="stack">${past.map((e) => eventCard(e)).join('')}</div>` : ''}`;
+    },
+
+    takvim() {
+      const { y, m, sel } = state.cal;
+      const first = new Date(y, m, 1);
+      const offset = (first.getDay() + 6) % 7;            // Monday first
+      const days = new Date(y, m + 1, 0).getDate();
+      const cells = Math.ceil((offset + days) / 7) * 7;
+      const items = {};
+      const add = (date, entry) => { (items[date] = items[date] || []).push(entry); };
+      publishedEvents().forEach((e) => add(e.date, { type: 'event', title: e.title, sub: `${e.time ? `${e.time} · ` : ''}${e.place || ''}`, by: who(e.ownerId) }));
+      visibleTasks().filter((t) => t.status === 'open' && t.due).forEach((t) => add(t.due, { type: 'task', title: t.title, sub: 'Görev son tarihi', by: who(t.clubId) }));
+      const t = today();
+      let grid = DOW.map((d) => `<div class="cal-dow">${d}</div>`).join('');
+      for (let i = 0; i < cells; i++) {
+        const d = new Date(y, m, i - offset + 1);
+        const key = ymd(d);
+        const list = items[key] || [];
+        const cls = ['cal-day', d.getMonth() !== m ? 'out' : '', key === t ? 'today' : '', key === sel ? 'selected' : '', i >= cells - 7 ? 'last-row' : ''].filter(Boolean).join(' ');
+        grid += `<button class="${cls}" data-act="cal-pick" data-id="${key}" aria-label="${fmtDay(key)}${list.length ? `, ${list.length} kayıt` : ''}">
+          <span class="num">${d.getDate()}</span>
+          <span class="chips">${list.slice(0, 3).map((x) => `<span class="cal-chip ${x.type === 'task' ? 'task' : ''}">${esc(x.title)}</span>`).join('')}</span>
+        </button>`;
+      }
+      const selected = items[sel] || [];
+      return `
+        ${head('Takvim', 'Yayındaki ortak etkinliklerin tarihleri ve görev son tarihleri.')}
+        <div class="cal-head">
+          <h2>${MONTHS[m]} ${y}</h2>
+          <div class="row">
+            <button class="btn ghost small" data-act="cal-move" data-id="-1" aria-label="Önceki ay">‹ Önceki</button>
+            <button class="btn ghost small" data-act="cal-today">Bugün</button>
+            <button class="btn ghost small" data-act="cal-move" data-id="1" aria-label="Sonraki ay">Sonraki ›</button>
+          </div>
+        </div>
+        <div class="cal-grid">${grid}</div>
+        <div class="cal-legend"><span><i></i>Etkinlik</span><span><i class="task"></i>Görev son tarihi</span></div>
+        <div class="section-head"><h2>${fmtDay(sel)}</h2></div>
+        ${selected.length ? `<div class="card">${selected.map((x) => `
+          <div class="mini-row"><div><strong>${esc(x.title)}</strong><small>${esc([x.sub, x.by].filter(Boolean).join(' · '))}</small></div><span class="tag ${x.type === 'task' ? '' : 'wait'}">${x.type === 'task' ? 'Görev' : 'Etkinlik'}</span></div>`).join('')}</div>`
+          : empty('Bu günde kayıt yok.')}`;
+    },
+
+    gorevler() {
+      let list = visibleTasks();
+      if (isAdmin() && state.taskClub !== 'all') list = list.filter((t) => t.clubId === state.taskClub);
+      const open = list.filter((t) => t.status === 'open').sort((a, b) => String(a.due || '9').localeCompare(String(b.due || '9')));
+      const done = list.filter((t) => t.status === 'done').sort((a, b) => String(b.doneAt).localeCompare(String(a.doneAt)));
+      const shown = state.taskTab === 'done' ? done : open;
+      return `
+        ${head('Görevler',
+          isAdmin() ? 'Kulüplere görev ata, bitirdiklerinde bıraktıkları kanıtları gör.'
+                    : 'UniPakt’ın kulübüne atadığı görevler. Bitirdiğinde kanıtını mesaj ya da dosya olarak bırak.',
+          isAdmin() ? '<button class="btn" data-act="task-new">Görev ata</button>' : '')}
+        <div class="toolbar">
+          <button class="chip ${state.taskTab === 'open' ? 'active' : ''}" data-act="task-tab" data-id="open">Açık (${open.length})</button>
+          <button class="chip ${state.taskTab === 'done' ? 'active' : ''}" data-act="task-tab" data-id="done">Biten (${done.length})</button>
+          ${isAdmin() ? `<select id="taskClub" aria-label="Kulübe göre süz">
+            <option value="all">Tüm kulüpler</option>
+            ${db.clubs.map((c) => `<option value="${c.id}" ${state.taskClub === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
+          </select>` : ''}
+        </div>
+        <div class="stack">${shown.length ? shown.map(taskCard).join('') : empty(state.taskTab === 'done' ? 'Biten görev yok.' : 'Açık görev yok.')}</div>`;
+    },
+
+    onaylar() {
+      const anns = pendingAnnouncements();
+      const evs = pendingEvents();
+      const apps = pendingApplications();
+      const buttons = (kind, id, sub = '') => `
+        <div class="actions">
+          <button class="btn small" data-act="${kind}-approve" data-id="${id}" ${sub ? `data-sub="${sub}"` : ''}>Onayla</button>
+          <button class="btn ghost small" data-act="${kind}-reject" data-id="${id}" ${sub ? `data-sub="${sub}"` : ''}>Reddet</button>
+        </div>`;
+      return `
+        ${head('Onaylamalar', 'Kulüplerin panelde yayınlanmak üzere gönderdiği, onayını bekleyen işlemler.')}
+        <div class="section-head"><h2>Duyuru istekleri (${anns.length})</h2></div>
+        <div class="stack">${anns.length ? anns.map((a) => `
+          <article class="card item">
+            <div class="meta top"><span class="tag wait">Duyuru</span><span>${esc(who(a.authorId))} · ${fmtStamp(a.createdAt)}</span></div>
+            <h3>${esc(a.title)}</h3><p class="body">${esc(a.body)}</p>
+            ${buttons('ann', a.id)}
+          </article>`).join('') : empty('Bekleyen duyuru isteği yok.')}</div>
+
+        <div class="section-head"><h2>Ortak etkinlik istekleri (${evs.length})</h2></div>
+        <div class="stack">${evs.length ? evs.map((e) => `
+          <article class="card item event">
+            ${dateBlock(e.date)}
+            <div>
+              <div class="meta top"><span class="tag wait">Ortak etkinlik</span><span>${esc(who(e.ownerId))} · ${fmtStamp(e.createdAt)}</span></div>
+              <h3>${esc(e.title)}</h3><p class="body">${esc(e.desc)}</p>
+              ${e.seeking ? `<div class="quote"><small>Aranan ortak</small>${esc(e.seeking)}</div>` : ''}
+              <div class="meta"><span>${fmtDay(e.date)}${e.time ? ` · ${esc(e.time)}` : ''}</span>${e.place ? `<span>${esc(e.place)}</span>` : ''}</div>
+              ${buttons('event', e.id)}
+            </div>
+          </article>`).join('') : empty('Bekleyen etkinlik isteği yok.')}</div>
+
+        <div class="section-head"><h2>Ortaklık başvuruları (${apps.length})</h2></div>
+        <div class="stack">${apps.length ? apps.map(({ event, app }) => `
+          <article class="card item">
+            <div class="meta top"><span class="tag wait">Ortaklık başvurusu</span><span>${esc(who(app.clubId))} · ${fmtStamp(app.createdAt)}</span></div>
+            <h3>${esc(event.title)}</h3>
+            <div class="meta"><span>${fmtDay(event.date)}</span><span>Düzenleyen: ${esc(who(event.ownerId))}</span></div>
+            ${app.note ? `<div class="quote"><small>${esc(who(app.clubId))} diyor ki</small>${esc(app.note)}</div>` : ''}
+            ${buttons('app', event.id, app.id)}
+          </article>`).join('') : empty('Bekleyen ortaklık başvurusu yok.')}</div>`;
+    },
+
+    vanguard() {
+      const list = ranking();
+      const max = Math.max(1, ...list.map((c) => c.points));
+      const newest = (a, b) => String(b.at).localeCompare(String(a.at));
+      const logRows = (log, withClub) => log.map((l) => `
+        <div class="mini-row"><div><strong>${esc(withClub ? who(l.clubId) : l.label || OTHER)}</strong>
+          <small>${esc([withClub ? (l.label || OTHER) : '', l.note, fmtStamp(l.at)].filter(Boolean).join(' · '))}</small></div>
+          <span class="delta ${l.delta >= 0 ? 'up' : 'down'}">${signed(l.delta)}</span></div>`).join('');
+      const board = `
+        <div class="card" style="padding:0;overflow:hidden">
+          ${list.map((c, i) => `
+            <div class="rank-row ${c.id === state.user ? 'mine' : ''}">
+              <span class="pos">${i + 1}</span>
+              <div><strong>${esc(c.name)}</strong><small>${esc(c.uni)}</small><div class="bar"><i style="width:${Math.max(0, Math.round(c.points / max * 100))}%"></i></div></div>
+              <div class="pts"><b>${c.points}</b>
+                ${isAdmin() ? `<button class="btn ghost small" data-act="pts-new" data-id="${c.id}">Puan ver</button>` : ''}</div>
+            </div>`).join('')}
+        </div>`;
+
+      if (isAdmin()) {
+        const log = [...db.pointLog].sort(newest).slice(0, 12);
+        return `
+          ${head('UniPakt<span>.</span>Vanguard', 'Kulüp seç, etkinliği seç, artı ya da eksi puanı gönder. Kulüp, puanın hangi etkinlikten geldiğini kendi panelinde görür.',
+            '<button class="btn" data-act="pts-new">Puan gönder</button>')}
+          ${board}
+          <div class="section-head"><h2>Son puan hareketleri</h2></div>
+          ${log.length ? `<div class="card">${logRows(log, true)}</div>` : empty('Henüz puan hareketi yok.')}`;
+      }
+
+      const mine = db.pointLog.filter((l) => l.clubId === state.user);
+      const sources = [];
+      [...mine].sort((a, b) => String(a.at).localeCompare(String(b.at))).forEach((l) => {
+        const label = l.label || OTHER;
+        let row = sources.find((x) => x.label === label);
+        if (!row) sources.push(row = { label, total: 0 });
+        row.total += l.delta;
+      });
+      const top = Math.max(1, ...sources.map((x) => Math.abs(x.total)));
+      const rank = list.findIndex((c) => c.id === state.user) + 1;
+      return `
+        ${head('UniPakt<span>.</span>Vanguard', 'Kazandığın puanlar ve hangi etkinliklerden geldikleri.')}
+        <div class="stats two">
+          <div class="stat hot"><b>${pts(state.user)}</b><span>Toplam puan</span></div>
+          <div class="stat"><b>${rank}.</b><span>${list.length} kulüp arasında sıran</span></div>
+        </div>
+        <div class="section-head"><h2>Puanların nereden geldi</h2></div>
+        ${sources.length ? `<div class="card chart" role="img" aria-label="Etkinliklere göre puan dağılımı">${sources.map((x) => `
+          <div class="chart-row">
+            <span class="chart-label">${esc(x.label)}</span>
+            <span class="chart-track"><i class="${x.total < 0 ? 'down' : ''}" style="width:${Math.max(2, Math.round(Math.abs(x.total) / top * 100))}%"></i></span>
+            <span class="delta ${x.total >= 0 ? 'up' : 'down'}">${signed(x.total)}</span>
+          </div>`).join('')}</div>` : empty('Henüz puan kazanmadın.')}
+        <div class="section-head"><h2>Puan hareketlerin</h2></div>
+        ${mine.length ? `<div class="card">${logRows([...mine].sort(newest), false)}</div>` : empty('Henüz puan hareketi yok.')}
+        <div class="section-head"><h2>Ağ sıralaması</h2></div>
+        ${board}`;
+    },
+
+    basvuru() {
+      const anns = db.announcements.filter((a) => a.authorId === state.user).sort(byNewest);
+      const evs = db.events.filter((e) => e.ownerId === state.user).sort(byNewest);
+      const apps = db.events.flatMap((e) => e.applications.filter((p) => p.clubId === state.user).map((p) => ({ event: e, app: p })))
+        .sort((a, b) => byNewest(a.app, b.app));
+      return `
+        ${head('Duyuru ve Etkinlik Başvurusu', 'Gönderdiklerin UniPakt’ın Onaylamalar sekmesine düşer. Onaylanınca tüm kulüp başkanları görür.')}
+        <div class="grid-2">
+          <div class="card item"><h3>Duyuru gönder</h3><p class="body">Diğer kulüplerin görmesini istediğin duyuruyu yaz.</p>
+            <div class="actions"><button class="btn" data-act="ann-new">Duyuru başvurusu</button></div></div>
+          <div class="card item"><h3>Etkinliğine ortak ara</h3><p class="body">Yapacağın etkinliğin detaylarını ve nasıl bir ortak aradığını yaz.</p>
+            <div class="actions"><button class="btn" data-act="event-new">Etkinlik başvurusu</button></div></div>
+        </div>
+        <div class="section-head"><h2>Duyuru başvuruların</h2></div>
+        <div class="stack">${anns.length ? anns.map((a) => announcementCard(a, { mine: true })).join('') : empty('Henüz duyuru başvurun yok.')}</div>
+        <div class="section-head"><h2>Etkinlik başvuruların</h2></div>
+        <div class="stack">${evs.length ? evs.map((e) => eventCard(e, { mine: true })).join('') : empty('Henüz etkinlik başvurun yok.')}</div>
+        <div class="section-head"><h2>Ortaklık başvuruların</h2></div>
+        ${apps.length ? `<div class="card">${apps.map(({ event, app }) => `
+          <div class="mini-row"><div><strong>${esc(event.title)}</strong><small>${fmtDay(event.date)} · ${esc(who(event.ownerId))}</small></div>${tag(app.status)}</div>`).join('')}</div>`
+          : empty('Henüz bir etkinliğe ortaklık başvurun yok.')}`;
+    },
+  };
+
+  /* ------------------------------------------------------------------
+     ACTIONS
+     ------------------------------------------------------------------ */
+  const rejectWithNote = (title, apply) => openForm({
+    title, lead: 'İstersen kulübe kısa bir not bırak.',
+    fields: field('Not (isteğe bağlı)', '<textarea name="note" maxlength="400"></textarea>'),
+    submit: 'Reddet', danger: true,
+    onSubmit: (fd) => { apply(val(fd, 'note')); save(); toast('Reddedildi.'); },
+  });
+  const confirmRemove = (title, lead, apply) => openForm({
+    title, lead, submit: 'Kaldır', danger: true,
+    onSubmit: () => { apply(); save(); toast('Kaldırıldı.'); },
+  });
+
+  const actions = {
+    'ann-new'() {
+      openForm({
+        title: isAdmin() ? 'Yeni duyuru' : 'Duyuru isteği gönder',
+        lead: isAdmin() ? 'Yayınladığın anda tüm kulüp başkanları görür.' : 'UniPakt onayladığında Duyurular sekmesinde yayınlanır.',
+        fields: field('Başlık', '<input name="title" required maxlength="120">')
+          + field('Duyuru metni', '<textarea name="body" required maxlength="1500"></textarea>'),
+        submit: isAdmin() ? 'Yayınla' : 'Onaya gönder',
+        onSubmit: (fd) => {
+          const stamp = new Date().toISOString();
+          db.announcements.push({ id: uid(), title: val(fd, 'title'), body: val(fd, 'body'), authorId: state.user,
+            status: isAdmin() ? 'published' : 'pending', createdAt: stamp, decidedAt: isAdmin() ? stamp : undefined });
+          save(); toast(isAdmin() ? 'Duyuru yayınlandı.' : 'Duyuru onaya gönderildi.');
+        },
+      });
+    },
+    'ann-approve'(id) {
+      const a = db.announcements.find((x) => x.id === id); if (!a) return;
+      a.status = 'published'; a.decidedAt = new Date().toISOString(); save(); toast('Duyuru yayınlandı.'); render();
+    },
+    'ann-reject'(id) {
+      const a = db.announcements.find((x) => x.id === id); if (!a) return;
+      rejectWithNote('Duyuruyu reddet', (note) => { a.status = 'rejected'; a.note = note; a.decidedAt = new Date().toISOString(); });
+    },
+    'ann-remove'(id) {
+      confirmRemove('Duyuruyu kaldır', 'Duyuru tüm kulüplerin panelinden kalkar.', () => { db.announcements = db.announcements.filter((x) => x.id !== id); });
+    },
+
+    'event-new'() {
+      openForm({
+        title: isAdmin() ? 'Yeni ortak etkinlik' : 'Ortak arıyorum',
+        lead: isAdmin() ? 'Yayınladığın anda tüm kulüp başkanları görür.' : 'UniPakt onayladığında Ortak Etkinlikler sekmesinde yayınlanır.',
+        fields: field('Etkinlik adı', '<input name="title" required maxlength="120">')
+          + field('Açıklama', '<textarea name="desc" required maxlength="1200"></textarea>')
+          + `<div class="field-row">${field('Tarih', `<input type="date" name="date" required min="${today()}">`)}${field('Saat (isteğe bağlı)', '<input type="time" name="time">')}</div>`
+          + field('Yer', '<input name="place" maxlength="120">')
+          + field('Nasıl bir ortak arıyorsun?', '<input name="seeking" maxlength="200">'),
+        submit: isAdmin() ? 'Yayınla' : 'Onaya gönder',
+        onSubmit: (fd) => {
+          db.events.push({ id: uid(), title: val(fd, 'title'), desc: val(fd, 'desc'), date: val(fd, 'date'), time: val(fd, 'time'),
+            place: val(fd, 'place'), seeking: val(fd, 'seeking'), ownerId: state.user,
+            status: isAdmin() ? 'published' : 'pending', createdAt: new Date().toISOString(), applications: [] });
+          save(); toast(isAdmin() ? 'Etkinlik yayınlandı.' : 'Etkinlik onaya gönderildi.');
+        },
+      });
+    },
+    'event-approve'(id) {
+      const e = db.events.find((x) => x.id === id); if (!e) return;
+      e.status = 'published'; e.decidedAt = new Date().toISOString(); save(); toast('Etkinlik yayınlandı.'); render();
+    },
+    'event-reject'(id) {
+      const e = db.events.find((x) => x.id === id); if (!e) return;
+      rejectWithNote('Etkinliği reddet', (note) => { e.status = 'rejected'; e.note = note; e.decidedAt = new Date().toISOString(); });
+    },
+    'event-remove'(id) {
+      confirmRemove('Etkinliği kaldır', 'Etkinlik ve ortaklık başvuruları tüm panellerden kalkar.', () => { db.events = db.events.filter((x) => x.id !== id); });
+    },
+    'event-apply'(id) {
+      const e = db.events.find((x) => x.id === id); if (!e) return;
+      openForm({
+        title: 'Ortak ol', lead: `“${e.title}” için ortaklık başvurusu. UniPakt onayladığında ortak olarak görünürsün.`,
+        fields: field('Nasıl katkı sağlayacaksınız?', '<textarea name="note" required maxlength="500"></textarea>'),
+        submit: 'Başvur',
+        onSubmit: (fd) => {
+          if (e.applications.some((p) => p.clubId === state.user)) return 'Bu etkinliğe zaten başvurdun.';
+          e.applications.push({ id: uid(), clubId: state.user, note: val(fd, 'note'), status: 'pending', createdAt: new Date().toISOString() });
+          save(); toast('Başvurun onaya gönderildi.');
+        },
+      });
+    },
+    'app-approve'(id, sub) {
+      const p = db.events.find((x) => x.id === id)?.applications.find((x) => x.id === sub); if (!p) return;
+      p.status = 'approved'; save(); toast('Ortaklık onaylandı.'); render();
+    },
+    'app-reject'(id, sub) {
+      const p = db.events.find((x) => x.id === id)?.applications.find((x) => x.id === sub); if (!p) return;
+      p.status = 'rejected'; save(); toast('Başvuru reddedildi.'); render();
+    },
+
+    'task-new'() {
+      openForm({
+        title: 'Görev ata',
+        fields: `<div class="field"><span>Kulüpler</span><div class="checks">
+            <label><input type="checkbox" id="allClubs"> <strong>Tüm kulüpler</strong></label>
+            ${db.clubs.map((c) => `<label><input type="checkbox" name="club" value="${c.id}"> ${esc(c.name)}</label>`).join('')}
+          </div></div>`
+          + field('Görev', '<input name="title" required maxlength="120">')
+          + field('Açıklama (isteğe bağlı)', '<textarea name="desc" maxlength="1000"></textarea>')
+          + field('Son tarih (isteğe bağlı)', '<input type="date" name="due">'),
+        submit: 'Ata',
+        onSubmit: (fd) => {
+          const ids = fd.getAll('club');
+          if (!ids.length) return 'En az bir kulüp seç.';
+          const stamp = new Date().toISOString();
+          ids.forEach((clubId) => db.tasks.push({ id: uid(), title: val(fd, 'title'), desc: val(fd, 'desc'), due: val(fd, 'due'), clubId, status: 'open', createdAt: stamp }));
+          state.taskTab = 'open';
+          save(); toast(ids.length > 1 ? `Görev ${ids.length} kulübe atandı.` : 'Görev atandı.');
+        },
+      });
+      const all = dlgForm.querySelector('#allClubs');
+      const boxes = [...dlgForm.querySelectorAll('input[name="club"]')];
+      all.addEventListener('change', () => boxes.forEach((b) => { b.checked = all.checked; }));
+      boxes.forEach((b) => b.addEventListener('change', () => { all.checked = boxes.every((x) => x.checked); }));
+    },
+    'task-done'(id) {
+      const t = db.tasks.find((x) => x.id === id); if (!t || t.clubId !== state.user) return;
+      let file = null;
+      openForm({
+        title: 'Görevi bitir', lead: `“${t.title}” için kanıtını bırak: mesaj, dosya ya da ikisi birden. UniPakt görür.`,
+        fields: field('Mesaj', '<textarea name="text" maxlength="1500"></textarea>')
+          + field('Dosya (PNG, JPG, WEBP ya da PDF · en çok 1 MB)', `<input type="file" name="file" id="proofInput" accept="${FILE_TYPES.join(',')}">`),
+        submit: 'Görevi bitir',
+        onSubmit: (fd) => {
+          const text = val(fd, 'text');
+          if (file === 'loading') return 'Dosya hâlâ okunuyor, bir saniye sonra tekrar dene.';
+          if (file === 'bad') return 'Dosya PNG, JPG, WEBP ya da PDF olmalı ve 1 MB’ı geçmemeli.';
+          if (!text && !file) return 'Bir mesaj yaz ya da dosya ekle.';
+          Object.assign(t, { status: 'done', doneText: text, doneFile: file, doneAt: new Date().toISOString() });
+          if (!save()) {
+            Object.assign(t, { status: 'open', doneText: undefined, doneFile: undefined, doneAt: undefined });
+            return 'Dosya bu demoda saklanamadı. Daha küçük bir dosya dene.';
+          }
+          toast('Görev tamamlandı.');
+        },
+      });
+      dlgForm.querySelector('#proofInput').addEventListener('change', (e) => {
+        const f = e.target.files[0];
+        if (!f) { file = null; return; }
+        if (!FILE_TYPES.includes(f.type) || f.size > 1024 * 1024) { file = 'bad'; return; }
+        file = 'loading';
+        const reader = new FileReader();
+        reader.onload = () => { file = { name: f.name.slice(0, 120), type: f.type, data: String(reader.result) }; };
+        reader.onerror = () => { file = 'bad'; };
+        reader.readAsDataURL(f);
+      });
+    },
+    'task-remove'(id) {
+      openForm({ title: 'Görevi sil', lead: 'Görev kulübün panelinden de silinir.', submit: 'Sil', danger: true,
+        onSubmit: () => { db.tasks = db.tasks.filter((x) => x.id !== id); save(); toast('Görev silindi.'); } });
+    },
+    'task-tab'(id) { state.taskTab = id; render(); },
+
+    'pts-new'(id) {
+      const events = [...publishedEvents()].reverse();
+      openForm({
+        title: 'Puan gönder', lead: 'Artı ya da eksi puan. Kulüp bu kaydı kendi Vanguard sayfasında görür.',
+        fields: field('Kulüp', `<select name="club" required><option value="">Kulüp seç</option>${db.clubs.map((c) => `<option value="${c.id}" ${c.id === id ? 'selected' : ''}>${esc(c.name)} (${pts(c.id)})</option>`).join('')}</select>`)
+          + field('Etkinlik', `<select name="event"><option value="">${OTHER}</option>${events.map((e) => `<option value="${e.id}">${esc(e.title)} · ${fmtDay(e.date)}</option>`).join('')}</select>`)
+          + field('Puan (eksi için başına − koy)', '<input type="number" name="delta" required step="1" placeholder="Örn. 20 ya da -10">')
+          + field('Açıklama (isteğe bağlı)', '<input name="note" maxlength="120">'),
+        submit: 'Gönder',
+        onSubmit: (fd) => {
+          const delta = Math.round(Number(fd.get('delta')));
+          if (!Number.isFinite(delta) || delta === 0) return 'Sıfırdan farklı bir puan gir.';
+          const c = club(val(fd, 'club')); if (!c) return 'Bir kulüp seç.';
+          const ev = db.events.find((e) => e.id === val(fd, 'event'));
+          db.pointLog.push({ id: uid(), clubId: c.id, eventId: ev ? ev.id : '', label: ev ? ev.title : OTHER, delta, note: val(fd, 'note'), at: new Date().toISOString() });
+          save(); toast(`${c.name}: ${signed(delta)} puan`);
+        },
+      });
+    },
+
+    'cal-pick'(id) { state.cal.sel = id; const d = parseYmd(id); state.cal.y = d.getFullYear(); state.cal.m = d.getMonth(); render(); },
+    'cal-move'(id) { const d = new Date(state.cal.y, state.cal.m + Number(id), 1); state.cal.y = d.getFullYear(); state.cal.m = d.getMonth(); render(); },
+    'cal-today'() { const d = new Date(); state.cal = { y: d.getFullYear(), m: d.getMonth(), sel: ymd(d) }; render(); },
+
+    login(id) {
+      state.user = id; state.view = 'genel';
+      try { sessionStorage.setItem(SESSION, id); } catch (_) {}
+      history.replaceState(null, '', '#genel');
+      render(); window.scrollTo(0, 0);
+    },
+    logout() {
+      state.user = null;
+      try { sessionStorage.removeItem(SESSION); } catch (_) {}
+      history.replaceState(null, '', location.pathname);
+      render(); window.scrollTo(0, 0);
+    },
+    reset() {
+      openForm({ title: 'Demo verisini sıfırla', lead: 'Bu tarayıcıdaki tüm panel verisi silinir ve örnek veriler geri gelir.', submit: 'Sıfırla', danger: true,
+        onSubmit: () => { db = seed(); save(); toast('Demo verisi sıfırlandı.'); } });
+    },
+  };
+
+  /* ------------------------------------------------------------------
+     RENDER
+     ------------------------------------------------------------------ */
+  const go = (view) => {
+    if (!NAV().some(([id]) => id === view)) view = 'genel';
+    state.view = view;
+    if (location.hash !== `#${view}`) history.pushState(null, '', `#${view}`);
+    render(); window.scrollTo(0, 0);
+  };
+
+  const renderLogin = () => {
+    root.innerHTML = `
+      <main class="login"><div class="login-box">
+        <a class="wordmark" href="https://unipakt.com/">UniPakt<span>.</span></a>
+        <p class="kicker">Panel</p>
+        <h2>Demo girişi: bir hesap seç</h2>
+        <div class="account-list">
+          <button class="account is-admin" data-act="login" data-id="${ADMIN}"><span><strong>UniPakt</strong><small>Tüm panelleri yönetir</small></span><span class="role">UniPakt yetkilisi</span></button>
+          ${db.clubs.map((c) => `<button class="account" data-act="login" data-id="${c.id}"><span><strong>${esc(c.name)}</strong><small>${esc(c.uni)}</small></span><span class="role">Kulüp başkanı</span></button>`).join('')}
+        </div>
+        <p class="demo-note">Bu bir demo. Şifre yok ve veriler yalnızca bu tarayıcıda saklanıyor; gerçek giriş ve ortak veri için sunucu tarafı eklenecek.</p>
+      </div></main>`;
+  };
+
+  const render = () => {
+    if (!state.user || (state.user !== ADMIN && !club(state.user))) { state.user = null; renderLogin(); return; }
+    const nav = NAV();
+    if (!nav.some(([id]) => id === state.view)) state.view = 'genel';
+    const me = isAdmin() ? { name: 'UniPakt', role: 'UniPakt yetkilisi' } : { name: club(state.user).name, role: 'Kulüp başkanı' };
+    root.innerHTML = `
+      <div class="app">
+        <aside class="side">
+          <div class="side-brand">
+            <a class="wordmark" href="https://unipakt.com/" title="unipakt.com’a git">UniPakt<span>.</span></a>
+            <p class="kicker">Panel</p>
+          </div>
+          <nav class="side-nav" aria-label="Panel">
+            ${nav.map(([id, label, count]) => `<button class="nav-item ${state.view === id ? 'active' : ''}" data-go="${id}" ${state.view === id ? 'aria-current="page"' : ''}>${esc(label)}${count ? `<span class="badge">${count}</span>` : ''}</button>`).join('')}
+          </nav>
+          <div class="side-foot">
+            <div class="side-user"><strong>${esc(me.name)}</strong><small>${me.role}</small></div>
+            <div class="row"><button class="btn ghost small" data-act="logout">Çıkış</button></div>
+            <button class="link-btn" data-act="reset">Demo verisini sıfırla</button>
+          </div>
+        </aside>
+        <main class="main"><div class="main-inner">
+          <p class="mobile-user">${esc(me.name)} · ${me.role}</p>
+          <div class="demo-bar"><span><b>Demo</b> — veriler yalnızca bu tarayıcıda saklanıyor.</span></div>
+          ${views[state.view]()}
+        </div></main>
+      </div>`;
+    root.querySelector('.nav-item.active')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+  };
+
+  document.addEventListener('click', (e) => {
+    const goBtn = e.target.closest('[data-go]');
+    if (goBtn) { go(goBtn.dataset.go); return; }
+    const btn = e.target.closest('[data-act]');
+    if (!btn || dlg.contains(btn)) return;
+    actions[btn.dataset.act]?.(btn.dataset.id, btn.dataset.sub);
+  });
+  document.addEventListener('change', (e) => {
+    if (e.target.id === 'taskClub') { state.taskClub = e.target.value; render(); }
+  });
+  window.addEventListener('hashchange', () => { state.view = location.hash.slice(1) || 'genel'; if (state.user) render(); });
+  // Another tab changed the data (e.g. the club side next to the UniPakt side).
+  window.addEventListener('storage', (e) => { if (e.key === KEY) { load(); if (!dlg.open) render(); } });
+
+  load();
+  state.view = location.hash.slice(1) || 'genel';
+  render();
+})();
+</script>
+</body>
+</html>
