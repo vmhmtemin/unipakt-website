@@ -140,6 +140,8 @@
   /* ---- Cards & lists ---- */
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 22px; }
   .stack { display: grid; gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
+  .head-actions { display: flex; flex-wrap: wrap; gap: 8px; }
   .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; align-items: start; }
   .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
   .stat { text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 20px; transition: border-color .2s ease; }
@@ -303,7 +305,7 @@
     .main { padding: 22px 16px 60px; }
     .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .stat b { font-size: 36px; }
-    .grid-2 { grid-template-columns: minmax(0, 1fr); }
+    .grid-2, .grid-3 { grid-template-columns: minmax(0, 1fr); }
     .mobile-user { display: block; }
   }
   @media (min-width: 901px) { .mobile-user { display: none; } }
@@ -321,7 +323,7 @@
     .rank-row .pts { grid-column: 2; justify-content: flex-start; }
     .rank-row .pts b { min-width: 0; text-align: left; margin-right: 6px; }
     dialog form { padding: 20px; }
-    .page-head .btn { width: 100%; }
+    .page-head .btn, .head-actions { width: 100%; }
   }
   @media (min-width: 641px) { .cal-day .chips { display: grid; gap: 3px; width: 100%; } }
 </style>
@@ -341,7 +343,7 @@
      Everything lives in this browser's localStorage. When the real
      backend arrives, only `load`, `save` and the login need to change.
      ------------------------------------------------------------------ */
-  const KEY = 'unipaktPanelDemo.v3';
+  const KEY = 'unipaktPanelDemo.v4';
   const SESSION = 'unipaktPanelUser';
   const ADMIN = 'unipakt';
   const OTHER = 'Etkinlik dışı';
@@ -400,20 +402,22 @@
       { id: 'a1', title: 'Panele hoş geldiniz', body: 'UniPakt paneli artık açık. Duyurularınızı, ortak aradığınız etkinlikleri ve görevlerinizi buradan yönetebilirsiniz.', authorId: ADMIN, status: 'published', createdAt: isoOffset(-6), decidedAt: isoOffset(-6) },
       { id: 'a2', title: 'Flutter çalışma grubu başlıyor', body: 'Her salı akşamı çevrim içi toplanıyoruz. Diğer kulüplerden katılmak isteyenlere açık.', authorId: 'c1', status: 'published', createdAt: isoOffset(-3), decidedAt: isoOffset(-2) },
       { id: 'a3', title: 'Afiş tasarım desteği veriyoruz', body: 'Etkinlik afişi hazırlamakta zorlanan kulüplere gönüllü tasarımcı eşleştiriyoruz.', authorId: 'c2', status: 'pending', createdAt: isoOffset(-1) },
-      { id: 'a4', title: 'Sponsor arıyoruz', body: 'Bahar şenliği için sponsor önerilerinizi bekliyoruz.', authorId: 'c4', status: 'rejected', note: 'Sponsor aramaları için Ortak Etkinlikler sekmesini kullanalım.', createdAt: isoOffset(-5), decidedAt: isoOffset(-4) },
+      { id: 'a4', title: 'Sponsor arıyoruz', body: 'Bahar şenliği için sponsor önerilerinizi bekliyoruz.', authorId: 'c4', status: 'rejected', note: 'Sponsor aramaları için Ortak Arama sekmesini kullanalım.', createdAt: isoOffset(-5), decidedAt: isoOffset(-4) },
     ],
     events: [
-      { id: 'e0a', title: 'Tanışma Kahvaltısı', desc: 'Ağa katılan ilk kulüplerin tanışma buluşması.', date: dayOffset(-24), time: '10:00', place: 'Beşiktaş', seeking: '', ownerId: ADMIN, status: 'published', createdAt: isoOffset(-40), applications: [] },
-      { id: 'e0b', title: 'Hackathon Hazırlık Kampı', desc: 'İki günlük ortak hazırlık kampı.', date: dayOffset(-11), time: '09:30', place: 'İstinye Üniversitesi', seeking: '', ownerId: 'c1', status: 'published', createdAt: isoOffset(-30), applications: [
+      { id: 'e0a', title: 'Tanışma Kahvaltısı', desc: 'Ağa katılan ilk kulüplerin tanışma buluşması.', date: dayOffset(-24), time: '10:00', place: 'Beşiktaş', seeking: '', kind: 'event', calendar: 'none', ownerId: ADMIN, status: 'published', createdAt: isoOffset(-40), applications: [] },
+      { id: 'e0b', title: 'Hackathon Hazırlık Kampı', desc: 'İki günlük ortak hazırlık kampı.', date: dayOffset(-11), time: '09:30', place: 'İstinye Üniversitesi', seeking: 'Tasarım mentoru.', kind: 'partner', calendar: 'on', ownerId: 'c1', status: 'published', createdAt: isoOffset(-30), applications: [
         { id: 'p0', clubId: 'c2', note: 'Tasarım mentorluğu.', status: 'approved', createdAt: isoOffset(-26) },
       ] },
-      { id: 'e1', title: 'Kulüpler Buluşması', desc: 'Ağdaki tüm kulüp başkanlarının tanıştığı açılış buluşması.', date: dayOffset(9), time: '18:30', place: 'Kadıköy', seeking: 'Mekân ve ikram konusunda destek olabilecek kulüpler.', ownerId: ADMIN, status: 'published', createdAt: isoOffset(-5), applications: [
+      { id: 'e1', title: 'Kulüpler Buluşması', desc: 'Ağdaki tüm kulüp başkanlarının tanıştığı açılış buluşması.', date: dayOffset(9), time: '18:30', place: 'Kadıköy', seeking: 'Mekân ve ikram konusunda destek olabilecek kulüpler.', kind: 'partner', calendar: 'on', ownerId: ADMIN, status: 'published', createdAt: isoOffset(-5), applications: [
         { id: 'p1', clubId: 'c3', note: 'İkram sponsorunu biz ayarlayabiliriz.', status: 'approved', createdAt: isoOffset(-3) },
       ] },
-      { id: 'e2', title: 'Yapay Zekâ Atölyesi', desc: 'Bir günlük uygulamalı atölye. Dizüstü bilgisayar getirmek yeterli.', date: dayOffset(17), time: '13:00', place: 'İstinye Üniversitesi, Topkapı Kampüsü', seeking: 'Görsel tasarım ve duyuru tarafında bir ortak.', ownerId: 'c1', status: 'published', createdAt: isoOffset(-4), applications: [
+      { id: 'e2', title: 'Yapay Zekâ Atölyesi', desc: 'Bir günlük uygulamalı atölye. Dizüstü bilgisayar getirmek yeterli.', date: dayOffset(17), time: '13:00', place: 'İstinye Üniversitesi, Topkapı Kampüsü', seeking: 'Görsel tasarım ve duyuru tarafında bir ortak.', kind: 'partner', calendar: 'none', ownerId: 'c1', status: 'published', createdAt: isoOffset(-4), applications: [
         { id: 'p2', clubId: 'c2', note: 'Afiş ve sosyal medya görsellerini üstlenebiliriz.', status: 'pending', createdAt: isoOffset(-1) },
       ] },
-      { id: 'e3', title: 'Girişim Sohbetleri', desc: 'Üç kurucunun kendi hikâyesini anlattığı akşam söyleşisi.', date: dayOffset(26), time: '19:00', place: 'Boğaziçi Üniversitesi, Güney Kampüs', seeking: 'Teknik kulüplerden konuşmacı önerisi.', ownerId: 'c3', status: 'pending', createdAt: isoOffset(-1), applications: [] },
+      { id: 'e3', title: 'Girişim Sohbetleri', desc: 'Üç kurucunun kendi hikâyesini anlattığı akşam söyleşisi.', date: dayOffset(26), time: '19:00', place: 'Boğaziçi Üniversitesi, Güney Kampüs', seeking: 'Teknik kulüplerden konuşmacı önerisi.', kind: 'partner', calendar: 'none', ownerId: 'c3', status: 'pending', createdAt: isoOffset(-1), applications: [] },
+      { id: 'e4', title: 'Portfolyo Günü', desc: 'Öğrencilerin işlerini sergilediği açık gün.', date: dayOffset(21), time: '14:00', place: 'Marmara Üniversitesi, Göztepe', seeking: '', kind: 'event', calendar: 'none', ownerId: 'c2', status: 'pending', createdAt: isoOffset(-1), applications: [] },
+      { id: 'e5', title: 'Oyun Gecesi', desc: 'Kulüpler arası kutu oyunu turnuvası.', date: dayOffset(14), time: '19:30', place: 'Yıldız Teknik Üniversitesi', seeking: 'Turnuvayı birlikte yürütecek bir kulüp.', kind: 'partner', calendar: 'requested', ownerId: 'c4', status: 'published', createdAt: isoOffset(-3), applications: [] },
     ],
     tasks: [
       { id: 't1', title: 'Kulüp tanıtım metnini gönder', desc: 'Sitede kulüp sayfanızda görünecek 3-4 cümlelik tanıtım metni.', due: dayOffset(5), clubId: 'c1', status: 'open', createdAt: isoOffset(-2) },
@@ -520,7 +524,7 @@
         contact: Object.fromEntries(CONTACT_KEYS.map(([k]) => [k, c[k] || ''])) })),
       announcements: anns.map((a) => ({ id: a.id, title: a.title, body: a.body, authorId: owner(a.club_id), status: a.status, note: a.note || '', createdAt: a.created_at, decidedAt: a.decided_at })),
       events: events.map((e) => ({ id: e.id, title: e.title, desc: e.description, date: e.event_date, time: (e.event_time || '').slice(0, 5), place: e.place || '', seeking: e.seeking || '',
-        ownerId: owner(e.club_id), status: e.status, note: e.note || '', createdAt: e.created_at, decidedAt: e.decided_at,
+        kind: e.kind || 'partner', calendar: e.calendar || 'none', ownerId: owner(e.club_id), status: e.status, note: e.note || '', createdAt: e.created_at, decidedAt: e.decided_at,
         applications: apps.filter((p) => p.event_id === e.id).map((p) => ({ id: p.id, clubId: p.club_id, note: p.note, status: p.status, createdAt: p.created_at })) })),
       tasks: tasks.map((t) => ({ id: t.id, title: t.title, desc: t.description || '', due: t.due_date || '', clubId: t.club_id, status: t.status,
         doneText: t.proof_text || '', doneFile: t.proof_path ? { name: t.proof_name || 'dosya', path: t.proof_path } : null, doneAt: t.done_at, createdAt: t.created_at })),
@@ -555,8 +559,17 @@
     },
     async removeAnnouncement(id) { db.announcements = db.announcements.filter((x) => x.id !== id); save(); },
     async addEvent(f) {
-      db.events.push({ id: uid(), ...f, ownerId: state.user, status: isAdmin() ? 'published' : 'pending', createdAt: stamp(), applications: [] });
+      db.events.push({ id: uid(), ...f, calendar: 'none', ownerId: state.user, status: isAdmin() ? 'published' : 'pending', createdAt: stamp(), applications: [] });
       save();
+    },
+    async requestCalendar(id) {
+      const e = db.events.find((x) => x.id === id);
+      if (!e || e.ownerId !== state.user || e.status !== 'published' || e.kind !== 'partner' || e.calendar !== 'none') throw new Error('Bu etkinlik için talep gönderilemiyor.');
+      e.calendar = 'requested'; save();
+    },
+    async setCalendar(id, value) {
+      const e = db.events.find((x) => x.id === id); if (!e) return;
+      e.calendar = value; save();
     },
     async decideEvent(id, status, note = '') {
       const e = db.events.find((x) => x.id === id); if (!e) return;
@@ -618,7 +631,7 @@
     },
     async removeAnnouncement(id) { await rest(`announcements?${eq(id)}`, { method: 'DELETE' }); },
     async addEvent(f) {
-      const row = { title: f.title, description: f.desc, event_date: f.date, event_time: f.time || null, place: f.place || null, seeking: f.seeking || null, club_id: clubOrNull() };
+      const row = { title: f.title, description: f.desc, event_date: f.date, event_time: f.time || null, place: f.place || null, seeking: f.seeking || null, kind: f.kind, club_id: clubOrNull() };
       if (isAdmin()) Object.assign(row, { status: 'published', decided_at: stamp() });
       await rest('events', { method: 'POST', body: row });
     },
@@ -626,6 +639,9 @@
       await rest(`events?${eq(id)}`, { method: 'PATCH', body: { status, note: note || null, decided_at: stamp() } });
     },
     async removeEvent(id) { await rest(`events?${eq(id)}`, { method: 'DELETE' }); },
+    // A club cannot edit events directly; asking for the calendar goes through a database function.
+    async requestCalendar(id) { await rest('rpc/request_calendar', { method: 'POST', body: { p_event: id } }); },
+    async setCalendar(id, value) { await rest(`events?${eq(id)}`, { method: 'PATCH', body: { calendar: value } }); },
     async applyEvent(eventId, note) {
       await rest('event_applications', { method: 'POST', body: { event_id: eventId, club_id: state.user, note } });
     },
@@ -728,11 +744,17 @@
   const pendingEvents = () => db.events.filter((e) => e.status === 'pending').sort(byNewest);
   const pendingApplications = () => db.events.filter((e) => e.status === 'published')
     .flatMap((e) => e.applications.filter((p) => p.status === 'pending').map((p) => ({ event: e, app: p })));
-  const pendingCount = () => pendingAnnouncements().length + pendingEvents().length + pendingApplications().length;
+  const pendingCalendar = () => db.events.filter((e) => e.status === 'published' && e.kind === 'partner' && e.calendar === 'requested').sort(byDate);
+  const pendingCount = () => pendingAnnouncements().length + pendingEvents().length + pendingCalendar().length + pendingApplications().length;
   const publishedAnnouncements = () => db.announcements.filter((a) => a.status === 'published')
     .sort((a, b) => String(b.decidedAt || b.createdAt).localeCompare(String(a.decidedAt || a.createdAt)));
   const publishedEvents = () => db.events.filter((e) => e.status === 'published').sort(byDate);
-  const upcomingEvents = () => publishedEvents().filter((e) => e.date >= today());
+  // The calendar holds plain events, plus partner searches that UniPakt put on it.
+  const onCalendar = (e) => e.status === 'published' && (e.kind === 'event' || e.calendar === 'on');
+  const calendarEvents = () => db.events.filter(onCalendar).sort(byDate);
+  const partnerEvents = () => db.events.filter((e) => e.status === 'published' && e.kind === 'partner').sort(byDate);
+  const upcomingEvents = () => calendarEvents().filter((e) => e.date >= today());
+  const kindLabel = (e) => (e.kind === 'event' ? 'Etkinlik' : 'Ortak arama');
   const visibleTasks = () => (isAdmin() ? db.tasks : db.tasks.filter((t) => t.clubId === state.user));
   // With Supabase a club cannot read other clubs' entries, so totals come from the leaderboard.
   const pts = (id) => (db.board ? (db.board.find((b) => b.id === id)?.points || 0)
@@ -746,7 +768,8 @@
     const items = [
       ['genel', 'Genel Bakış'],
       ['duyurular', 'Duyurular'],
-      ['etkinlikler', 'Ortak Etkinlikler'],
+      ['etkinlikler', 'Etkinlikler'],
+      ['ortak', 'Ortak Arama'],
       ['takvim', 'Takvim'],
       ['gorevler', 'Görevler', isAdmin() ? 0 : openMine],
     ];
@@ -852,27 +875,48 @@
       ${isAdmin() && !mine ? `<div class="actions"><button class="btn ghost small" data-act="ann-remove" data-id="${a.id}">Kaldır</button></div>` : ''}
     </article>`;
 
-  const eventCard = (e, { mine = false } = {}) => {
+  // page: 'etkinlik' (the calendar list), 'ortak' (partner search) or 'mine' (the club's own requests)
+  const eventCard = (e, page = 'etkinlik') => {
+    const mine = page === 'mine';
+    const partner = e.kind === 'partner';
     const partners = e.applications.filter((p) => p.status === 'approved');
     const waiting = e.applications.filter((p) => p.status === 'pending');
     const myApp = !isAdmin() ? e.applications.find((p) => p.clubId === state.user) : null;
-    let action = '';
-    if (!mine && e.status === 'published') {
-      if (isAdmin()) action = `<button class="btn ghost small" data-act="event-remove" data-id="${e.id}">Kaldır</button>`;
-      else if (e.ownerId === state.user) action = '<span class="tag">Senin etkinliğin</span>';
-      else if (myApp) action = myApp.status === 'approved' ? '<span class="tag ok">Ortaksın</span>'
-        : myApp.status === 'pending' ? '<span class="tag wait">Başvurun onay bekliyor</span>'
-        : '<span class="tag no">Başvurun reddedildi</span>';
-      else if (e.date >= today()) action = `<button class="btn small" data-act="event-apply" data-id="${e.id}">Ortak ol</button>`;
+    const owner = e.ownerId === state.user;
+    const tags = [];
+    const acts = [];
+    if (mine) tags.push(tag(e.status), `<span class="tag">${kindLabel(e)}</span>`);
+    if (page === 'etkinlik' && partner) tags.push('<span class="tag">Ortak aranıyor</span>');
+    if (partner && e.status === 'published' && page !== 'etkinlik') {
+      tags.push(e.calendar === 'on' ? '<span class="tag ok">Takvimde</span>'
+        : e.calendar === 'requested' ? '<span class="tag wait">Takvim talebi bekliyor</span>' : '<span class="tag">Takvimde değil</span>');
     }
+    if (page === 'ortak') {
+      if (isAdmin()) {
+        if (e.calendar === 'none') acts.push(`<button class="btn small" data-act="pub-approve" data-id="${esc(e.id)}">Yayına al</button>`);
+        if (e.calendar === 'requested') acts.push(`<button class="btn small" data-act="pub-approve" data-id="${esc(e.id)}">Talebi onayla</button>`,
+          `<button class="btn ghost small" data-act="pub-reject" data-id="${esc(e.id)}">Reddet</button>`);
+        if (e.calendar === 'on') acts.push(`<button class="btn ghost small" data-act="pub-remove" data-id="${esc(e.id)}">Takvimden kaldır</button>`);
+      } else if (owner) {
+        tags.push('<span class="tag">Senin etkinliğin</span>');
+        if (e.calendar === 'none') acts.push(`<button class="btn small" data-act="pub-request" data-id="${esc(e.id)}">Yayına alma talebi gönder</button>`);
+      } else if (myApp) {
+        tags.push(myApp.status === 'approved' ? '<span class="tag ok">Ortaksın</span>'
+          : myApp.status === 'pending' ? '<span class="tag wait">Başvurun onay bekliyor</span>' : '<span class="tag no">Başvurun reddedildi</span>');
+      } else if (e.date >= today()) acts.push(`<button class="btn small" data-act="event-apply" data-id="${esc(e.id)}">Ortak ol</button>`);
+    }
+    if (mine && owner && partner && e.status === 'published' && e.calendar === 'none') {
+      acts.push(`<button class="btn small" data-act="pub-request" data-id="${esc(e.id)}">Yayına alma talebi gönder</button>`);
+    }
+    if (isAdmin() && !mine) acts.push(`<button class="btn danger small" data-act="event-remove" data-id="${esc(e.id)}">Sil</button>`);
     return `
     <article class="card item event">
       ${dateBlock(e.date)}
       <div>
-        ${mine ? `<div class="meta top">${tag(e.status)}<span>${fmtStamp(e.createdAt)} tarihinde gönderildi</span></div>` : ''}
+        ${tags.length ? `<div class="meta top">${tags.join('')}${mine ? `<span>${fmtStamp(e.createdAt)} tarihinde gönderildi</span>` : ''}</div>` : ''}
         <h3>${esc(e.title)}</h3>
         <p class="body">${esc(e.desc)}</p>
-        ${e.seeking ? `<div class="quote"><small>Aranan ortak</small>${esc(e.seeking)}</div>` : ''}
+        ${partner && e.seeking && page !== 'etkinlik' ? `<div class="quote"><small>Aranan ortak</small>${esc(e.seeking)}</div>` : ''}
         ${mine && e.status === 'rejected' && e.note ? `<div class="quote"><small>UniPakt notu</small>${esc(e.note)}</div>` : ''}
         <div class="meta">
           <span>${fmtDay(e.date)}${e.time ? ` · ${esc(e.time)}` : ''}</span>
@@ -880,8 +924,8 @@
           <span>Düzenleyen: ${esc(who(e.ownerId))}</span>
         </div>
         ${partners.length ? `<div class="meta"><span>Ortaklar:</span>${partners.map((p) => `<span class="tag ok">${esc(who(p.clubId))}</span>`).join('')}</div>` : ''}
-        ${isAdmin() && !mine && waiting.length ? `<div class="apps"><small>Onay bekleyen ortaklık başvuruları</small>${waiting.map((p) => applicationRow(e, p)).join('')}</div>` : ''}
-        ${action ? `<div class="actions">${action}</div>` : ''}
+        ${isAdmin() && page === 'ortak' && waiting.length ? `<div class="apps"><small>Onay bekleyen ortaklık başvuruları</small>${waiting.map((p) => applicationRow(e, p)).join('')}</div>` : ''}
+        ${acts.length ? `<div class="actions">${acts.join('')}</div>` : ''}
       </div>
     </article>`;
   };
@@ -935,7 +979,8 @@
       if (isAdmin()) {
         const pend = [
           ...pendingAnnouncements().map((a) => ({ kind: 'Duyuru', title: a.title, by: who(a.authorId) })),
-          ...pendingEvents().map((e) => ({ kind: 'Ortak etkinlik', title: e.title, by: who(e.ownerId) })),
+          ...pendingEvents().map((e) => ({ kind: kindLabel(e), title: e.title, by: who(e.ownerId) })),
+          ...pendingCalendar().map((e) => ({ kind: 'Takvim talebi', title: e.title, by: who(e.ownerId) })),
           ...pendingApplications().map(({ event, app }) => ({ kind: 'Ortaklık başvurusu', title: event.title, by: who(app.clubId) })),
         ];
         const done = db.tasks.filter((t) => t.status === 'done').sort((a, b) => String(b.doneAt).localeCompare(String(a.doneAt))).slice(0, 3);
@@ -1012,16 +1057,30 @@
     },
 
     etkinlikler() {
-      const list = publishedEvents();
+      const list = calendarEvents();
       const upcoming = list.filter((e) => e.date >= today());
       const past = list.filter((e) => e.date < today()).reverse();
       return `
-        ${head('Ortak Etkinlikler',
-          isAdmin() ? 'Ortak aranan etkinlikler. Ortaklık başvurularını buradan ya da Onaylamalar’dan onaylayabilirsin.'
-                    : 'Ortak aranan etkinlikler. Birine ortak olmak için başvur, UniPakt onaylayınca ortak olursun.',
-          isAdmin() ? '<button class="btn" data-act="event-new">Yeni ortak etkinlik</button>' : '<button class="btn ghost" data-go="basvuru">Etkinlik başvurusu</button>')}
-        <div class="stack">${upcoming.length ? upcoming.map((e) => eventCard(e)).join('') : empty('Yaklaşan ortak etkinlik yok.')}</div>
+        ${head('Etkinlikler',
+          isAdmin() ? 'Takvimdeki etkinlikler. “Yeni etkinlik” doğrudan takvime düşer; “Yeni ortak etkinlik” Ortak Arama sayfasına düşer.'
+                    : 'Takvimdeki etkinlikler. Kendi etkinliğini ekle; UniPakt onaylayınca takvime düşer.',
+          isAdmin() ? '<div class="head-actions"><button class="btn" data-act="event-new" data-id="event">Yeni etkinlik</button><button class="btn ghost" data-act="event-new" data-id="partner">Yeni ortak etkinlik</button></div>'
+                    : '<button class="btn" data-act="event-new" data-id="event">Yeni etkinlik</button>')}
+        <div class="stack">${upcoming.length ? upcoming.map((e) => eventCard(e)).join('') : empty('Yaklaşan etkinlik yok.')}</div>
         ${past.length ? `<div class="section-head"><h2>Geçmiş etkinlikler</h2></div><div class="stack">${past.map((e) => eventCard(e)).join('')}</div>` : ''}`;
+    },
+
+    ortak() {
+      const list = partnerEvents();
+      const upcoming = list.filter((e) => e.date >= today());
+      const past = list.filter((e) => e.date < today()).reverse();
+      return `
+        ${head('Ortak Arama',
+          isAdmin() ? 'Ortak arayan etkinlikler. Ortaklık başvurularını onayla; bir etkinliği “Yayına al” ile takvime gönder.'
+                    : 'Ortak arayan etkinlikler. Birine ortak olmak için başvur. Kendi etkinliğini takvime almak için yayına alma talebi gönder.',
+          `<button class="btn" data-act="event-new" data-id="partner">${isAdmin() ? 'Yeni ortak etkinlik' : 'Ortak arıyorum'}</button>`)}
+        <div class="stack">${upcoming.length ? upcoming.map((e) => eventCard(e, 'ortak')).join('') : empty('Şu an ortak arayan etkinlik yok.')}</div>
+        ${past.length ? `<div class="section-head"><h2>Geçmiş</h2></div><div class="stack">${past.map((e) => eventCard(e, 'ortak')).join('')}</div>` : ''}`;
     },
 
     takvim() {
@@ -1032,7 +1091,7 @@
       const cells = Math.ceil((offset + days) / 7) * 7;
       const items = {};
       const add = (date, entry) => { (items[date] = items[date] || []).push(entry); };
-      publishedEvents().forEach((e) => add(e.date, { type: 'event', title: e.title, sub: `${e.time ? `${e.time} · ` : ''}${e.place || ''}`, by: who(e.ownerId) }));
+      calendarEvents().forEach((e) => add(e.date, { type: 'event', title: e.title, sub: `${e.time ? `${e.time} · ` : ''}${e.place || ''}`, by: who(e.ownerId) }));
       visibleTasks().filter((t) => t.status === 'open' && t.due).forEach((t) => add(t.due, { type: 'task', title: t.title, sub: 'Görev son tarihi', by: who(t.clubId) }));
       const t = today();
       let grid = DOW.map((d) => `<div class="cal-dow">${d}</div>`).join('');
@@ -1048,7 +1107,7 @@
       }
       const selected = items[sel] || [];
       return `
-        ${head('Takvim', 'Yayındaki ortak etkinliklerin tarihleri ve görev son tarihleri.')}
+        ${head('Takvim', 'Takvime alınan etkinlikler ve görev son tarihleri. Buradaki etkinlikler unipakt.com’daki takvimde de görünür.')}
         <div class="cal-head">
           <h2>${MONTHS[m]} ${y}</h2>
           <div class="row">
@@ -1091,6 +1150,7 @@
       const anns = pendingAnnouncements();
       const evs = pendingEvents();
       const apps = pendingApplications();
+      const cals = pendingCalendar();
       const buttons = (kind, id, sub = '') => `
         <div class="actions">
           <button class="btn small" data-act="${kind}-approve" data-id="${id}" ${sub ? `data-sub="${sub}"` : ''}>Onayla</button>
@@ -1106,18 +1166,31 @@
             ${buttons('ann', a.id)}
           </article>`).join('') : empty('Bekleyen duyuru isteği yok.')}</div>
 
-        <div class="section-head"><h2>Ortak etkinlik istekleri (${evs.length})</h2></div>
+        <div class="section-head"><h2>Etkinlik istekleri (${evs.length})</h2></div>
         <div class="stack">${evs.length ? evs.map((e) => `
           <article class="card item event">
             ${dateBlock(e.date)}
             <div>
-              <div class="meta top"><span class="tag wait">Ortak etkinlik</span><span>${esc(who(e.ownerId))} · ${fmtStamp(e.createdAt)}</span></div>
+              <div class="meta top"><span class="tag wait">${kindLabel(e)}</span><span>${esc(who(e.ownerId))} · ${fmtStamp(e.createdAt)}</span></div>
               <h3>${esc(e.title)}</h3><p class="body">${esc(e.desc)}</p>
-              ${e.seeking ? `<div class="quote"><small>Aranan ortak</small>${esc(e.seeking)}</div>` : ''}
-              <div class="meta"><span>${fmtDay(e.date)}${e.time ? ` · ${esc(e.time)}` : ''}</span>${e.place ? `<span>${esc(e.place)}</span>` : ''}</div>
+              ${e.kind === 'partner' && e.seeking ? `<div class="quote"><small>Aranan ortak</small>${esc(e.seeking)}</div>` : ''}
+              <div class="meta"><span>${fmtDay(e.date)}${e.time ? ` · ${esc(e.time)}` : ''}</span>${e.place ? `<span>${esc(e.place)}</span>` : ''}
+                <span>${e.kind === 'event' ? 'Onaylarsan takvime düşer' : 'Onaylarsan Ortak Arama’ya düşer'}</span></div>
               ${buttons('event', e.id)}
             </div>
           </article>`).join('') : empty('Bekleyen etkinlik isteği yok.')}</div>
+
+        <div class="section-head"><h2>Takvime alma talepleri (${cals.length})</h2></div>
+        <div class="stack">${cals.length ? cals.map((e) => `
+          <article class="card item event">
+            ${dateBlock(e.date)}
+            <div>
+              <div class="meta top"><span class="tag wait">Takvim talebi</span><span>${esc(who(e.ownerId))}</span></div>
+              <h3>${esc(e.title)}</h3><p class="body">${esc(e.desc)}</p>
+              <div class="meta"><span>${fmtDay(e.date)}${e.time ? ` · ${esc(e.time)}` : ''}</span>${e.place ? `<span>${esc(e.place)}</span>` : ''}<span>Onaylarsan takvime düşer</span></div>
+              ${buttons('pub', e.id)}
+            </div>
+          </article>`).join('') : empty('Bekleyen takvim talebi yok.')}</div>
 
         <div class="section-head"><h2>Ortaklık başvuruları (${apps.length})</h2></div>
         <div class="stack">${apps.length ? apps.map(({ event, app }) => `
@@ -1230,16 +1303,18 @@
         .sort((a, b) => byNewest(a.app, b.app));
       return `
         ${head('Duyuru ve Etkinlik Başvurusu', 'Gönderdiklerin UniPakt’ın Onaylamalar sekmesine düşer. Onaylanınca tüm kulüp başkanları görür.')}
-        <div class="grid-2">
+        <div class="grid-3">
           <div class="card item"><h3>Duyuru gönder</h3><p class="body">Diğer kulüplerin görmesini istediğin duyuruyu yaz.</p>
             <div class="actions"><button class="btn" data-act="ann-new">Duyuru başvurusu</button></div></div>
-          <div class="card item"><h3>Etkinliğine ortak ara</h3><p class="body">Yapacağın etkinliğin detaylarını ve nasıl bir ortak aradığını yaz.</p>
-            <div class="actions"><button class="btn" data-act="event-new">Etkinlik başvurusu</button></div></div>
+          <div class="card item"><h3>Etkinlik ekle</h3><p class="body">Ortak aramadan, etkinliğini doğrudan takvime göndermek için.</p>
+            <div class="actions"><button class="btn" data-act="event-new" data-id="event">Etkinlik başvurusu</button></div></div>
+          <div class="card item"><h3>Etkinliğine ortak ara</h3><p class="body">Etkinliğin detaylarını ve nasıl bir ortak aradığını yaz.</p>
+            <div class="actions"><button class="btn" data-act="event-new" data-id="partner">Ortak arama başvurusu</button></div></div>
         </div>
         <div class="section-head"><h2>Duyuru başvuruların</h2></div>
         <div class="stack">${anns.length ? anns.map((a) => announcementCard(a, { mine: true })).join('') : empty('Henüz duyuru başvurun yok.')}</div>
         <div class="section-head"><h2>Etkinlik başvuruların</h2></div>
-        <div class="stack">${evs.length ? evs.map((e) => eventCard(e, { mine: true })).join('') : empty('Henüz etkinlik başvurun yok.')}</div>
+        <div class="stack">${evs.length ? evs.map((e) => eventCard(e, 'mine')).join('') : empty('Henüz etkinlik başvurun yok.')}</div>
         <div class="section-head"><h2>Ortaklık başvuruların</h2></div>
         ${apps.length ? `<div class="card">${apps.map(({ event, app }) => `
           <div class="mini-row"><div><strong>${esc(event.title)}</strong><small>${fmtDay(event.date)} · ${esc(who(event.ownerId))}</small></div>${tag(app.status)}</div>`).join('')}</div>`
@@ -1279,25 +1354,33 @@
     'ann-reject'(id) { rejectWithNote('Duyuruyu reddet', (note) => api.decideAnnouncement(id, 'rejected', note)); },
     'ann-remove'(id) { confirmRemove('Duyuruyu kaldır', 'Duyuru tüm kulüplerin panelinden kalkar.', () => api.removeAnnouncement(id)); },
 
-    'event-new'() {
+    'event-new'(kind) {
+      const partner = kind !== 'event';
       openForm({
-        title: isAdmin() ? 'Yeni ortak etkinlik' : 'Ortak arıyorum',
-        lead: isAdmin() ? 'Yayınladığın anda tüm kulüp başkanları görür.' : 'UniPakt onayladığında Ortak Etkinlikler sekmesinde yayınlanır.',
+        title: partner ? (isAdmin() ? 'Yeni ortak etkinlik' : 'Ortak arıyorum') : 'Yeni etkinlik',
+        lead: partner
+          ? (isAdmin() ? 'Yayınladığın anda Ortak Arama sayfasına düşer. Takvime almak için oradan “Yayına al”a bas.' : 'UniPakt onayladığında Ortak Arama sayfasına düşer.')
+          : (isAdmin() ? 'Yayınladığın anda takvime düşer.' : 'UniPakt onayladığında takvime düşer.'),
         fields: field('Etkinlik adı', '<input name="title" required maxlength="120">')
           + field('Açıklama', '<textarea name="desc" required maxlength="1200"></textarea>')
           + `<div class="field-row">${field('Tarih', `<input type="date" name="date" required min="${today()}">`)}${field('Saat (isteğe bağlı)', '<input type="time" name="time">')}</div>`
           + field('Yer', '<input name="place" maxlength="120">')
-          + field('Nasıl bir ortak arıyorsun?', '<input name="seeking" maxlength="200">'),
+          + (partner ? field('Nasıl bir ortak arıyorsun?', '<input name="seeking" required maxlength="200">') : ''),
         submit: isAdmin() ? 'Yayınla' : 'Onaya gönder',
         onSubmit: async (fd) => {
-          await api.addEvent({ title: val(fd, 'title'), desc: val(fd, 'desc'), date: val(fd, 'date'), time: val(fd, 'time'), place: val(fd, 'place'), seeking: val(fd, 'seeking') });
-          toast(isAdmin() ? 'Etkinlik yayınlandı.' : 'Etkinlik onaya gönderildi.');
+          await api.addEvent({ title: val(fd, 'title'), desc: val(fd, 'desc'), date: val(fd, 'date'), time: val(fd, 'time'), place: val(fd, 'place'),
+            seeking: partner ? val(fd, 'seeking') : '', kind: partner ? 'partner' : 'event' });
+          toast(isAdmin() ? (partner ? 'Ortak Arama’da yayınlandı.' : 'Etkinlik takvime eklendi.') : 'Etkinlik onaya gönderildi.');
         },
       });
     },
-    async 'event-approve'(id) { await api.decideEvent(id, 'published'); toast('Etkinlik yayınlandı.'); render(); },
+    async 'pub-request'(id) { await api.requestCalendar(id); toast('Yayına alma talebin gönderildi.'); render(); },
+    async 'pub-approve'(id) { await api.setCalendar(id, 'on'); toast('Etkinlik takvime alındı.'); render(); },
+    async 'pub-reject'(id) { await api.setCalendar(id, 'none'); toast('Takvim talebi reddedildi.'); render(); },
+    async 'pub-remove'(id) { await api.setCalendar(id, 'none'); toast('Etkinlik takvimden kaldırıldı.'); render(); },
+    async 'event-approve'(id) { await api.decideEvent(id, 'published'); toast('Etkinlik onaylandı.'); render(); },
     'event-reject'(id) { rejectWithNote('Etkinliği reddet', (note) => api.decideEvent(id, 'rejected', note)); },
-    'event-remove'(id) { confirmRemove('Etkinliği kaldır', 'Etkinlik ve ortaklık başvuruları tüm panellerden kalkar.', () => api.removeEvent(id)); },
+    'event-remove'(id) { confirmRemove('Etkinliği sil', 'Etkinlik takvimden, Ortak Arama’dan ve tüm panellerden silinir; ortaklık başvuruları da gider.', () => api.removeEvent(id), 'Sil'); },
     'event-apply'(id) {
       const e = db.events.find((x) => x.id === id); if (!e) return;
       openForm({
