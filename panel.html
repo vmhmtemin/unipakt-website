@@ -276,6 +276,10 @@
   .checks { display: grid; gap: 4px; max-height: 190px; overflow-y: auto; padding: 8px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--paper-soft); }
   .checks label { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 8px; cursor: pointer; }
   .checks label:hover { background: #151515; }
+  .checks label[hidden] { display: none; }
+  .checks-empty { margin: 6px 8px; font-size: 13px; opacity: .6; }
+  .pick-count { font-style: normal; font-weight: 500; opacity: .6; margin-left: 6px; }
+  #clubFilter { margin-bottom: 8px; }
   .checks input { width: 17px; height: 17px; accent-color: var(--accent); flex: none; }
   .form-error { color: var(--no); font-size: 13px; }
   .item .meta a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
@@ -786,6 +790,10 @@
 
   const isAdmin = () => state.user === ADMIN;
   const club = (id) => db.clubs.find((c) => c.id === id);
+  const searchKey = (v) => String(v || '').toLocaleLowerCase('tr-TR').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i').trim();
+  const shortUni = (u) => String(u || '').replace(/\s+(Üniversitesi|University)$/i, '').trim();
+  const clubLabel = (c) => (c.uni ? `${shortUni(c.uni)} - ${c.name}` : c.name);
+  const byLabel = (a, b) => clubLabel(a).localeCompare(clubLabel(b), 'tr');
   const who = (id) => (id === ADMIN ? 'UniPakt' : (club(id)?.name || 'Silinmiş kulüp'));
   const today = () => ymd(new Date());
   const byNewest = (a, b) => String(b.createdAt).localeCompare(String(a.createdAt));
@@ -1191,7 +1199,7 @@
           <button class="chip ${state.taskTab === 'done' ? 'active' : ''}" data-act="task-tab" data-id="done">Biten (${done.length})</button>
           ${isAdmin() ? `<select id="taskClub" aria-label="Kulübe göre süz">
             <option value="all">Tüm kulüpler</option>
-            ${db.clubs.map((c) => `<option value="${c.id}" ${state.taskClub === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
+            ${[...db.clubs].sort(byLabel).map((c) => `<option value="${esc(c.id)}" ${state.taskClub === c.id ? 'selected' : ''}>${esc(clubLabel(c))}</option>`).join('')}
           </select>` : ''}
         </div>
         <div class="stack">${shown.length ? shown.map(taskCard).join('') : empty(state.taskTab === 'done' ? 'Biten görev yok.' : 'Açık görev yok.')}</div>`;
@@ -1452,10 +1460,13 @@
     'task-new'() {
       openForm({
         title: 'Görev ata',
-        fields: `<div class="field"><span>Kulüpler</span><div class="checks">
-            <label><input type="checkbox" id="allClubs"> <strong>Tüm kulüpler</strong></label>
-            ${db.clubs.map((c) => `<label><input type="checkbox" name="club" value="${esc(c.id)}"> ${esc(c.name)}</label>`).join('')}
-          </div></div>`
+        fields: `<div class="field"><span>Kulüpler <em class="pick-count" id="pickCount">0 seçili</em></span>
+            <input type="search" id="clubFilter" placeholder="Kulüp ya da üniversite ara" autocomplete="off" aria-label="Kulüp ara">
+            <div class="checks">
+              <label><input type="checkbox" id="allClubs"> <strong id="allClubsLabel">Tüm kulüpler</strong></label>
+              ${[...db.clubs].sort(byLabel).map((c) => `<label data-search="${esc(searchKey(clubLabel(c)))}"><input type="checkbox" name="club" value="${esc(c.id)}"> ${esc(clubLabel(c))}</label>`).join('')}
+              <p class="checks-empty" id="clubFilterEmpty" hidden>Aramana uyan kulüp yok.</p>
+            </div></div>`
           + field('Görev', '<input name="title" required maxlength="120">')
           + field('Açıklama (isteğe bağlı)', '<textarea name="desc" maxlength="1000"></textarea>')
           + field('Son tarih (isteğe bağlı)', '<input type="date" name="due">'),
@@ -1470,8 +1481,27 @@
       });
       const all = dlgForm.querySelector('#allClubs');
       const boxes = [...dlgForm.querySelectorAll('input[name="club"]')];
-      all.addEventListener('change', () => boxes.forEach((b) => { b.checked = all.checked; }));
-      boxes.forEach((b) => b.addEventListener('change', () => { all.checked = boxes.every((x) => x.checked); }));
+      const filter = dlgForm.querySelector('#clubFilter');
+      // "Tüm kulüpler" works on what the search shows; ticks on hidden clubs are kept.
+      const visible = () => boxes.filter((b) => !b.closest('label').hidden);
+      const sync = () => {
+        const shown = visible();
+        all.checked = shown.length > 0 && shown.every((x) => x.checked);
+        dlgForm.querySelector('#allClubsLabel').textContent = filter.value.trim() ? `Aramadaki kulüpler (${shown.length})` : 'Tüm kulüpler';
+        dlgForm.querySelector('#pickCount').textContent = `${boxes.filter((b) => b.checked).length} seçili`;
+        dlgForm.querySelector('#clubFilterEmpty').hidden = shown.length > 0;
+      };
+      filter.addEventListener('input', () => {
+        const q = searchKey(filter.value);
+        boxes.forEach((b) => { const label = b.closest('label'); label.hidden = !!q && !label.dataset.search.includes(q); });
+        sync();
+      });
+      // Enter in the search box must not submit the form.
+      filter.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.preventDefault(); });
+      all.addEventListener('change', () => { visible().forEach((b) => { b.checked = all.checked; }); sync(); });
+      boxes.forEach((b) => b.addEventListener('change', sync));
+      sync();
+      setTimeout(() => filter.focus(), 0);
     },
     'task-done'(id) {
       const t = db.tasks.find((x) => x.id === id); if (!t || t.clubId !== state.user) return;
