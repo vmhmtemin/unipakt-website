@@ -603,7 +603,7 @@
     const profiles = await rest(`profiles?select=role,club_id&id=eq.${encodeURIComponent(session.user_id)}`);
     const profile = profiles && profiles[0];
     if (!profile) throw signedOut('Bu hesaba panel yetkisi verilmemiş. UniPakt ile iletişime geç.');
-    const [clubs, anns, events, apps, tasks, points, eventVisibilityRequests, eventEditRequests, notifications, board, supportTickets, supportMessages] = await Promise.all([
+    const [clubs, anns, events, apps, tasks, points, eventVisibilityRequests, eventEditRequests, notifications, board, supportTickets, supportMessages, supportCreatorProfiles] = await Promise.all([
       rest('clubs?select=*&order=name'), rest('announcements?select=*'), rest('events?select=*,event_occurrences(date,time)&order=event_date'),
       rest('event_applications?select=*&order=created_at'), rest('tasks?select=*'), rest('point_entries?select=*'),
       rest('event_visibility_requests?select=*&order=created_at.desc'),
@@ -611,6 +611,7 @@
       rest('notifications?select=*&order=created_at.desc'),
       rest('support_tickets?select=*,clubs(name)&order=updated_at.desc'),
       rest('support_ticket_messages?select=*&order=created_at.asc'),
+      rest('profiles?select=id,full_name,club_id'),
       rest('rpc/leaderboard', { method: 'POST', body: {} }),
     ]);
     const owner = (clubId) => clubId || ADMIN;
@@ -625,6 +626,7 @@
       eventVisibilityRequests: (eventVisibilityRequests || []).map((r) => ({ id: r.id, eventId: r.event_id, clubId: r.club_id, desiredVisible: !!r.desired_visible, note: r.note || '', status: r.status, createdAt: r.created_at, decidedAt: r.decided_at })),
       eventEdits: (eventEditRequests || []).map((r) => ({ id:r.id, eventId:r.event_id, clubId:r.club_id, changes:r.changes || {}, note:r.note || '', status:r.status, createdAt:r.created_at, decidedAt:r.decided_at })),
       notifications: (notifications || []).map((n) => ({ id:n.id, type:n.type, title:n.title, body:n.body || '', eventId:n.event_id || '', applicationId:n.application_id || '', taskId:n.task_id || '', actionable: !!n.actionable, resolved: !!n.resolved, createdAt:n.created_at, readAt:n.read_at })),
+      supportCreators: (supportCreatorProfiles || []).map(p => ({ id:p.id, fullName:p.full_name || '', clubId:p.club_id || '' })),
       supportTickets: (supportTickets || []).map(t => ({
         id: t.id,
         number: t.ticket_number || t.number || '',
@@ -1145,16 +1147,23 @@
       return categoryOk && statusOk && (!q || hay.includes(q));
     });
   };
+  const supportCreatorName = (t) => {
+    const creator = (db.supportCreators || []).find(x => x.id === t.createdBy);
+    return creator?.fullName || '';
+  };
   const supportAccountLabel = (t) => {
     if (!isAdmin()) return '';
-    if (state.accounts === 'loading') return 'Kulüp başkanı hesabı: yükleniyor…';
-    if (state.accounts === 'unavailable') return t.clubName ? `Kulüp: ${esc(t.clubName)}` : 'Kulüp başkanı hesabı: alınamadı';
-    const email = state.accounts && state.accounts[t.clubId];
-    if (email) return `Kulüp başkanı hesabı: ${esc(email)}`;
-    if (t.clubName) return `Kulüp: ${esc(t.clubName)}`;
+    const fullName = supportCreatorName(t);
+    if (fullName) return `Kulüp başkanı: ${esc(fullName)}`;
+    if (state.accounts !== 'unavailable') {
+      const email = state.accounts && state.accounts[t.clubId];
+      if (email) return `Kulüp başkanı hesabı: ${esc(email)}`;
+    }
+    if (t.clubName) return `Kulüp başkanı · ${esc(t.clubName)}`;
     if (t.createdBy) return `Hesap ID: ${esc(t.createdBy)}`;
-    return 'Kulüp hesabı bilgisi bulunamadı';
+    return 'Talebi oluşturan hesap bilgisi bulunamadı';
   };
+  const supportNewCount = () => (isAdmin() ? (db.supportTickets || []).filter(t => supportTicketStatus(t) !== 'closed' && !supportHasAdminReply(t)).length : 0);
   const renderSupportTickets = () => {
     if (isAdmin() && state.accounts === null) {
       state.accounts = 'loading';
@@ -1216,7 +1225,7 @@
     </div>` : '';
     const creatorText = isAdmin()
       ? `${supportAccountLabel(t)}${t.clubName ? ` · ${esc(t.clubName)}` : ''}`
-      : (t.createdBy === session?.user_id ? 'Bu hesabın oluşturduğu destek talebi' : 'Kulübünüzün destek talebi');
+      : (t.createdBy === session?.user_id ? `Sen${supportCreatorName(t) ? ` · ${esc(supportCreatorName(t))}` : ''}` : 'Kulübünüzün destek talebi');
     openForm({
       title:`${supportTicketNumber(t)} · ${t.subject||'Destek talebi'}`,
       lead:`${t.categoryLabel||t.category||'Destek'} · ${SUPPORT_STATUS[status][1]}${isNew?' · Yeni':''}${t.clubName?` · ${esc(t.clubName)}`:''}`,
@@ -1316,7 +1325,7 @@
     ];
     if (isAdmin()) items.splice(8, 0, ['onaylar', 'Onaylamalar', pendingCount()]);
     if (isAdmin()) items.push(['kulupler', 'Kulüpler']);
-    if (SUPPORT_CLUB_TICKETS) items.push(['destek-taleplerim', isAdmin() ? 'Destek Talepleri' : 'UniPakt Destek']);
+    if (SUPPORT_CLUB_TICKETS) items.push(['destek-taleplerim', isAdmin() ? 'Destek Talepleri' : 'UniPakt Destek', supportNewCount()]);
     return items;
   };
 
