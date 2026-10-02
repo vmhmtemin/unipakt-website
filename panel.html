@@ -254,6 +254,12 @@
   .proof:hover { border-color: var(--accent); }
   .proof img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; flex: none; }
   .proof span { overflow-wrap: anywhere; min-width: 0; }
+  .poster-upload { display:grid; gap:10px; }
+  .poster-file-row { display:flex; align-items:center; gap:10px; }
+  .poster-file-row input[type="file"] { flex:1; min-width:0; }
+  .poster-clear { flex:0 0 auto; width:42px; min-width:42px; padding:8px 0; font-size:22px; line-height:1; }
+  .poster-preview { overflow:hidden; max-width:280px; border:1px solid var(--border); border-radius:14px; background:#111; }
+  .poster-preview img { display:block; width:100%; max-height:280px; object-fit:cover; }
   .field input[type="file"] { padding: 10px; font-size: 13px; }
 
   /* ---- Dialog & form ---- */
@@ -703,8 +709,11 @@
       if (!['image/jpeg','image/png','image/webp'].includes(file.type)) throw new Error('Afiş yalnızca JPG, PNG veya WebP olabilir.');
       if (file.size > 5 * 1024 * 1024) throw new Error('Afiş en fazla 5 MB olabilir.');
       const safe = file.name.normalize('NFKD').replace(/[^A-Za-z0-9._-]+/g, '_').slice(-80) || 'poster';
-      const path = `${state.user || 'unipakt'}/${Date.now()}-${safe}`;
-      await call(`/storage/v1/object/event-posters/${path}`, { method:'POST', body:file, raw:true, headers:{'Content-Type':file.type, 'x-upsert':'true'} });
+      const random = (globalThis.crypto && crypto.randomUUID) ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const path = `${state.user || 'unipakt'}/${random}-${safe}`;
+      // Her yükleme yeni bir obje oluşturur; upsert kullanmıyoruz.
+      // Böylece Storage UPDATE/SELECT RLS'i upload'ı engellemez.
+      await call(`/storage/v1/object/event-posters/${path}`, { method:'POST', body:file, raw:true, headers:{'Content-Type':file.type} });
       return `${SUPABASE_URL}/storage/v1/object/public/event-posters/${path}`;
     },
     async addAnnouncement({ title, body }) {
@@ -932,6 +941,34 @@
         <button type="submit" class="btn ${danger ? 'danger' : ''}">${esc(submit)}</button>
       </div>`;
     dlgSubmit = onSubmit;
+
+    const posterInput = dlgForm.querySelector('input[name="poster"]');
+    const posterClear = dlgForm.querySelector('[data-clear-poster]');
+    const posterPreview = dlgForm.querySelector('[data-poster-preview]');
+    if (posterInput && posterClear && posterPreview) {
+      posterInput.addEventListener('change', () => {
+        const file = posterInput.files && posterInput.files[0];
+        if (!file) {
+          posterClear.hidden = true;
+          posterPreview.hidden = true;
+          posterPreview.innerHTML = '';
+          return;
+        }
+        posterClear.hidden = false;
+        const url = URL.createObjectURL(file);
+        posterPreview.innerHTML = `<img src="${url}" alt="Afiş önizlemesi">`;
+        posterPreview.hidden = false;
+        const img = posterPreview.querySelector('img');
+        img?.addEventListener('load', () => URL.revokeObjectURL(url), { once: true });
+      });
+      posterClear.addEventListener('click', () => {
+        posterInput.value = '';
+        posterPreview.innerHTML = '';
+        posterPreview.hidden = true;
+        posterClear.hidden = true;
+      });
+    }
+
     dlg.showModal();
     dlgForm.querySelector('input:not([type=checkbox]), textarea, select')?.focus();
   };
@@ -1506,7 +1543,7 @@
           ? (isAdmin() ? 'Yayınladığın anda Ortak Arama sayfasına düşer. Takvime almak için “Yayına al”ı kullan.' : 'UniPakt onayladığında Ortak Arama sayfasına düşer.')
           : (isAdmin() ? 'Yayınladığın anda takvimde görünür.' : 'UniPakt onayladığında takvimde görünür.'),
         fields: field('Etkinlik adı', '<input name="title" required maxlength="120">')
-          + field('Afiş / etkinlik görseli', '<input type="file" name="poster" accept="image/jpeg,image/png,image/webp">')
+          + field('Afiş / etkinlik görseli', '<div class="poster-upload"><div class="poster-file-row"><input type="file" name="poster" accept="image/jpeg,image/png,image/webp"><button type="button" class="btn ghost small poster-clear" data-clear-poster hidden aria-label="Afişi kaldır" title="Afişi kaldır">×</button></div><div class="poster-preview" data-poster-preview hidden></div></div>')
           + field('Açıklama', '<textarea name="desc" required maxlength="2000"></textarea>')
           + `<div class="field-row">${field('İlk tarih', `<input type="date" name="date" required min="${today()}">`)}${field('Saat', '<input type="time" name="time">')}</div>`
           + field('Ek etkinlik tarihleri', '<textarea name="extraDates" placeholder="Her satıra: YYYY-AA-GG HH:MM\nÖrn: 2026-11-07 21:00"></textarea>')
