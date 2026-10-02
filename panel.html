@@ -717,12 +717,16 @@
     },
     async removeAnnouncement(id) { await rest(`announcements?${eq(id)}`, { method: 'DELETE' }); },
     async addEvent(f) {
-      const first = (f.occurrences && f.occurrences[0]) || { date: f.date, time: f.time || '' };
-      const row = { title: f.title, description: f.desc, event_date: first.date, event_time: first.time || null, place: f.place || null, address: f.address || null, rules: f.rules || null, poster_url: f.posterUrl || null, tags: f.tags || [], registration_url: f.registration || null, fee_type: f.feeType || 'free', fee_amount: f.feeType === 'paid' && f.feeAmount !== '' ? Number(f.feeAmount) : null, seeking: f.seeking || null, kind: f.kind, club_id: clubOrNull() };
-      if (isAdmin()) Object.assign(row, { status: 'published', decided_at: stamp() });
-      const created = await rest('events', { method: 'POST', body: row, headers: { Prefer: 'return=representation' } });
-      const id = created?.[0]?.id;
-      if (id && f.occurrences && f.occurrences.length) await rest('event_occurrences', { method: 'POST', body: f.occurrences.map(o => ({ event_id: id, date: o.date, time: o.time || null })) });
+      const occurrences = (f.occurrences && f.occurrences.length ? f.occurrences : [{ date: f.date, time: f.time || '' }]);
+      const payload = {
+        title: f.title, description: f.desc, place: f.place || null, address: f.address || null,
+        rules: f.rules || null, poster_url: f.posterUrl || null, tags: f.tags || [],
+        registration_url: f.registration || null, fee_type: f.feeType || 'free',
+        fee_amount: f.feeType === 'paid' && f.feeAmount !== '' ? Number(f.feeAmount) : null,
+        seeking: f.seeking || null, kind: f.kind || 'event',
+        occurrences
+      };
+      await rest('rpc/submit_event', { method: 'POST', body: { p_event: payload } });
     },
     async decideEvent(id, status, note = '') {
       await rest(`events?${eq(id)}`, { method: 'PATCH', body: { status, note: note || null, decided_at: stamp() } });
