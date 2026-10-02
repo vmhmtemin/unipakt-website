@@ -300,6 +300,20 @@
   .item .meta .bad { color: var(--no); }
   .form-section { line-height: 1.5; margin-top: 6px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 13px; font-weight: 600; opacity: .7; }
   .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+  .support-category-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+  .support-category-card { display:grid; gap:7px; text-align:left; padding:16px; border:1px solid var(--border-strong); border-radius:15px; background:var(--paper-soft); color:var(--ink); cursor:pointer; transition:border-color .2s ease, transform .15s ease, box-shadow .2s ease; }
+  .support-category-card:hover { border-color:var(--accent); transform:translateY(-1px); }
+  .support-category-card.active { border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+  .support-category-card strong { font-size:15px; }
+  .support-category-card span { font-size:12px; line-height:1.45; opacity:.65; }
+  .support-form-intro { padding:14px 16px; border:1px solid var(--border); border-radius:14px; background:var(--paper-soft); }
+  .support-form-intro h3 { font:800 18px/1.2 'Archivo',sans-serif; margin:0; }
+  .support-form-intro p { margin:7px 0 0; opacity:.68; line-height:1.5; font-size:13px; }
+  .support-info { padding:16px; border:1px solid var(--border); border-radius:14px; background:var(--paper-soft); font-size:13px; line-height:1.6; }
+  .support-info p { margin:8px 0 0; opacity:.76; }
+  .support-privacy { margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
+  .field-label { display:block; font-size:13px; font-weight:600; opacity:.8; margin-bottom:7px; }
+  .muted { display:block; margin-top:5px; font-size:12px; opacity:.55; }
 
   .toast {
     position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 20px); z-index: 50;
@@ -340,6 +354,7 @@
     .date-block b { font-size: 24px; }
     .card { padding: 18px; }
     .field-row { grid-template-columns: minmax(0, 1fr); }
+    .support-category-grid { grid-template-columns: minmax(0, 1fr); }
     .cal-day { min-height: 58px; padding: 5px 3px; align-items: center; gap: 4px; }
     .cal-chip { width: 7px; height: 7px; padding: 0; border-radius: 50%; font-size: 0; }
     .cal-day .chips { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
@@ -596,12 +611,19 @@
       eventVisibilityRequests: (eventVisibilityRequests || []).map((r) => ({ id: r.id, eventId: r.event_id, clubId: r.club_id, desiredVisible: !!r.desired_visible, note: r.note || '', status: r.status, createdAt: r.created_at, decidedAt: r.decided_at })),
       eventEdits: (eventEditRequests || []).map((r) => ({ id:r.id, eventId:r.event_id, clubId:r.club_id, changes:r.changes || {}, note:r.note || '', status:r.status, createdAt:r.created_at, decidedAt:r.decided_at })),
       notifications: (notifications || []).map((n) => ({ id:n.id, type:n.type, title:n.title, body:n.body || '', eventId:n.event_id || '', applicationId:n.application_id || '', taskId:n.task_id || '', actionable: !!n.actionable, resolved: !!n.resolved, createdAt:n.created_at, readAt:n.read_at })),
-      supportTickets: (supportTickets || []).map(t => ({id:t.id,number:t.ticket_number,clubId:t.club_id,clubName:t.clubs?.name||'',subject:t.subject,category:t.category,categoryLabel:t.category_label||t.category,status:t.status,createdAt:t.created_at,updatedAt:t.updated_at,preview:t.preview||'',messages:(supportMessages||[]).filter(m=>m.ticket_id===t.id).map(m=>({id:m.id,authorRole:m.author_role,authorLabel:m.author_label||'',body:m.body,createdAt:m.created_at}))})),
+      supportTickets: (supportTickets || []).map(t => ({id:t.id,number:t.ticket_number,clubId:t.club_id,clubName:t.clubs?.name||'',subject:t.subject,category:t.category,categoryLabel:t.category_label||t.category,eventId:t.event_id||'',attachmentPath:t.attachment_path||'',attachmentName:t.attachment_name||'',status:t.status,createdAt:t.created_at,updatedAt:t.updated_at,preview:t.preview||'',messages:(supportMessages||[]).filter(m=>m.ticket_id===t.id).map(m=>({id:m.id,authorRole:m.author_role,authorLabel:m.author_label||'',body:m.body,createdAt:m.created_at}))})),
       tasks: tasks.map((t) => ({ id: t.id, title: t.title, desc: t.description || '', due: t.due_date || '', clubId: t.club_id, status: t.status,
         reviewStatus: t.review_status || 'none', reviewNote: t.review_note || '', reviewedAt: t.reviewed_at,
         doneText: t.proof_text || '', doneFile: t.proof_path ? { name: t.proof_name || 'dosya', path: t.proof_path } : null, doneAt: t.done_at, createdAt: t.created_at })),
       pointLog: points.map((l) => ({ id: l.id, clubId: l.club_id, eventId: l.event_id || '', label: l.label, delta: l.delta, note: l.note || '', at: l.created_at })),
-      board: board.map((b) => ({ id: b.club_id, name: b.name, uni: b.university, points: Number(b.points) })),
+      board: board.map((b) => ({
+        id: b.club_id,
+        name: b.name,
+        uni: b.university,
+        // leaderboard RPC versions may expose the aggregate under different names.
+        // Never let an undefined/null value become NaN in the Vanguard UI.
+        points: Number(b.points ?? b.total_points ?? b.total ?? b.score ?? b.club_points ?? 0) || 0,
+      })),
     };
     state.user = profile.role === 'admin' ? ADMIN : profile.club_id;
   };
@@ -771,7 +793,7 @@
       save();
     },
     async accounts() { return Object.fromEntries(db.clubs.map((c) => [c.id, c.account || ''])); },
-    async supportCreate({subject,category,body}) { const t={id:uid(),number:'#UP-'+String(Date.now()).slice(-6),clubId:state.user,subject,category,categoryLabel:category,status:'open',createdAt:stamp(),updatedAt:stamp(),messages:[{id:uid(),authorRole:'club',authorLabel:'Kulüp',body,createdAt:stamp()}]}; db.supportTickets.unshift(t); save(); },
+    async supportCreate({subject,category,categoryLabel,body,eventId,attachmentName,attachmentPath}) { const t={id:uid(),number:'#UP-'+String(Date.now()).slice(-6),clubId:state.user,subject,category,categoryLabel:categoryLabel||category,eventId:eventId||'',attachmentName:attachmentName||'',attachmentPath:attachmentPath||'',status:'open',createdAt:stamp(),updatedAt:stamp(),messages:[{id:uid(),authorRole:'club',authorLabel:'Kulüp',body,createdAt:stamp()}]}; db.supportTickets.unshift(t); save(); },
     async supportReply(id,body) { const t=db.supportTickets.find(x=>x.id===id); if(!t) throw new Error('Talep bulunamadı.'); t.messages.push({id:uid(),authorRole:isAdmin()?'admin':'club',authorLabel:isAdmin()?'UniPakt Destek':'Kulüp',body,createdAt:stamp()}); t.status=isAdmin()?'answered':'waiting_user'; t.updatedAt=stamp(); save(); },
     async refresh() { loadLocal(); },
   };
@@ -907,8 +929,9 @@
       const data = await remote.account({ action: 'list' });
       return Object.fromEntries((data.accounts || []).map((a) => [a.club_id, a.email]));
     },
-    async supportCreate({subject,category,body}) { await rest('rpc/create_support_ticket',{method:'POST',body:{p_subject:subject,p_category:category,p_body:body}}); },
+    async supportCreate({subject,category,categoryLabel,body,eventId,attachment}) { let attachmentPath=''; let attachmentName=''; if(attachment){ if(attachment.size>5*1024*1024) throw new Error('Dosya en fazla 5 MB olabilir.'); const safe=attachment.name.normalize('NFKD').replace(/[^A-Za-z0-9._-]+/g,'_').slice(-100)||'attachment'; attachmentName=attachment.name; attachmentPath=`${state.user}/${crypto.randomUUID()}-${safe}`; await call(`/storage/v1/object/support-attachments/${attachmentPath}`,{method:'POST',body:attachment,raw:true,headers:{'Content-Type':attachment.type||'application/octet-stream','x-upsert':'false'}}); } await rest('rpc/create_support_ticket',{method:'POST',body:{p_subject:subject,p_category:category,p_category_label:categoryLabel||category,p_body:body,p_event_id:eventId||null,p_attachment_path:attachmentPath||null,p_attachment_name:attachmentName||null}}); },
     async supportReply(id,body) { await rest('rpc/reply_support_ticket',{method:'POST',body:{p_ticket_id:id,p_body:body}}); },
+    async supportAttachmentUrl(path) { const data=await call(`/storage/v1/object/sign/support-attachments/${path}`,{method:'POST',body:{expiresIn:300}}); return `${SUPABASE_URL}/storage/v1${data.signedURL}`; },
     async refresh() { await loadRemote(); },
     async proofUrl(path) {
       const data = await call(`/storage/v1/object/sign/task-proofs/${path}`, { method: 'POST', body: { expiresIn: 120 } });
@@ -978,15 +1001,65 @@
   const SUPPORT_CLUB_TICKETS = true;
   const SUPPORT_MEMBER_TICKETS = false;
   const SUPPORT_STATUS = { open:['wait','Açık'], reviewing:['wait','İnceleniyor'], waiting_user:['wait','Kulüp yanıtı bekleniyor'], answered:['ok','Yanıtlandı'], resolved:['ok','Çözüldü'], closed:['','Kapatıldı'] };
+  const SUPPORT_CATEGORIES = {
+    technical: {
+      label:'Teknik Destek',
+      description:'UniPakt.Panel veya sistem özellikleriyle ilgili teknik sorunlar ve öneriler.',
+      options:[
+        'Sistemde teknik bir sorunla karşılaşıyorum.',
+        'Panel düzgün görüntülenmiyor.',
+        'Paneldeki bir buton veya işlem çalışmıyor.',
+        'Panelde hatalı veya beklenmeyen bir içerik görüyorum.',
+        'İngilizce bir hata mesajı veya hata koduyla karşılaşıyorum.',
+        'Etkinliğim takvimde doğru şekilde görüntülenmiyor.',
+        'Sistemle ilgili bir öneride bulunmak istiyorum.',
+        'Başka bir konu...'
+      ],
+      otherPlaceholder:'Sorununuzu kısaca özetleyiniz.',
+      messagePlaceholder:'Karşılaştığınız durumu mümkün olduğunca açık ve ayrıntılı şekilde açıklayınız.'
+    },
+    community: {
+      label:'Topluluk ve Güvenlik',
+      description:'Topluluk içerisindeki davranışlar, güven, etik ve topluluk ilkeleriyle ilgili bildirimler.',
+      options:[
+        'Topluluk ilkelerine aykırı olduğunu düşündüğüm bir davranışı bildirmek istiyorum.',
+        'Bir kişinin UniPakt. sistemlerini spam veya kötüye kullanım amacıyla kullandığını düşünüyorum.',
+        'UniPakt. aracılığıyla tanıştığım bir kişi tarafından rahatsız edildiğimi düşünüyorum.',
+        'Zorbalık veya yıldırma davranışına maruz kaldığımı düşünüyorum.',
+        'Bilinçli olarak bezdiri, kışkırtma veya psikolojik yıldırmaya (mobbing) maruz kaldığımı düşünüyorum.',
+        'Haksızlığa uğradığımı veya hakkımın ihlal edildiğini düşünüyorum.',
+        'UniPakt.Vanguard kapsamında adil olmayan bir uygulamayla karşılaştığımı düşünüyorum.',
+        'Başka bir konu...'
+      ],
+      otherPlaceholder:'Bildirmek istediğiniz durumu kısaca özetleyiniz.',
+      messagePlaceholder:'Yaşadığınız veya bildirmek istediğiniz durumu mümkün olduğunca açık, doğru ve ayrıntılı şekilde açıklayınız.'
+    },
+    event: {
+      label:'Etkinlik Desteği',
+      description:'Etkinlik oluşturma, yayınlama, yönetme veya gerçekleştirme süreçleriyle ilgili destek.',
+      options:[
+        'Etkinlik duyurum web sitesinde görünmüyor.',
+        'Etkinlik duyuru başvurumun neden kabul edilmediğini öğrenmek istiyorum.',
+        'Etkinlik çalışmalarında görev ve sorumluluk dağılımını sağlamakta zorlanıyoruz.',
+        'Bir görevli, kendisine verilen sorumluluğu yerine getirmiyor ve bu durum devam ediyor.',
+        'Etkinliğin gerçekleştirilmesi konusunda pratik veya operasyonel desteğe ihtiyaç duyuyoruz.',
+        'Etkinlikle ilgili bir öneride bulunmak istiyorum.',
+        'Başka bir konu...'
+      ],
+      otherPlaceholder:'Konuyu kısaca özetleyiniz.',
+      messagePlaceholder:'Etkinlikle ilgili yaşadığınız problemi mümkün olduğunca ayrıntılı şekilde açıklayınız. Gerekli olması halinde gerçekleştirmeye çalıştığınız işlemi ve karşılaştığınız sonucu da belirtiniz.'
+    }
+  };
   const supportStatusTag = (status) => { const [cls,label] = SUPPORT_STATUS[status] || ['',status || 'Bilinmiyor']; return `<span class="tag ${cls}">${esc(label)}</span>`; };
   const clubSupportTickets = () => (Array.isArray(db.supportTickets) ? db.supportTickets : []).filter(t => isAdmin() || t.clubId === state.user).sort((a,b)=>String(b.updatedAt||b.createdAt).localeCompare(String(a.updatedAt||a.createdAt)));
-  const renderSupportTickets = () => { const list=clubSupportTickets(); return `${head(isAdmin()?'Destek Talepleri':'UniPakt Destek', isAdmin()?'Kulüpler ile UniPakt arasındaki destek görüşmelerini yönetin.':'Kulübünüz ile UniPakt arasındaki destek taleplerini buradan yönetin.')} ${!isAdmin()?`<div class="actions" style="margin-bottom:22px"><button class="btn" data-act="support-ticket-new">Yeni destek talebi</button></div>`:''}<div class="stack">${list.length?list.map(t=>`<article class="card item"><div class="meta top"><span>${esc(t.number||'#UP-000000')}</span>${supportStatusTag(t.status)}<span>${fmtStamp(t.updatedAt||t.createdAt)}</span></div><h3>${esc(t.subject||'Destek talebi')}</h3><p class="body">${esc(t.categoryLabel||t.category||'Destek')}${isAdmin()&&t.clubName?` · ${esc(t.clubName)}`:''}</p>${t.preview?`<p class="body">${esc(t.preview)}</p>`:''}<div class="actions"><button class="btn ghost small" data-act="support-ticket-open" data-id="${esc(t.id)}">Görüntüle</button></div></article>`).join(''):empty('Henüz destek talebi yok.')}</div>`; };
-  const openSupportTicket = (id) => { const t=clubSupportTickets().find(x=>x.id===id); if(!t)return toast('Destek talebi bulunamadı.'); const messages=Array.isArray(t.messages)?t.messages:[]; openForm({title:`${t.number||'#UP-000000'} · ${t.subject||'Destek talebi'}`,lead:`${t.categoryLabel||t.category||'Destek'} · ${SUPPORT_STATUS[t.status]?.[1]||t.status||''}${isAdmin()&&t.clubName?` · ${t.clubName}`:''}`,fields:`<div class="support-thread">${messages.length?messages.map(m=>`<div class="quote"><small>${esc(m.authorLabel||(m.authorRole==='admin'?'UniPakt Destek':'Kulüp'))} · ${fmtStamp(m.createdAt)}</small>${esc(m.body||'')}</div>`).join(''):'<div class="empty">Henüz mesaj yok.</div>'}</div>${isAdmin()||t.status==='waiting_user'?field('Yanıt','<textarea name="body" required maxlength="2000"></textarea>'):''}`,submit:isAdmin()||t.status==='waiting_user'?'Gönder':'Kapat',onSubmit:async(fd)=>{if(isAdmin()||t.status==='waiting_user'){await api.supportReply(t.id,val(fd,'body'));toast('Mesaj gönderildi.');}}}); };
+  const supportEventOptions = () => db.events.filter(e => e.ownerId === state.user && e.status !== 'rejected').sort(byDate);
+  const renderSupportTickets = () => { const list=clubSupportTickets(); return `${head(isAdmin()?'Destek Talepleri':'UniPakt Destek', isAdmin()?'Kulüpler ile UniPakt arasındaki destek görüşmelerini yönetin.':'Kulübünüz ile UniPakt arasındaki destek taleplerini buradan yönetin.')} ${!isAdmin()?`<div class="actions" style="margin-bottom:22px"><button class="btn" data-act="support-ticket-new">Yeni destek talebi</button></div>`:''}<div class="stack">${list.length?list.map(t=>`<article class="card item"><div class="meta top"><span>${esc(t.number||'#UP-000000')}</span>${supportStatusTag(t.status)}<span>${fmtStamp(t.updatedAt||t.createdAt)}</span></div><h3>${esc(t.subject||'Destek talebi')}</h3><p class="body">${esc(t.categoryLabel||t.category||'Destek')}${isAdmin()&&t.clubName?` · ${esc(t.clubName)}`:''}</p>${t.eventId?`<p class="body">Etkinlik: ${esc((db.events.find(e=>e.id===t.eventId)||{}).title||t.eventId)}</p>`:''}${t.preview?`<p class="body">${esc(t.preview)}</p>`:''}<div class="actions"><button class="btn ghost small" data-act="support-ticket-open" data-id="${esc(t.id)}">Görüntüle</button></div></article>`).join(''):empty('Henüz destek talebi yok.')}</div>`; };
+  const openSupportTicket = (id) => { const t=clubSupportTickets().find(x=>x.id===id); if(!t)return toast('Destek talebi bulunamadı.'); const messages=Array.isArray(t.messages)?t.messages:[]; openForm({title:`${t.number||'#UP-000000'} · ${t.subject||'Destek talebi'}`,lead:`${t.categoryLabel||t.category||'Destek'} · ${SUPPORT_STATUS[t.status]?.[1]||t.status||''}${isAdmin()&&t.clubName?` · ${t.clubName}`:''}`,fields:`<div class="support-thread">${t.eventId?`<div class="quote"><small>Etkinlik</small>${esc((db.events.find(e=>e.id===t.eventId)||{}).title||t.eventId)}</div>`:''}${t.attachmentName?`<div class="quote"><small>Ek</small>${esc(t.attachmentName)}${t.attachmentPath&&remote.supportAttachmentUrl?`<div style="margin-top:8px"><button type="button" class="btn ghost small" data-act="support-attachment-open" data-id="${esc(t.id)}">Ek dosyayı aç</button></div>`:''}</div>`:''}${messages.length?messages.map(m=>`<div class="quote"><small>${esc(m.authorLabel||(m.authorRole==='admin'?'UniPakt Destek':'Kulüp'))} · ${fmtStamp(m.createdAt)}</small>${esc(m.body||'')}</div>`).join(''):'<div class="empty">Henüz mesaj yok.</div>'}</div>${isAdmin()||t.status==='waiting_user'?field('Yanıt','<textarea name="body" required maxlength="2000"></textarea>'):''}`,submit:isAdmin()||t.status==='waiting_user'?'Gönder':'Kapat',onSubmit:async(fd)=>{if(isAdmin()||t.status==='waiting_user'){await api.supportReply(t.id,val(fd,'body'));toast('Mesaj gönderildi.');}}}); };
   const visibleTasks = () => (isAdmin() ? db.tasks : db.tasks.filter((t) => t.clubId === state.user));
   // With Supabase a club cannot read other clubs' entries, so totals come from the leaderboard.
   const pts = (id) => (db.board ? (db.board.find((b) => b.id === id)?.points || 0)
     : db.pointLog.filter((l) => l.clubId === id).reduce((sum, l) => sum + l.delta, 0));
-  const ranking = () => (db.board ? db.board.map((b) => ({ ...b })) : db.clubs.map((c) => ({ ...c, points: pts(c.id) })))
+  const ranking = () => (db.board ? db.board.map((b) => ({ ...b, points: Number(b.points) || 0 })) : db.clubs.map((c) => ({ ...c, points: Number(pts(c.id)) || 0 })))
     .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name, 'tr'));
   const signed = (n) => `${n >= 0 ? '+' : '−'}${Math.abs(n)}`;
 
@@ -1662,33 +1735,96 @@
   const actions = {
     'support-ticket-new'() {
       if (isAdmin() || !SUPPORT_CLUB_TICKETS || SUPPORT_MEMBER_TICKETS) return;
+
+      const categoryCards = Object.entries(SUPPORT_CATEGORIES).map(([key, cfg]) => `
+        <button type="button" class="support-category-card" data-support-category="${key}">
+          <strong>${esc(cfg.label)}</strong>
+          <span>${esc(cfg.description)}</span>
+        </button>`).join('');
+
+      const renderCategory = (kind) => {
+        const cfg = SUPPORT_CATEGORIES[kind];
+        const options = cfg.options.map((option) => `<option value="${esc(option)}">${esc(option)}</option>`).join('');
+        const events = kind === 'event' ? supportEventOptions() : [];
+        const eventField = kind === 'event'
+          ? field('Etkinlik', `<select name="eventId" required><option value="">Etkinlik seçiniz</option>${events.map((e) => `<option value="${esc(e.id)}">${esc(e.title)} · ${esc(e.date ? fmtDay(e.date) : '')}</option>`).join('')}</select>`)
+          : '';
+        const otherField = `<div data-support-other style="display:none">${field('Konu başlığı', `<input name="subject" maxlength="160" placeholder="${esc(cfg.otherPlaceholder)}">`)}</div>`;
+        let info = '';
+        if (kind === 'technical') {
+          info = `<div class="support-info"><strong>Bilgilendirme</strong><p><strong>UniPakt.</strong> tarafından geliştirilen UniPakt.Panel, kullanıcı deneyimlerinden elde edilen geri bildirimler doğrultusunda sürekli olarak geliştirilmektedir. Bununla birlikte, tüm dijital sistemlerde olduğu gibi teknik sorunlar veya beklenmeyen durumlarla karşılaşılması mümkündür.</p><p>Sorunun hangi işlem sırasında meydana geldiğini, beklediğiniz sonucu ve karşılaştığınız durumu mümkün olduğunca ayrıntılı şekilde belirtmeniz, destek sürecinin daha hızlı ilerlemesine yardımcı olacaktır.</p></div>`;
+        }
+        if (kind === 'community') {
+          info = `<div class="support-info"><strong>Önemli Bilgilendirme</strong><p><strong>UniPakt.</strong>, toplum ve kulüp gönüllülerinin bir arada bulunduğu; adalet, aidiyet ve güven ilkelerini temel alan bir oluşumdur. Topluluk içerisindeki bu temel değerlere ve belirlenen ilkelere aykırı durumların uygun şekilde bildirilmesi ve değerlendirilmesi için bu kanal kullanılabilir.</p><p>Gönderilen bildirimler, bildirimin niteliği ve sunulan bilgiler doğrultusunda değerlendirilir. Bildirimin mümkün olduğunca açık, doğru ve somut bilgiler içermesi değerlendirme sürecine katkı sağlar.</p><p><strong>Uyarı:</strong> Bu kategoriden oluşturulan destek talepleri <strong>en geç 1 gün içerisinde değerlendirmeye alınır.</strong> Konunun niteliğine bağlı olarak inceleme süreci daha uzun sürebilir. Lütfen göndermeden önce bildiriminizin bu kategori kapsamında olduğundan emin olunuz.</p><div class="support-privacy"><strong>Gizlilik Bildirimi</strong><p>Bu kategori üzerinden iletilen bildirimler, yalnızca destek ve değerlendirme sürecinde yetkilendirilmiş kişiler tarafından erişilebilir.</p></div></div>`;
+        }
+        if (kind === 'event') {
+          info = `<div class="support-info"><strong>Bilgilendirme</strong><p><strong>UniPakt.</strong>, kulüplerin etkinliklerini daha düzenli, verimli ve erişilebilir şekilde gerçekleştirebilmelerini desteklemek amacıyla UniPakt.Panel sistemini sürekli olarak geliştirmektedir.</p><p>Etkinliğinizle ilgili destek talebinizde etkinliğin adını, karşılaştığınız problemi ve mümkünse sorunun meydana geldiği işlemi belirtmeniz, değerlendirme ve çözüm sürecinin daha hızlı ilerlemesine yardımcı olacaktır.</p></div>`;
+        }
+        return `<div class="support-form-intro"><h3>${esc(cfg.label)}</h3><p>${esc(cfg.description)}</p></div>`
+          + field('Konu', `<select name="topic" required data-support-topic><option value="">Seçiniz</option>${options}</select>`)
+          + otherField
+          + eventField
+          + field('Ayrıntılar', `<label class="field-label">Mesajınız</label><textarea name="body" required maxlength="4000" placeholder="${esc(cfg.messagePlaceholder)}"></textarea>`)
+          + field('İsteğe bağlı ekran görüntüsü / belge', `<input type="file" name="attachment" accept="image/png,image/jpeg,image/webp,application/pdf"><small class="muted">PNG, JPG, WebP veya PDF · en fazla 5 MB</small>`)
+          + info;
+      };
+
       openForm({
         title: 'Yeni destek talebi',
-        lead: 'UniPakt Destek ekibine mesaj gönderin. Talebiniz yalnızca kulübünüz ve UniPakt Destek ekibi tarafından görülebilir.',
-        fields:
-          field('Konu', '<input name="subject" required maxlength=160 placeholder="Örn. Etkinlik başvurum hakkında">')
-          + field('Kategori', `<select name="category" required>
-              <option value="Genel destek">Genel destek</option>
-              <option value="Teknik sorun">Teknik sorun</option>
-              <option value="Etkinlik">Etkinlik</option>
-              <option value="Duyuru">Duyuru</option>
-              <option value="Başvuru">Başvuru</option>
-              <option value="Hesap ve panel">Hesap ve panel</option>
-              <option value="Diğer">Diğer</option>
-            </select>`)
-          + field('Mesaj', '<textarea name="body" required maxlength=2000 placeholder="Sorununuzu veya talebinizi mümkün olduğunca açık şekilde yazın."></textarea>'),
+        lead: 'Hangi konuda destek almak istiyorsunuz?',
+        fields: `<div class="support-category-picker"><p><strong>Destek kategorisi</strong></p><div class="support-category-grid">${categoryCards}</div></div><div data-support-detail style="display:none"></div>`,
         submit: 'Talep oluştur',
         onSubmit: async (fd) => {
+          const kind = fd.get('supportKind');
+          const topic = val(fd, 'topic').trim();
+          const subject = topic === 'Başka bir konu...' ? val(fd, 'subject').trim() : topic;
+          if (!kind || !topic || !subject) throw new Error('Destek kategorisi ve konu zorunludur.');
+          const file = fd.get('attachment');
           await api.supportCreate({
-            subject: val(fd, 'subject').trim(),
-            category: val(fd, 'category') || 'Genel destek',
+            subject,
+            category: kind,
+            categoryLabel: SUPPORT_CATEGORIES[kind].label,
             body: val(fd, 'body').trim(),
+            eventId: val(fd, 'eventId'),
+            attachment: file && file.size ? file : null,
           });
           toast('Destek talebi oluşturuldu.');
         },
       });
+
+      const modal = document.querySelector('[data-modal]');
+      if (!modal) return;
+      const form = modal.querySelector('form');
+      const detail = modal.querySelector('[data-support-detail]');
+      const hidden = document.createElement('input');
+      hidden.type = 'hidden';
+      hidden.name = 'supportKind';
+      form.appendChild(hidden);
+
+      const bindCategory = (kind) => {
+        hidden.value = kind;
+        modal.querySelectorAll('[data-support-category]').forEach((button) => {
+          button.classList.toggle('active', button.dataset.supportCategory === kind);
+        });
+        detail.innerHTML = renderCategory(kind);
+        detail.style.display = 'block';
+        const topic = detail.querySelector('[data-support-topic]');
+        const other = detail.querySelector('[data-support-other]');
+        if (topic && other) {
+          topic.addEventListener('change', () => {
+            const isOther = topic.value === 'Başka bir konu...';
+            other.style.display = isOther ? 'block' : 'none';
+            if (!isOther) {
+              const subject = detail.querySelector('[name="subject"]');
+              if (subject) subject.value = '';
+            }
+          });
+        }
+      };
+      modal.querySelectorAll('[data-support-category]').forEach((button) => {
+        button.addEventListener('click', () => bindCategory(button.dataset.supportCategory));
+      });
     },
-    'support-ticket-open'(id) { if(SUPPORT_CLUB_TICKETS) openSupportTicket(id); },
     'ann-new'() {
       openForm({
         title: isAdmin() ? 'Yeni duyuru' : 'Duyuru isteği gönder',
