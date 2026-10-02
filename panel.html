@@ -254,6 +254,9 @@
   .proof:hover { border-color: var(--accent); }
   .proof img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; flex: none; }
   .proof span { overflow-wrap: anywhere; min-width: 0; }
+  .notif-result { display:inline-flex; align-items:center; font-weight:800; font-size:13px; }
+  .notif-result.success { color:#55d98a; }
+  .notif-result.danger { color:#ff5c68; }
   .poster-upload { display:grid; gap:10px; }
   .poster-file-row { display:flex; align-items:center; gap:10px; }
   .poster-file-row input[type="file"] { flex:1; min-width:0; }
@@ -690,7 +693,10 @@
       const e=db.events.find(x=>x.id===eventId); const p=e?.applications.find(x=>x.id===appId); if(!p) return;
       if(!isAdmin() && e.ownerId!==state.user) throw new Error('Bu başvuruyu yalnızca etkinlik sahibi yönetebilir.');
       if(status==='rejected' && !note.trim()) throw new Error('Reddetmek için not yazmalısın.');
-      p.status=status; p.noteDecision=note; p.decidedAt=stamp(); db.notifications ||= []; db.notifications.unshift({id:uid(),type:'partnership_decision',title:status==='approved'?'Ortaklık başvurun onaylandı':'Ortaklık başvurun reddedildi',body:status==='approved'?`“${e.title}” etkinliğine ortaklığın onaylandı.`:`“${e.title}” etkinliğine ortaklık başvurun reddedildi. Not: ${note}`,eventId:e.id,applicationId:p.id,actionable:false,resolved:true,createdAt:stamp()}); save();
+      p.status=status; p.noteDecision=note; p.decidedAt=stamp();
+      db.notifications ||= [];
+      db.notifications.forEach(n => { if(n.applicationId===p.id && n.type==='partnership_application'){ n.resolved=true; n.actionable=false; n.readAt=n.readAt||stamp(); } });
+      db.notifications.unshift({id:uid(),type:'partnership_decision',title:status==='approved'?'Ortaklık başvurun onaylandı':'Ortaklık başvurun reddedildi',body:status==='approved'?`“${e.title}” etkinliğine ortaklığın onaylandı.`:`“${e.title}” etkinliğine ortaklık başvurun reddedildi. Not: ${note}`,eventId:e.id,applicationId:p.id,actionable:false,resolved:true,createdAt:stamp()}); save();
     },
     async removeEventPartner(eventId, clubId, note='') {
       const e=db.events.find(x=>x.id===eventId); if(!e||!isAdmin()) return; const p=e.applications.find(x=>x.clubId===clubId&&x.status==='approved'); if(!p)return; p.status='removed'; p.noteDecision=note; p.decidedAt=stamp(); db.notifications ||= []; db.notifications.unshift({id:uid(),type:'partner_removed',title:'Etkinlik ortaklığın kaldırıldı',body:`“${e.title}” etkinliğindeki ortaklığın UniPakt tarafından kaldırıldı.${note?` Not: ${note}`:''}`,eventId:e.id,applicationId:p.id,actionable:false,resolved:true,createdAt:stamp()}); save();
@@ -1067,8 +1073,15 @@
   const field = (label, control) => `<label class="field"><span>${label}</span>${control}</label>`;
   const val = (fd, name) => String(fd.get(name) || '').trim();
 
+  const notificationApplication = (n) => n.applicationId ? db.events.flatMap(e => e.applications.map(p => ({ e, p }))).find(x => x.p.id === n.applicationId) : null;
   const notificationAction = (n) => {
-    if (n.type === 'partnership_application') return `<button class="btn small" data-act="notif-app-approve" data-id="${esc(n.applicationId)}">Onayla</button><button class="btn ghost small" data-act="notif-app-reject" data-id="${esc(n.applicationId)}">Reddet</button>`;
+    if (n.type === 'partnership_application') {
+      const found = notificationApplication(n);
+      if (found?.p.status === 'approved') return `<span class="notif-result success">Bu başvuruyu onayladınız.</span><button class="btn small" disabled>Onayla</button><button class="btn ghost small" disabled>Reddet</button>`;
+      if (found?.p.status === 'rejected') return `<span class="notif-result danger">Bu başvuruyu reddettiniz.</span><button class="btn small" disabled>Onayla</button><button class="btn ghost small" disabled>Reddet</button>`;
+      if (found?.p.status === 'removed') return `<span class="notif-result danger">Bu ortaklık kaldırıldı.</span><button class="btn small" disabled>Onayla</button><button class="btn ghost small" disabled>Reddet</button>`;
+      return `<button class="btn small" data-act="notif-app-approve" data-id="${esc(n.applicationId)}">Onayla</button><button class="btn ghost small" data-act="notif-app-reject" data-id="${esc(n.applicationId)}">Reddet</button>`;
+    }
     return `<button class="btn small" data-act="notif-open" data-id="${esc(n.eventId || n.taskId)}">Aç</button>`;
   };
 
@@ -1285,7 +1298,7 @@
 
     bildirimler() {
       const list = [...(db.notifications || [])].sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
-      const row = (n) => `<article class="card item notification ${!n.readAt ? 'unread' : ''}"><div class="meta top"><span class="tag ${n.actionable&&!n.resolved?'wait':'ok'}">${n.actionable&&!n.resolved?'İşlem bekliyor':'Bilgi'}</span><span>${fmtStamp(n.createdAt)}</span></div><h3>${esc(n.title)}</h3><p class="body">${esc(n.body)}</p><div class="actions">${n.actionable&&!n.resolved ? notificationAction(n) : ''}${!n.readAt ? `<button class="btn ghost small" data-act="notif-read" data-id="${esc(n.id)}">Okundu</button>` : ''}${!(n.actionable&&!n.resolved) ? `<button class="btn ghost small" data-act="notif-delete" data-id="${esc(n.id)}">Sil</button>` : ''}</div></article>`;
+      const row = (n) => { const app = notificationApplication(n); const pending = n.type === 'partnership_application' ? !!(app?.p.status === 'pending') : (n.actionable && !n.resolved); return `<article class="card item notification ${!n.readAt ? 'unread' : ''}"><div class="meta top"><span class="tag ${pending?'wait':'ok'}">${pending?'İşlem bekliyor':'Bilgi'}</span><span>${fmtStamp(n.createdAt)}</span></div><h3>${esc(n.title)}</h3><p class="body">${esc(n.body)}</p><div class="actions">${n.type === 'partnership_application' ? notificationAction(n) : (pending ? notificationAction(n) : '')}${!n.readAt ? `<button class="btn ghost small" data-act="notif-read" data-id="${esc(n.id)}">Okundu</button>` : ''}${!pending ? `<button class="btn ghost small" data-act="notif-delete" data-id="${esc(n.id)}">Sil</button>` : ''}</div></article>`; };
       return `${head('Bildirimler','Talepler, sonuçlar ve seninle ilgili önemli gelişmeler. Sonuçlandırılmamış talepler silinemez.')}${list.length ? `<div class="stack">${list.map(row).join('')}</div>` : empty('Henüz bildirimin yok.')}`;
     },
 
