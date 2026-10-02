@@ -6,6 +6,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://*.supabase.co; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'">
 <meta name="robots" content="noindex, nofollow">
 <title>UniPakt Panel</title>
+<meta name="unipakt-events-v2" content="calendar-detail-v2">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -563,7 +564,7 @@
     const profile = profiles && profiles[0];
     if (!profile) throw signedOut('Bu hesaba panel yetkisi verilmemiş. UniPakt ile iletişime geç.');
     const [clubs, anns, events, apps, tasks, points, board] = await Promise.all([
-      rest('clubs?select=*&order=name'), rest('announcements?select=*'), rest('events?select=*'),
+      rest('clubs?select=*&order=name'), rest('announcements?select=*'), rest('events?select=*,event_occurrences(date,time)&order=event_date'),
       rest('event_applications?select=*&order=created_at'), rest('tasks?select=*'), rest('point_entries?select=*'),
       rest('rpc/leaderboard', { method: 'POST', body: {} }),
     ]);
@@ -572,7 +573,8 @@
       clubs: clubs.map((c) => ({ id: c.id, name: c.name, uni: c.university, category: c.category || '', visible: c.visible !== false,
         contact: Object.fromEntries(CONTACT_KEYS.map(([k]) => [k, c[k] || ''])) })),
       announcements: anns.map((a) => ({ id: a.id, title: a.title, body: a.body, authorId: owner(a.club_id), status: a.status, note: a.note || '', createdAt: a.created_at, decidedAt: a.decided_at })),
-      events: events.map((e) => ({ id: e.id, title: e.title, desc: e.description, date: e.event_date, time: (e.event_time || '').slice(0, 5), place: e.place || '', seeking: e.seeking || '',
+      events: events.map((e) => ({ id: e.id, title: e.title, desc: e.description, date: e.event_date, time: (e.event_time || '').slice(0, 5), place: e.place || '', address: e.address || '', rules: e.rules || '', poster: e.poster_url || '', tags: Array.isArray(e.tags) ? e.tags : [], registration: e.registration_url || '', feeType: e.fee_type || 'free', feeAmount: e.fee_amount ?? null, university: e.university || '', seeking: e.seeking || '',
+        occurrences: Array.isArray(e.event_occurrences) && e.event_occurrences.length ? e.event_occurrences.map(o => ({ date: o.date, time: (o.time || '').slice(0,5) })).sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time)) : [{ date: e.event_date, time: (e.event_time || '').slice(0,5) }],
         kind: e.kind || 'partner', calendar: e.calendar || 'none', ownerId: owner(e.club_id), status: e.status, note: e.note || '', createdAt: e.created_at, decidedAt: e.decided_at,
         applications: apps.filter((p) => p.event_id === e.id).map((p) => ({ id: p.id, clubId: p.club_id, note: p.note, status: p.status, createdAt: p.created_at })) })),
       tasks: tasks.map((t) => ({ id: t.id, title: t.title, desc: t.description || '', due: t.due_date || '', clubId: t.club_id, status: t.status,
@@ -597,6 +599,10 @@
      Every call resolves once `db` reflects the change.
      ------------------------------------------------------------------ */
   const local = {
+    async uploadEventPoster(file) {
+      if (!file) return '';
+      return await new Promise((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(String(r.result)); r.onerror = () => reject(new Error('Afiş okunamadı.')); r.readAsDataURL(file); });
+    },
     async addAnnouncement({ title, body }) {
       const at = stamp();
       db.announcements.push({ id: uid(), title, body, authorId: state.user, status: isAdmin() ? 'published' : 'pending', createdAt: at, decidedAt: isAdmin() ? at : undefined });
@@ -608,7 +614,8 @@
     },
     async removeAnnouncement(id) { db.announcements = db.announcements.filter((x) => x.id !== id); save(); },
     async addEvent(f) {
-      db.events.push({ id: uid(), ...f, calendar: 'none', ownerId: state.user, status: isAdmin() ? 'published' : 'pending', createdAt: stamp(), applications: [] });
+      const occurrences = (f.occurrences && f.occurrences.length) ? f.occurrences : [{ date: f.date, time: f.time || '' }];
+      db.events.push({ id: uid(), ...f, address: f.address || '', rules: f.rules || '', poster: f.posterUrl || '', tags: f.tags || [], registration: f.registration || '', date: occurrences[0].date, time: occurrences[0].time || '', occurrences, calendar: isAdmin() ? 'on' : 'none', ownerId: state.user, status: isAdmin() ? 'published' : 'pending', createdAt: stamp(), applications: [] });
       save();
     },
     async requestCalendar(id) {
@@ -675,6 +682,15 @@
   };
 
   const remote = {
+    async uploadEventPoster(file) {
+      if (!file) return '';
+      if (!['image/jpeg','image/png','image/webp'].includes(file.type)) throw new Error('Afiş yalnızca JPG, PNG veya WebP olabilir.');
+      if (file.size > 5 * 1024 * 1024) throw new Error('Afiş en fazla 5 MB olabilir.');
+      const safe = file.name.normalize('NFKD').replace(/[^A-Za-z0-9._-]+/g, '_').slice(-80) || 'poster';
+      const path = `${state.user || 'unipakt'}/${Date.now()}-${safe}`;
+      await call(`/storage/v1/object/event-posters/${path}`, { method:'POST', body:file, raw:true, headers:{'Content-Type':file.type, 'x-upsert':'true'} });
+      return `${SUPABASE_URL}/storage/v1/object/public/event-posters/${path}`;
+    },
     async addAnnouncement({ title, body }) {
       await rest('announcements', { method: 'POST', body: isAdmin()
         ? { title, body, status: 'published', decided_at: stamp() }
@@ -685,9 +701,12 @@
     },
     async removeAnnouncement(id) { await rest(`announcements?${eq(id)}`, { method: 'DELETE' }); },
     async addEvent(f) {
-      const row = { title: f.title, description: f.desc, event_date: f.date, event_time: f.time || null, place: f.place || null, seeking: f.seeking || null, kind: f.kind, club_id: clubOrNull() };
+      const first = (f.occurrences && f.occurrences[0]) || { date: f.date, time: f.time || '' };
+      const row = { title: f.title, description: f.desc, event_date: first.date, event_time: first.time || null, place: f.place || null, university: f.university || null, address: f.address || null, rules: f.rules || null, poster_url: f.posterUrl || null, tags: f.tags || [], registration_url: f.registration || null, fee_type: f.feeType || 'free', fee_amount: f.feeType === 'paid' && f.feeAmount !== '' ? Number(f.feeAmount) : null, seeking: f.seeking || null, kind: f.kind, club_id: clubOrNull() };
       if (isAdmin()) Object.assign(row, { status: 'published', decided_at: stamp() });
-      await rest('events', { method: 'POST', body: row });
+      const created = await rest('events', { method: 'POST', body: row, headers: { Prefer: 'return=representation' } });
+      const id = created?.[0]?.id;
+      if (id && f.occurrences && f.occurrences.length) await rest('event_occurrences', { method: 'POST', body: f.occurrences.map(o => ({ event_id: id, date: o.date, time: o.time || null })) });
     },
     async decideEvent(id, status, note = '') {
       await rest(`events?${eq(id)}`, { method: 'PATCH', body: { status, note: note || null, decided_at: stamp() } });
@@ -816,6 +835,7 @@
   const partnerEvents = () => db.events.filter((e) => e.status === 'published' && e.kind === 'partner').sort(byDate);
   const upcomingEvents = () => calendarEvents().filter((e) => e.date >= today());
   const kindLabel = (e) => (e.kind === 'event' ? 'Etkinlik' : 'Ortak arama');
+  const feeLabel = (e) => e.feeType === 'paid' ? (e.feeAmount != null && e.feeAmount !== '' ? `Ücretli · ${Number(e.feeAmount).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} TL` : 'Ücretli') : 'Ücretsiz';
   const visibleTasks = () => (isAdmin() ? db.tasks : db.tasks.filter((t) => t.clubId === state.user));
   // With Supabase a club cannot read other clubs' entries, so totals come from the leaderboard.
   const pts = (id) => (db.board ? (db.board.find((b) => b.id === id)?.points || 0)
@@ -946,7 +966,7 @@
     const owner = e.ownerId === state.user;
     const tags = [];
     const acts = [];
-    if (mine) tags.push(tag(e.status), `<span class="tag">${kindLabel(e)}</span>`);
+    if (mine) tags.push(tag(e.status), `<span class="tag">${kindLabel(e)}</span><span class="tag">${feeLabel(e)}</span>`);
     if (page === 'etkinlik' && partner) tags.push('<span class="tag">Ortak aranıyor</span>');
     if (partner && e.status === 'published' && page !== 'etkinlik') {
       tags.push(e.calendar === 'on' ? '<span class="tag ok">Takvimde</span>'
@@ -976,7 +996,10 @@
       <div>
         ${tags.length ? `<div class="meta top">${tags.join('')}${mine ? `<span>${fmtStamp(e.createdAt)} tarihinde gönderildi</span>` : ''}</div>` : ''}
         <h3>${esc(e.title)}</h3>
+        ${e.poster ? `<img src="${esc(e.poster)}" alt="" style="width:100%;max-height:220px;object-fit:cover;border-radius:14px;margin-top:12px;border:1px solid var(--border)">` : ''}
         <p class="body">${esc(e.desc)}</p>
+        ${e.address ? `<div class="quote"><small>Açık adres</small><a href="https://www.google.com/maps/search/?api=1&query=${esc(encodeURIComponent(e.address))}" target="_blank" rel="noopener noreferrer" style="color:inherit">${esc(e.address)} → Haritada aç</a></div>` : ''}
+        ${e.tags?.length ? `<div class="meta">${e.tags.map(t => `<span class="tag">#${esc(String(t).replace(/^#/,'') )}</span>`).join('')}</div>` : ''}
         ${partner && e.seeking && page !== 'etkinlik' ? `<div class="quote"><small>Aranan ortak</small>${esc(e.seeking)}</div>` : ''}
         ${mine && e.status === 'rejected' && e.note ? `<div class="quote"><small>UniPakt notu</small>${esc(e.note)}</div>` : ''}
         <div class="meta">
@@ -1425,17 +1448,38 @@
       openForm({
         title: partner ? (isAdmin() ? 'Yeni ortak etkinlik' : 'Ortak arıyorum') : 'Yeni etkinlik',
         lead: partner
-          ? (isAdmin() ? 'Yayınladığın anda Ortak Arama sayfasına düşer. Takvime almak için oradan “Yayına al”a bas.' : 'UniPakt onayladığında Ortak Arama sayfasına düşer.')
-          : (isAdmin() ? 'Yayınladığın anda takvime düşer.' : 'UniPakt onayladığında takvime düşer.'),
+          ? (isAdmin() ? 'Yayınladığın anda Ortak Arama sayfasına düşer. Takvime almak için “Yayına al”ı kullan.' : 'UniPakt onayladığında Ortak Arama sayfasına düşer.')
+          : (isAdmin() ? 'Yayınladığın anda takvimde görünür.' : 'UniPakt onayladığında takvimde görünür.'),
         fields: field('Etkinlik adı', '<input name="title" required maxlength="120">')
-          + field('Açıklama', '<textarea name="desc" required maxlength="1200"></textarea>')
-          + `<div class="field-row">${field('Tarih', `<input type="date" name="date" required min="${today()}">`)}${field('Saat (isteğe bağlı)', '<input type="time" name="time">')}</div>`
-          + field('Yer', '<input name="place" maxlength="120">')
+          + field('Afiş / etkinlik görseli', '<input type="file" name="poster" accept="image/jpeg,image/png,image/webp">')
+          + field('Açıklama', '<textarea name="desc" required maxlength="2000"></textarea>')
+          + `<div class="field-row">${field('İlk tarih', `<input type="date" name="date" required min="${today()}">`)}${field('Saat', '<input type="time" name="time">')}</div>`
+          + field('Ek etkinlik tarihleri', '<textarea name="extraDates" placeholder="Her satıra: YYYY-AA-GG HH:MM\nÖrn: 2026-11-07 21:00"></textarea>')
+          + field('Etkinlik yeri', '<input name="place" maxlength="120" placeholder="Volkswagen Arena">')
+          + field('Üniversite', '<input name="university" maxlength="120" placeholder="İstinye University">')
+          + field('Açık adres', '<textarea name="address" required maxlength="300" placeholder="Tam adresi yazın. Ziyaretçi tıkladığında Google Maps açılır."></textarea>')
+          + field('Etkinlik bilgileri / kurallar', '<textarea name="rules" maxlength="2000" placeholder="Katılım koşulları, kontenjan, yaş sınırı vb."></textarea>')
+          + field('Etiketler', '<input name="tags" maxlength="300" placeholder="Workshop, Yazılım, Networking">')
+          + field('Kayıt / katılım bağlantısı (isteğe bağlı)', '<input type="url" name="registration" maxlength="1000" placeholder="https://...">')
+          + field('Ücret durumu', '<select name="feeType"><option value="free">Ücretsiz</option><option value="paid">Ücretli</option></select>')
+          + field('Ücret (TL) — ücretliyse', '<input type="number" name="feeAmount" min="0" step="0.01" inputmode="decimal" placeholder="Örn. 150">')
           + (partner ? field('Nasıl bir ortak arıyorsun?', '<input name="seeking" required maxlength="200">') : ''),
         submit: isAdmin() ? 'Yayınla' : 'Onaya gönder',
         onSubmit: async (fd) => {
-          await api.addEvent({ title: val(fd, 'title'), desc: val(fd, 'desc'), date: val(fd, 'date'), time: val(fd, 'time'), place: val(fd, 'place'),
-            seeking: partner ? val(fd, 'seeking') : '', kind: partner ? 'partner' : 'event' });
+          const poster = fd.get('poster');
+          const occurrences = [{ date: val(fd,'date'), time: val(fd,'time') }];
+          String(val(fd,'extraDates')).split(/\n+/).map(x => x.trim()).filter(Boolean).forEach(line => {
+            const m = line.match(/^(\d{4}-\d{2}-\d{2})(?:\s+(\d{1,2}:\d{2}))?$/);
+            if (m) occurrences.push({ date: m[1], time: m[2] || '' });
+          });
+          const unique = [...new Map(occurrences.map(o => [`${o.date} ${o.time}`, o])).values()].sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
+          const posterUrl = poster && poster.size ? await api.uploadEventPoster(poster) : '';
+          await api.addEvent({
+            title: val(fd,'title'), desc: val(fd,'desc'), date: unique[0].date, time: unique[0].time,
+            occurrences: unique, place: val(fd,'place'), university: val(fd,'university'), address: val(fd,'address'), rules: val(fd,'rules'), posterUrl,
+            tags: String(val(fd,'tags')).split(',').map(x => x.trim()).filter(Boolean).slice(0,12), registration: val(fd,'registration'), feeType: val(fd,'feeType') || 'free', feeAmount: val(fd,'feeAmount'),
+            seeking: partner ? val(fd,'seeking') : '', kind: partner ? 'partner' : 'event'
+          });
           toast(isAdmin() ? (partner ? 'Ortak Arama’da yayınlandı.' : 'Etkinlik takvime eklendi.') : 'Etkinlik onaya gönderildi.');
         },
       });
