@@ -1216,13 +1216,19 @@
     .filter((l) => l.clubId === id)
     .reduce((sum, l) => sum + (Number.isFinite(Number(l.delta)) ? Number(l.delta) : 0), 0);
   const pts = (id) => {
+    // Admin view must use the actual point_entries rows as the authoritative
+    // source. The leaderboard RPC can be stale/limited by its execution
+    // context; otherwise an admin could see a recent +10 movement while the
+    // leaderboard still displays 0.
+    if (isAdmin()) return calculatedPoints(id);
+
     const row = db.board?.find((b) => b.id === id);
     const boardPoints = Number(row?.points);
     if (Number.isFinite(boardPoints)) return boardPoints;
     // A club can always read its own point_entries. If the leaderboard RPC
     // omits that club for any reason, use its own records instead of showing 0.
-    if (!isAdmin() && id === state.user) return calculatedPoints(id);
-    return isAdmin() ? calculatedPoints(id) : 0;
+    if (id === state.user) return calculatedPoints(id);
+    return 0;
   };
   const ranking = () => db.clubs.map((c) => ({
     ...c,
@@ -1959,7 +1965,10 @@
         },
       });
 
-      const modal = document.querySelector('[data-modal]');
+      // The support form is rendered inside the single global <dialog id="dlg">.
+      // Do not query a non-existent [data-modal] wrapper; that made the category
+      // buttons render visually but never receive their click handlers.
+      const modal = dlg;
       if (!modal) return;
       const form = modal.querySelector('form');
       const detail = modal.querySelector('[data-support-detail]');
@@ -1989,7 +1998,11 @@
         }
       };
       modal.querySelectorAll('[data-support-category]').forEach((button) => {
-        button.addEventListener('click', () => bindCategory(button.dataset.supportCategory));
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          bindCategory(button.dataset.supportCategory);
+        });
       });
     },
     'ann-new'() {
