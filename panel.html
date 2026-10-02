@@ -485,6 +485,7 @@
       { id: 't3', title: 'Buluşma için katılımcı sayısını bildir', desc: 'Kulüpler Buluşması’na kaç kişiyle katılacağınızı yazın.', due: dayOffset(3), clubId: 'c3', status: 'open', createdAt: isoOffset(-2) },
       { id: 't4', title: 'Sosyal medya hesaplarını paylaş', desc: 'Instagram ve LinkedIn bağlantılarınızı iletin.', due: dayOffset(-2), clubId: 'c4', status: 'open', createdAt: isoOffset(-8) },
     ],
+    supportTickets: [],
     pointLog: [
       { id: 'l1', clubId: 'c1', eventId: 'e0a', label: 'Tanışma Kahvaltısı', delta: 30, note: 'Katılım', at: isoOffset(-24) },
       { id: 'l2', clubId: 'c2', eventId: 'e0a', label: 'Tanışma Kahvaltısı', delta: 30, note: 'Katılım', at: isoOffset(-24) },
@@ -573,12 +574,14 @@
     const profiles = await rest(`profiles?select=role,club_id&id=eq.${encodeURIComponent(session.user_id)}`);
     const profile = profiles && profiles[0];
     if (!profile) throw signedOut('Bu hesaba panel yetkisi verilmemiş. UniPakt ile iletişime geç.');
-    const [clubs, anns, events, apps, tasks, points, eventVisibilityRequests, eventEditRequests, notifications, board] = await Promise.all([
+    const [clubs, anns, events, apps, tasks, points, eventVisibilityRequests, eventEditRequests, notifications, board, supportTickets, supportMessages] = await Promise.all([
       rest('clubs?select=*&order=name'), rest('announcements?select=*'), rest('events?select=*,event_occurrences(date,time)&order=event_date'),
       rest('event_applications?select=*&order=created_at'), rest('tasks?select=*'), rest('point_entries?select=*'),
       rest('event_visibility_requests?select=*&order=created_at.desc'),
       rest('event_edit_requests?select=*&order=created_at.desc'),
       rest('notifications?select=*&order=created_at.desc'),
+      rest('support_tickets?select=*,clubs(name)&order=updated_at.desc'),
+      rest('support_ticket_messages?select=*&order=created_at.asc'),
       rest('rpc/leaderboard', { method: 'POST', body: {} }),
     ]);
     const owner = (clubId) => clubId || ADMIN;
@@ -593,6 +596,7 @@
       eventVisibilityRequests: (eventVisibilityRequests || []).map((r) => ({ id: r.id, eventId: r.event_id, clubId: r.club_id, desiredVisible: !!r.desired_visible, note: r.note || '', status: r.status, createdAt: r.created_at, decidedAt: r.decided_at })),
       eventEdits: (eventEditRequests || []).map((r) => ({ id:r.id, eventId:r.event_id, clubId:r.club_id, changes:r.changes || {}, note:r.note || '', status:r.status, createdAt:r.created_at, decidedAt:r.decided_at })),
       notifications: (notifications || []).map((n) => ({ id:n.id, type:n.type, title:n.title, body:n.body || '', eventId:n.event_id || '', applicationId:n.application_id || '', taskId:n.task_id || '', actionable: !!n.actionable, resolved: !!n.resolved, createdAt:n.created_at, readAt:n.read_at })),
+      supportTickets: (supportTickets || []).map(t => ({id:t.id,number:t.ticket_number,clubId:t.club_id,clubName:t.clubs?.name||'',subject:t.subject,category:t.category,categoryLabel:t.category_label||t.category,status:t.status,createdAt:t.created_at,updatedAt:t.updated_at,preview:t.preview||'',messages:(supportMessages||[]).filter(m=>m.ticket_id===t.id).map(m=>({id:m.id,authorRole:m.author_role,authorLabel:m.author_label||'',body:m.body,createdAt:m.created_at}))})),
       tasks: tasks.map((t) => ({ id: t.id, title: t.title, desc: t.description || '', due: t.due_date || '', clubId: t.club_id, status: t.status,
         reviewStatus: t.review_status || 'none', reviewNote: t.review_note || '', reviewedAt: t.reviewed_at,
         doneText: t.proof_text || '', doneFile: t.proof_path ? { name: t.proof_name || 'dosya', path: t.proof_path } : null, doneAt: t.done_at, createdAt: t.created_at })),
@@ -767,6 +771,8 @@
       save();
     },
     async accounts() { return Object.fromEntries(db.clubs.map((c) => [c.id, c.account || ''])); },
+    async supportCreate({subject,category,body}) { const t={id:uid(),number:'#UP-'+String(Date.now()).slice(-6),clubId:state.user,subject,category,categoryLabel:category,status:'open',createdAt:stamp(),updatedAt:stamp(),messages:[{id:uid(),authorRole:'club',authorLabel:'Kulüp',body,createdAt:stamp()}]}; db.supportTickets.unshift(t); save(); },
+    async supportReply(id,body) { const t=db.supportTickets.find(x=>x.id===id); if(!t) throw new Error('Talep bulunamadı.'); t.messages.push({id:uid(),authorRole:isAdmin()?'admin':'club',authorLabel:isAdmin()?'UniPakt Destek':'Kulüp',body,createdAt:stamp()}); t.status=isAdmin()?'answered':'waiting_user'; t.updatedAt=stamp(); save(); },
     async refresh() { loadLocal(); },
   };
 
@@ -901,6 +907,8 @@
       const data = await remote.account({ action: 'list' });
       return Object.fromEntries((data.accounts || []).map((a) => [a.club_id, a.email]));
     },
+    async supportCreate({subject,category,body}) { await rest('rpc/create_support_ticket',{method:'POST',body:{p_subject:subject,p_category:category,p_body:body}}); },
+    async supportReply(id,body) { await rest('rpc/reply_support_ticket',{method:'POST',body:{p_ticket_id:id,p_body:body}}); },
     async refresh() { await loadRemote(); },
     async proofUrl(path) {
       const data = await call(`/storage/v1/object/sign/task-proofs/${path}`, { method: 'POST', body: { expiresIn: 120 } });
@@ -967,6 +975,13 @@
   const upcomingEvents = () => calendarEvents().filter((e) => e.date >= today());
   const kindLabel = (e) => (e.kind === 'event' ? 'Etkinlik' : 'Ortak arama');
   const feeLabel = (e) => e.feeType === 'paid' ? (e.feeAmount != null && e.feeAmount !== '' ? `Ücretli · ${Number(e.feeAmount).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} TL` : 'Ücretli') : 'Ücretsiz';
+  const SUPPORT_CLUB_TICKETS = true;
+  const SUPPORT_MEMBER_TICKETS = false;
+  const SUPPORT_STATUS = { open:['wait','Açık'], reviewing:['wait','İnceleniyor'], waiting_user:['wait','Kulüp yanıtı bekleniyor'], answered:['ok','Yanıtlandı'], resolved:['ok','Çözüldü'], closed:['','Kapatıldı'] };
+  const supportStatusTag = (status) => { const [cls,label] = SUPPORT_STATUS[status] || ['',status || 'Bilinmiyor']; return `<span class="tag ${cls}">${esc(label)}</span>`; };
+  const clubSupportTickets = () => (Array.isArray(db.supportTickets) ? db.supportTickets : []).filter(t => isAdmin() || t.clubId === state.user).sort((a,b)=>String(b.updatedAt||b.createdAt).localeCompare(String(a.updatedAt||a.createdAt)));
+  const renderSupportTickets = () => { const list=clubSupportTickets(); return `${head(isAdmin()?'Destek Talepleri':'UniPakt Destek', isAdmin()?'Kulüpler ile UniPakt arasındaki destek görüşmelerini yönetin.':'Kulübünüz ile UniPakt arasındaki destek taleplerini buradan yönetin.')} ${!isAdmin()?`<div class="actions" style="margin-bottom:22px"><button class="btn" data-act="support-ticket-new">Yeni destek talebi</button></div>`:''}<div class="stack">${list.length?list.map(t=>`<article class="card item"><div class="meta top"><span>${esc(t.number||'#UP-000000')}</span>${supportStatusTag(t.status)}<span>${fmtStamp(t.updatedAt||t.createdAt)}</span></div><h3>${esc(t.subject||'Destek talebi')}</h3><p class="body">${esc(t.categoryLabel||t.category||'Destek')}${isAdmin()&&t.clubName?` · ${esc(t.clubName)}`:''}</p>${t.preview?`<p class="body">${esc(t.preview)}</p>`:''}<div class="actions"><button class="btn ghost small" data-act="support-ticket-open" data-id="${esc(t.id)}">Görüntüle</button></div></article>`).join(''):empty('Henüz destek talebi yok.')}</div>`; };
+  const openSupportTicket = (id) => { const t=clubSupportTickets().find(x=>x.id===id); if(!t)return toast('Destek talebi bulunamadı.'); const messages=Array.isArray(t.messages)?t.messages:[]; openForm({title:`${t.number||'#UP-000000'} · ${t.subject||'Destek talebi'}`,lead:`${t.categoryLabel||t.category||'Destek'} · ${SUPPORT_STATUS[t.status]?.[1]||t.status||''}${isAdmin()&&t.clubName?` · ${t.clubName}`:''}`,fields:`<div class="support-thread">${messages.length?messages.map(m=>`<div class="quote"><small>${esc(m.authorLabel||(m.authorRole==='admin'?'UniPakt Destek':'Kulüp'))} · ${fmtStamp(m.createdAt)}</small>${esc(m.body||'')}</div>`).join(''):'<div class="empty">Henüz mesaj yok.</div>'}</div>${isAdmin()||t.status==='waiting_user'?field('Yanıt','<textarea name="body" required maxlength="2000"></textarea>'):''}`,submit:isAdmin()||t.status==='waiting_user'?'Gönder':'Kapat',onSubmit:async(fd)=>{if(isAdmin()||t.status==='waiting_user'){await api.supportReply(t.id,val(fd,'body'));toast('Mesaj gönderildi.');}}}); };
   const visibleTasks = () => (isAdmin() ? db.tasks : db.tasks.filter((t) => t.clubId === state.user));
   // With Supabase a club cannot read other clubs' entries, so totals come from the leaderboard.
   const pts = (id) => (db.board ? (db.board.find((b) => b.id === id)?.points || 0)
@@ -991,6 +1006,7 @@
     ];
     if (isAdmin()) items.splice(8, 0, ['onaylar', 'Onaylamalar', pendingCount()]);
     if (isAdmin()) items.push(['kulupler', 'Kulüpler']);
+    if (SUPPORT_CLUB_TICKETS) items.push(['destek-taleplerim', isAdmin() ? 'Destek Talepleri' : 'UniPakt Destek']);
     return items;
   };
 
@@ -1321,6 +1337,8 @@
         </div>`;
     },
 
+    'destek-taleplerim'() { return SUPPORT_CLUB_TICKETS ? renderSupportTickets() : empty('Destek bölümü henüz kullanıma açılmadı.'); },
+
     bildirimler() {
       const list = [...(db.notifications || [])].sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
       const row = (n) => { const app = notificationApplication(n); const pending = n.type === 'partnership_application' ? !!(app?.p.status === 'pending') : (n.actionable && !n.resolved); return `<article class="card item notification ${!n.readAt ? 'unread' : ''}"><div class="meta top"><span class="tag ${pending?'wait':'ok'}">${pending?'İşlem bekliyor':'Bilgi'}</span><span>${fmtStamp(n.createdAt)}</span></div><h3>${esc(n.title)}</h3><p class="body">${esc(n.body)}</p><div class="actions">${n.type === 'partnership_application' ? notificationAction(n) : (pending ? notificationAction(n) : '')}${!n.readAt ? `<button class="btn ghost small" data-act="notif-read" data-id="${esc(n.id)}">Okundu</button>` : ''}${!pending ? `<button class="btn ghost small" data-act="notif-delete" data-id="${esc(n.id)}">Sil</button>` : ''}</div></article>`; };
@@ -1642,6 +1660,8 @@
   });
 
   const actions = {
+    'support-ticket-new'() { if(isAdmin() || !SUPPORT_CLUB_TICKETS || SUPPORT_MEMBER_TICKETS) return; openForm({title:'Yeni destek talebi',lead:'UniPakt Destek ekibine mesaj gönderin.',fields:field('Konu','<input name="subject" required maxlength=160>')+field('Kategori','<input name="category" maxlength=80 placeholder="Genel destek">')+field('Mesaj','<textarea name="body" required maxlength=2000></textarea>'),submit:'Talep oluştur',onSubmit:async(fd)=>{await api.supportCreate({subject:val(fd,'subject'),category:val(fd,'category')||'Genel destek',body:val(fd,'body')});toast('Destek talebi oluşturuldu.');}}); },
+    'support-ticket-open'(id) { if(SUPPORT_CLUB_TICKETS) openSupportTicket(id); },
     'ann-new'() {
       openForm({
         title: isAdmin() ? 'Yeni duyuru' : 'Duyuru isteği gönder',
