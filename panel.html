@@ -1660,7 +1660,34 @@
   });
 
   const actions = {
-    'support-ticket-new'() { if(isAdmin() || !SUPPORT_CLUB_TICKETS || SUPPORT_MEMBER_TICKETS) return; openForm({title:'Yeni destek talebi',lead:'UniPakt Destek ekibine mesaj gönderin.',fields:field('Konu','<input name="subject" required maxlength=160>')+field('Kategori','<input name="category" maxlength=80 placeholder="Genel destek">')+field('Mesaj','<textarea name="body" required maxlength=2000></textarea>'),submit:'Talep oluştur',onSubmit:async(fd)=>{await api.supportCreate({subject:val(fd,'subject'),category:val(fd,'category')||'Genel destek',body:val(fd,'body')});toast('Destek talebi oluşturuldu.');}}); },
+    'support-ticket-new'() {
+      if (isAdmin() || !SUPPORT_CLUB_TICKETS || SUPPORT_MEMBER_TICKETS) return;
+      openForm({
+        title: 'Yeni destek talebi',
+        lead: 'UniPakt Destek ekibine mesaj gönderin. Talebiniz yalnızca kulübünüz ve UniPakt Destek ekibi tarafından görülebilir.',
+        fields:
+          field('Konu', '<input name="subject" required maxlength=160 placeholder="Örn. Etkinlik başvurum hakkında">')
+          + field('Kategori', `<select name="category" required>
+              <option value="Genel destek">Genel destek</option>
+              <option value="Teknik sorun">Teknik sorun</option>
+              <option value="Etkinlik">Etkinlik</option>
+              <option value="Duyuru">Duyuru</option>
+              <option value="Başvuru">Başvuru</option>
+              <option value="Hesap ve panel">Hesap ve panel</option>
+              <option value="Diğer">Diğer</option>
+            </select>`)
+          + field('Mesaj', '<textarea name="body" required maxlength=2000 placeholder="Sorununuzu veya talebinizi mümkün olduğunca açık şekilde yazın."></textarea>'),
+        submit: 'Talep oluştur',
+        onSubmit: async (fd) => {
+          await api.supportCreate({
+            subject: val(fd, 'subject').trim(),
+            category: val(fd, 'category') || 'Genel destek',
+            body: val(fd, 'body').trim(),
+          });
+          toast('Destek talebi oluşturuldu.');
+        },
+      });
+    },
     'support-ticket-open'(id) { if(SUPPORT_CLUB_TICKETS) openSupportTicket(id); },
     'ann-new'() {
       openForm({
