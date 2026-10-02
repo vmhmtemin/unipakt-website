@@ -173,6 +173,8 @@
   .tag.no { color: var(--no); border-color: color-mix(in srgb, var(--no) 45%, transparent); }
   .quote { margin-top: 14px; padding: 12px 16px; border-left: 3px solid var(--accent); background: var(--paper-soft); border-radius: 0 12px 12px 0; white-space: pre-line; overflow-wrap: anywhere; }
   .quote small { display: block; font-size: 12px; font-weight: 600; opacity: .6; margin-bottom: 4px; }
+  .approval-poster { width:min(100%,520px); aspect-ratio:16/9; object-fit:cover; display:block; border-radius:14px; border:1px solid var(--border); margin:12px 0 16px; background:var(--paper-soft); }
+  .approval-poster.placeholder { display:grid; place-items:center; font:900 54px/1 'Archivo',sans-serif; opacity:.65; background-image:radial-gradient(circle at 30% 30%, rgba(255,255,255,.13) 0 2px, transparent 3px); background-size:18px 18px; }
   .empty { padding: 28px 22px; border: 1px dashed var(--border-strong); border-radius: 18px; text-align: center; opacity: .6; }
 
   .event { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 20px; }
@@ -563,9 +565,9 @@
     const profiles = await rest(`profiles?select=role,club_id&id=eq.${encodeURIComponent(session.user_id)}`);
     const profile = profiles && profiles[0];
     if (!profile) throw signedOut('Bu hesaba panel yetkisi verilmemiş. UniPakt ile iletişime geç.');
-    const [clubs, anns, events, apps, tasks, points, board] = await Promise.all([
+    const [clubs, anns, events, apps, editRequests, tasks, points, board] = await Promise.all([
       rest('clubs?select=*&order=name'), rest('announcements?select=*'), rest('events?select=*,event_occurrences(date,time)&order=event_date'),
-      rest('event_applications?select=*&order=created_at'), rest('tasks?select=*'), rest('point_entries?select=*'),
+      rest('event_applications?select=*&order=created_at'), rest('event_edit_requests?select=*&order=created_at'), rest('tasks?select=*'), rest('point_entries?select=*'),
       rest('rpc/leaderboard', { method: 'POST', body: {} }),
     ]);
     const owner = (clubId) => clubId || ADMIN;
@@ -577,6 +579,7 @@
         occurrences: Array.isArray(e.event_occurrences) && e.event_occurrences.length ? e.event_occurrences.map(o => ({ date: o.date, time: (o.time || '').slice(0,5) })).sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time)) : [{ date: e.event_date, time: (e.event_time || '').slice(0,5) }],
         kind: e.kind || 'partner', calendar: e.calendar || 'none', ownerId: owner(e.club_id), status: e.status, note: e.note || '', createdAt: e.created_at, decidedAt: e.decided_at,
         applications: apps.filter((p) => p.event_id === e.id).map((p) => ({ id: p.id, clubId: p.club_id, note: p.note, status: p.status, createdAt: p.created_at })) })),
+      eventEdits: (editRequests || []).map((x) => ({ id:x.id, eventId:x.event_id, clubId:x.club_id, changes:x.changes || {}, status:x.status, note:x.note || '', createdAt:x.created_at, decidedAt:x.decided_at })),
       tasks: tasks.map((t) => ({ id: t.id, title: t.title, desc: t.description || '', due: t.due_date || '', clubId: t.club_id, status: t.status,
         doneText: t.proof_text || '', doneFile: t.proof_path ? { name: t.proof_name || 'dosya', path: t.proof_path } : null, doneAt: t.done_at, createdAt: t.created_at })),
       pointLog: points.map((l) => ({ id: l.id, clubId: l.club_id, eventId: l.event_id || '', label: l.label, delta: l.delta, note: l.note || '', at: l.created_at })),
@@ -618,6 +621,9 @@
       db.events.push({ id: uid(), ...f, address: f.address || '', rules: f.rules || '', poster: f.posterUrl || '', tags: f.tags || [], registration: f.registration || '', date: occurrences[0].date, time: occurrences[0].time || '', occurrences, calendar: isAdmin() ? 'on' : 'none', ownerId: state.user, status: isAdmin() ? 'published' : 'pending', createdAt: stamp(), applications: [] });
       save();
     },
+    async requestEventEdit(id, changes) { const e=db.events.find(x=>x.id===id); if(!e) return; db.eventEdits ||= []; db.eventEdits.push({id:uid(),eventId:id,clubId:state.user,changes,status:'pending',createdAt:stamp(),note:''}); save(); },
+    async decideEventEdit(id,status,note='') { const q=(db.eventEdits||[]).find(x=>x.id===id); if(!q) return; q.status=status; q.note=note; q.decidedAt=stamp(); if(status==='approved'){ const e=db.events.find(x=>x.id===q.eventId); if(e) Object.assign(e,q.changes); } save(); },
+    async updateEvent(id,f) { const e=db.events.find(x=>x.id===id); if(!e) return; Object.assign(e,f); save(); },
     async requestCalendar(id) {
       const e = db.events.find((x) => x.id === id);
       if (!e || e.ownerId !== state.user || e.status !== 'published' || e.kind !== 'partner' || e.calendar !== 'none') throw new Error('Bu etkinlik için talep gönderilemiyor.');
@@ -710,6 +716,20 @@
     },
     async decideEvent(id, status, note = '') {
       await rest(`events?${eq(id)}`, { method: 'PATCH', body: { status, note: note || null, decided_at: stamp() } });
+    },
+    async requestEventEdit(id, changes) {
+      await rest('event_edit_requests', { method:'POST', body:{ event_id:id, club_id:state.user, changes, status:'pending' } });
+    },
+    async updateEvent(id, f) {
+      const body={ title:f.title, description:f.desc, event_date:f.date, event_time:f.time||null, place:f.place||null, university:f.university||null, address:f.address||null, rules:f.rules||null, poster_url:f.posterUrl||null, tags:f.tags||[], registration_url:f.registration||null, fee_type:f.feeType||'free', fee_amount:f.feeType==='paid'&&f.feeAmount!==''?Number(f.feeAmount):null };
+      await rest(`events?${eq(id)}`, {method:'PATCH',body});
+      await rest(`event_occurrences?event_id=eq.${encodeURIComponent(id)}`, {method:'DELETE'});
+      if(f.occurrences?.length) await rest('event_occurrences',{method:'POST',body:f.occurrences.map(o=>({event_id:id,date:o.date,time:o.time||null}))});
+    },
+    async decideEventEdit(id,status,note='') {
+      const req=(await rest(`event_edit_requests?${eq(id)}&select=*`))[0]; if(!req) return;
+      if(status==='approved') await remote.updateEvent(req.event_id, req.changes||{});
+      await rest(`event_edit_requests?${eq(id)}`, {method:'PATCH',body:{status,note:note||null,decided_at:stamp()}});
     },
     async removeEvent(id) { await rest(`events?${eq(id)}`, { method: 'DELETE' }); },
     // A club cannot edit events directly; asking for the calendar goes through a database function.
@@ -824,8 +844,9 @@
   const pendingEvents = () => db.events.filter((e) => e.status === 'pending').sort(byNewest);
   const pendingApplications = () => db.events.filter((e) => e.status === 'published')
     .flatMap((e) => e.applications.filter((p) => p.status === 'pending').map((p) => ({ event: e, app: p })));
+  const pendingEventEdits = () => (db.eventEdits || []).filter((x) => x.status === 'pending').sort(byNewest);
   const pendingCalendar = () => db.events.filter((e) => e.status === 'published' && e.kind === 'partner' && e.calendar === 'requested').sort(byDate);
-  const pendingCount = () => pendingAnnouncements().length + pendingEvents().length + pendingCalendar().length + pendingApplications().length;
+  const pendingCount = () => pendingAnnouncements().length + pendingEvents().length + pendingCalendar().length + pendingApplications().length + pendingEventEdits().length;
   const publishedAnnouncements = () => db.announcements.filter((a) => a.status === 'published')
     .sort((a, b) => String(b.decidedAt || b.createdAt).localeCompare(String(a.decidedAt || a.createdAt)));
   const publishedEvents = () => db.events.filter((e) => e.status === 'published').sort(byDate);
@@ -989,6 +1010,7 @@
     if (mine && owner && partner && e.status === 'published' && e.calendar === 'none') {
       acts.push(`<button class="btn small" data-act="pub-request" data-id="${esc(e.id)}">Yayına alma talebi gönder</button>`);
     }
+    if ((isAdmin() || owner) && page !== 'ortak') acts.push(`<button class="btn ghost small" data-act="event-edit" data-id="${esc(e.id)}">Düzenle</button>`);
     if (isAdmin() && !mine) acts.push(`<button class="btn danger small" data-act="event-remove" data-id="${esc(e.id)}">Sil</button>`);
     return `
     <article class="card item event">
@@ -1256,13 +1278,16 @@
             ${dateBlock(e.date)}
             <div>
               <div class="meta top"><span class="tag wait">${kindLabel(e)}</span><span>${esc(who(e.ownerId))} · ${fmtStamp(e.createdAt)}</span></div>
-              <h3>${esc(e.title)}</h3><p class="body">${esc(e.desc)}</p>
+              <h3>${esc(e.title)}</h3>${e.poster ? `<img class="approval-poster" src="${esc(e.poster)}" alt="" loading="lazy">` : `<div class="approval-poster placeholder">.</div>`}<p class="body">${esc(e.desc)}</p>
               ${e.kind === 'partner' && e.seeking ? `<div class="quote"><small>Aranan ortak</small>${esc(e.seeking)}</div>` : ''}
               <div class="meta"><span>${fmtDay(e.date)}${e.time ? ` · ${esc(e.time)}` : ''}</span>${e.place ? `<span>${esc(e.place)}</span>` : ''}
                 <span>${e.kind === 'event' ? 'Onaylarsan takvime düşer' : 'Onaylarsan Ortak Arama’ya düşer'}</span></div>
               ${buttons('event', e.id)}
             </div>
           </article>`).join('') : empty('Bekleyen etkinlik isteği yok.')}</div>
+
+        <div class="section-head"><h2>Etkinlik düzenleme istekleri (${pendingEventEdits().length})</h2></div>
+        <div class="stack">${pendingEventEdits().length ? pendingEventEdits().map((q) => { const e=db.events.find(x=>x.id===q.eventId); const c=q.changes||{}; const summary=[c.title&&`Başlık: ${c.title}`,c.university&&`Üniversite: ${c.university}`,c.place&&`Mekan: ${c.place}`,c.address&&`Adres: ${c.address}`,c.feeType&&`Ücret: ${c.feeType==='paid'?`Ücretli · ${c.feeAmount||0} TL`:'Ücretsiz'}`].filter(Boolean).join('\n'); return `<article class="card item"><div class="meta top"><span class="tag wait">Düzenleme</span><span>${esc(who(q.clubId))} · ${fmtStamp(q.createdAt)}</span></div><h3>${esc(e?.title || c.title || 'Etkinlik')}</h3>${c.posterUrl ? `<img class="approval-poster" src="${esc(c.posterUrl)}" alt="">` : e?.poster ? `<img class="approval-poster" src="${esc(e.poster)}" alt="">` : `<div class="approval-poster placeholder">.</div>`}<div class="quote"><small>Değişiklik özeti</small>${esc(summary || 'Etkinlik detayları güncellendi.')}</div><div class="actions"><button class="btn small" data-act="event-edit-approve" data-id="${esc(q.id)}">Onayla</button><button class="btn ghost small" data-act="event-edit-reject" data-id="${esc(q.id)}">Reddet</button></div></article>`; }).join('') : empty('Bekleyen etkinlik düzenleme isteği yok.')}</div>
 
         <div class="section-head"><h2>Takvime alma talepleri (${cals.length})</h2></div>
         <div class="stack">${cals.length ? cals.map((e) => `
@@ -1484,6 +1509,36 @@
         },
       });
     },
+    async 'event-edit'(id) {
+      const request=(db.eventEdits||[]).find(x=>x.id===id);
+      if(request){ await api.decideEventEdit(id,'approved'); toast('Etkinlik düzenlemesi uygulandı.'); render(); return; }
+      const e=db.events.find(x=>x.id===id); if(!e) return;
+      const lines=(e.occurrences||[{date:e.date,time:e.time}]).map(o=>`${o.date}${o.time?' '+o.time:''}`).join('\n');
+      openForm({ title:'Etkinliği düzenle', lead:isAdmin()?'Değişiklikler doğrudan uygulanır.':'Değişiklikler UniPakt Onaylamalar ekranına düşer; onaylanınca uygulanır.',
+        fields: field('Etkinlik adı',`<input name="title" required maxlength="120" value="${esc(e.title)}">`)
+        + field('Yeni afiş (isteğe bağlı)','<input type="file" name="poster" accept="image/jpeg,image/png,image/webp">')
+        + field('Açıklama',`<textarea name="desc" required maxlength="2000">${esc(e.desc)}</textarea>`)
+        + field('Tarihler',`<textarea name="occurrences" required>${esc(lines)}</textarea>`)
+        + field('Etkinlik yeri',`<input name="place" maxlength="120" value="${esc(e.place)}">`)
+        + field('Üniversite',`<input name="university" maxlength="120" value="${esc(e.university)}">`)
+        + field('Açık adres',`<textarea name="address" maxlength="300">${esc(e.address)}</textarea>`)
+        + field('Etkinlik bilgileri / kurallar',`<textarea name="rules" maxlength="2000">${esc(e.rules)}</textarea>`)
+        + field('Etiketler',`<input name="tags" maxlength="300" value="${esc((e.tags||[]).join(', '))}">`)
+        + field('Kayıt / katılım bağlantısı',`<input type="url" name="registration" maxlength="1000" value="${esc(e.registration)}">`)
+        + field('Ücret durumu',`<select name="feeType"><option value="free" ${e.feeType!=='paid'?'selected':''}>Ücretsiz</option><option value="paid" ${e.feeType==='paid'?'selected':''}>Ücretli</option></select>`)
+        + field('Ücret (TL)',`<input type="number" name="feeAmount" min="0" step="0.01" value="${esc(e.feeAmount??'')}">`),
+        submit:isAdmin()?'Değişiklikleri kaydet':'Düzenleme isteği gönder',
+        onSubmit:async fd=>{
+          const poster=fd.get('poster'); const occ=[]; for(const line of String(val(fd,'occurrences')).split(/\n+/).map(x=>x.trim()).filter(Boolean)){const m=line.match(/^(\d{4}-\d{2}-\d{2})(?:\s+(\d{1,2}:\d{2}))?$/);if(!m)return 'Tarih satırlarından biri geçersiz. YYYY-AA-GG HH:MM biçimini kullan.';occ.push({date:m[1],time:m[2]||''});} occ.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+          const posterUrl=poster&&poster.size?await api.uploadEventPoster(poster):e.poster;
+          const f={title:val(fd,'title'),desc:val(fd,'desc'),date:occ[0].date,time:occ[0].time,occurrences:occ,place:val(fd,'place'),university:val(fd,'university'),address:val(fd,'address'),rules:val(fd,'rules'),posterUrl,tags:String(val(fd,'tags')).split(',').map(x=>x.trim()).filter(Boolean).slice(0,12),registration:val(fd,'registration'),feeType:val(fd,'feeType')||'free',feeAmount:val(fd,'feeAmount')};
+          if(isAdmin()) await api.updateEvent(id,f); else await api.requestEventEdit(id,f);
+          toast(isAdmin()?'Etkinlik güncellendi.':'Düzenleme isteği Onaylamalar’a gönderildi.');
+        }
+      });
+    },
+    async 'event-edit-approve'(id){ await api.decideEventEdit(id,'approved'); toast('Etkinlik düzenlemesi onaylandı.'); render(); },
+    'event-edit-reject'(id){ rejectWithNote('Etkinlik düzenlemesini reddet',note=>api.decideEventEdit(id,'rejected',note)); },
     async 'pub-request'(id) { await api.requestCalendar(id); toast('Yayına alma talebin gönderildi.'); render(); },
     async 'pub-approve'(id) { await api.setCalendar(id, 'on'); toast('Etkinlik takvime alındı.'); render(); },
     async 'pub-reject'(id) { await api.setCalendar(id, 'none'); toast('Takvim talebi reddedildi.'); render(); },

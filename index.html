@@ -2439,6 +2439,28 @@
   .site-cal-v2-related { display:grid; gap:0; border-top:1px solid var(--border); }
   .site-cal-v2-related button { border:0; border-bottom:1px solid var(--border); background:transparent; color:var(--ink); padding:11px 0; text-align:left; cursor:pointer; font:600 14px Inter,sans-serif; }
   .site-cal-v2-related button:hover { opacity:.65; }
+  .site-cal-v2-search-toggle { display:inline-flex; align-items:center; gap:8px; border:1px solid var(--border-strong); background:transparent; color:var(--ink); border-radius:999px; padding:10px 15px; font:600 13px/1 Inter,sans-serif; cursor:pointer; }
+  .site-cal-v2-search-toggle:hover, .site-cal-v2-search-toggle[aria-expanded="true"] { border-color:var(--accent); color:var(--accent); }
+  .site-cal-v2-search { margin:0 0 20px; padding:18px; border:1px solid var(--border); border-radius:20px; background:var(--paper-soft); }
+  .site-cal-v2-search[hidden] { display:none; }
+  .site-cal-v2-search-input { width:100%; border:1px solid var(--border-strong); border-radius:999px; background:var(--paper); color:var(--ink); padding:13px 17px; font:500 15px/1.2 Inter,sans-serif; }
+  .site-cal-v2-search-input:focus { outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent); outline-offset:2px; }
+  .site-cal-v2-search-title { margin:0 0 12px; font-size:18px; }
+  .site-cal-v2-trends { display:flex; gap:14px; overflow-x:auto; padding-bottom:6px; scroll-snap-type:x proximity; }
+  .site-cal-v2-trend { flex:0 0 180px; scroll-snap-align:start; border:0; background:transparent; color:var(--ink); text-align:left; padding:0; cursor:pointer; font:inherit; }
+  .site-cal-v2-trend img, .site-cal-v2-trend-placeholder { width:100%; aspect-ratio:4/5; object-fit:cover; border-radius:15px; border:1px solid var(--border); background:var(--paper); display:block; }
+  .site-cal-v2-trend-placeholder { display:grid; place-items:center; font:900 34px/1 Archivo,sans-serif; opacity:.7; background-image:radial-gradient(circle at 30% 30%, color-mix(in srgb,var(--ink) 13%,transparent) 0 2px, transparent 3px); background-size:18px 18px; }
+  .site-cal-v2-trend strong { display:block; margin-top:9px; font-size:14px; line-height:1.25; }
+  .site-cal-v2-trend small { display:block; margin-top:4px; font-size:12px; opacity:.55; }
+  .site-cal-v2-tags-search { display:flex; flex-wrap:wrap; gap:7px; margin-top:18px; }
+  .site-cal-v2-filter { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin:0 0 15px; }
+  .site-cal-v2-filter[hidden] { display:none; }
+  .site-cal-v2-filter-chip { border:1px solid var(--accent); color:var(--accent); background:transparent; border-radius:999px; padding:7px 11px; font-size:12px; }
+  .site-cal-v2-clear { border:0; background:transparent; color:var(--ink); opacity:.55; cursor:pointer; font:600 12px Inter,sans-serif; }
+  .site-cal-v2-items[hidden] { display:none; }
+  .site-cal-v2-detail { overflow:hidden; max-height:0; opacity:0; transform:translateY(-10px); transition:max-height .65s cubic-bezier(.2,.75,.2,1), opacity .35s ease, transform .65s cubic-bezier(.2,.75,.2,1), margin-top .65s ease; margin-top:0; }
+  .site-cal-v2-detail.is-open { max-height:10000px; opacity:1; transform:translateY(0); margin-top:20px; }
+  .site-cal-v2-list.is-hidden { display:none; }
   @media (max-width:800px) {
     .site-cal-v2-item { grid-template-columns:58px 1fr auto; gap:12px; }
     .site-cal-v2-date { width:54px; min-height:58px; }
@@ -3348,7 +3370,7 @@ fill="currentColor" stroke="none">
     const host = document.getElementById('siteCal');
     if (!host) return;
     const SOURCE = 'https://hcgotmcbwmleeklbvawb.supabase.co/rest/v1/rpc/public_events';
-    const CACHE = 'unipaktEvents.v2';
+    const CACHE = 'unipaktEvents.v3';
     const pad = n => String(n).padStart(2, '0');
     const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
     const parse = s => { const [y,m,d] = String(s||'').slice(0,10).split('-').map(Number); return new Date(y,m-1,d); };
@@ -3358,7 +3380,6 @@ fill="currentColor" stroke="none">
     const timeOnly = s => /^\d{2}:\d{2}/.test(String(s||'')) ? String(s).slice(0,5) : '';
     const dateTime = (date,time) => [date ? longDate(date) : '', timeOnly(time)].filter(Boolean).join(' · ');
     const txt = (v,max=2000) => clubText(v || '', max);
-    const escText = v => esc(txt(v));
     const ui = {
       month: d => new Intl.DateTimeFormat(lang(), {month:'long',year:'numeric'}).format(d),
       dow: i => new Intl.DateTimeFormat(lang(), {weekday:'short'}).format(new Date(2026,0,5+i)).replace(/\.$/,''),
@@ -3366,117 +3387,56 @@ fill="currentColor" stroke="none">
       next: () => document.documentElement.lang==='en'?'Next ›':'Sonraki ›',
       today: () => document.documentElement.lang==='en'?'Today':'Bugün',
       upcoming: () => document.documentElement.lang==='en'?'Upcoming events':'Yaklaşan etkinlikler',
+      search: () => document.documentElement.lang==='en'?'Search events':'Etkinliklerde ara',
+      searchPlaceholder: () => document.documentElement.lang==='en'?'Search event, venue, organizer…':'Etkinlik, mekan, sanatçı ara…',
+      trends: () => document.documentElement.lang==='en'?'Trending':'Trendler',
+      tags: () => document.documentElement.lang==='en'?'Tags':'Etiketler',
       empty: () => document.documentElement.lang==='en'?'There are no upcoming events.':'Şu an yaklaşan etkinlik yok.',
       noDay: () => document.documentElement.lang==='en'?'No events on this day.':'Bu günde etkinlik yok.',
       close: () => document.documentElement.lang==='en'?'Close':'Kapat',
       detail: () => document.documentElement.lang==='en'?'Event details':'Etkinlik detayları',
-      address: () => document.documentElement.lang==='en'?'Address':'Adres',
-      organizer: () => document.documentElement.lang==='en'?'Organizer':'Organizatör',
-      university: () => document.documentElement.lang==='en'?'University':'Üniversite',
-      venue: () => document.documentElement.lang==='en'?'Venue':'Mekan',
-      rules: () => document.documentElement.lang==='en'?'Information & rules':'Bilgiler & kurallar',
-      description: () => document.documentElement.lang==='en'?'Description':'Açıklama',
-      dates: () => document.documentElement.lang==='en'?'Dates & times':'Tarih ve saatler',
-      tags: () => document.documentElement.lang==='en'?'Tags':'Etiketler',
-      free: () => document.documentElement.lang==='en'?'Free':'Ücretsiz',
-      paid: n => document.documentElement.lang==='en'?`Paid · ${n} TL`:`Ücretli · ${n} TL`,
+      address: () => document.documentElement.lang==='en'?'Address':'Adres', organizer: () => document.documentElement.lang==='en'?'Organizer':'Organizatör',
+      university: () => document.documentElement.lang==='en'?'University':'Üniversite', venue: () => document.documentElement.lang==='en'?'Venue':'Mekan',
+      rules: () => document.documentElement.lang==='en'?'Information & rules':'Bilgiler & kurallar', description: () => document.documentElement.lang==='en'?'Description':'Açıklama',
+      dates: () => document.documentElement.lang==='en'?'Dates & times':'Tarih ve saatler', tagsDetail: () => document.documentElement.lang==='en'?'Tags':'Etiketler',
+      free: () => document.documentElement.lang==='en'?'Free':'Ücretsiz', paid: n => document.documentElement.lang==='en'?`Paid · ${n} TL`:`Ücretli · ${n} TL`,
       register: () => document.documentElement.lang==='en'?'Register / Participate':'Katıl / Kayıt ol',
       otherOrg: () => document.documentElement.lang==='en'?'Other events by this organizer':'Organizatörün diğer etkinlikleri',
       sameUni: () => document.documentElement.lang==='en'?'Other events at this university':'Bu üniversitedeki diğer etkinlikler',
       sameVenue: () => document.documentElement.lang==='en'?'Other events at this venue':'Bu mekandaki diğer etkinlikler',
-      load: () => document.documentElement.lang==='en'?'Loading events…':'Etkinlikler yükleniyor…',
-      open: () => document.documentElement.lang==='en'?'Open event details':'Etkinlik detaylarını aç'
+      load: () => document.documentElement.lang==='en'?'Loading events…':'Etkinlikler yükleniyor…', open: () => document.documentElement.lang==='en'?'Open event details':'Etkinlik detaylarını aç',
+      selectedDay: d => document.documentElement.lang==='en'?`Events on ${longDate(d)}`:`${longDate(d)} etkinlikleri`, clear: () => document.documentElement.lang==='en'?'Clear filter':'Filtreyi kaldır',
+      noSearch: () => document.documentElement.lang==='en'?'No matching events.':'Aramana uyan etkinlik yok.'
     };
-
     function normalizeRows(rows) {
       if (!Array.isArray(rows)) return [];
       return rows.filter(r => r && txt(r.title,120)).slice(0,500).map(r => {
-        let occurrences = [];
-        try { occurrences = Array.isArray(r.occurrences) ? r.occurrences : JSON.parse(r.occurrences || '[]'); } catch (_) {}
-        if (!occurrences.length && /^\d{4}-\d{2}-\d{2}$/.test(r.event_date||'')) occurrences=[{date:r.event_date,time:r.event_time||''}];
-        occurrences = occurrences.filter(o => /^\d{4}-\d{2}-\d{2}$/.test(o?.date||'')).map(o => ({date:o.date,time:timeOnly(o.time)})).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
-        return {
-          id:r.id, title:txt(r.title,120), desc:txt(r.description,5000), place:txt(r.place,180), address:txt(r.address,300), rules:txt(r.rules,5000),
-          poster_url: typeof r.poster_url==='string' ? r.poster_url.trim() : '', tags:Array.isArray(r.tags)?r.tags.map(x=>txt(x,60)).filter(Boolean):[], registration_url:typeof r.registration_url==='string'?r.registration_url.trim():'',
-          fee_type:r.fee_type==='paid'?'paid':'free', fee_amount:r.fee_amount, kind:txt(r.kind,40), organizer_id:r.organizer_id||'', by:txt(r.organizer,180)||'UniPakt', university:txt(r.university,180), occurrences
-        };
-      }).sort((a,b)=>(a.occurrences[0]?.date||'9999-99-99')+(a.occurrences[0]?.time||'99:99') .localeCompare((b.occurrences[0]?.date||'9999-99-99')+(b.occurrences[0]?.time||'99:99')));
+        let occurrences=[]; try { occurrences=Array.isArray(r.occurrences)?r.occurrences:JSON.parse(r.occurrences||'[]'); } catch(_) {}
+        if(!occurrences.length && /^\d{4}-\d{2}-\d{2}$/.test(r.event_date||'')) occurrences=[{date:r.event_date,time:r.event_time||''}];
+        occurrences=occurrences.filter(o=>/^\d{4}-\d{2}-\d{2}$/.test(o?.date||'')).map(o=>({date:o.date,time:timeOnly(o.time)})).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+        return {id:r.id,title:txt(r.title,120),desc:txt(r.description,5000),place:txt(r.place,180),address:txt(r.address,300),rules:txt(r.rules,5000),poster_url:typeof r.poster_url==='string'?r.poster_url.trim():'',tags:Array.isArray(r.tags)?r.tags.map(x=>txt(x,60)).filter(Boolean):[],registration_url:typeof r.registration_url==='string'?r.registration_url.trim():'',fee_type:r.fee_type==='paid'?'paid':'free',fee_amount:r.fee_amount,organizer_id:r.organizer_id||'',by:txt(r.organizer,180)||'UniPakt',university:txt(r.university,180),occurrences};
+      }).sort((a,b)=>(a.occurrences[0]?.date||'9999-99-99')+(a.occurrences[0]?.time||'99:99').localeCompare((b.occurrences[0]?.date||'9999-99-99')+(b.occurrences[0]?.time||'99:99')));
     }
-    const occurrenceKey = o => `${o.date}T${o.time||'23:59'}`;
-    const firstUpcoming = e => e.occurrences.find(o => occurrenceKey(o) >= ymd(new Date())+'T'+pad(new Date().getHours())+':'+pad(new Date().getMinutes())) || e.occurrences[0];
-    const upcomingEvents = () => events.filter(e => e.occurrences.some(o => o.date >= ymd(new Date()))).sort((a,b)=>occurrenceKey(firstUpcoming(a)).localeCompare(occurrenceKey(firstUpcoming(b))));
-    const eventDates = e => e.occurrences.map(o=>dateTime(o.date,o.time));
-
-    let events=[]; let loaded=false; let selectedId=null;
-    const now=new Date();
-    const view={y:now.getFullYear(),m:now.getMonth(),sel:ymd(now)};
-    try { const c=JSON.parse(localStorage.getItem(CACHE)); if(Array.isArray(c)){events=normalizeRows(c);loaded=true;} } catch(_){ }
-
-    function occurrenceFor(e){ return firstUpcoming(e)||e.occurrences[0]||{date:'',time:''}; }
-    function eventRow(e){
-      const o=occurrenceFor(e); const fee=e.fee_type==='paid' && e.fee_amount!=null ? ui.paid(Number(e.fee_amount).toLocaleString(lang(),{maximumFractionDigits:2})) : ui.free();
-      return `<button type="button" class="site-cal-v2-item" data-event-id="${esc(e.id)}" aria-label="${esc(ui.open())}" data-no-i18n>
-        <span class="site-cal-v2-date" aria-hidden="true"><b>${o.date?parse(o.date).getDate():'–'}</b><span>${o.date?esc(shortMonth(o.date)):''}</span></span>
-        <span class="site-cal-v2-main"><h3 data-no-i18n>${esc(e.title)}</h3><p class="site-cal-v2-meta" data-no-i18n>${esc([dateTime(o.date,o.time),e.place,e.by,fee].filter(Boolean).join(' · '))}</p></span>
-        <span class="site-cal-v2-arrow" aria-hidden="true">→</span>
-      </button>`;
+    const occurrenceKey=o=>`${o.date}T${o.time||'23:59'}`;
+    const firstUpcoming=e=>e.occurrences.find(o=>occurrenceKey(o)>=ymd(new Date())+'T'+pad(new Date().getHours())+':'+pad(new Date().getMinutes()))||e.occurrences[0];
+    const upcomingEvents=()=>events.filter(e=>e.occurrences.some(o=>o.date>=ymd(new Date()))).sort((a,b)=>occurrenceKey(firstUpcoming(a)).localeCompare(occurrenceKey(firstUpcoming(b))));
+    let events=[]; let loaded=false; let selectedId=null; let searchOpen=false; let searchQuery=''; let dayFilter=null;
+    const now=new Date(); const view={y:now.getFullYear(),m:now.getMonth(),sel:ymd(now)};
+    try{const c=JSON.parse(localStorage.getItem(CACHE));if(Array.isArray(c)){events=normalizeRows(c);loaded=true;}}catch(_){ }
+    function occurrenceFor(e){return firstUpcoming(e)||e.occurrences[0]||{date:'',time:''};}
+    function feeFor(e){return e.fee_type==='paid'&&e.fee_amount!=null?ui.paid(Number(e.fee_amount).toLocaleString(lang(),{maximumFractionDigits:2})):ui.free();}
+    function posterThumb(e){return e.poster_url?`<img src="${esc(e.poster_url)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:`<div class="site-cal-v2-trend-placeholder" aria-hidden="true">.</div>`;}
+    function eventRow(e){const o=occurrenceFor(e);return `<button type="button" class="site-cal-v2-item" data-event-id="${esc(e.id)}" aria-label="${esc(ui.open())}" data-no-i18n><span class="site-cal-v2-date" aria-hidden="true"><b>${o.date?parse(o.date).getDate():'–'}</b><span>${o.date?esc(shortMonth(o.date)):''}</span></span><span class="site-cal-v2-main"><h3 data-no-i18n>${esc(e.title)}</h3><p class="site-cal-v2-meta" data-no-i18n>${esc([dateTime(o.date,o.time),e.place,e.by,feeFor(e)].filter(Boolean).join(' · '))}</p></span><span class="site-cal-v2-arrow" aria-hidden="true">→</span></button>`;}
+    function matches(e,q){if(!q)return true;const hay=[e.title,e.place,e.by,e.university,e.address,...e.tags].join(' ').toLocaleLowerCase('tr-TR');return hay.includes(q.toLocaleLowerCase('tr-TR'));}
+    function filteredEvents(){let list=upcomingEvents();if(dayFilter)list=list.filter(e=>e.occurrences.some(o=>o.date===dayFilter));if(searchQuery.trim())list=list.filter(e=>matches(e,searchQuery.trim()));return list;}
+    function detailHtml(e){const map=e.address?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(e.address)}`:'';const poster=e.poster_url?`<img class="site-cal-v2-poster" src="${esc(e.poster_url)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:`<div class="site-cal-v2-poster-placeholder" aria-hidden="true">.</div>`;const occurrences=e.occurrences.map(x=>`<div class="site-cal-v2-occurrence" data-no-i18n>${esc(dateTime(x.date,x.time))}</div>`).join('');const relatedOrg=events.filter(x=>x.id!==e.id&&e.organizer_id&&x.organizer_id===e.organizer_id).slice(0,4);const relatedUni=events.filter(x=>x.id!==e.id&&e.university&&x.university===e.university).slice(0,4);const relatedVenue=events.filter(x=>x.id!==e.id&&e.place&&x.place===e.place).slice(0,4);const relatedBlock=(title,list)=>list.length?`<section class="site-cal-v2-card"><h3>${esc(title)}</h3><div class="site-cal-v2-related">${list.map(x=>`<button type="button" data-related-id="${esc(x.id)}" data-no-i18n>${esc(x.title)}</button>`).join('')}</div></section>`:'';return `<div class="site-cal-v2-detail-top"><span>${esc(ui.detail())}</span><button type="button" class="site-cal-v2-back" data-event-close>${esc(ui.close())} ×</button></div><div class="site-cal-v2-detail-grid" data-no-i18n><div><p class="site-cal-v2-kicker">UniPakt</p>${poster}<div class="site-cal-v2-body"><div><h2 class="site-cal-v2-title" data-no-i18n>${esc(e.title)}</h2><div class="site-cal-v2-info"><div class="site-cal-v2-info-row"><strong>${esc(ui.dates())}</strong><span class="site-cal-v2-occurrences">${occurrences}</span></div>${e.place?`<div class="site-cal-v2-info-row"><strong>${esc(ui.venue())}</strong><span data-no-i18n>${esc(e.place)}</span></div>`:''}${e.address?`<div class="site-cal-v2-info-row"><strong>${esc(ui.address())}</strong><a href="${esc(map)}" target="_blank" rel="noopener noreferrer" data-no-i18n>${esc(e.address)} ↗</a></div>`:''}${e.by?`<div class="site-cal-v2-info-row"><strong>${esc(ui.organizer())}</strong><span data-no-i18n>${esc(e.by)}</span></div>`:''}${e.university?`<div class="site-cal-v2-info-row"><strong>${esc(ui.university())}</strong><span data-no-i18n>${esc(e.university)}</span></div>`:''}<div class="site-cal-v2-info-row"><strong>Ücret</strong><span data-no-i18n>${esc(feeFor(e))}</span></div></div></div>${e.registration_url?`<a class="site-cal-v2-cta" href="${esc(e.registration_url)}" target="_blank" rel="noopener noreferrer">${esc(ui.register())} ↗</a>`:''}${e.desc?`<section class="site-cal-v2-section"><h3>${esc(ui.description())}</h3><p data-no-i18n>${esc(e.desc)}</p></section>`:''}${e.rules?`<section class="site-cal-v2-section"><h3>${esc(ui.rules())}</h3><p data-no-i18n>${esc(e.rules)}</p></section>`:''}${e.tags.length?`<section class="site-cal-v2-section"><h3>${esc(ui.tagsDetail())}</h3><div class="site-cal-v2-tags">${e.tags.map(t=>`<span class="site-cal-v2-tag" data-no-i18n>${esc(t)}</span>`).join('')}</div></section>`:''}</div></div><aside class="site-cal-v2-side">${relatedBlock(ui.otherOrg(),relatedOrg)}${relatedBlock(ui.sameUni(),relatedUni)}${relatedBlock(ui.sameVenue(),relatedVenue)}</aside></div>`;}
+    function renderDetail(scroll=false){const detail=host.querySelector('.site-cal-v2-detail'),list=host.querySelector('.site-cal-v2-list');if(!detail||!list)return;const e=events.find(x=>x.id===selectedId);if(!e){detail.classList.remove('is-open');setTimeout(()=>{if(!selectedId){detail.hidden=true;detail.innerHTML='';list.classList.remove('is-hidden');}},500);return;}detail.hidden=false;detail.innerHTML=detailHtml(e);list.classList.add('is-hidden');requestAnimationFrame(()=>detail.classList.add('is-open'));if(scroll)setTimeout(()=>detail.scrollIntoView({behavior:'smooth',block:'start'}),80);}
+    function searchHtml(){const tags=[...new Set(events.flatMap(e=>e.tags))].slice(0,10);const trends=upcomingEvents().slice(0,7);return `<div class="site-cal-v2-search" ${searchOpen?'':'hidden'}><input class="site-cal-v2-search-input" id="siteCalSearch" data-no-i18n type="search" value="${esc(searchQuery)}" placeholder="${esc(ui.searchPlaceholder())}" autocomplete="off"><h3 class="site-cal-v2-search-title">${esc(ui.trends())}</h3><div class="site-cal-v2-trends">${trends.map(e=>`<button type="button" class="site-cal-v2-trend" data-event-id="${esc(e.id)}" data-no-i18n>${posterThumb(e)}<strong>${esc(e.title)}</strong><small>${esc([e.place,dateTime(occurrenceFor(e).date,occurrenceFor(e).time)].filter(Boolean).join(' · '))}</small></button>`).join('')}</div>${tags.length?`<div class="site-cal-v2-tags-search">${tags.map(t=>`<button type="button" class="site-cal-v2-filter-chip" data-search-tag="${esc(t)}" data-no-i18n># ${esc(t)}</button>`).join('')}</div>`:''}</div>`;}
+    function renderCalendar(){const today=ymd(new Date()),{y,m,sel}=view,offset=(new Date(y,m,1).getDay()+6)%7,days=new Date(y,m+1,0).getDate(),cells=Math.ceil((offset+days)/7)*7,byDay={};events.forEach(e=>e.occurrences.forEach(o=>(byDay[o.date]??=[]).push(e)));let grid='';for(let i=0;i<cells;i++){const d=new Date(y,m,i-offset+1),key=ymd(d),list=[...(new Map((byDay[key]||[]).map(e=>[e.id,e])).values())];const cls=['site-cal-day',d.getMonth()!==m?'out':'',key===today?'today':'',key===sel?'selected':'',list.length?'has-events':'',i>=cells-7?'last-row':''].filter(Boolean).join(' ');grid+=`<button type="button" class="${cls}" data-cal="${key}" aria-label="${esc(longDate(key))}" data-no-i18n><span class="num">${d.getDate()}</span><span class="chips">${list.slice(0,3).map(e=>`<span class="chip" data-no-i18n>${esc(e.title)}</span>`).join('')}</span></button>`;}const list=filteredEvents(),listHtml=list.length?`<div class="site-cal-v2-items">${list.map(eventRow).join('')}</div>`:`<p class="site-cal-v2-empty">${esc(dayFilter?ui.noDay():(searchQuery?ui.noSearch():loaded?ui.empty():ui.load()))}</p>`;host.innerHTML=`<div class="site-cal-head"><h2>${esc(ui.month(new Date(y,m,1)))}</h2><div class="site-cal-nav"><button type="button" class="site-cal-btn" data-cal="prev">${esc(ui.prev())}</button><button type="button" class="site-cal-btn" data-cal="today">${esc(ui.today())}</button><button type="button" class="site-cal-btn" data-cal="next">${esc(ui.next())}</button></div></div><div class="site-cal-grid">${['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'].map((_,i)=>`<div class="site-cal-dow" data-no-i18n>${esc(ui.dow(i))}</div>`).join('')}${grid}</div><div class="site-cal-v2-list"><div class="site-cal-v2-head"><div><h2 class="site-cal-sub">${esc(ui.upcoming())}</h2><p class="site-cal-v2-note">${esc(document.documentElement.lang==='en'?'You can follow the event details here':'Etkinlik detaylarını buradan takip edebilirsin')}</p></div><button type="button" class="site-cal-v2-search-toggle" data-search-toggle aria-expanded="${searchOpen?'true':'false'}">⌕ ${esc(ui.search())}</button></div>${dayFilter?`<div class="site-cal-v2-filter"><span class="site-cal-v2-filter-chip">${esc(ui.selectedDay(dayFilter))}</span><button type="button" class="site-cal-v2-clear" data-clear-day>${esc(ui.clear())}</button></div>`:''}${searchHtml()}${listHtml}</div><div class="site-cal-v2-detail" hidden></div>`;renderDetail(false);if(searchOpen){const input=host.querySelector('#siteCalSearch');if(input){input.addEventListener('input',e=>{searchQuery=e.target.value;renderCalendar();setTimeout(()=>{const i=host.querySelector('#siteCalSearch');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length);}},0);});}}
     }
-    function detailHtml(e){
-      const o=occurrenceFor(e); const map=e.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(e.address)}` : '';
-      const fee=e.fee_type==='paid' && e.fee_amount!=null ? ui.paid(Number(e.fee_amount).toLocaleString(lang(),{maximumFractionDigits:2})) : ui.free();
-      const poster=e.poster_url ? `<img class="site-cal-v2-poster" src="${esc(e.poster_url)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<div class="site-cal-v2-poster-placeholder" aria-hidden="true">.</div>`;
-      const occurrences=e.occurrences.map(x=>`<div class="site-cal-v2-occurrence" data-no-i18n>${esc(dateTime(x.date,x.time))}</div>`).join('');
-      const relatedOrg=events.filter(x=>x.id!==e.id && e.organizer_id && x.organizer_id===e.organizer_id).slice(0,4);
-      const relatedUni=events.filter(x=>x.id!==e.id && e.university && x.university===e.university).slice(0,4);
-      const relatedVenue=events.filter(x=>x.id!==e.id && e.place && x.place===e.place).slice(0,4);
-      const relatedBlock=(title,list)=>list.length?`<section class="site-cal-v2-card"><h3>${esc(title)}</h3><div class="site-cal-v2-related">${list.map(x=>`<button type="button" data-related-id="${esc(x.id)}" data-no-i18n>${esc(x.title)}</button>`).join('')}</div></section>`:'';
-      return `<div class="site-cal-v2-detail-top"><span>${esc(ui.detail())}</span><button type="button" class="site-cal-v2-back" data-event-close>${esc(ui.close())} ×</button></div>
-      <div class="site-cal-v2-detail-grid" data-no-i18n>
-        <div><p class="site-cal-v2-kicker">UniPakt</p>${poster}<div class="site-cal-v2-body"><div><h2 class="site-cal-v2-title" data-no-i18n>${esc(e.title)}</h2><div class="site-cal-v2-info">
-          <div class="site-cal-v2-info-row"><strong>${esc(ui.dates())}</strong><span class="site-cal-v2-occurrences">${occurrences}</span></div>
-          ${e.place?`<div class="site-cal-v2-info-row"><strong>${esc(ui.venue())}</strong><span data-no-i18n>${esc(e.place)}</span></div>`:''}
-          ${e.address?`<div class="site-cal-v2-info-row"><strong>${esc(ui.address())}</strong><a href="${esc(map)}" target="_blank" rel="noopener noreferrer" data-no-i18n>${esc(e.address)} ↗</a></div>`:''}
-          ${e.by?`<div class="site-cal-v2-info-row"><strong>${esc(ui.organizer())}</strong><span data-no-i18n>${esc(e.by)}</span></div>`:''}
-          ${e.university?`<div class="site-cal-v2-info-row"><strong>${esc(ui.university())}</strong><span data-no-i18n>${esc(e.university)}</span></div>`:''}
-          <div class="site-cal-v2-info-row"><strong>Ücret</strong><span data-no-i18n>${esc(fee)}</span></div>
-        </div></div>
-        ${e.registration_url?`<a class="site-cal-v2-cta" href="${esc(e.registration_url)}" target="_blank" rel="noopener noreferrer">${esc(ui.register())} ↗</a>`:''}
-        ${e.desc?`<section class="site-cal-v2-section"><h3>${esc(ui.description())}</h3><p data-no-i18n>${esc(e.desc)}</p></section>`:''}
-        ${e.rules?`<section class="site-cal-v2-section"><h3>${esc(ui.rules())}</h3><p data-no-i18n>${esc(e.rules)}</p></section>`:''}
-        ${e.tags.length?`<section class="site-cal-v2-section"><h3>${esc(ui.tags())}</h3><div class="site-cal-v2-tags">${e.tags.map(t=>`<span class="site-cal-v2-tag" data-no-i18n>${esc(t)}</span>`).join('')}</div></section>`:''}
-        </div></div>
-        <aside class="site-cal-v2-side">${relatedBlock(ui.otherOrg(),relatedOrg)}${relatedBlock(ui.sameUni(),relatedUni)}${relatedBlock(ui.sameVenue(),relatedVenue)}</aside>
-      </div>`;
-    }
-    function renderDetail(){
-      const detail=host.querySelector('.site-cal-v2-detail');
-      if(!detail) return;
-      const e=events.find(x=>x.id===selectedId);
-      if(!e){detail.hidden=true;detail.innerHTML='';return;}
-      detail.hidden=false;detail.innerHTML=detailHtml(e);
-    }
-    function renderCalendar(){
-      const today=ymd(new Date()), {y,m,sel}=view;
-      const offset=(new Date(y,m,1).getDay()+6)%7, days=new Date(y,m+1,0).getDate(), cells=Math.ceil((offset+days)/7)*7;
-      const byDay={}; events.forEach(e=>e.occurrences.forEach(o=>(byDay[o.date]??=[]).push(e)));
-      let grid=''; for(let i=0;i<cells;i++){const d=new Date(y,m,i-offset+1),key=ymd(d),list=[...(new Map((byDay[key]||[]).map(e=>[e.id,e])).values())]; const cls=['site-cal-day',d.getMonth()!==m?'out':'',key===today?'today':'',key===sel?'selected':'',list.length?'has-events':'',i>=cells-7?'last-row':''].filter(Boolean).join(' '); grid+=`<button type="button" class="${cls}" data-cal="${key}" aria-label="${esc(longDate(key))}" data-no-i18n><span class="num">${d.getDate()}</span><span class="chips">${list.slice(0,3).map(e=>`<span class="chip" data-no-i18n>${esc(e.title)}</span>`).join('')}</span></button>`;}
-      const selected=Object.values(byDay[sel]||{}), upcoming=upcomingEvents().slice(0,8);
-      const listHtml=upcoming.length?`<div class="site-cal-v2-items">${upcoming.map(eventRow).join('')}</div>`:`<p class="site-cal-v2-empty">${loaded?esc(ui.empty()):esc(ui.load())}</p>`;
-      host.innerHTML=`<div class="site-cal-head"><h2>${esc(ui.month(new Date(y,m,1)))}</h2><div class="site-cal-nav"><button type="button" class="site-cal-btn" data-cal="prev">${esc(ui.prev())}</button><button type="button" class="site-cal-btn" data-cal="today">${esc(ui.today())}</button><button type="button" class="site-cal-btn" data-cal="next">${esc(ui.next())}</button></div></div><div class="site-cal-grid">${['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'].map((_,i)=>`<div class="site-cal-dow" data-no-i18n>${esc(ui.dow(i))}</div>`).join('')}${grid}</div><div class="site-cal-v2-list"><div class="site-cal-v2-head"><div><h2 class="site-cal-sub">${esc(ui.upcoming())}</h2><p class="site-cal-v2-note">${esc(document.documentElement.lang==='en'?'You can follow the event details here':'Etkinlik detaylarını buradan takip edebilirsin')}</p></div></div>${listHtml}</div><div class="site-cal-v2-detail" hidden></div>`;
-      renderDetail();
-    }
-    function render(){ renderCalendar(); }
-    host.addEventListener('click',event=>{
-      const close=event.target.closest('[data-event-close]'); if(close){selectedId=null;render();return;}
-      const related=event.target.closest('[data-related-id]'); if(related){selectedId=related.dataset.relatedId;renderDetail();host.scrollIntoView({behavior:'smooth',block:'start'});return;}
-      const eventBtn=event.target.closest('[data-event-id]'); if(eventBtn){selectedId=eventBtn.dataset.eventId;renderDetail();return;}
-      const cal=event.target.closest('[data-cal]'); if(!cal)return; const v=cal.dataset.cal;
-      if(v==='prev'||v==='next'){const d=new Date(view.y,view.m+(v==='next'?1:-1),1);view.y=d.getFullYear();view.m=d.getMonth();}
-      else {const d=v==='today'?new Date():parse(v);view.y=d.getFullYear();view.m=d.getMonth();view.sel=ymd(d);} render();
-    });
-    window.addEventListener('unipakt:language-changed',()=>render());
-    render();
-    fetch(SOURCE,{method:'POST',headers:{apikey:CLUBS_KEY,'Content-Type':'application/json'},body:'{}'}).then(r=>r.ok?r.json():Promise.reject(new Error(r.status))).then(rows=>{events=normalizeRows(rows);loaded=true;try{localStorage.setItem(CACHE,JSON.stringify(rows));}catch(_){} render();}).catch(()=>{if(!loaded){events=[];render();}});
+    host.addEventListener('click',event=>{const close=event.target.closest('[data-event-close]');if(close){selectedId=null;renderCalendar();host.scrollIntoView({behavior:'smooth',block:'start'});return;}const related=event.target.closest('[data-related-id]');if(related){selectedId=related.dataset.relatedId;renderDetail(true);return;}const eventBtn=event.target.closest('[data-event-id]');if(eventBtn){selectedId=eventBtn.dataset.eventId;renderDetail(true);return;}const searchBtn=event.target.closest('[data-search-toggle]');if(searchBtn){searchOpen=!searchOpen;renderCalendar();if(searchOpen)setTimeout(()=>host.querySelector('#siteCalSearch')?.focus(),50);return;}const tagBtn=event.target.closest('[data-search-tag]');if(tagBtn){searchOpen=true;searchQuery=tagBtn.dataset.searchTag;renderCalendar();setTimeout(()=>host.querySelector('#siteCalSearch')?.focus(),50);return;}if(event.target.closest('[data-clear-day]')){dayFilter=null;renderCalendar();return;}const cal=event.target.closest('[data-cal]');if(!cal)return;const v=cal.dataset.cal;if(v==='prev'||v==='next'){const d=new Date(view.y,view.m+(v==='next'?1:-1),1);view.y=d.getFullYear();view.m=d.getMonth();}else{const d=v==='today'?new Date():parse(v);view.y=d.getFullYear();view.m=d.getMonth();view.sel=ymd(d);if(v!=='today')dayFilter=v;}renderCalendar();if(v!=='prev'&&v!=='next')setTimeout(()=>host.querySelector('.site-cal-v2-list')?.scrollIntoView({behavior:'smooth',block:'start'}),60);});
+    window.addEventListener('unipakt:language-changed',()=>renderCalendar());renderCalendar();
+    fetch(SOURCE,{method:'POST',headers:{apikey:CLUBS_KEY,'Content-Type':'application/json'},body:'{}'}).then(r=>r.ok?r.json():Promise.reject(new Error(r.status))).then(rows=>{events=normalizeRows(rows);loaded=true;try{localStorage.setItem(CACHE,JSON.stringify(rows));}catch(_){}renderCalendar();}).catch(()=>{if(!loaded){events=[];renderCalendar();}});
   })();
 
   // Ortak Kulüpler listesindeki satırları sadece bu liste içinde aç/kapat.
