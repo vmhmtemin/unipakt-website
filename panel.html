@@ -570,7 +570,7 @@
     const profiles = await rest(`profiles?select=role,club_id&id=eq.${encodeURIComponent(session.user_id)}`);
     const profile = profiles && profiles[0];
     if (!profile) throw signedOut('Bu hesaba panel yetkisi verilmemiş. UniPakt ile iletişime geç.');
-    const [clubs, anns, events, apps, tasks, points, board, eventVisibilityRequests, eventEditRequests] = await Promise.all([
+    const [clubs, anns, events, apps, tasks, points, eventVisibilityRequests, eventEditRequests, board] = await Promise.all([
       rest('clubs?select=*&order=name'), rest('announcements?select=*'), rest('events?select=*,event_occurrences(date,time)&order=event_date'),
       rest('event_applications?select=*&order=created_at'), rest('tasks?select=*'), rest('point_entries?select=*'),
       rest('event_visibility_requests?select=*&order=created_at.desc'),
