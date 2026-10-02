@@ -640,13 +640,38 @@
       if (!e || e.ownerId !== state.user || e.status !== 'published' || e.kind !== 'partner' || e.calendar !== 'none') throw new Error('Bu etkinlik için talep gönderilemiyor.');
       e.calendar = 'requested'; save();
     },
-    async setCalendar(id, value) {
+    async setCalendar(id, value, note = '') {
       const e = db.events.find((x) => x.id === id); if (!e) return;
-      e.calendar = value; save();
+      const previous = e.calendar;
+      e.calendar = value;
+      if (note) e.note = note;
+      db.notifications ||= [];
+      if (e.ownerId !== ADMIN && e.status === 'published') {
+        if (previous === 'requested' && value === 'on') {
+          db.notifications.unshift({id:uid(),type:'calendar_decision',title:'Etkinliğin yayına alındı',body:`“${e.title}” etkinliğinin takvimde yayınlanma talebi onaylandı.`,eventId:e.id,actionable:false,resolved:true,createdAt:stamp()});
+        } else if (previous === 'requested' && value === 'none') {
+          db.notifications.unshift({id:uid(),type:'calendar_decision',title:'Yayına alma talebin reddedildi',body:`“${e.title}” etkinliğinin yayına alma talebi reddedildi.`,eventId:e.id,actionable:false,resolved:true,createdAt:stamp()});
+        } else if (previous === 'on' && value === 'none') {
+          db.notifications.unshift({id:uid(),type:'event_unpublished',title:'Etkinliğin yayından kaldırıldı',body:`“${e.title}” etkinliğin takvimden kaldırıldı.`,eventId:e.id,actionable:false,resolved:true,createdAt:stamp()});
+        }
+      }
+      save();
     },
     async decideEvent(id, status, note = '') {
       const e = db.events.find((x) => x.id === id); if (!e) return;
-      Object.assign(e, { status, note, decidedAt: stamp() }); save();
+      Object.assign(e, { status, note, decidedAt: stamp() });
+      db.notifications ||= [];
+      if (e.ownerId !== ADMIN) {
+        if (status === 'published') {
+          const body = e.kind === 'partner'
+            ? `“${e.title}” ortak arama başvurun onaylandı. Ortak Arama sayfasından etkinliğini dilersen yayına alma talebi de oluşturabilirsin.`
+            : `“${e.title}” etkinlik başvurun onaylandı.`;
+          db.notifications.unshift({id:uid(),type:'event_submission_decision',title:e.kind === 'partner' ? 'Ortak Arama başvurun kabul edildi' : 'Etkinlik başvurun onaylandı',body,eventId:e.id,actionable:false,resolved:true,createdAt:stamp()});
+        } else if (status === 'rejected') {
+          db.notifications.unshift({id:uid(),type:'event_submission_decision',title:e.kind === 'partner' ? 'Ortak Arama başvurun reddedildi' : 'Etkinlik başvurun reddedildi',body:`“${e.title}” başvurun reddedildi.${note ? ` Not: ${note}` : ''}`,eventId:e.id,actionable:false,resolved:true,createdAt:stamp()});
+        }
+      }
+      save();
     },
     async requestEventEdit(id, changes) {
       const e = db.events.find((x) => x.id === id); if (!e || e.ownerId !== state.user || e.status !== 'published') return;
@@ -812,7 +837,7 @@
     async removeEvent(id) { await rest(`events?${eq(id)}`, { method: 'DELETE' }); },
     // A club cannot edit events directly; asking for the calendar goes through a database function.
     async requestCalendar(id) { await rest('rpc/request_calendar', { method: 'POST', body: { p_event: id } }); },
-    async setCalendar(id, value) { await rest(`events?${eq(id)}`, { method: 'PATCH', body: { calendar: value } }); },
+    async setCalendar(id, value, note = '') { await rest(`events?${eq(id)}`, { method: 'PATCH', body: { calendar: value, note: note || null } }); },
     async applyEvent(eventId, note) {
       await rest('rpc/submit_event_application', { method:'POST', body:{ p_event:eventId, p_note:note } });
     },
@@ -1676,8 +1701,8 @@
     },
     async 'pub-request'(id) { await api.requestCalendar(id); toast('Yayına alma talebin gönderildi.'); render(); },
     async 'pub-approve'(id) { await api.setCalendar(id, 'on'); toast('Etkinlik takvime alındı.'); render(); },
-    async 'pub-reject'(id) { await api.setCalendar(id, 'none'); toast('Takvim talebi reddedildi.'); render(); },
-    async 'pub-remove'(id) { await api.setCalendar(id, 'none'); toast('Etkinlik takvimden kaldırıldı.'); render(); },
+    'pub-reject'(id) { rejectWithNote('Yayına alma talebini reddet', async (note) => { await api.setCalendar(id, 'none', note); toast('Takvim talebi reddedildi.'); render(); }); },
+    'pub-remove'(id) { rejectWithNote('Etkinliği takvimden kaldır', async (note) => { await api.setCalendar(id, 'none', note); toast('Etkinlik takvimden kaldırıldı.'); render(); }); },
     async 'event-approve'(id) { await api.decideEvent(id, 'published'); toast('Etkinlik onaylandı.'); render(); },
     'event-reject'(id) { rejectWithNote('Etkinliği reddet', (note) => api.decideEvent(id, 'rejected', note)); },
     'event-edit'(id) {
