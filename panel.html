@@ -599,11 +599,53 @@
   const eq = (id) => `id=eq.${encodeURIComponent(id)}`;
 
   // Reads everything this account is allowed to see into the same shape the demo uses.
+  // Support is intentionally loaded and refreshed in isolation. A support
+  // API problem must never prevent Vanguard or the rest of the panel from loading.
+  let supportLoadError = null;
+  const loadSupportRemote = async () => {
+    const [tickets, messages, creatorProfiles] = await Promise.all([
+      rest('support_tickets?select=*&order=updated_at.desc'),
+      rest('support_ticket_messages?select=*&order=created_at.asc'),
+      rest('profiles?select=id,full_name,club_id'),
+    ]);
+    const clubNames = new Map((db?.clubs || []).map(c => [c.id, c.name]));
+    db.supportCreators = (creatorProfiles || []).map(p => ({
+      id: p.id,
+      fullName: p.full_name || '',
+      clubId: p.club_id || '',
+    }));
+    db.supportTickets = (tickets || []).map(t => ({
+      id: t.id,
+      number: t.ticket_number || t.number || '',
+      clubId: t.club_id || t.clubId || '',
+      clubName: t.club_name || clubNames.get(t.club_id || t.clubId || '') || '',
+      createdBy: t.created_by || t.createdBy || '',
+      subject: t.subject || t.title || 'Destek talebi',
+      category: t.category || 'technical',
+      categoryLabel: t.category_label || t.categoryLabel || t.category || 'Teknik Destek',
+      eventId: t.event_id || t.eventId || '',
+      attachmentPath: t.attachment_path || t.attachmentPath || '',
+      attachmentName: t.attachment_name || t.attachmentName || '',
+      status: t.status || 'open',
+      createdAt: t.created_at || t.createdAt || '',
+      updatedAt: t.updated_at || t.updatedAt || t.created_at || t.createdAt || '',
+      preview: t.preview || '',
+      messages: (messages || []).filter(m => m.ticket_id === t.id).map(m => ({
+        id: m.id,
+        authorRole: m.author_role,
+        authorLabel: m.author_label || '',
+        body: m.body,
+        createdAt: m.created_at,
+      })),
+    }));
+    supportLoadError = null;
+  };
+
   const loadRemote = async () => {
     const profiles = await rest(`profiles?select=role,club_id&id=eq.${encodeURIComponent(session.user_id)}`);
     const profile = profiles && profiles[0];
     if (!profile) throw signedOut('Bu hesaba panel yetkisi verilmemiş. UniPakt ile iletişime geç.');
-    const [clubs, anns, events, apps, tasks, points, eventVisibilityRequests, eventEditRequests, notifications, board, supportTickets, supportMessages, supportCreatorProfiles] = await Promise.all([
+    const [clubs, anns, events, apps, tasks, points, eventVisibilityRequests, eventEditRequests, notifications, board] = await Promise.all([
       rest('clubs?select=*&order=name'), rest('announcements?select=*'), rest('events?select=*,event_occurrences(date,time)&order=event_date'),
       rest('event_applications?select=*&order=created_at'), rest('tasks?select=*'), rest('point_entries?select=*'),
       rest('event_visibility_requests?select=*&order=created_at.desc'),
@@ -626,32 +668,8 @@
       eventVisibilityRequests: (eventVisibilityRequests || []).map((r) => ({ id: r.id, eventId: r.event_id, clubId: r.club_id, desiredVisible: !!r.desired_visible, note: r.note || '', status: r.status, createdAt: r.created_at, decidedAt: r.decided_at })),
       eventEdits: (eventEditRequests || []).map((r) => ({ id:r.id, eventId:r.event_id, clubId:r.club_id, changes:r.changes || {}, note:r.note || '', status:r.status, createdAt:r.created_at, decidedAt:r.decided_at })),
       notifications: (notifications || []).map((n) => ({ id:n.id, type:n.type, title:n.title, body:n.body || '', eventId:n.event_id || '', applicationId:n.application_id || '', taskId:n.task_id || '', actionable: !!n.actionable, resolved: !!n.resolved, createdAt:n.created_at, readAt:n.read_at })),
-      supportCreators: (supportCreatorProfiles || []).map(p => ({ id:p.id, fullName:p.full_name || '', clubId:p.club_id || '' })),
-      supportTickets: (supportTickets || []).map(t => ({
-        id: t.id,
-        number: t.ticket_number || t.number || '',
-        clubId: t.club_id || t.clubId || '',
-        clubName: t.clubs?.name || t.club_name || '',
-        createdBy: t.created_by || t.createdBy || '',
-        subject: t.subject || t.title || 'Destek talebi',
-        category: t.category || 'technical',
-        categoryLabel: t.category_label || t.categoryLabel || t.category || 'Teknik Destek',
-        eventId: t.event_id || t.eventId || '',
-        attachmentPath: t.attachment_path || t.attachmentPath || '',
-        attachmentName: t.attachment_name || t.attachmentName || '',
-        status: t.status || t.state || 'open',
-        createdAt: t.created_at || t.createdAt || '',
-        updatedAt: t.updated_at || t.updatedAt || t.created_at || t.createdAt || '',
-        preview: t.preview || '',
-        messages: (supportMessages || []).filter(m => m.ticket_id === t.id).map(m => ({
-          id: m.id,
-          authorId: m.author_id || '',
-          authorRole: m.author_role || 'club',
-          authorLabel: m.author_label || '',
-          body: m.body || '',
-          createdAt: m.created_at || ''
-        }))
-      })),
+      supportCreators: [],
+      supportTickets: [],
       tasks: tasks.map((t) => ({ id: t.id, title: t.title, desc: t.description || '', due: t.due_date || '', clubId: t.club_id, status: t.status,
         reviewStatus: t.review_status || 'none', reviewNote: t.review_note || '', reviewedAt: t.reviewed_at,
         doneText: t.proof_text || '', doneFile: t.proof_path ? { name: t.proof_name || 'dosya', path: t.proof_path } : null, doneAt: t.done_at, createdAt: t.created_at })),
@@ -690,6 +708,12 @@
         });
       })(),
     };
+    try { await loadSupportRemote(); }
+    catch (error) {
+      supportLoadError = error;
+      db.supportCreators = [];
+      db.supportTickets = [];
+    }
     state.user = profile.role === 'admin' ? ADMIN : profile.club_id;
   };
 
@@ -996,10 +1020,53 @@
       const data = await remote.account({ action: 'list' });
       return Object.fromEntries((data.accounts || []).map((a) => [a.club_id, a.email]));
     },
-    async supportCreate({subject,category,categoryLabel,body,eventId,attachment}) { let attachmentPath=''; let attachmentName=''; if(attachment){ if(attachment.size>5*1024*1024) throw new Error('Dosya en fazla 5 MB olabilir.'); const safe=attachment.name.normalize('NFKD').replace(/[^A-Za-z0-9._-]+/g,'_').slice(-100)||'attachment'; attachmentName=attachment.name; attachmentPath=`${state.user}/${crypto.randomUUID()}-${safe}`; await call(`/storage/v1/object/support-attachments/${attachmentPath}`,{method:'POST',body:attachment,raw:true,headers:{'Content-Type':attachment.type||'application/octet-stream','x-upsert':'false'}}); } await rest('rpc/create_support_ticket',{method:'POST',body:{p_subject:subject,p_category:category,p_category_label:categoryLabel||category,p_body:body,p_event_id:eventId||null,p_attachment_path:attachmentPath||null,p_attachment_name:attachmentName||null}}); },
-    async supportReply(id,body) { await rest('rpc/reply_support_ticket',{method:'POST',body:{p_ticket_id:id,p_body:body}}); },
-    async supportUpdate(id, fields) { await rest(`support_tickets?${eq(id)}`, { method:'PATCH', body:fields }); },
-    async supportDelete(id) { await rest(`support_tickets?${eq(id)}`, { method:'DELETE', headers:{ Prefer:'return=minimal' } }); },
+    async supportCreate({subject,category,categoryLabel,body,eventId,attachment}) {
+      let attachmentPath=''; let attachmentName='';
+      if(attachment){
+        if(attachment.size>5*1024*1024) throw new Error('Dosya en fazla 5 MB olabilir.');
+        const safe=attachment.name.normalize('NFKD').replace(/[^A-Za-z0-9._-]+/g,'_').slice(-100)||'attachment';
+        attachmentName=attachment.name;
+        attachmentPath=`${state.user}/${crypto.randomUUID()}-${safe}`;
+        await call(`/storage/v1/object/support-attachments/${attachmentPath}`,{method:'POST',body:attachment,raw:true,headers:{'Content-Type':attachment.type||'application/octet-stream','x-upsert':'false'}});
+      }
+      await rest('rpc/support_create_ticket_v2',{method:'POST',body:{p_subject:subject,p_category:category,p_category_label:categoryLabel||category,p_body:body,p_event_id:eventId||null,p_attachment_path:attachmentPath||null,p_attachment_name:attachmentName||null}});
+      await loadSupportRemote();
+    },
+    async supportReply(id,body) {
+      await loadSupportRemote();
+      if (!db.supportTickets.some(t => t.id === id)) throw new Error(`Support ticket not found: ${id}`);
+      await rest('rpc/support_reply_ticket_v2',{method:'POST',body:{p_ticket_id:id,p_body:body}});
+      await loadSupportRemote();
+    },
+    async supportUpdate(id, fields) {
+      await loadSupportRemote();
+      if (!db.supportTickets.some(t => t.id === id)) throw new Error(`Support ticket not found: ${id}`);
+      const status = fields.status || null;
+      const category = fields.category || null;
+      const categoryLabel = fields.category_label || null;
+      try {
+        await rest('rpc/admin_update_support_ticket',{method:'POST',body:{p_ticket_id:id,p_status:status,p_category:category,p_category_label:categoryLabel}});
+      } catch (error) {
+        // Backward-compatible fallback for a database where the new helper RPC
+        // has not been applied yet. RLS still gates PATCH to UniPakt admins.
+        if (isAdmin() && /404|not found|PGRST202/i.test(String(error.message||''))) {
+          await rest(`support_tickets?${eq(id)}`, { method:'PATCH', body:fields, headers:{ Prefer:'return=representation' } });
+        } else throw error;
+      }
+      await loadSupportRemote();
+    },
+    async supportDelete(id) {
+      await loadSupportRemote();
+      if (!db.supportTickets.some(t => t.id === id)) throw new Error(`Support ticket not found: ${id}`);
+      try {
+        await rest('rpc/admin_delete_support_ticket',{method:'POST',body:{p_ticket_id:id}});
+      } catch (error) {
+        if (isAdmin() && /404|not found|PGRST202/i.test(String(error.message||''))) {
+          await rest(`support_tickets?${eq(id)}`, { method:'DELETE', headers:{ Prefer:'return=minimal' } });
+        } else throw error;
+      }
+      await loadSupportRemote();
+    },
     async supportAttachmentUrl(path) { const data=await call(`/storage/v1/object/sign/support-attachments/${path}`,{method:'POST',body:{expiresIn:300}}); return `${SUPABASE_URL}/storage/v1${data.signedURL}`; },
     async refresh() { await loadRemote(); },
     async proofUrl(path) {
@@ -1020,7 +1087,7 @@
 
   // Remote writes are followed by a fresh read, so the screen shows what the server kept.
   const api = DEMO ? local : new Proxy(remote, {
-    get: (target, name) => (['refresh', 'proofUrl', 'login', 'logout', 'accounts', 'account'].includes(name) ? target[name]
+    get: (target, name) => (['refresh', 'proofUrl', 'login', 'logout', 'accounts', 'account', 'supportCreate', 'supportReply', 'supportUpdate', 'supportDelete'].includes(name) ? target[name]
       : async (...args) => { const result = await target[name](...args); await loadRemote(); return result; }),
   });
 
@@ -1174,6 +1241,7 @@
     const list = supportFilteredTickets();
     const counts = Object.fromEntries(Object.keys(SUPPORT_STATUS).map(k => [k, all.filter(t => t.status === k).length]));
     const toolbar = isAdmin() ? `
+      ${supportLoadError ? `<div class="support-info"><strong>Destek verileri yüklenemedi</strong><p>${esc(supportLoadError.message || 'Destek servisine ulaşılamadı.')}</p></div>` : ''}
       <div class="support-admin-toolbar">
         <input data-support-search value="${esc(state.support.q)}" placeholder="Ticket numarası, konu veya kulüp ara…">
         <select data-support-category-filter>
@@ -1203,13 +1271,17 @@
         ${isAdmin()?`<div class="support-meta-grid"><span><b>Talebi açan</b>${supportAccountLabel(t)}${t.clubName?`<small style="display:block;margin-top:4px">${esc(t.clubName)}</small>`:''}</span><span><b>Oluşturulma</b>${fmtStamp(t.createdAt)}</span><span><b>Son güncelleme</b>${fmtStamp(supportTicketDate(t))}</span><span><b>Bağlı etkinlik</b>${esc(eventTitle)}</span></div>`:''}
         ${t.attachmentName?`<p class="body">Ek: ${esc(t.attachmentName)}</p>`:''}
         ${t.preview?`<p class="body">${esc(t.preview)}</p>`:''}
-        <div class="actions"><button class="btn ghost small" data-act="support-ticket-open" data-id="${esc(t.id)}">${isAdmin()?'Ticket detayını aç':'Görüntüle'}</button></div>
+        <div class="actions"><button type="button" class="btn ghost small" data-act="support-ticket-open" data-id="${esc(t.id)}">${isAdmin()?'Ticket detayını aç':'Görüntüle'}</button></div>
       </article>`;
       }).join('') : empty(isAdmin()?'Filtrelere uyan ticket bulunamadı.':'Henüz destek talebi yok.')}</div>`;
   };
-  const openSupportTicket = (id) => {
-    const t = clubSupportTickets().find(x=>x.id===id);
-    if (!t) return toast('Destek talebi bulunamadı.');
+  const openSupportTicket = async (id) => {
+    let t = clubSupportTickets().find(x=>x.id===id);
+    if (!t && !DEMO) {
+      try { await loadSupportRemote(); } catch (error) { return toast(error.message || 'Destek talepleri yüklenemedi.'); }
+      t = clubSupportTickets().find(x=>x.id===id);
+    }
+    if (!t) return toast('Destek talebi bulunamadı. Listeyi yenileyip tekrar deneyin.');
     const status = supportTicketStatus(t);
     const messages = Array.isArray(t.messages) ? t.messages : [];
     const eventTitle = t.eventId ? ((db.events.find(e=>e.id===t.eventId)||{}).title || t.eventId) : 'Etkinlik dışı';
@@ -1250,7 +1322,7 @@
         }
       }
     });
-    const modal = document.querySelector('[data-modal]');
+    const modal = dlg;
     modal?.querySelector('[data-act="support-attachment-open"]')?.addEventListener('click', async () => {
       try {
         if (!t.attachmentPath || !remote.supportAttachmentUrl) return toast('Ek dosya bulunamadı.');
@@ -2038,9 +2110,9 @@
         },
       });
 
-      const modal = document.querySelector('[data-modal]');
+      const modal = dlg;
       if (!modal) return;
-      const form = modal.querySelector('form');
+      const form = dlgForm;
       const detail = modal.querySelector('[data-support-detail]');
       const hidden = document.createElement('input');
       hidden.type = 'hidden';
@@ -2071,7 +2143,7 @@
         button.addEventListener('click', () => bindCategory(button.dataset.supportCategory));
       });
     },
-    'support-ticket-open'(id) { openSupportTicket(id); },
+    async 'support-ticket-open'(id) { await openSupportTicket(id); },
     'ann-new'() {
       openForm({
         title: isAdmin() ? 'Yeni duyuru' : 'Duyuru isteği gönder',
@@ -2518,7 +2590,12 @@
   let lastSync = Date.now();
   const sync = async () => {
     if (!state.user || dlg.open) return;
-    try { await api.refresh(); lastSync = Date.now(); render(); } catch (error) { fail(error); }
+    try {
+      await api.refresh();
+      try { await loadSupportRemote(); } catch (error) { supportLoadError = error; }
+      lastSync = Date.now();
+      render();
+    } catch (error) { fail(error); }
   };
   if (DEMO) window.addEventListener('storage', (e) => { if (e.key === KEY) sync(); });
   else document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastSync > 30000) sync(); });
