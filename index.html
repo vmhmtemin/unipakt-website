@@ -2093,7 +2093,7 @@
   /* Club list: the dot marker lights up on hover / open */
   .club-row:hover .dotmark, .club-item.expanded .club-row .dotmark { background: var(--accent); }
   /* Spam trap: invisible to people, filled in by bots. */
-  .hp-field { position: absolute !important; left: -9999px !important; width: 1px; height: 1px; opacity: 0; }
+  .hp-field { position: absolute !important; left: auto !important; inset-inline-start: -9999px !important; width: 1px !important; height: 1px !important; opacity: 0; pointer-events: none; }
   .form-status.is-ok { color: var(--accent); opacity: 1; }
   .form-status.is-error { color: #ff6b6b; opacity: 1; }
   .minimal-form .btn-pill:disabled { opacity: .55; cursor: wait; }
@@ -2397,27 +2397,79 @@
     nav.links { flex-wrap: nowrap; }
     nav.links a { white-space: nowrap; }
   }
-  @media (max-width: 1400px) and (min-width: 901px) {
-    nav.links { gap: 20px; }
-    nav.links a { font-size: 15.5px; }
+  /* Steps sized so the Turkish header (eight links + language button) stays on
+     one line down to 901px; longer languages fall back to the menu button. */
+  @media (max-width: 1440px) and (min-width: 901px) {
+    nav.links { gap: 18px; }
+    nav.links a { font-size: 15px; }
   }
-  @media (max-width: 1180px) and (min-width: 901px) {
-    nav.links { gap: 14px; }
-    nav.links a { font-size: 14.5px; }
-    nav.links a[data-route="katil"] { padding: 8px 14px; }
+  @media (max-width: 1300px) and (min-width: 901px) {
+    nav.links { gap: 13px; }
+    nav.links a { font-size: 14px; }
+    nav.links a[data-route="katil"] { padding: 8px 13px; }
+    .logo-img { width: 128px; }
+    .nav-row { gap: 14px; }
   }
-  @media (max-width: 1100px) and (min-width: 901px) {
-    nav.links { gap: 10px; }
-    nav.links a { font-size: 13.5px; }
-    nav.links a[data-route="katil"] { padding: 7px 12px; }
-    .logo-img { width: 118px; }
-  }
-  @media (max-width: 990px) and (min-width: 901px) {
-    nav.links { gap: 7px; }
+  @media (max-width: 1120px) and (min-width: 901px) {
+    nav.links { gap: 9px; }
     nav.links a { font-size: 13px; }
-    nav.links a[data-route="katil"] { padding: 7px 10px; }
-    .logo-img { width: 98px; }
+    nav.links a[data-route="katil"] { padding: 7px 11px; }
+    .logo-img { width: 108px; }
+    .lang-btn { padding: 0 9px; gap: 5px; }
   }
+  @media (max-width: 1010px) and (min-width: 901px) {
+    nav.links { gap: 6px; }
+    nav.links a { font-size: 12.5px; }
+    nav.links a[data-route="katil"] { padding: 7px 9px; }
+    .logo-img { width: 92px; }
+    .nav-row { gap: 10px; }
+    .lang-btn .lang-code { display: none; }
+  }
+
+  /* ============================================================
+     LANGUAGE PICKER
+     ============================================================ */
+  .lang-switch { position: relative; flex: none; }
+  .lang-btn {
+    display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 12px;
+    font: 600 13px/1 'Inter', sans-serif; letter-spacing: .04em; color: var(--ink); cursor: pointer;
+    background: transparent; border: 1px solid var(--border-strong); border-radius: 999px;
+    transition: border-color .2s ease, color .2s ease;
+  }
+  .lang-btn:hover, .lang-btn[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+  .lang-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+  .lang-menu {
+    position: absolute; top: calc(100% + 10px); inset-inline-end: 0; z-index: 70;
+    width: max-content; min-width: 190px; max-height: min(70vh, 520px); overflow-y: auto;
+    margin: 0; padding: 6px; list-style: none;
+    background: var(--paper); border: 1px solid var(--border-strong); border-radius: 16px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, .45);
+  }
+  .lang-menu button {
+    display: block; width: 100%; padding: 10px 14px; border: 0; border-radius: 10px; background: transparent;
+    font: 500 15px/1.3 'Inter', system-ui, sans-serif; color: var(--ink); text-align: left; cursor: pointer;
+  }
+  .lang-menu button:hover { background: var(--paper-soft); }
+  .lang-menu button[aria-selected="true"] { color: var(--accent); font-weight: 600; }
+  @media (max-width: 900px) {
+    .lang-switch { margin-inline-start: auto; }
+    .lang-btn { height: 42px; }
+  }
+  /* Scripts the brand fonts do not cover fall back to good system fonts. */
+  html:is([lang="zh"]) body { font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif; }
+  html:is([lang="hi"]) body { font-family: 'Inter', 'Nirmala UI', 'Noto Sans Devanagari', sans-serif; }
+  html:is([lang="bn"]) body { font-family: 'Inter', 'Nirmala UI', 'Noto Sans Bengali', sans-serif; }
+  html:is([lang="ar"], [lang="ur"]) body { font-family: 'Inter', 'Segoe UI', 'Noto Naskh Arabic', 'Noto Nastaliq Urdu', sans-serif; }
+  /* Longer languages may not fit the desktop header: then it switches to the
+     menu button, exactly like the phone layout (html.nav-compact, set by JS). */
+  html.nav-compact nav.links:not(.open) { display: none; }
+  html.nav-compact .menu-toggle { display: inline-flex; align-items: center; justify-content: center; min-width: 46px; min-height: 42px; font-size: 20px; }
+  html.nav-compact .lang-switch { margin-inline-start: auto; }
+  html.nav-compact nav.links.open { left: 0; right: 0; gap: 4px; }
+  html.nav-compact nav.links.open a { width: 100%; padding: 11px 0; font-size: 18px; white-space: normal; }
+  html.nav-compact nav.links.open a[data-route="katil"] { width: auto; margin-top: 10px; padding: 12px 22px; }
+  html.nav-compact nav.links a.active::after { display: none; }
+  html[dir="rtl"] .lang-menu button { text-align: right; }
 </style>
 </head>
 <body>
@@ -4914,5 +4966,201 @@ fill="currentColor" stroke="none">
   })();
 </script>
 
+<script>
+  /* ---------- Languages ----------
+     The Turkish page is the source and is never edited. Another language is
+     loaded from i18n/<code>.js and applied by swapping the Turkish strings found
+     in the page (text, placeholder / aria-label / title / alt, title and
+     description). Text that is English on the Turkish page is not in those
+     dictionaries, so it stays English in every language. A MutationObserver
+     translates what the page renders later (club list, calendar, messages). */
+  (function initLanguages() {
+    const LANGS = [
+      ['tr', 'Türkçe'], ['en', 'English'], ['zh', '中文'], ['hi', 'हिन्दी'], ['es', 'Español'], ['ar', 'العربية'], ['fr', 'Français'],
+      ['bn', 'বাংলা'], ['pt', 'Português'], ['ru', 'Русский'], ['id', 'Bahasa Indonesia'], ['ur', 'اردو'], ['de', 'Deutsch'],
+    ];
+    const KEY = 'unipaktLang';
+    const ATTRS = ['placeholder', 'aria-label', 'title', 'alt'];
+    const MONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+    const MONTHS_SHORT = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+    const DOW = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+    const MONTH_RE = MONTHS.join('|');
+    const root = document.documentElement;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    const source = { title: document.title, desc: metaDesc ? metaDesc.content : '' };
+    const original = new WeakMap();     // Text node -> its Turkish text
+    const written = new WeakMap();      // Text node -> what we last wrote
+    const attrOriginal = new WeakMap(); // Element -> { attr: Turkish }
+    const attrWritten = new WeakMap();  // Element -> { attr: written }
+    let lang = 'tr';
+    let pack = null;
+    let observer = null;
+
+    const norm = (s) => s.replace(/\s+/g, ' ').trim();
+    const fill = (tpl, vals) => tpl.replace(/\{(\w+)\}/g, (_, k) => vals[k]);
+    const fmt = (opts) => new Intl.DateTimeFormat(`${lang}-u-nu-latn`, opts);
+
+    function translate(text) {
+      const k = norm(text);
+      if (!k) return null;
+      if (Object.prototype.hasOwnProperty.call(pack.t, k)) return pack.t[k];
+      const p = pack.p;
+      let m;
+      if ((m = k.match(new RegExp(`^(\\d{1,2}) (${MONTH_RE}) (\\d{4})$`)))) return fmt({ day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(+m[3], MONTHS.indexOf(m[2]), +m[1]));
+      if ((m = k.match(new RegExp(`^(${MONTH_RE}) (\\d{4})$`)))) return fmt({ month: 'long', year: 'numeric' }).format(new Date(+m[2], MONTHS.indexOf(m[1]), 1));
+      if (MONTHS_SHORT.includes(k)) return fmt({ month: 'short' }).format(new Date(2026, MONTHS_SHORT.indexOf(k), 1)).replace(/\.$/, '');
+      if (DOW.includes(k)) return fmt({ weekday: 'short' }).format(new Date(2026, 0, 5 + DOW.indexOf(k)));   // 5 Jan 2026 is a Monday
+      if ((m = k.match(/^(\d+) kulüp$/))) return m[1] === '1' ? p.club1 : fill(p.clubs, { n: m[1] });
+      if ((m = k.match(/^Daha fazla göster \((\d+)\)$/))) return fill(p.more, { n: m[1] });
+      if ((m = k.match(/^Ekip üyesi kartı (\d+)(: .+)?$/))) return fill(p.card, { n: m[1] }) + (m[2] || '');
+      if ((m = k.match(/^(.+) gününü göster$/))) return fill(p.show_day, { date: translate(m[1]) || m[1] });
+      if ((m = k.match(/^(.+), (\d+) etkinlik$/))) return `${translate(m[1]) || m[1]}, ${m[2] === '1' ? p.event1 : fill(p.events, { n: m[2] })}`;
+      if (k.includes(' · ')) {
+        const parts = k.split(' · ');
+        const out = parts.map((x) => translate(x) ?? x);
+        if (out.some((x, i) => x !== parts[i])) return out.join(' · ');
+      }
+      return null;
+    }
+    // Keep the spacing around a string so inline text still flows the same way.
+    const wrap = (src, t) => src.match(/^\s*/)[0] + t + src.match(/\s*$/)[0];
+
+    function applyText(node) {
+      const cur = node.nodeValue;
+      if (!original.has(node) || cur !== written.get(node)) original.set(node, cur);   // the page changed it: new source
+      const src = original.get(node);
+      let out = src;
+      if (lang !== 'tr') { const t = translate(src); if (t != null) out = wrap(src, t); }
+      written.set(node, out);
+      if (out !== cur) node.nodeValue = out;
+    }
+    function applyAttr(el, name) {
+      const cur = el.getAttribute(name);
+      if (cur == null) return;
+      const orig = attrOriginal.get(el) || {}; const done = attrWritten.get(el) || {};
+      if (!(name in orig) || cur !== done[name]) orig[name] = cur;
+      let out = orig[name];
+      if (lang !== 'tr') { const t = translate(orig[name]); if (t != null) out = t; }
+      done[name] = out; attrOriginal.set(el, orig); attrWritten.set(el, done);
+      if (out !== cur) el.setAttribute(name, out);
+    }
+    const skip = (el) => el.closest('script, style, noscript, [data-no-i18n]');
+    function walk(start) {
+      if (start.nodeType === Node.TEXT_NODE) { const el = start.parentElement; if (el && !skip(el) && !el.closest('textarea')) applyText(start); return; }
+      if (start.nodeType !== Node.ELEMENT_NODE || skip(start)) return;
+      const tw = document.createTreeWalker(start, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
+        acceptNode: (n) => (n.nodeType === Node.ELEMENT_NODE
+          ? (n.matches('script, style, noscript, [data-no-i18n]') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT)
+          : (/\p{L}/u.test(n.nodeValue) && !n.parentElement.closest('textarea') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP)),
+      });
+      let n = start;
+      do {
+        if (n.nodeType === Node.TEXT_NODE) applyText(n);
+        else ATTRS.forEach((a) => { if (n.hasAttribute(a)) applyAttr(n, a); });
+      } while ((n = tw.nextNode()));
+    }
+
+    function applyAll() {
+      root.lang = lang;
+      root.dir = lang !== 'tr' && pack && pack.dir === 'rtl' ? 'rtl' : 'ltr';
+      walk(document.body);
+      document.title = lang === 'tr' ? source.title : (translate(source.title) || source.title);
+      if (metaDesc) metaDesc.content = lang === 'tr' ? source.desc : (translate(source.desc) || source.desc);
+      if (lang === 'tr') { observer?.disconnect(); observer = null; return; }
+      if (!observer) {
+        observer = new MutationObserver((records) => {
+          for (const r of records) {
+            if (r.type === 'characterData') { const el = r.target.parentElement; if (el && !skip(el) && !el.closest('textarea')) applyText(r.target); }
+            else if (r.type === 'attributes') { if (!skip(r.target)) applyAttr(r.target, r.attributeName); }
+            else r.addedNodes.forEach(walk);
+          }
+        });
+        observer.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+      }
+    }
+
+    const loaded = {};
+    function loadPack(code) {
+      window.UNIPAKT_I18N = window.UNIPAKT_I18N || {};
+      if (window.UNIPAKT_I18N[code]) return Promise.resolve(window.UNIPAKT_I18N[code]);
+      return loaded[code] = loaded[code] || new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = `i18n/${code}.js?v=1`;
+        s.onload = () => (window.UNIPAKT_I18N[code] ? resolve(window.UNIPAKT_I18N[code]) : reject(new Error(code)));
+        s.onerror = () => { delete loaded[code]; reject(new Error(code)); };
+        document.head.appendChild(s);
+      });
+    }
+
+    // ---- picker in the header
+    const nameOf = (code) => (LANGS.find(([c]) => c === code) || LANGS[0])[1];
+    const box = document.createElement('div');
+    box.className = 'lang-switch';
+    box.setAttribute('data-no-i18n', '');
+    box.innerHTML = `
+      <button type="button" class="lang-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Dil seç / Language">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></svg>
+        <span class="lang-code">TR</span>
+      </button>
+      <ul class="lang-menu" role="listbox" hidden>
+        ${LANGS.map(([c, n]) => `<li><button type="button" role="option" data-lang="${c}" lang="${c}" dir="${c === 'ar' || c === 'ur' ? 'rtl' : 'ltr'}">${n}</button></li>`).join('')}
+      </ul>`;
+    const navRow = document.querySelector('.nav-row');
+    const toggle = document.getElementById('menuToggle');
+    if (navRow) navRow.insertBefore(box, toggle || null);
+    const btn = box.querySelector('.lang-btn');
+    const menu = box.querySelector('.lang-menu');
+    const open = (yes) => { menu.hidden = !yes; btn.setAttribute('aria-expanded', String(yes)); };
+    btn.addEventListener('click', (e) => { e.stopPropagation(); open(menu.hidden); });
+    document.addEventListener('click', (e) => { if (!box.contains(e.target)) open(false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) { open(false); btn.focus(); } });
+    menu.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-lang]');
+      if (!b) return;
+      open(false);
+      setLang(b.dataset.lang, true);
+    });
+    function markPicker() {
+      box.querySelector('.lang-code').textContent = lang.toUpperCase();
+      menu.querySelectorAll('[data-lang]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.lang === lang)));
+      btn.title = nameOf(lang);
+    }
+
+    // Does the header still fit on one line? If not, use the menu button.
+    const navLinks = document.getElementById('navLinks');
+    function fitNav() {
+      root.classList.remove('nav-compact');
+      if (!navRow || !navLinks || window.innerWidth <= 900) return;
+      const row = navRow.getBoundingClientRect();
+      const cs = getComputedStyle(navRow);
+      const left = row.left + parseFloat(cs.paddingLeft) - 1;
+      const right = row.right - parseFloat(cs.paddingRight) + 1;
+      const parts = [...navRow.children].filter((el) => el.offsetParent !== null).map((el) => el.getBoundingClientRect());
+      const links = [...navLinks.querySelectorAll('a')].map((a) => a.getBoundingClientRect().top);
+      const wrapped = links.length && Math.max(...links) - Math.min(...links) > 8;
+      if (wrapped || parts.some((b) => b.left < left || b.right > right)) root.classList.add('nav-compact');
+    }
+    let fitTimer;
+    window.addEventListener('resize', () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitNav, 120); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNav);
+
+    async function setLang(code, remember) {
+      if (!LANGS.some(([c]) => c === code)) code = 'tr';
+      try { pack = code === 'tr' ? null : await loadPack(code); }
+      catch (_) { code = 'tr'; pack = null; }   // file missing or offline: stay Turkish
+      lang = code;
+      if (remember) { try { localStorage.setItem(KEY, code); } catch (_) {} }
+      applyAll();
+      markPicker();
+      fitNav();
+    }
+
+    let start = 'tr';
+    try { start = new URLSearchParams(location.search).get('lang') || localStorage.getItem(KEY) || 'tr'; } catch (_) {}
+    markPicker();
+    fitNav();
+    if (start !== 'tr') setLang(start, false);
+  })();
+</script>
 </body>
 </html>
