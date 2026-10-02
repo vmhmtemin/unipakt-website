@@ -954,18 +954,18 @@
     const openMine = visibleTasks().filter((t) => t.status === 'open').length;
     const items = [
       ['genel', 'Genel Bakış'],
-      ['bildirimler', 'Bildirimler', (db.notifications || []).filter(n => !n.readAt).length],
+      ['vanguard', 'UniPakt.Vanguard'],
       ['duyurular', 'Duyurular'],
       ['etkinlikler', 'Etkinlikler'],
       ['ortak', 'Ortak Arama'],
-      ['etkinliklerim', 'Etkinliklerim'],
       ['takvim', 'Takvim'],
+      ['etkinliklerim', 'Etkinliklerim'],
       ['gorevler', 'Görevler', isAdmin() ? 0 : openMine],
+      ['basvuru', 'Başvurular'],
+      ['bildirimler', 'Bildirimler', (db.notifications || []).filter(n => !n.readAt).length],
     ];
-    if (isAdmin()) items.push(['onaylar', 'Onaylamalar', pendingCount()]);
-    items.push(['vanguard', 'UniPakt.Vanguard']);
+    if (isAdmin()) items.splice(8, 0, ['onaylar', 'Onaylamalar', pendingCount()]);
     if (isAdmin()) items.push(['kulupler', 'Kulüpler']);
-    if (!isAdmin()) items.push(['basvuru', 'Başvurular']);
     return items;
   };
 
@@ -1304,7 +1304,7 @@
 
     etkinliklerim() {
       const mine = isAdmin() ? db.events.filter(e=>e.status==='published' && (e.ownerId===ADMIN || e.applications.some(p=>p.status==='approved'))) : db.events.filter(e=>e.status==='published' && (e.ownerId===state.user || e.applications.some(p=>p.status==='approved'&&p.clubId===state.user)));
-      const card = (e) => { const partners=e.applications.filter(p=>p.status==='approved'); const host=e.ownerId; const related=!isAdmin()&&host!==state.user; const contact=(id)=>{const c=club(id); if(!c)return ''; return Object.entries(c.contact||{}).filter(([,v])=>v).map(([k,v])=>`<span>${esc(k)}: ${esc(v)}</span>`).join(' · ')}; return `<article class="card item"><div class="meta top"><span class="tag ${related?'ok':'wait'}">${related?'Ortaksın':'Host'}</span><span>${fmtDay(e.date)}</span></div><h3>${esc(e.title)}</h3><p class="body">Organizatör: ${esc(organizerNames(e).join(', '))}</p><div class="meta"><span><strong>Host iletişim:</strong> ${esc(host===ADMIN?'UniPakt':contact(host)||'İletişim bilgisi yok')}</span></div><div class="section-head"><h3>Ortaklar</h3></div>${partners.length?`<div class="stack">${partners.map(p=>`<div class="mini-row"><div><strong>${esc(who(p.clubId))}</strong><small>${esc(contact(p.clubId)||'İletişim bilgisi yok')}</small></div>${isAdmin()?`<button class="btn danger small" data-act="partner-remove" data-id="${esc(e.id)}" data-sub="${esc(p.clubId)}">Ayır</button>`:''}</div>`).join('')}</div>`:empty('Henüz onaylı ortak yok.')}<div class="actions">${isAdmin()&&host===ADMIN?`<button class="btn small" data-act="event-task" data-id="${esc(e.id)}">Bu etkinlik için görev ata</button>`:''}</div></article>`; };
+      const card = (e) => { const partners=e.applications.filter(p=>p.status==='approved'); const host=e.ownerId; const related=!isAdmin()&&host!==state.user; const contact=(id)=>{const c=club(id); if(!c)return ''; return Object.entries(c.contact||{}).filter(([,v])=>v).map(([k,v])=>`<span class="contact-chip"><b>${esc(k)}:</b> ${esc(v)}</span>`).join(' · ')}; return `<article class="card item"><div class="meta top"><span class="tag ${related?'ok':'wait'}">${related?'Ortaksın':'Host'}</span><span>${fmtDay(e.date)}</span></div><h3>${esc(e.title)}</h3><p class="body">Organizatör: ${esc(organizerNames(e).join(', '))}</p><div class="meta"><span><strong>Host iletişim:</strong> ${host===ADMIN?esc('UniPakt'):(contact(host)||esc('İletişim bilgisi yok'))}</span></div><div class="section-head"><h3>Ortaklar</h3></div>${partners.length?`<div class="stack">${partners.map(p=>`<div class="mini-row"><div><strong>${esc(who(p.clubId))}</strong><small>${contact(p.clubId)||esc('İletişim bilgisi yok')}</small></div>${isAdmin()?`<button class="btn danger small" data-act="partner-remove" data-id="${esc(e.id)}" data-sub="${esc(p.clubId)}">Ayır</button>`:''}</div>`).join('')}</div>`:empty('Henüz onaylı ortak yok.')}<div class="actions">${isAdmin()&&host===ADMIN?`<button class="btn small" data-act="event-task" data-id="${esc(e.id)}">Bu etkinlik için görev ata</button>`:''}</div></article>`; };
       return `${head('Etkinliklerim','Host olduğun veya ortak olduğun etkinlikler ve ortakların iletişim bilgileri.')}${mine.length?`<div class="stack">${mine.map(card).join('')}</div>`:empty('Henüz etkinliğin yok.')}`;
     },
 
