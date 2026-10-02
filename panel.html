@@ -615,7 +615,7 @@
       clubId: p.club_id || '',
     }));
     db.supportTickets = (tickets || []).map(t => ({
-      id: t.id,
+      id: String(t.id || ''),
       number: t.ticket_number || t.number || '',
       clubId: t.club_id || t.clubId || '',
       clubName: t.club_name || clubNames.get(t.club_id || t.clubId || '') || '',
@@ -651,9 +651,6 @@
       rest('event_visibility_requests?select=*&order=created_at.desc'),
       rest('event_edit_requests?select=*&order=created_at.desc'),
       rest('notifications?select=*&order=created_at.desc'),
-      rest('support_tickets?select=*,clubs(name)&order=updated_at.desc'),
-      rest('support_ticket_messages?select=*&order=created_at.asc'),
-      rest('profiles?select=id,full_name,club_id'),
       rest('rpc/leaderboard', { method: 'POST', body: {} }),
     ]);
     const owner = (clubId) => clubId || ADMIN;
@@ -708,13 +705,13 @@
         });
       })(),
     };
+    state.user = profile.role === 'admin' ? ADMIN : profile.club_id;
     try { await loadSupportRemote(); }
     catch (error) {
       supportLoadError = error;
       db.supportCreators = [];
       db.supportTickets = [];
     }
-    state.user = profile.role === 'admin' ? ADMIN : profile.club_id;
   };
 
   const stamp = () => new Date().toISOString();
@@ -1029,41 +1026,50 @@
         attachmentPath=`${state.user}/${crypto.randomUUID()}-${safe}`;
         await call(`/storage/v1/object/support-attachments/${attachmentPath}`,{method:'POST',body:attachment,raw:true,headers:{'Content-Type':attachment.type||'application/octet-stream','x-upsert':'false'}});
       }
-      await rest('rpc/support_create_ticket_v2',{method:'POST',body:{p_subject:subject,p_category:category,p_category_label:categoryLabel||category,p_body:body,p_event_id:eventId||null,p_attachment_path:attachmentPath||null,p_attachment_name:attachmentName||null}});
+      const payload={p_subject:subject,p_category:category,p_category_label:categoryLabel||category,p_body:body,p_event_id:eventId||null,p_attachment_path:attachmentPath||null,p_attachment_name:attachmentName||null};
+      try { await rest('rpc/support_create_ticket_v2',{method:'POST',body:payload}); }
+      catch (error) {
+        if (/404|not found|PGRST202/i.test(String(error.message||''))) await rest('rpc/create_support_ticket',{method:'POST',body:payload});
+        else throw error;
+      }
       await loadSupportRemote();
     },
     async supportReply(id,body) {
-      await loadSupportRemote();
-      if (!db.supportTickets.some(t => t.id === id)) throw new Error(`Support ticket not found: ${id}`);
-      await rest('rpc/support_reply_ticket_v2',{method:'POST',body:{p_ticket_id:id,p_body:body}});
+      try { await rest('rpc/support_reply_ticket_v2',{method:'POST',body:{p_ticket_id:id,p_body:body}}); }
+      catch (error) {
+        if (/404|not found|PGRST202/i.test(String(error.message||''))) await rest('rpc/reply_support_ticket',{method:'POST',body:{p_ticket_id:id,p_body:body}});
+        else throw error;
+      }
       await loadSupportRemote();
     },
     async supportUpdate(id, fields) {
-      await loadSupportRemote();
-      if (!db.supportTickets.some(t => t.id === id)) throw new Error(`Support ticket not found: ${id}`);
-      const status = fields.status || null;
-      const category = fields.category || null;
-      const categoryLabel = fields.category_label || null;
-      try {
-        await rest('rpc/admin_update_support_ticket',{method:'POST',body:{p_ticket_id:id,p_status:status,p_category:category,p_category_label:categoryLabel}});
-      } catch (error) {
-        // Backward-compatible fallback for a database where the new helper RPC
-        // has not been applied yet. RLS still gates PATCH to UniPakt admins.
-        if (isAdmin() && /404|not found|PGRST202/i.test(String(error.message||''))) {
-          await rest(`support_tickets?${eq(id)}`, { method:'PATCH', body:fields, headers:{ Prefer:'return=representation' } });
-        } else throw error;
+      if (!isAdmin()) throw new Error('Bu işlem için UniPakt yetkisi gerekir.');
+      const status = fields.status ?? null;
+      const category = fields.category ?? null;
+      const categoryLabel = fields.category_label ?? null;
+      const body = {
+        ...(status ? {status} : {}),
+        ...(category ? {category} : {}),
+        ...(categoryLabel ? {category_label:categoryLabel} : {}),
+      };
+      const rows = await rest(`support_tickets?${eq(id)}&select=id`, {
+        method:'PATCH',
+        body,
+        headers:{ Prefer:'return=representation' },
+      });
+      if (!Array.isArray(rows) || !rows.some(r => String(r.id) === String(id))) {
+        throw new Error('Destek talebi güncellenemedi veya bulunamadı.');
       }
       await loadSupportRemote();
     },
     async supportDelete(id) {
-      await loadSupportRemote();
-      if (!db.supportTickets.some(t => t.id === id)) throw new Error(`Support ticket not found: ${id}`);
-      try {
-        await rest('rpc/admin_delete_support_ticket',{method:'POST',body:{p_ticket_id:id}});
-      } catch (error) {
-        if (isAdmin() && /404|not found|PGRST202/i.test(String(error.message||''))) {
-          await rest(`support_tickets?${eq(id)}`, { method:'DELETE', headers:{ Prefer:'return=minimal' } });
-        } else throw error;
+      if (!isAdmin()) throw new Error('Bu işlem için UniPakt yetkisi gerekir.');
+      const rows = await rest(`support_tickets?${eq(id)}&select=id`, {
+        method:'DELETE',
+        headers:{ Prefer:'return=representation' },
+      });
+      if (!Array.isArray(rows) || !rows.some(r => String(r.id) === String(id))) {
+        throw new Error('Destek talebi silinemedi veya bulunamadı.');
       }
       await loadSupportRemote();
     },
@@ -1276,11 +1282,10 @@
       }).join('') : empty(isAdmin()?'Filtrelere uyan ticket bulunamadı.':'Henüz destek talebi yok.')}</div>`;
   };
   const openSupportTicket = async (id) => {
-    let t = clubSupportTickets().find(x=>x.id===id);
-    if (!t && !DEMO) {
+    if (!DEMO) {
       try { await loadSupportRemote(); } catch (error) { return toast(error.message || 'Destek talepleri yüklenemedi.'); }
-      t = clubSupportTickets().find(x=>x.id===id);
     }
+    let t = clubSupportTickets().find(x=>x.id===id);
     if (!t) return toast('Destek talebi bulunamadı. Listeyi yenileyip tekrar deneyin.');
     const status = supportTicketStatus(t);
     const messages = Array.isArray(t.messages) ? t.messages : [];
@@ -1322,36 +1327,6 @@
         }
       }
     });
-    const modal = dlg;
-    modal?.querySelector('[data-act="support-attachment-open"]')?.addEventListener('click', async () => {
-      try {
-        if (!t.attachmentPath || !remote.supportAttachmentUrl) return toast('Ek dosya bulunamadı.');
-        const url = await remote.supportAttachmentUrl(t.attachmentPath);
-        window.open(url, '_blank', 'noopener,noreferrer');
-      } catch(e) { toast(e.message); }
-    });
-    if (isAdmin()) {
-      modal?.querySelector('[data-support-save]')?.addEventListener('click', async () => {
-        try {
-          const nextStatus = modal.querySelector('[name="status"]')?.value || status;
-          const category = modal.querySelector('[name="category"]')?.value || t.category || 'technical';
-          await api.supportUpdate(t.id,{status:nextStatus,category,category_label:SUPPORT_CATEGORIES[category]?.label||category});
-          toast('Ticket güncellendi.'); dlg.close(); render();
-        } catch(e) { toast(e.message); }
-      });
-      modal?.querySelector('[data-support-close]')?.addEventListener('click', async () => {
-        try { await api.supportUpdate(t.id,{status:'closed'}); toast('Ticket kapatıldı.'); dlg.close(); render(); } catch(e) { toast(e.message); }
-      });
-      modal?.querySelector('[data-support-reopen]')?.addEventListener('click', async () => {
-        try { await api.supportUpdate(t.id,{status:'open'}); toast('Ticket yeniden açıldı.'); dlg.close(); render(); } catch(e) { toast(e.message); }
-      });
-      modal?.querySelector('[data-support-delete]')?.addEventListener('click', async () => {
-        try {
-          if (!confirm('Bu ticketı ve tüm konuşma geçmişini kalıcı olarak silmek istediğine emin misin? Bu işlem geri alınamaz.')) return;
-          await api.supportDelete(t.id); toast('Ticket kalıcı olarak silindi.'); dlg.close(); render();
-        } catch(e) { toast(e.message); }
-      });
-    }
   };
   const visibleTasks = () => (isAdmin() ? db.tasks : db.tasks.filter((t) => t.clubId === state.user));
   // Clubs cannot read other clubs' point entries, so club-side totals use the
@@ -1470,6 +1445,44 @@
     dlgForm.querySelector('input:not([type=checkbox]), textarea, select')?.focus();
   };
   dlgForm.addEventListener('click', (e) => { if (e.target.closest('[data-close]')) dlg.close(); });
+  dlg.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-support-save],[data-support-close],[data-support-reopen],[data-support-delete],[data-act="support-attachment-open"]');
+    if (!btn || !dlg.contains(btn)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const id = btn.dataset.id || btn.dataset.supportSave || btn.dataset.supportClose || btn.dataset.supportReopen || btn.dataset.supportDelete;
+    if (!id) return toast('Ticket kimliği bulunamadı.');
+    try {
+      if (btn.matches('[data-act="support-attachment-open"]')) {
+        const t = clubSupportTickets().find(x => String(x.id) === String(id));
+        if (!t?.attachmentPath) return toast('Ek dosya bulunamadı.');
+        const url = await remote.supportAttachmentUrl(t.attachmentPath);
+        window.open(url, '_blank', 'noopener,noreferrer');
+        return;
+      }
+      if (!isAdmin()) return toast('Bu işlem için UniPakt yetkisi gerekir.');
+      if (btn.matches('[data-support-save]')) {
+        const status = dlgForm.querySelector('[name="status"]')?.value || 'open';
+        const category = dlgForm.querySelector('[name="category"]')?.value || 'technical';
+        await api.supportUpdate(id, {status, category, category_label: SUPPORT_CATEGORIES[category]?.label || category});
+        toast('Ticket güncellendi.');
+      } else if (btn.matches('[data-support-close]')) {
+        await api.supportUpdate(id, {status:'closed'});
+        toast('Ticket kapatıldı.');
+      } else if (btn.matches('[data-support-reopen]')) {
+        await api.supportUpdate(id, {status:'open'});
+        toast('Ticket yeniden açıldı.');
+      } else if (btn.matches('[data-support-delete]')) {
+        if (!confirm('Bu ticketı ve tüm konuşma geçmişini kalıcı olarak silmek istediğine emin misin? Bu işlem geri alınamaz.')) return;
+        await api.supportDelete(id);
+        toast('Ticket kalıcı olarak silindi.');
+      }
+      dlg.close();
+      render();
+    } catch (error) {
+      toast(error.message || 'Destek işlemi yapılamadı.');
+    }
+  });
   dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
   dlgForm.addEventListener('submit', async (e) => {
     e.preventDefault();
