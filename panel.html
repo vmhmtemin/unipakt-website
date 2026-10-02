@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://*.supabase.co; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src https://*.supabase.co; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'">
 <meta name="robots" content="noindex, nofollow">
 <title>UniPakt Panel</title>
 <link rel="icon" href="/favicon.ico" sizes="48x48">
@@ -259,7 +259,9 @@
   .poster-file-row input[type="file"] { flex:1; min-width:0; }
   .poster-clear { flex:0 0 auto; width:42px; min-width:42px; padding:8px 0; font-size:22px; line-height:1; }
   .poster-preview { overflow:hidden; max-width:280px; border:1px solid var(--border); border-radius:14px; background:#111; }
-  .poster-preview img { display:block; width:100%; max-height:280px; object-fit:cover; }
+  .poster-preview img { display:block; width:100%; max-height:360px; object-fit:contain; background:#050505; }
+  .approval-poster { margin-top:12px; border:1px solid var(--border); border-radius:14px; overflow:hidden; background:#050505; }
+  .approval-poster img { display:block; width:100%; max-height:420px; object-fit:contain; background:#050505; }
   .field input[type="file"] { padding: 10px; font-size: 13px; }
 
   /* ---- Dialog & form ---- */
@@ -1334,7 +1336,9 @@
             ${dateBlock(e.date)}
             <div>
               <div class="meta top"><span class="tag wait">${kindLabel(e)}</span><span>${esc(who(e.ownerId))} · ${fmtStamp(e.createdAt)}</span></div>
-              <h3>${esc(e.title)}</h3><p class="body">${esc(e.desc)}</p>
+              <h3>${esc(e.title)}</h3>
+              ${e.poster ? `<div class="approval-poster"><img src="${esc(e.poster)}" alt="Etkinlik afişi" loading="lazy" referrerpolicy="no-referrer"></div>` : ''}
+              <p class="body">${esc(e.desc)}</p>
               ${e.kind === 'partner' && e.seeking ? `<div class="quote"><small>Aranan ortak</small>${esc(e.seeking)}</div>` : ''}
               <div class="meta"><span>${fmtDay(e.date)}${e.time ? ` · ${esc(e.time)}` : ''}</span>${e.place ? `<span>${esc(e.place)}</span>` : ''}
                 <span>${e.kind === 'event' ? 'Onaylarsan takvime düşer' : 'Onaylarsan Ortak Arama’ya düşer'}</span></div>
@@ -1348,7 +1352,9 @@
             ${dateBlock(e.date)}
             <div>
               <div class="meta top"><span class="tag wait">Takvim talebi</span><span>${esc(who(e.ownerId))}</span></div>
-              <h3>${esc(e.title)}</h3><p class="body">${esc(e.desc)}</p>
+              <h3>${esc(e.title)}</h3>
+              ${e.poster ? `<div class="approval-poster"><img src="${esc(e.poster)}" alt="Etkinlik afişi" loading="lazy" referrerpolicy="no-referrer"></div>` : ''}
+              <p class="body">${esc(e.desc)}</p>
               <div class="meta"><span>${fmtDay(e.date)}${e.time ? ` · ${esc(e.time)}` : ''}</span>${e.place ? `<span>${esc(e.place)}</span>` : ''}<span>Onaylarsan takvime düşer</span></div>
               ${buttons('pub', e.id)}
             </div>
