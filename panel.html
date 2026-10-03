@@ -742,6 +742,26 @@
       Object.assign(a, { status, note, decidedAt: stamp() }); save();
     },
     async removeAnnouncement(id) { db.announcements = db.announcements.filter((x) => x.id !== id); save(); },
+    async deleteRejectedApplication(kind, id, eventId = '') {
+      if (isAdmin()) throw new Error('Yalnızca kulüp hesabı bu işlemi yapabilir.');
+      if (kind === 'announcement') {
+        const a = db.announcements.find(x => x.id === id);
+        if (!a || a.authorId !== state.user || a.status !== 'rejected') throw new Error('Bu reddedilmiş başvuru silinemedi.');
+        db.announcements = db.announcements.filter(x => x.id !== id);
+      } else if (kind === 'event') {
+        const e = db.events.find(x => x.id === id);
+        if (!e || e.ownerId !== state.user || e.status !== 'rejected') throw new Error('Bu reddedilmiş başvuru silinemedi.');
+        db.events = db.events.filter(x => x.id !== id);
+        db.eventVisibilityRequests = (db.eventVisibilityRequests || []).filter(r => r.eventId !== id);
+        db.eventEdits = (db.eventEdits || []).filter(r => r.eventId !== id);
+      } else if (kind === 'partner_application') {
+        const e = db.events.find(x => x.id === eventId);
+        const app = e?.applications.find(x => x.id === id);
+        if (!app || app.clubId !== state.user || app.status !== 'rejected') throw new Error('Bu reddedilmiş başvuru silinemedi.');
+        e.applications = e.applications.filter(x => x.id !== id);
+      } else throw new Error('Geçersiz başvuru türü.');
+      save();
+    },
     async addEvent(f) {
       const occurrences = (f.occurrences && f.occurrences.length) ? f.occurrences : [{ date: f.date, time: f.time || '' }];
       db.events.push({ id: uid(), ...f, address: f.address || '', rules: f.rules || '', poster: f.posterUrl || '', tags: f.tags || [], registration: f.registration || '', date: occurrences[0].date, time: occurrences[0].time || '', occurrences, calendar: isAdmin() ? 'on' : 'none', visible: true, ownerId: state.user, status: isAdmin() ? 'published' : 'pending', createdAt: stamp(), applications: [] });
@@ -908,6 +928,9 @@
       await rest(`announcements?${eq(id)}`, { method: 'PATCH', body: { status, note: note || null, decided_at: stamp() } });
     },
     async removeAnnouncement(id) { await rest(`announcements?${eq(id)}`, { method: 'DELETE' }); },
+    async deleteRejectedApplication(kind, id, eventId = '') {
+      await rest('rpc/delete_my_rejected_application', { method:'POST', body:{ p_kind:kind, p_id:id, p_event_id:eventId || null } });
+    },
     async addEvent(f) {
       const occurrences = (f.occurrences && f.occurrences.length ? f.occurrences : [{ date: f.date, time: f.time || '' }]);
       const payload = {
@@ -1546,6 +1569,7 @@
       <p class="body">${esc(a.body)}</p>
       ${mine && a.status === 'rejected' && a.note ? `<div class="quote"><small>UniPakt notu</small>${esc(a.note)}</div>` : ''}
       ${mine ? '' : `<div class="meta"><span>${esc(who(a.authorId))}</span><span>${fmtStamp(a.decidedAt || a.createdAt)}</span></div>`}
+      ${mine && a.status === 'rejected' ? `<div class="actions"><button class="btn danger small" data-act="rejected-ann-delete" data-id="${esc(a.id)}">Reddedilen başvuruyu sil</button></div>` : ''}
       ${isAdmin() && !mine ? `<div class="actions"><button class="btn ghost small" data-act="ann-remove" data-id="${a.id}">Kaldır</button></div>` : ''}
     </article>`;
 
@@ -1600,6 +1624,7 @@
       if (pendingVis) acts.push(`<span class="tag wait">Görünürlük talebi bekliyor</span>`);
       else acts.push(`<button class="btn ghost small" data-act="event-visibility-request" data-id="${esc(e.id)}">${e.visible === false ? 'Görünürlük talebi gönder' : 'Gizleme talebi gönder'}</button>`);
     }
+    if (!isAdmin() && mine && e.status === 'rejected') acts.push(`<button class="btn danger small" data-act="rejected-event-delete" data-id="${esc(e.id)}">Reddedilen başvuruyu sil</button>`);
     if (isAdmin() && !mine) acts.push(`<button class="btn danger small" data-act="event-remove" data-id="${esc(e.id)}">Sil</button>`);
     return `
     <article class="card item event">
@@ -2044,7 +2069,7 @@
         <div class="stack">${evs.length ? evs.map((e) => eventCard(e, 'mine')).join('') : empty('Henüz etkinlik başvurun yok.')}</div>
         <div class="section-head"><h2>Ortaklık başvuruların</h2></div>
         ${apps.length ? `<div class="card">${apps.map(({ event, app }) => `
-          <div class="mini-row"><div><strong>${esc(event.title)}</strong><small>${fmtDay(event.date)} · ${esc(who(event.ownerId))}</small></div>${tag(app.status)}</div>`).join('')}</div>`
+          <div class="mini-row"><div><strong>${esc(event.title)}</strong><small>${fmtDay(event.date)} · ${esc(who(event.ownerId))}</small></div><div class="actions">${tag(app.status)}${app.status === 'rejected' ? `<button class="btn danger small" data-act="rejected-app-delete" data-id="${esc(app.id)}" data-sub="${esc(event.id)}">Sil</button>` : ''}</div></div>`).join('')}</div>`
           : empty('Henüz bir etkinliğe ortaklık başvurun yok.')}`;
     },
   };
@@ -2292,6 +2317,24 @@
     async 'notif-read'(id){await api.markNotificationRead(id);render();},
     async 'notif-delete'(id){await api.deleteNotification(id);render();},
     'notif-open'(id){ const e=db.events.find(x=>x.id===id); const t=db.tasks.find(x=>x.id===id); if(e)go('etkinliklerim'); else if(t)go('gorevler'); },
+    async 'rejected-ann-delete'(id) {
+      if (!confirm('Bu reddedilmiş duyuru başvurusunu silmek istediğine emin misin?')) return;
+      await api.deleteRejectedApplication('announcement', id);
+      toast('Reddedilen başvuru silindi.');
+      render();
+    },
+    async 'rejected-event-delete'(id) {
+      if (!confirm('Bu reddedilmiş etkinlik başvurusunu silmek istediğine emin misin?')) return;
+      await api.deleteRejectedApplication('event', id);
+      toast('Reddedilen başvuru silindi.');
+      render();
+    },
+    async 'rejected-app-delete'(id, eventId) {
+      if (!confirm('Bu reddedilmiş ortaklık başvurusunu silmek istediğine emin misin?')) return;
+      await api.deleteRejectedApplication('partner_application', id, eventId);
+      toast('Reddedilen başvuru silindi.');
+      render();
+    },
     'partner-remove'(eventId,clubId){ openForm({title:'Ortaklığı kaldır',lead:'Bu işlem yalnızca UniPakt tarafından yapılabilir. İstersen not ekle.',fields:field('Not (isteğe bağlı)','<textarea name=\"note\" maxlength=500></textarea>'),submit:'Ortaklıktan ayır',danger:true,onSubmit:async fd=>{await api.removeEventPartner(eventId,clubId,val(fd,'note'));toast('Ortak etkinlikten ayrıldı.');}}); },
     'task-approve'(id){api.reviewTask(id,'approved').then(()=>{toast('Görev tamamlandı olarak onaylandı.');render();});},
     'task-reject'(id){openForm({title:'Görev kanıtını reddet',lead:'Kulübün neyi düzeltmesi gerektiğini açıklayan not zorunludur.',fields:field('Red notu','<textarea name=\"note\" required maxlength=500></textarea>'),submit:'Reddet',danger:true,onSubmit:async fd=>{await api.reviewTask(id,'rejected',val(fd,'note'));toast('Görev reddedildi.');}});},
