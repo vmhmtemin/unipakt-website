@@ -25,8 +25,8 @@
     <meta name="twitter:description" content="UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.">
     <meta name="twitter:image" content="https://unipakt.com/og-image.png">
     <script type="application/ld+json">
-        {"@context":"https://schema.org","@type":"Organization","name":"UniPakt","url":"https://unipakt.com/","logo":"https://unipakt.com/og-image.png","email":"iletisim@unipakt.com","description":"UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.","areaServed":"İstanbul","sameAs":["https://www.instagram.com/unipakt/","https://x.com/UniPakt","https://www.tiktok.com/@unipakt","https://www.linkedin.com/company/unipakt/"]}
-        </script>
+            {"@context":"https://schema.org","@type":"Organization","name":"UniPakt","url":"https://unipakt.com/","logo":"https://unipakt.com/og-image.png","email":"iletisim@unipakt.com","description":"UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.","areaServed":"İstanbul","sameAs":["https://www.instagram.com/unipakt/","https://x.com/UniPakt","https://www.tiktok.com/@unipakt","https://www.linkedin.com/company/unipakt/"]}
+            </script>
     <!-- Real files (not a data: URI) so search engines can fetch the icon. Google wants a multiple of 48px. -->
     <link rel="icon" href="/favicon.ico" sizes="48x48">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -610,10 +610,10 @@
             background-repeat: repeat-x;
         }
     }/* ============================================================
-             UNIPAKT ROUTE ANIMATION — rebuilt from zero
-             Five stations are fixed. The moving bar visits only the first
-             four. The fifth station is the future / work-in-progress stop.
-             ============================================================ */
+                 UNIPAKT ROUTE ANIMATION — rebuilt from zero
+                 Five stations are fixed. The moving bar visits only the first
+                 four. The fifth station is the future / work-in-progress stop.
+                 ============================================================ */
 
     .pakt-diagram {
         padding: 18px 0 0;
@@ -696,7 +696,7 @@
             transform: scale(1);
         }
     }/* Mini Metro style train. Position, passengers and the mobile
-             camera are driven from JS (initMetroLine). */
+                 camera are driven from JS (initMetroLine). */
 
     .metro-train {
         fill: var(--ink);
@@ -717,7 +717,7 @@
     .pakt-diagram.metro-zoomed svg {
         overflow: hidden;
     }/* Passengers are hollow: outline only. On the train they switch to
-             paper color so they read against the solid train body. */
+                 paper color so they read against the solid train body. */
 
     .metro-passenger {
         fill: none;
@@ -729,7 +729,7 @@
     .metro-passenger.riding {
         stroke: var(--paper);
     }/* The final stop uses the exact supplied artwork. It is static and
-             completely outside the mover's route. */
+                 completely outside the mover's route. */
 
     .future-station {
         pointer-events: none;
@@ -1421,7 +1421,7 @@
         transform: translateY(4px);
         transition: opacity .25s ease, transform .25s ease;
     }/* Lift only for real mouse hover / keyboard focus. On phones a tap also
-             triggers :hover, which nudged the logo up just before the zoom. */
+                 triggers :hover, which nudged the logo up just before the zoom. */
 
     @media (hover: hover) and(pointer: fine) {
         .story-logo-button:hover {
@@ -1459,8 +1459,8 @@
         transform: translateZ(0);
         will-change: auto;
     }/* During the zoom the outer SVG becomes a full-screen canvas, but the
-             inner camera starts at the logo's exact pre-click rectangle. This avoids
-             the old "jump to huge logo, then zoom" effect. */
+                 inner camera starts at the logo's exact pre-click rectangle. This avoids
+                 the old "jump to huge logo, then zoom" effect. */
 
     .story-stage.zooming .story-logo-button {
         pointer-events: none;
@@ -1480,8 +1480,8 @@
         height: 100vh;
         display: block;
     }/* The zoom is done by animating the nested SVG's viewBox, not by
-             scaling the rendered layer. This keeps the logo vector-sharp. *//* After the transition the logo is permanently removed.
-             The Story page then continues as a normal scrollable page. */
+                 scaling the rendered layer. This keeps the logo vector-sharp. *//* After the transition the logo is permanently removed.
+                 The Story page then continues as a normal scrollable page. */
 
     .story-stage.story-complete .story-logo-button {
         display: none;
@@ -1493,7 +1493,7 @@
         padding-top: 0;
         padding-bottom: 0;
     }/* Only start the white -> black transition once the final dot has
-             expanded far enough to cover the whole viewport. */
+                 expanded far enough to cover the whole viewport. */
 
     .story-stage.story-transforming::after {
         content: '';
@@ -2741,7 +2741,7 @@
         user-select: none;
         -webkit-user-drag: none;
     }/* Centered at the bottom; left/right + auto margin keeps it centered
-             without using transform, which the pulse animation owns. */
+                 without using transform, which the pulse animation owns. */
 
     .intro-socials {
         position: absolute;
@@ -2858,10 +2858,10 @@
             bottom: 32px;
         }
     }/* ============================================================
-             DESIGN PASS — layered on top of the original styles.
-             Same identity (black/white, dots, Archivo + Caveat + Inter);
-             tighter type scale, clearer actions and small motion details.
-             ============================================================ */
+                 DESIGN PASS — layered on top of the original styles.
+                 Same identity (black/white, dots, Archivo + Caveat + Inter);
+                 tighter type scale, clearer actions and small motion details.
+                 ============================================================ */
 
     ::selection {
         background: var(--ink);
@@ -2944,8 +2944,8 @@
             filter: none !important;
         }
     }/* ---- Page switch: each page fades up when opened ---- *//* `backwards`, not `both`: a transform animation that keeps filling after it
-             ends makes the page a containing block for position:fixed children, which
-             shifted The Story's full-screen zoom by the header height. */
+                 ends makes the page a containing block for position:fixed children, which
+                 shifted The Story's full-screen zoom by the header height. */
 
     .page.active {
         animation: pageIn .55s cubic-bezier(.2, .7, .2, 1) backwards;
@@ -3191,10 +3191,10 @@
             background: none;
         }
     }/* ============================================================
-             DESIGN PASS 2 — interaction and motion.
-             ============================================================ *//* ---- Hero orbit: tilts and layers apart with the cursor.
-             Tracks use the `translate` property so it composes with their
-             spinning `transform` animation. JS sets --mx / --my (-0.5..0.5). */
+                 DESIGN PASS 2 — interaction and motion.
+                 ============================================================ *//* ---- Hero orbit: tilts and layers apart with the cursor.
+                 Tracks use the `translate` property so it composes with their
+                 spinning `transform` animation. JS sets --mx / --my (-0.5..0.5). */
 
     .hero-orbit {
         --mx: 0;
@@ -3332,7 +3332,7 @@
 
     @media (max-width: 900px) {
     }/* ---- Hero orbit: each dot is a club in the network. Positions come
-             from JS (initOrbitClubs) so the names inside stay upright. ---- */
+                 from JS (initOrbitClubs) so the names inside stay upright. ---- */
 
     .orbit-clubs {
         position: absolute;
@@ -3438,7 +3438,7 @@
             display: none;
         }
     }/* ---- Intro exit: header + page rise from below in step with the
-             intro sliding up, so it reads as one continuous scroll. ---- */
+                 intro sliding up, so it reads as one continuous scroll. ---- */
 
     body.intro-enter header.nav, body.intro-enter main {
         animation: introPageUp .9s cubic-bezier(.65, 0, .25, 1) both;
@@ -3551,7 +3551,7 @@
             font-size: 16px;
         }
     }/* ---- Hero layout: headline left, orbit right, both the same distance
-             from the page edges. The hero fills the first screen, no rule below. */
+                 from the page edges. The hero fills the first screen, no rule below. */
 
     .hero {
         border-bottom: none;
@@ -3839,8 +3839,8 @@
             gap: 10px;
         }
     }/* ============================================================
-             DESIGN PASS 3 — review fixes
-             ============================================================ *//* ---- Rhythm: one consistent section spacing ---- */
+                 DESIGN PASS 3 — review fixes
+                 ============================================================ *//* ---- Rhythm: one consistent section spacing ---- */
 
     .section {
         padding: clamp(64px, 8vw, 112px) 0;
@@ -4187,10 +4187,10 @@
             filter: invert(1);
         }
     }/* ============================================================
-             ACCENT — one signal colour next to black and white.
-             Used only for actions, motion and emphasis (the "line colour"
-             of the UniPakt metro), never for large surfaces.
-             ============================================================ */
+                 ACCENT — one signal colour next to black and white.
+                 Used only for actions, motion and emphasis (the "line colour"
+                 of the UniPakt metro), never for large surfaces.
+                 ============================================================ */
 
     :root {
         --accent: #FF5A1F;
@@ -4332,7 +4332,7 @@
         opacity: .55;
         cursor: wait;
     }/* Native controls (select popups, scrollbars) follow the theme,
-             so dropdown options are never white-on-white. */
+                 so dropdown options are never white-on-white. */
 
     :root {
         color-scheme: dark;
@@ -4463,8 +4463,8 @@
     .club-details-empty a:hover, .kampus-selected-card .club-contact a:hover {
         text-decoration: underline;
     }/* ---- University dropdown inside the join form ----
-             `.minimal-form button` is more specific than the option styles and
-             stripped their background/padding, so restyle them from the form. */
+                 `.minimal-form button` is more specific than the option styles and
+                 stripped their background/padding, so restyle them from the form. */
 
     .minimal-form .university-results {
         background: color-mix(in srgb, var(--ink) 5%, var(--paper));
@@ -4898,8 +4898,8 @@
             fill: #fff;
         }
     }/* Mobile browsers paint a translucent tap highlight on the touched button.
-             The Story logo button becomes full-screen when the zoom starts, so that
-             highlight tinted the whole page. Our own hover/active states replace it. */
+                 The Story logo button becomes full-screen when the zoom starts, so that
+                 highlight tinted the whole page. Our own hover/active states replace it. */
 
     html {
         -webkit-tap-highlight-color: transparent;
@@ -4958,9 +4958,9 @@
         opacity: .42;
         margin-bottom: 3px;
     }/* ---- Story cards: "about to turn" wiggle ----
-             Runs on the OUTER card so it never touches the inner element's
-             transform — otherwise the browser skips the flip transition.
-             The class is added from JS (mouse enter, or a timer on touch). */
+                 Runs on the OUTER card so it never touches the inner element's
+                 transform — otherwise the browser skips the flip transition.
+                 The class is added from JS (mouse enter, or a timer on touch). */
 
     @keyframes storyTease {
         0% {
@@ -4983,8 +4983,8 @@
     .story-card.story-tease {
         animation: storyTease .95s cubic-bezier(.3, .7, .3, 1) 1;
     }/* ============================================================
-             TAKVİM — public calendar page
-             ============================================================ */
+                 TAKVİM — public calendar page
+                 ============================================================ */
 
     .site-cal-head {
         display: flex;
@@ -5779,7 +5779,7 @@
             white-space: nowrap;
         }
     }/* Steps sized so the Turkish header (eight links + language button) stays on
-             one line down to 901px; longer languages fall back to the menu button. */
+                 one line down to 901px; longer languages fall back to the menu button. */
 
     @media (max-width: 1440px) and(min-width: 901px) {
         nav.links {
@@ -5861,8 +5861,8 @@
             display: none;
         }
     }/* ============================================================
-             LANGUAGE PICKER
-             ============================================================ */
+                 LANGUAGE PICKER
+                 ============================================================ */
 
     .lang-switch {
         position: relative;
@@ -5963,7 +5963,7 @@
     html:is([lang="ar"], [lang="ur"]) body {
         font-family: 'Inter', 'Segoe UI', 'Noto Naskh Arabic', 'Noto Nastaliq Urdu', sans-serif;
     }/* Longer languages may not fit the desktop header: then it switches to the
-             menu button, exactly like the phone layout (html.nav-compact, set by JS). */
+                 menu button, exactly like the phone layout (html.nav-compact, set by JS). */
 
     html.nav-compact nav.links:not(.open) {
         display: none;
@@ -6083,11 +6083,15 @@
                     </div>
                     <h1 data-reveal>
 
-                                                İstanbul Üniversite
+
+                                                                        İstanbul Üniversite
+                                                                        
                                                 
                         <br>
 
-                                                Kulüpleri Ağı.
+
+                                                                        Kulüpleri Ağı.
+                                                                    
                                             
                     </h1>
                     <div class="sub" data-reveal>Hiçbir kulüp yalnız değil.</div>
@@ -6126,11 +6130,15 @@
                         <p class="impact-slogan script" data-reveal>UniPakt for impact</p>
                         <h2 data-reveal>
 
-                                                        UniPakt'ta olmak
+
+                                                                                    UniPakt'ta olmak
+                                                                                    
                                                         
                             <br>
 
-                                                        bir ayrıcalık.
+
+                                                                                    bir ayrıcalık.
+                                                                                
                                                     
                         </h2>
                         <p data-reveal>Her kulüp UniPakt ile diğer kulüplere bağlanır. Ortak etkinlik fırsatları ve kolay iletişim imkânlarıyla etkinliklerini daha cazip hale getirir, sponsorların ilgisini daha kolay çeker.</p>
@@ -6207,43 +6215,43 @@
                         <svg class="story-logo-camera" id="storyLogoCamera" x="220" y="500" width="880" height="260" viewBox="220 500 880 260" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
                             <g transform="translate(0.000000,1254.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
                                 <path d="M5285 7263 c-119 -28 -176 -87 -191 -200 -11 -83 39 -174 116 -213
-                                                                161 -81 352 51 326 224 -18 116 -147 214 -251 189z"/>
+                                                                                                161 -81 352 51 326 224 -18 116 -147 214 -251 189z"/>
                                 <path d="M8237 7183 c-4 -3 -7 -388 -7 -855 l0 -848 200 0 200 0 0 213 c0 190
-                                                                2 214 19 236 10 13 23 21 29 17 10 -6 209 -258 322 -407 l44 -59 238 0 c141 0
-                                                                238 4 238 9 0 10 -25 42 -317 408 -106 132 -193 244 -193 248 0 7 321 384 410
-                                                                480 l55 60 -240 3 -240 2 -25 -29 c-14 -17 -95 -114 -180 -215 l-155 -186 -3
-                                                                465 -2 465 -193 0 c-107 0 -197 -3 -200 -7z"/>
+                                                                                                2 214 19 236 10 13 23 21 29 17 10 -6 209 -258 322 -407 l44 -59 238 0 c141 0
+                                                                                                238 4 238 9 0 10 -25 42 -317 408 -106 132 -193 244 -193 248 0 7 321 384 410
+                                                                                                480 l55 60 -240 3 -240 2 -25 -29 c-14 -17 -95 -114 -180 -215 l-155 -186 -3
+                                                                                                465 -2 465 -193 0 c-107 0 -197 -3 -200 -7z"/>
                                 <path d="M2282 6603 c4 -554 5 -570 27 -647 38 -134 103 -250 181 -320 114
-                                                                -103 247 -159 419 -176 334 -35 616 101 737 354 68 140 69 157 69 786 l0 565
-                                                                -202 3 -203 2 0 -512 c0 -305 -4 -539 -10 -577 -18 -108 -71 -184 -157 -224
-                                                                -38 -17 -66 -22 -138 -22 -143 0 -225 49 -279 164 -20 45 -21 63 -26 606 l-5
-                                                                560 -208 3 -208 2 3 -567z"/>
+                                                                                                -103 247 -159 419 -176 334 -35 616 101 737 354 68 140 69 157 69 786 l0 565
+                                                                                                -202 3 -203 2 0 -512 c0 -305 -4 -539 -10 -577 -18 -108 -71 -184 -157 -224
+                                                                                                -38 -17 -66 -22 -138 -22 -143 0 -225 49 -279 164 -20 45 -21 63 -26 606 l-5
+                                                                                                560 -208 3 -208 2 3 -567z"/>
                                 <path d="M5670 6326 l0 -846 203 2 202 3 5 265 5 265 180 3 c198 4 271 16 367
-                                                                60 130 60 234 178 280 317 19 59 23 90 22 200 0 114 -4 139 -27 204 -49 138
-                                                                -133 233 -262 296 -128 62 -167 67 -592 72 l-383 5 0 -846z m762 452 c62 -37
-                                                                89 -83 95 -162 7 -76 -8 -125 -50 -173 -54 -62 -92 -73 -254 -73 l-143 0 0
-                                                                221 0 221 153 -4 c145 -3 154 -4 199 -30z"/>
+                                                                                                60 130 60 234 178 280 317 19 59 23 90 22 200 0 114 -4 139 -27 204 -49 138
+                                                                                                -133 233 -262 296 -128 62 -167 67 -592 72 l-383 5 0 -846z m762 452 c62 -37
+                                                                                                89 -83 95 -162 7 -76 -8 -125 -50 -173 -54 -62 -92 -73 -254 -73 l-143 0 0
+                                                                                                221 0 221 153 -4 c145 -3 154 -4 199 -30z"/>
                                 <path d="M9678 7063 l-28 -4 -2 -182 -3 -182 -82 -3 -83 -3 0 -43 c0 -23 3
-                                                                -98 7 -164 l6 -122 78 0 77 0 4 -292 c5 -323 9 -351 70 -442 82 -124 233 -171
-                                                                491 -151 l97 7 0 169 0 169 -92 0 c-113 0 -151 17 -167 77 -6 21 -11 132 -11
-                                                                251 l0 212 135 0 135 0 0 165 0 164 -132 3 -133 3 -3 188 -2 187 -168 -1 c-92
-                                                                -1 -179 -4 -194 -6z"/>
+                                                                                                -98 7 -164 l6 -122 78 0 77 0 4 -292 c5 -323 9 -351 70 -442 82 -124 233 -171
+                                                                                                491 -151 l97 7 0 169 0 169 -92 0 c-113 0 -151 17 -167 77 -6 21 -11 132 -11
+                                                                                                251 l0 212 135 0 135 0 0 165 0 164 -132 3 -133 3 -3 188 -2 187 -168 -1 c-92
+                                                                                                -1 -179 -4 -194 -6z"/>
                                 <path d="M4494 6719 c-100 -17 -180 -63 -236 -137 l-28 -36 0 72 0 72 -195 0
-                                                                -195 0 2 -602 3 -603 198 -3 197 -2 0 357 c0 209 4 373 10 394 16 57 51 102
-                                                                100 127 83 42 202 20 248 -46 46 -64 52 -122 52 -489 l0 -343 195 0 195 0 0
-                                                                408 c0 377 -2 415 -20 488 -29 114 -62 175 -130 237 -65 61 -129 90 -232 107
-                                                                -71 11 -92 11 -164 -1z"/>
+                                                                                                -195 0 2 -602 3 -603 198 -3 197 -2 0 357 c0 209 4 373 10 394 16 57 51 102
+                                                                                                100 127 83 42 202 20 248 -46 46 -64 52 -122 52 -489 l0 -343 195 0 195 0 0
+                                                                                                408 c0 377 -2 415 -20 488 -29 114 -62 175 -130 237 -65 61 -129 90 -232 107
+                                                                                                -71 11 -92 11 -164 -1z"/>
                                 <path d="M7415 6720 c-146 -18 -289 -87 -355 -171 -36 -45 -75 -130 -84 -181
-                                                                -6 -35 -5 -38 16 -39 13 0 92 -8 176 -18 l152 -17 25 42 c37 63 93 87 195 83
-                                                                60 -3 85 -9 106 -25 45 -33 64 -66 71 -122 l6 -52 -134 0 c-307 0 -484 -45
-                                                                -587 -147 -70 -71 -87 -118 -87 -248 0 -100 2 -114 27 -160 14 -27 40 -64 56
-                                                                -81 92 -100 269 -149 439 -124 112 17 175 44 238 102 l55 50 0 -66 0 -66 193
-                                                                2 c165 3 191 5 188 18 -2 8 -7 209 -11 445 -6 421 -6 431 -30 490 -42 108 -85
-                                                                156 -191 218 -95 55 -308 86 -464 67z m305 -762 c0 -157 -158 -262 -323 -214
-                                                                -67 19 -97 52 -97 106 0 96 92 138 308 139 l112 1 0 -32z"/>
+                                                                                                -6 -35 -5 -38 16 -39 13 0 92 -8 176 -18 l152 -17 25 42 c37 63 93 87 195 83
+                                                                                                60 -3 85 -9 106 -25 45 -33 64 -66 71 -122 l6 -52 -134 0 c-307 0 -484 -45
+                                                                                                -587 -147 -70 -71 -87 -118 -87 -248 0 -100 2 -114 27 -160 14 -27 40 -64 56
+                                                                                                -81 92 -100 269 -149 439 -124 112 17 175 44 238 102 l55 50 0 -66 0 -66 193
+                                                                                                2 c165 3 191 5 188 18 -2 8 -7 209 -11 445 -6 421 -6 431 -30 490 -42 108 -85
+                                                                                                156 -191 218 -95 55 -308 86 -464 67z m305 -762 c0 -157 -158 -262 -323 -214
+                                                                                                -67 19 -97 52 -97 106 0 96 92 138 308 139 l112 1 0 -32z"/>
                                 <path d="M5150 6085 l0 -605 195 0 195 0 0 605 0 605 -195 0 -195 0 0 -605z"/>
                                 <path d="M10563 5866 c-100 -47 -151 -161 -119 -268 65 -226 385 -214 437 16
-                                                                17 76 -7 152 -65 211 -70 69 -160 84 -253 41z"/>
+                                                                                                17 76 -7 152 -65 211 -70 69 -160 84 -253 41z"/>
                             </g>
                             <g class="story-dot-pulse" aria-hidden="true">
                                 <circle class="ring r1" cx="1065.48" cy="687.38" r="23"/>
@@ -6269,19 +6277,25 @@
                                     <a href="mailto:mehmetemingzyksl@gmail.com" onclick="event.stopPropagation()">
                                         <span class="story-contact-label">E-posta</span>
 
-                                                                                mehmetemingzyksl@gmail.com
+
+                                                                                                                        mehmetemingzyksl@gmail.com
+                                                                                                                    
                                                                             
                                     </a>
                                     <a href="https://www.instagram.com/vmhmt_emin/" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
                                         <span class="story-contact-label">Instagram</span>
 
-                                                                                vmhmt_emin
+
+                                                                                                                        vmhmt_emin
+                                                                                                                    
                                                                             
                                     </a>
                                     <a href="https://www.linkedin.com/in/mehmet-emin-soyal-15268438b/" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
                                         <span class="story-contact-label">LinkedIn</span>
 
-                                                                                Mehmet Emin Soyal
+
+                                                                                                                        Mehmet Emin Soyal
+                                                                                                                    
                                                                             
                                     </a>
                                 </div>
@@ -6302,19 +6316,25 @@
                                     <a href="mailto:omerakiftonbul29@gmail.com" onclick="event.stopPropagation()">
                                         <span class="story-contact-label">E-posta</span>
 
-                                                                                omerakiftonbul29@gmail.com
+
+                                                                                                                        omerakiftonbul29@gmail.com
+                                                                                                                    
                                                                             
                                     </a>
                                     <a href="https://www.instagram.com/akifss97/" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
                                         <span class="story-contact-label">Instagram</span>
 
-                                                                                akifss97
+
+                                                                                                                        akifss97
+                                                                                                                    
                                                                             
                                     </a>
                                     <a href="https://www.linkedin.com/in/%C3%B6mer-akif-761503373/" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
                                         <span class="story-contact-label">LinkedIn</span>
 
-                                                                                Ömer Akif Tonbul
+
+                                                                                                                        Ömer Akif Tonbul
+                                                                                                                    
                                                                             
                                     </a>
                                 </div>
@@ -6335,19 +6355,25 @@
                                     <a href="mailto:usaginda33@gmail.com" onclick="event.stopPropagation()">
                                         <span class="story-contact-label">E-posta</span>
 
-                                                                                usaginda33@gmail.com
+
+                                                                                                                        usaginda33@gmail.com
+                                                                                                                    
                                                                             
                                     </a>
                                     <a href="https://www.instagram.com/ugursagindaa/" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
                                         <span class="story-contact-label">Instagram</span>
 
-                                                                                ugursagindaa
+
+                                                                                                                        ugursagindaa
+                                                                                                                    
                                                                             
                                     </a>
                                     <a href="https://www.linkedin.com/in/u%C4%9Fur-sa%C4%9Finda-8493023a3?utm_source=share_via&amp;utm_content=profile&amp;utm_medium=member_ios" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
                                         <span class="story-contact-label">LinkedIn</span>
 
-                                                                                Uğur Sağında
+
+                                                                                                                        Uğur Sağında
+                                                                                                                    
                                                                             
                                     </a>
                                 </div>
@@ -6363,7 +6389,7 @@
 
                         <p>Bu deneyimler üzerine yapılan sohbetlerde, başlangıçta yalnızca daha büyük ve daha kapsamlı bir etkinlik düzenleme düşüncesi vardı. Ancak zamanla bu fikir, tek bir organizasyonun sınırlarını aşarak farklı üniversite kulüplerini bir araya getiren ortak bir yapı kurma düşüncesine dönüştü.</p>
 
-                        <p>ABöylece UniPakt fikri; kulüplerin birbirinden güç aldığı, deneyimlerini paylaştığı ve birlikte daha büyük işler üretebildiği bir ağ oluşturma hedefiyle şekillenmeye başladı.</p>
+                        <p>Böylece UniPakt fikri; kulüplerin birbirinden güç aldığı, deneyimlerini paylaştığı ve birlikte daha büyük işler üretebildiği bir ağ oluşturma hedefiyle şekillenmeye başladı.</p>
 
                         <p>UniPakt; insanları bir araya getirmek, eğlenmek, network kurmak ve topluluk olmayı öğretmek gibi amaçlarla yola çıkıyor. Fakat bütün bunların ötesinde, üç gencin büyük bir hayalini temsil ediyor.</p>
 
@@ -6432,11 +6458,15 @@
                 <div class="wrap">
                     <h1 class="manifesto" data-reveal>
 
-                                                İstanbul'daki kulüpleri
+
+                                                                        İstanbul'daki kulüpleri
+                                                                        
                                                 
                         <br>
 
-                                                birbirine bağlamak.
+
+                                                                        birbirine bağlamak.
+                                                                    
                                             
                     </h1>
 
@@ -6576,25 +6606,33 @@
                     <div>
                         <h1 data-reveal>
 
-                                                        Bir nokta
+
+                                                                                    Bir nokta
+                                                                                    
                                                         
                             <br>
 
-                                                        bırak.
+
+                                                                                    bırak.
+                                                                                
                                                     
                         </h1>
                         <p data-reveal style="opacity:.75; margin-top:16px; max-width:40ch;">
 
 
-                                                                   Sorularınız, iş birliği önerileriniz ya da kulübünüzü ağa katmak için bize ulaşın.
-                                                                   
+
+                                                                                               Sorularınız, iş birliği önerileriniz ya da kulübünüzü ağa katmak için bize ulaşın.
+                                                                                               
+                                                                                    
                                                         
                             <br>
                             <br>
 
 
-                                                                   Ayrıca bir bilim adamı, astronot, olimpik sporcu veya sadece gönüllü bir öğrenciyseniz ve yönetim ekibimizde çalışmak istiyorsanız iletişim kurabilirsiniz.
-                                                                   
+
+                                                                                               Ayrıca bir bilim adamı, astronot, olimpik sporcu veya sadece gönüllü bir öğrenciyseniz ve yönetim ekibimizde çalışmak istiyorsanız iletişim kurabilirsiniz.
+                                                                                               
+                                                                                
                                                     
                         </p>
                         <div class="contact-rows" data-reveal>
@@ -6717,17 +6755,23 @@
                             <div class="represented-cross" aria-hidden="true">×</div>
 
 
-                                                                    Üniversitende temsilcimiz bulunuyor.
+
+                                                                                                Üniversitende temsilcimiz bulunuyor.
+                                                                                    
                                                         
                             <br>
 
 
-                                                                    UniPakt ağına katkıda bulunabileceğini düşünüyorsan 
+
+                                                                                                UniPakt ağına katkıda bulunabileceğini düşünüyorsan 
+                                                                                    
                                                         
                             <a href="#kulupler" id="representedLink">temsilcimiz</a>
 
-                                                         kulübümüzle iletişime geçebilirsin.
-                                                                  
+
+                                                                                     kulübümüzle iletişime geçebilirsin.
+                                                                                              
+                                                                                
                                                     
                         </div>
 
@@ -6763,11 +6807,15 @@
                 <p class="footer-kicker script">Bir nokta bırak.</p>
                 <h2 class="footer-title">
 
-                                        Hiçbir kulüp
+
+                                                            Hiçbir kulüp
+                                                            
                                         
                     <br>
 
-                                        yalnız değil.
+
+                                                            yalnız değil.
+                                                        
                                     
                 </h2>
             </div>
@@ -6978,11 +7026,11 @@
         }))
         .filter(r => r.link);
         const tile = (key, label, link, external) => `
-                          <a class="club-contact-tile" href="${esc(link.href)}" title="${esc(link.text)}" ${external ? 'target="_blank" rel="noopener noreferrer"' : ''}>
-                            <span class="club-contact-icon" aria-hidden="true">${CONTACT_ICONS[key] || ''}</span>
-                            <span class="club-contact-label">${esc(label)}</span>
-                            <span class="club-contact-value">${esc(link.text)}</span>
-                          </a>`;
+                                  <a class="club-contact-tile" href="${esc(link.href)}" title="${esc(link.text)}" ${external ? 'target="_blank" rel="noopener noreferrer"' : ''}>
+                                    <span class="club-contact-icon" aria-hidden="true">${CONTACT_ICONS[key] || ''}</span>
+                                    <span class="club-contact-label">${esc(label)}</span>
+                                    <span class="club-contact-value">${esc(link.text)}</span>
+                                  </a>`;
         const tiles = rows.length
         ? rows.map(({field, link}) => tile(field.key, field.label, link, field.key !== 'email')).join('')
         : tile('email', 'E-posta', {
@@ -6995,26 +7043,26 @@
 
     function renderClubList(container, list, {placeholder=false, expandable=false}={}) {
         container.innerHTML = list.map((c, i) => `
-                      <div class="club-item" data-club-index="${CLUBS.indexOf(c)}">
-                        <div class="club-row" ${expandable ? 'role="button" tabindex="0" aria-expanded="false"' : ''}>
-                          <div class="idx">${String(i + 1).padStart(2, '0')}.</div>
-                          <div class="name-uni"><div class="name">${esc(c.name)}</div><div class="uni">${esc(c.uni)}</div></div>
-                          <div class="cat">${esc(c.cat)}</div>
-                          <div class="dotmark"></div>
-                          ${expandable ? '<span class="club-open-arrow" aria-hidden="true">→</span>' : ''}
-                        </div>
-                        ${expandable ? `<div class="club-details"><div class="club-details-inner">${clubContactMarkup(c)}</div></div>` : ''}
-                      </div>
-                    `).join('') + (placeholder ? `
-                      <div class="club-item">
-                        <div class="club-row placeholder" data-route="katil" role="link" tabindex="0">
-                          <div class="idx">${String(list.length + 1).padStart(2, '0')}.</div>
-                          <div class="name-uni"><div class="name club-add-button">Sen de üniversiteni ekle <span>→</span></div><div class="uni">Kampüsündeki topluluğu UniPakt'a katmak için ulaş</div></div>
-                          <div class="cat"></div>
-                          <div class="dotmark"></div>
-                          <span class="club-open-arrow" aria-hidden="true">→</span>
-                        </div>
-                      </div>` : '');
+                              <div class="club-item" data-club-index="${CLUBS.indexOf(c)}">
+                                <div class="club-row" ${expandable ? 'role="button" tabindex="0" aria-expanded="false"' : ''}>
+                                  <div class="idx">${String(i + 1).padStart(2, '0')}.</div>
+                                  <div class="name-uni"><div class="name">${esc(c.name)}</div><div class="uni">${esc(c.uni)}</div></div>
+                                  <div class="cat">${esc(c.cat)}</div>
+                                  <div class="dotmark"></div>
+                                  ${expandable ? '<span class="club-open-arrow" aria-hidden="true">→</span>' : ''}
+                                </div>
+                                ${expandable ? `<div class="club-details"><div class="club-details-inner">${clubContactMarkup(c)}</div></div>` : ''}
+                              </div>
+                            `).join('') + (placeholder ? `
+                              <div class="club-item">
+                                <div class="club-row placeholder" data-route="katil" role="link" tabindex="0">
+                                  <div class="idx">${String(list.length + 1).padStart(2, '0')}.</div>
+                                  <div class="name-uni"><div class="name club-add-button">Sen de üniversiteni ekle <span>→</span></div><div class="uni">Kampüsündeki topluluğu UniPakt'a katmak için ulaş</div></div>
+                                  <div class="cat"></div>
+                                  <div class="dotmark"></div>
+                                  <span class="club-open-arrow" aria-hidden="true">→</span>
+                                </div>
+                              </div>` : '');
     }
 
     renderClubList(document.getElementById('homeClubList'), CLUBS.slice(0, 3));
@@ -7140,8 +7188,8 @@
     });
 
     /* ---------- Takvim: public calendar of the network's published events ----------
-             Events are published from the UniPakt panel. Visitors only get the fields the
-             public_events() database function returns (no internal notes or requests). */
+                 Events are published from the UniPakt panel. Visitors only get the fields the
+                 public_events() database function returns (no internal notes or requests). */
     (function initSiteCalendar() {
         const host = document.getElementById('siteCal');
         if (!host)
@@ -7696,9 +7744,9 @@
             return;
         const matches = ISTANBUL_UNIVERSITIES.filter(uni => universityMatches(query, uni));
         universityResults.innerHTML = `
-                      <button type="button" class="university-city-action" id="notIstanbulAction" role="option">Kulübüm İstanbul'da değil.</button>
-                      ${matches.length ? matches.map(uni => `<button type="button" class="university-option" role="option" data-university="${esc(uni)}">${esc(uni)}</button>`).join('') : '<div class="university-option" style="cursor:default; opacity:.55;">Üniversite bulunamadı.</div>'}
-                    `;
+                              <button type="button" class="university-city-action" id="notIstanbulAction" role="option">Kulübüm İstanbul'da değil.</button>
+                              ${matches.length ? matches.map(uni => `<button type="button" class="university-option" role="option" data-university="${esc(uni)}">${esc(uni)}</button>`).join('') : '<div class="university-option" style="cursor:default; opacity:.55;">Üniversite bulunamadı.</div>'}
+                            `;
         universityResults.classList.add('open');
     }
 
@@ -7806,8 +7854,8 @@
     });
 
     /* ---------- Themed pickers for city / outside university ----------
-             The native <select>s stay (hidden) as the source of truth; a text
-             field + list in the same style as the university picker sits on top. */
+                 The native <select>s stay (hidden) as the source of truth; a text
+                 field + list in the same style as the university picker sits on top. */
     function makeSelectPicker(select, placeholder) {
         const shell = document.createElement('div');
         shell.className = 'join-field-shell select-picker';
@@ -8302,8 +8350,8 @@
     }
 
     /* ---------- Kampüsünde UniPakt / water-like network motion ----------
-             Eight nodes gently drift around their own centers. The edges follow the
-             live node positions, so the connections never break or detach. */
+                 Eight nodes gently drift around their own centers. The edges follow the
+                 live node positions, so the connections never break or detach. */
     (function initNetworkMotion() {
         const wrap = document.getElementById('istanbulNetwork');
         if (!wrap)
@@ -8551,9 +8599,9 @@
     })();
 
     /* ---------- Hero orbit: clubs in the network ----------
-             Every dot on the orbit is a club from CLUBS. The three rings spin at
-             their own speeds; the cursor near the orbit slows them down, hovering
-             a club stops everything and opens the dot to show the club's name. */
+                 Every dot on the orbit is a club from CLUBS. The three rings spin at
+                 their own speeds; the cursor near the orbit slows them down, hovering
+                 a club stops everything and opens the dot to show the club's name. */
     (function initOrbitClubs() {
         const orbit = document.querySelector('.hero-orbit');
         const layer = document.getElementById('orbitClubs');
@@ -8789,11 +8837,11 @@
     })();
 
     /* ---------- UniPakt metro line (Mini Metro style) ----------
-             The train picks up passengers shaped like each station
-             (△ Üniversite, ★ Kulüp, ○ UniPakt), drops them at İstanbul and
-             returns empty. Speed eases toward (but never reaches) zero at the
-             stations. On narrow screens the camera follows the train, so the
-             train stays put and the line slides underneath it. */
+                 The train picks up passengers shaped like each station
+                 (△ Üniversite, ★ Kulüp, ○ UniPakt), drops them at İstanbul and
+                 returns empty. Speed eases toward (but never reaches) zero at the
+                 stations. On narrow screens the camera follows the train, so the
+                 train stays put and the line slides underneath it. */
     (function initMetroLine() {
         const wrap = document.getElementById('paktDiagram');
         if (!wrap)
@@ -9142,10 +9190,10 @@
     })();
 
     /* ---------- Forms → e-mail (FormSubmit, no backend needed) ----------
-             Both forms post to FormSubmit, which forwards the message to the
-             address below. The very first submission triggers a one-time
-             activation e-mail to that inbox; after it is confirmed, every
-             message arrives as a normal e-mail. */
+                 Both forms post to FormSubmit, which forwards the message to the
+                 address below. The very first submission triggers a one-time
+                 activation e-mail to that inbox; after it is confirmed, every
+                 message arrives as a normal e-mail. */
     // FormSubmit alias for iletisim@unipakt.com (keeps the address out of the endpoint).
     const FORM_ENDPOINT = 'https://formsubmit.co/ajax/d88d61503469b642c1f496bd3e6d244b';
 
@@ -9330,12 +9378,12 @@
 
     <script>
     /* ---------- Languages ----------
-             The Turkish page is the source and is never edited. Another language is
-             loaded from i18n/<code>.js and applied by swapping the Turkish strings found
-             in the page (text, placeholder / aria-label / title / alt, title and
-             description). Text that is English on the Turkish page is not in those
-             dictionaries, so it stays English in every language. A MutationObserver
-             translates what the page renders later (club list, calendar, messages). */
+                 The Turkish page is the source and is never edited. Another language is
+                 loaded from i18n/<code>.js and applied by swapping the Turkish strings found
+                 in the page (text, placeholder / aria-label / title / alt, title and
+                 description). Text that is English on the Turkish page is not in those
+                 dictionaries, so it stays English in every language. A MutationObserver
+                 translates what the page renders later (club list, calendar, messages). */
     (function initLanguages() {
         // Picker intentionally exposes only TR/EN. Other i18n files remain in /i18n for future activation.
         const LANGS = [
@@ -9544,13 +9592,13 @@
         box.className = 'lang-switch';
         box.setAttribute('data-no-i18n', '');
         box.innerHTML = `
-                      <button type="button" class="lang-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Dil seç / Language">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></svg>
-                        <span class="lang-code">TR</span>
-                      </button>
-                      <ul class="lang-menu" role="listbox" hidden>
-                        ${LANGS.map(([c, n]) => `<li><button type="button" role="option" data-lang="${c}" lang="${c}" dir="${c === 'ar' || c === 'ur' ? 'rtl' : 'ltr'}">${n}</button></li>`).join('')}
-                      </ul>`;
+                              <button type="button" class="lang-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Dil seç / Language">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></svg>
+                                <span class="lang-code">TR</span>
+                              </button>
+                              <ul class="lang-menu" role="listbox" hidden>
+                                ${LANGS.map(([c, n]) => `<li><button type="button" role="option" data-lang="${c}" lang="${c}" dir="${c === 'ar' || c === 'ur' ? 'rtl' : 'ltr'}">${n}</button></li>`).join('')}
+                              </ul>`;
         const navRow = document.querySelector('.nav-row');
         const toggle = document.getElementById('menuToggle');
         if (navRow)
