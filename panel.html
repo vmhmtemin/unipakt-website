@@ -2454,7 +2454,7 @@
     'pts-new'(id) {
       if (!isAdmin()) return;
       const events = [...publishedEvents()].reverse();
-      const categories = [
+      const hostCategories = [
         ['org', 'Organizasyon Planlama', 10],
         ['ops', 'Operasyon Yönetimi', 10],
         ['participant', 'Katılımcı Memnuniyeti', 10],
@@ -2462,64 +2462,152 @@
         ['fairness', 'Adalet & Sorumluluk', 9],
         ['innovation', 'Yenilik & Fikir Geliştirme', 6],
       ];
-      const scoreFields = categories.map(([name, label, max]) =>
+      const supportCategories = [
+        ['supportDuty', 'Görev ve Sorumluluk Yönetimi', 12],
+        ['supportOps', 'Operasyonel Katkı', 10],
+        ['supportStaff', 'Personel Desteği', 4],
+        ['supportTeam', 'Ekip Koordinasyonu', 4],
+      ];
+      const makeScoreFields = (categories) => categories.map(([name, label, max]) =>
         field(label, `<div class="field-row"><input type="number" name="${name}" min="0" max="100" step="1" value="0" placeholder="0–100"><span class="muted" data-score="${name}">0 / ${max}</span></div>`)
       ).join('');
       const clubOptions = db.clubs.map((c) => `<option value="${esc(c.id)}" ${c.id === id ? 'selected' : ''}>${esc(c.name)} — ${esc(c.uni || c.university || 'Üniversite belirtilmemiş')} (${pts(c.id)})</option>`).join('');
+      const eventOptions = events.map((e) => `<option value="${esc(e.id)}">${esc(e.title)} · ${fmtDay(e.date)}</option>`).join('');
+
       openForm({
         title: 'Puan gönder',
-        lead: 'Her kategoriyi 0–100 arasında değerlendir. Sistem kategori ağırlıklarını otomatik hesaplar.',
+        lead: 'Kulüp ve etkinliği seç. Sistem etkinlikteki rolünü otomatik belirleyip doğru puanlama aracını açar.',
         fields: field('Kulüp', `<select name="club" required><option value="">Kulüp seç</option>${clubOptions}</select>`)
-          + field('Etkinlik', `<select name="event"><option value="">${OTHER}</option>${events.map((e) => `<option value="${esc(e.id)}">${esc(e.title)} · ${fmtDay(e.date)}</option>`).join('')}</select>`)
-          + '<p class="form-section">Host değerlendirmesi · Standart toplam 50 puandır</p>'
-          + scoreFields
-          + `<label class="checkline"><input type="checkbox" name="crisisBonus" value="5"><span><strong>Kriz Çözüm Bonusu</strong><small>Gerçek operasyonel kriz başarıyla çözüldüyse +5 puan</small></span><b data-crisis-value>+0</b></label>`
-          + `<div class="card" style="margin-top:14px;padding:16px"><div class="mini-row"><div><strong>Standart toplam</strong><small>50 puan üzerinden</small></div><b data-standard-total>0 / 50</b></div><div class="mini-row"><div><strong>Kriz Çözüm Bonusu</strong><small>Bonus ayrı değerlendirilir</small></div><b data-bonus-total>+0</b></div><div class="mini-row"><div><strong>Genel toplam</strong><small>55 puan üzerinden</small></div><b data-grand-total>0 / 55</b></div></div>`
+          + field('Etkinlik', `<select name="event"><option value="">${OTHER}</option>${eventOptions}</select>`)
+          + `<div data-role-status class="quote"><small>Rol</small>Etkinlik seçildiğinde kulübün Host veya Support rolü burada gösterilir.</div>`
+          + `<div data-host-panel hidden><p class="form-section">Host değerlendirmesi · Standart toplam 50 puandır</p>${makeScoreFields(hostCategories)}<label class="checkline"><input type="checkbox" name="crisisBonus" value="5"><span><strong>Kriz Çözüm Bonusu</strong><small>Gerçek operasyonel kriz başarıyla çözüldüyse +5 puan</small></span><b data-crisis-value>+0</b></label><div class="card" style="margin-top:14px;padding:16px"><div class="mini-row"><div><strong>Standart toplam</strong><small>50 puan üzerinden</small></div><b data-standard-total>0 / 50</b></div><div class="mini-row"><div><strong>Kriz Çözüm Bonusu</strong><small>Bonus ayrı değerlendirilir</small></div><b data-bonus-total>+0</b></div><div class="mini-row"><div><strong>Genel toplam</strong><small>55 puan üzerinden</small></div><b data-grand-total>0 / 55</b></div></div></div>`
+          + `<div data-support-panel hidden><p class="form-section">Support değerlendirmesi · Standart toplam 30 puandır</p>${makeScoreFields(supportCategories)}<label class="checkline"><input type="checkbox" name="supportBonus" value="5"><span><strong>Ek Sorumluluk Bonusu</strong><small>Ek sorumluluk başarıyla üstlenildiyse +5 puan</small></span><b data-support-bonus-value>+0</b></label><div class="card" style="margin-top:14px;padding:16px"><div class="mini-row"><div><strong>Standart toplam</strong><small>30 puan üzerinden</small></div><b data-support-standard-total>0 / 30</b></div><div class="mini-row"><div><strong>Ek Sorumluluk Bonusu</strong><small>Bonus ayrı değerlendirilir</small></div><b data-support-bonus-total>+0</b></div><div class="mini-row"><div><strong>Genel toplam</strong><small>35 puan üzerinden</small></div><b data-support-grand-total>0 / 35</b></div></div></div>`
+          + `<div data-other-panel hidden>${field('Etkinlik dışı puan','<input type="number" name="otherDelta" step="1" placeholder="Örn. 20 veya -10">')}<p class="muted">Etkinlik seçilmezse puan doğrudan bu değer olarak kaydedilir.</p></div>`
           + field('Açıklama (isteğe bağlı)', '<input name="note" maxlength="120" placeholder="Değerlendirme notu">'),
         submit: 'Gönder',
         onSubmit: async (fd) => {
           const c = club(val(fd, 'club')); if (!c) return 'Bir kulüp seç.';
-          const ev = db.events.find((e) => e.id === val(fd, 'event')); const values = Object.fromEntries(categories.map(([name]) => [name, Math.max(0, Math.min(100, Number(fd.get(name)) || 0))]));
-          const standard = categories.reduce((sum, [name, , max]) => sum + (values[name] * max / 100), 0);
-          const crisis = fd.get('crisisBonus') ? 5 : 0;
-          const rawTotal = standard + crisis;
-          if (rawTotal <= 0) return 'En az bir değerlendirme puanı gir.';
-          const total = Math.round(rawTotal);
-          const breakdown = categories.map(([name, label, max]) => `${label}: ${(values[name] * max / 100).toFixed(1)}/${max}`).join(' · ');
-          const evLabel = ev ? ev.title : OTHER;
+          const eventId = val(fd, 'event');
+          const ev = db.events.find((e) => e.id === eventId);
           const userNote = val(fd, 'note');
-          const generatedNote = `${breakdown} · Kriz: +${crisis} · Hesaplanan: ${rawTotal.toFixed(1)}/55 · Yuvarlanan: ${total}/55`;
-          const note = `${generatedNote}${userNote ? ` · Açıklama: ${userNote}` : ''}`;
-          await api.addPoints({ clubId: c.id, eventId: ev ? ev.id : '', label: evLabel, delta: total, note });
-          toast(`${c.name}: +${total} puan`);
+
+          if (!ev) {
+            const delta = Math.round(Number(fd.get('otherDelta')));
+            if (!Number.isFinite(delta) || delta === 0) return 'Etkinlik dışı puan sıfırdan farklı olmalı.';
+            await api.addPoints({ clubId: c.id, eventId: '', label: OTHER, delta, note: userNote });
+            toast(`${c.name}: ${signed(delta)} puan`);
+            return;
+          }
+
+          const isHost = ev.ownerId === c.id;
+          const isSupport = ev.applications.some((p) => p.clubId === c.id && p.status === 'approved');
+          if (!isHost && !isSupport) return 'Bu kulüp seçilen etkinlikte Host veya onaylı Support değil.';
+
+          if (isHost) {
+            const values = Object.fromEntries(hostCategories.map(([name]) => [name, Math.max(0, Math.min(100, Number(fd.get(name)) || 0))]));
+            const standard = hostCategories.reduce((sum, [name, , max]) => sum + (values[name] * max / 100), 0);
+            const crisis = fd.get('crisisBonus') ? 5 : 0;
+            const rawTotal = standard + crisis;
+            if (rawTotal <= 0) return 'En az bir değerlendirme puanı gir.';
+            const total = Math.round(rawTotal);
+            const breakdown = hostCategories.map(([name, label, max]) => `${label}: ${(values[name] * max / 100).toFixed(1)}/${max}`).join(' · ');
+            const generatedNote = `${breakdown} · Kriz: +${crisis} · Hesaplanan: ${rawTotal.toFixed(1)}/55 · Yuvarlanan: ${total}/55`;
+            const note = `${generatedNote}${userNote ? ` · Açıklama: ${userNote}` : ''}`;
+            await api.addPoints({ clubId: c.id, eventId: ev.id, label: ev.title, delta: total, note });
+            toast(`${c.name}: +${total} Host puanı`);
+          } else {
+            const values = Object.fromEntries(supportCategories.map(([name]) => [name, Math.max(0, Math.min(100, Number(fd.get(name)) || 0))]));
+            const standard = supportCategories.reduce((sum, [name, , max]) => sum + (values[name] * max / 100), 0);
+            const bonus = fd.get('supportBonus') ? 5 : 0;
+            const rawTotal = standard + bonus;
+            if (rawTotal <= 0) return 'En az bir değerlendirme puanı gir.';
+            const total = Math.round(rawTotal);
+            const breakdown = supportCategories.map(([name, label, max]) => `${label}: ${(values[name] * max / 100).toFixed(1)}/${max}`).join(' · ');
+            const generatedNote = `${breakdown} · Ek Sorumluluk: +${bonus} · Hesaplanan: ${rawTotal.toFixed(1)}/35 · Yuvarlanan: ${total}/35`;
+            const note = `${generatedNote}${userNote ? ` · Açıklama: ${userNote}` : ''}`;
+            await api.addPoints({ clubId: c.id, eventId: ev.id, label: ev.title, delta: total, note });
+            toast(`${c.name}: +${total} Support puanı`);
+          }
         },
       });
 
+      const hostPanel = dlgForm.querySelector('[data-host-panel]');
+      const supportPanel = dlgForm.querySelector('[data-support-panel]');
+      const otherPanel = dlgForm.querySelector('[data-other-panel]');
+      const roleStatus = dlgForm.querySelector('[data-role-status]');
+      const eventSelect = dlgForm.querySelector('[name="event"]');
+      const clubSelect = dlgForm.querySelector('[name="club"]');
+
+      const updateRolePreview = () => {
+        const c = club(clubSelect?.value || '');
+        const ev = db.events.find((e) => e.id === (eventSelect?.value || ''));
+        if (!ev) {
+          hostPanel.hidden = true; supportPanel.hidden = true; otherPanel.hidden = false;
+          if (roleStatus) roleStatus.innerHTML = '<small>Rol</small>Etkinlik dışı puanlama';
+          return;
+        }
+        otherPanel.hidden = true;
+        const isHost = !!c && ev.ownerId === c.id;
+        const isSupport = !!c && ev.applications.some((p) => p.clubId === c.id && p.status === 'approved');
+        hostPanel.hidden = !isHost;
+        supportPanel.hidden = !(!isHost && isSupport);
+        if (roleStatus) {
+          roleStatus.innerHTML = isHost
+            ? '<small>Rol</small><strong>Host</strong> · Host puanlama sistemi açıldı.'
+            : isSupport
+              ? '<small>Rol</small><strong>Support</strong> · Support puanlama sistemi açıldı.'
+              : '<small>Rol</small>Bu kulüp bu etkinlikte Host veya onaylı Support değil.';
+        }
+        updateScorePreview();
+      };
+
       const updateScorePreview = () => {
-        let standard = 0;
-        categories.forEach(([name, , max]) => {
+        let hostStandard = 0;
+        hostCategories.forEach(([name, , max]) => {
           const input = dlgForm.querySelector(`[name="${name}"]`);
           const raw = Math.max(0, Math.min(100, Number(input?.value) || 0));
           const score = raw * max / 100;
-          standard += score;
+          hostStandard += score;
           const out = dlgForm.querySelector(`[data-score="${name}"]`);
           if (out) out.textContent = `${score.toFixed(1)} / ${max}`;
         });
         const crisis = dlgForm.querySelector('[name="crisisBonus"]')?.checked ? 5 : 0;
-        const rawTotal = standard + crisis;
-        const total = Math.round(rawTotal);
-        const stdOut = dlgForm.querySelector('[data-standard-total]');
-        const bonusOut = dlgForm.querySelector('[data-bonus-total]');
-        const grandOut = dlgForm.querySelector('[data-grand-total]');
+        const hostTotal = Math.round(hostStandard + crisis);
+        const hostStdOut = dlgForm.querySelector('[data-standard-total]');
+        const hostBonusOut = dlgForm.querySelector('[data-bonus-total]');
+        const hostGrandOut = dlgForm.querySelector('[data-grand-total]');
         const crisisOut = dlgForm.querySelector('[data-crisis-value]');
-        if (stdOut) stdOut.textContent = `${standard.toFixed(1)} / 50`;
-        if (bonusOut) bonusOut.textContent = `+${crisis}`;
-        if (grandOut) grandOut.textContent = `${total} / 55`;
+        if (hostStdOut) hostStdOut.textContent = `${hostStandard.toFixed(1)} / 50`;
+        if (hostBonusOut) hostBonusOut.textContent = `+${crisis}`;
+        if (hostGrandOut) hostGrandOut.textContent = `${hostTotal} / 55`;
         if (crisisOut) crisisOut.textContent = `+${crisis}`;
+
+        let supportStandard = 0;
+        supportCategories.forEach(([name, , max]) => {
+          const input = dlgForm.querySelector(`[name="${name}"]`);
+          const raw = Math.max(0, Math.min(100, Number(input?.value) || 0));
+          const score = raw * max / 100;
+          supportStandard += score;
+          const out = dlgForm.querySelector(`[data-score="${name}"]`);
+          if (out) out.textContent = `${score.toFixed(1)} / ${max}`;
+        });
+        const supportBonus = dlgForm.querySelector('[name="supportBonus"]')?.checked ? 5 : 0;
+        const supportTotal = Math.round(supportStandard + supportBonus);
+        const supportStdOut = dlgForm.querySelector('[data-support-standard-total]');
+        const supportBonusOut = dlgForm.querySelector('[data-support-bonus-total]');
+        const supportGrandOut = dlgForm.querySelector('[data-support-grand-total]');
+        const supportBonusValue = dlgForm.querySelector('[data-support-bonus-value]');
+        if (supportStdOut) supportStdOut.textContent = `${supportStandard.toFixed(1)} / 30`;
+        if (supportBonusOut) supportBonusOut.textContent = `+${supportBonus}`;
+        if (supportGrandOut) supportGrandOut.textContent = `${supportTotal} / 35`;
+        if (supportBonusValue) supportBonusValue.textContent = `+${supportBonus}`;
       };
-      dlgForm.querySelectorAll('input[type="number"], input[name="crisisBonus"]').forEach((input) => input.addEventListener('input', updateScorePreview));
-      dlgForm.querySelector('input[name="crisisBonus"]')?.addEventListener('change', updateScorePreview);
-      updateScorePreview();
+
+      eventSelect?.addEventListener('change', updateRolePreview);
+      clubSelect?.addEventListener('change', updateRolePreview);
+      dlgForm.querySelectorAll('input[type="number"], input[name="crisisBonus"], input[name="supportBonus"]').forEach((input) => input.addEventListener('input', updateScorePreview));
+      dlgForm.querySelectorAll('input[name="crisisBonus"], input[name="supportBonus"]').forEach((input) => input.addEventListener('change', updateScorePreview));
+      updateRolePreview();
     },
 
     async 'club-visibility' (id) {
