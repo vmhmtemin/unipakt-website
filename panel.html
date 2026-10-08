@@ -2417,26 +2417,75 @@
     },
 
     'pts-new'(id) {
+      if (!isAdmin()) return;
       const events = [...publishedEvents()].reverse();
+      const categories = [
+        ['org', 'Organizasyon Planlama', 10],
+        ['ops', 'Operasyon Yönetimi', 10],
+        ['participant', 'Katılımcı Memnuniyeti', 10],
+        ['resource', 'Kaynak & Tesis Yönetimi', 5],
+        ['fairness', 'Adalet & Sorumluluk', 9],
+        ['innovation', 'Yenilik & Fikir Geliştirme', 6],
+      ];
+      const scoreFields = categories.map(([name, label, max]) =>
+        field(label, `<div class="field-row"><input type="number" name="${name}" min="0" max="100" step="1" value="0" placeholder="0–100"><span class="muted" data-score="${name}">0 / ${max}</span></div>`)
+      ).join('');
+      const clubOptions = db.clubs.map((c) => `<option value="${esc(c.id)}" ${c.id === id ? 'selected' : ''}>${esc(c.name)} — ${esc(c.uni || c.university || 'Üniversite belirtilmemiş')} (${pts(c.id)})</option>`).join('');
       openForm({
-        title: 'Puan gönder', lead: 'Artı ya da eksi puan. Kulüp bu kaydı kendi Vanguard sayfasında görür.',
-        fields: field('Kulüp', `<select name="club" required><option value="">Kulüp seç</option>${db.clubs.map((c) => `<option value="${esc(c.id)}" ${c.id === id ? 'selected' : ''}>${esc(c.name)} (${pts(c.id)})</option>`).join('')}</select>`)
+        title: 'Puan gönder',
+        lead: 'Her kategoriyi 0–100 arasında değerlendir. Sistem kategori ağırlıklarını otomatik hesaplar.',
+        fields: field('Kulüp', `<select name="club" required><option value="">Kulüp seç</option>${clubOptions}</select>`)
           + field('Etkinlik', `<select name="event"><option value="">${OTHER}</option>${events.map((e) => `<option value="${esc(e.id)}">${esc(e.title)} · ${fmtDay(e.date)}</option>`).join('')}</select>`)
-          + field('Puan (eksi için başına − koy)', '<input type="number" name="delta" required step="1" placeholder="Örn. 20 ya da -10">')
-          + field('Açıklama (isteğe bağlı)', '<input name="note" maxlength="120">'),
+          + '<p class="form-section">Host değerlendirmesi · Standart toplam 50 puandır</p>'
+          + scoreFields
+          + `<label class="checkline"><input type="checkbox" name="crisisBonus" value="5"><span><strong>Kriz Çözüm Bonusu</strong><small>Gerçek operasyonel kriz başarıyla çözüldüyse +5 puan</small></span><b data-crisis-value>+0</b></label>`
+          + `<div class="card" style="margin-top:14px;padding:16px"><div class="mini-row"><div><strong>Standart toplam</strong><small>50 puan üzerinden</small></div><b data-standard-total>0 / 50</b></div><div class="mini-row"><div><strong>Kriz Çözüm Bonusu</strong><small>Bonus ayrı değerlendirilir</small></div><b data-bonus-total>+0</b></div><div class="mini-row"><div><strong>Genel toplam</strong><small>55 puan üzerinden</small></div><b data-grand-total>0 / 55</b></div></div>`
+          + field('Açıklama (isteğe bağlı)', '<input name="note" maxlength="120" placeholder="Değerlendirme notu">'),
         submit: 'Gönder',
         onSubmit: async (fd) => {
-          const delta = Math.round(Number(fd.get('delta')));
-          if (!Number.isFinite(delta) || delta === 0) return 'Sıfırdan farklı bir puan gir.';
           const c = club(val(fd, 'club')); if (!c) return 'Bir kulüp seç.';
-          const ev = db.events.find((e) => e.id === val(fd, 'event'));
-          await api.addPoints({ clubId: c.id, eventId: ev ? ev.id : '', label: ev ? ev.title : OTHER, delta, note: val(fd, 'note') });
-          toast(`${c.name}: ${signed(delta)} puan`);
+          const ev = db.events.find((e) => e.id === val(fd, 'event')); const values = Object.fromEntries(categories.map(([name]) => [name, Math.max(0, Math.min(100, Number(fd.get(name)) || 0))]));
+          const standard = categories.reduce((sum, [name, , max]) => sum + (values[name] * max / 100), 0);
+          const crisis = fd.get('crisisBonus') ? 5 : 0;
+          const rawTotal = standard + crisis;
+          if (rawTotal <= 0) return 'En az bir değerlendirme puanı gir.';
+          const total = Math.round(rawTotal);
+          const breakdown = categories.map(([name, label, max]) => `${label}: ${(values[name] * max / 100).toFixed(1)}/${max}`).join(' · ');
+          const evLabel = ev ? ev.title : OTHER;
+          const note = [breakdown, `Kriz: +${crisis}`, `Hesaplanan: ${rawTotal.toFixed(1)}/55`, `Yuvarlanan: ${total}/55`, val(fd, 'note')].filter(Boolean).join(' · ');
+          await api.addPoints({ clubId: c.id, eventId: ev ? ev.id : '', label: evLabel, delta: total, note });
+          toast(`${c.name}: +${total} puan`);
         },
       });
+
+      const updateScorePreview = () => {
+        let standard = 0;
+        categories.forEach(([name, , max]) => {
+          const input = dlgForm.querySelector(`[name="${name}"]`);
+          const raw = Math.max(0, Math.min(100, Number(input?.value) || 0));
+          const score = raw * max / 100;
+          standard += score;
+          const out = dlgForm.querySelector(`[data-score="${name}"]`);
+          if (out) out.textContent = `${score.toFixed(1)} / ${max}`;
+        });
+        const crisis = dlgForm.querySelector('[name="crisisBonus"]')?.checked ? 5 : 0;
+        const rawTotal = standard + crisis;
+        const total = Math.round(rawTotal);
+        const stdOut = dlgForm.querySelector('[data-standard-total]');
+        const bonusOut = dlgForm.querySelector('[data-bonus-total]');
+        const grandOut = dlgForm.querySelector('[data-grand-total]');
+        const crisisOut = dlgForm.querySelector('[data-crisis-value]');
+        if (stdOut) stdOut.textContent = `${standard.toFixed(1)} / 50`;
+        if (bonusOut) bonusOut.textContent = `+${crisis}`;
+        if (grandOut) grandOut.textContent = `${total} / 55`;
+        if (crisisOut) crisisOut.textContent = `+${crisis}`;
+      };
+      dlgForm.querySelectorAll('input[type="number"], input[name="crisisBonus"]').forEach((input) => input.addEventListener('input', updateScorePreview));
+      dlgForm.querySelector('input[name="crisisBonus"]')?.addEventListener('change', updateScorePreview);
+      updateScorePreview();
     },
 
-    async 'club-visibility'(id) {
+    async 'club-visibility' (id) {
       const c = club(id); if (!c) return;
       const next = c.visible === false;
       await api.setClubVisibility(id, next);
