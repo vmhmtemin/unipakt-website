@@ -1954,10 +1954,45 @@
       const list = ranking();
       const max = Math.max(1, ...list.map((c) => c.points));
       const newest = (a, b) => String(b.at).localeCompare(String(a.at));
-      const logRows = (log, withClub) => log.map((l) => `
-        <div class="mini-row"><div><strong>${esc(withClub ? who(l.clubId) : l.label || OTHER)}</strong>
-          <small>${esc([withClub ? (l.label || OTHER) : '', l.note, fmtStamp(l.at)].filter(Boolean).join(' · '))}</small></div>
-          <span class="delta ${l.delta >= 0 ? 'up' : 'down'}">${signed(l.delta)}</span></div>`).join('');
+      const logRows = (log, withClub) => log.map((l) => {
+        const rawNote = l.note || '';
+        const marker = ' · Açıklama: ';
+        let generatedDetail = rawNote;
+        let userNote = '';
+        const markerIndex = rawNote.indexOf(marker);
+        if (markerIndex >= 0) {
+          generatedDetail = rawNote.slice(0, markerIndex);
+          userNote = rawNote.slice(markerIndex + marker.length);
+        } else {
+          // Eski kayıtlar için: hesaplama metninin sonundaki serbest açıklamayı ayır.
+          const legacyMatch = rawNote.match(/^(.* · Yuvarlanan: [^ ·]+)(?: · (.+))$/);
+          if (legacyMatch) {
+            generatedDetail = legacyMatch[1];
+            userNote = legacyMatch[2];
+          }
+        }
+        const eventId = l.eventId || '';
+        const pointId = l.id || '';
+        const meta = [withClub ? (l.label || OTHER) : '', fmtStamp(l.at)].filter(Boolean).join(' · ');
+        const hasDetails = !!(generatedDetail || userNote || eventId || (withClub && pointId));
+        return `
+        <div class="mini-row" data-point-row data-point-id="${esc(pointId)}">
+          <div style="min-width:0">
+            <strong>${esc(withClub ? who(l.clubId) : l.label || OTHER)}</strong>
+            <small>${esc(meta)}</small>
+            <div data-point-detail hidden style="margin-top:10px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2,#111);line-height:1.55">
+              ${withClub && pointId ? `<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)"><small style="display:block;opacity:.65">Puan ID</small><span style="word-break:break-all">${esc(pointId)}</span></div>` : ''}
+              ${eventId ? `<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)"><small style="display:block;opacity:.65">Etkinlik ID</small><span style="word-break:break-all">${esc(eventId)}</span></div>` : ''}
+              ${generatedDetail ? `<div style="${userNote ? 'margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);' : ''}"><small style="display:block;opacity:.65;margin-bottom:4px">Puan değerlendirmesi</small><span style="white-space:normal">${esc(generatedDetail)}</span></div>` : ''}
+              ${userNote ? `<div><small style="display:block;opacity:.65;margin-bottom:4px">Açıklama</small><span style="white-space:normal">${esc(userNote)}</span></div>` : ''}
+            </div>
+          </div>
+          <div class="actions" style="align-items:center;gap:8px">
+            ${hasDetails ? `<button class="btn ghost small" type="button" data-act="point-details" data-id="${esc(pointId)}">Detaylar</button>` : ''}
+            <span class="delta ${l.delta >= 0 ? 'up' : 'down'}">${signed(l.delta)}</span>
+          </div>
+        </div>`;
+      }).join('');
       const board = `
         <div class="card" style="padding:0;overflow:hidden">
           ${list.map((c, i) => `
@@ -2452,7 +2487,9 @@
           const total = Math.round(rawTotal);
           const breakdown = categories.map(([name, label, max]) => `${label}: ${(values[name] * max / 100).toFixed(1)}/${max}`).join(' · ');
           const evLabel = ev ? ev.title : OTHER;
-          const note = [breakdown, `Kriz: +${crisis}`, `Hesaplanan: ${rawTotal.toFixed(1)}/55`, `Yuvarlanan: ${total}/55`, val(fd, 'note')].filter(Boolean).join(' · ');
+          const userNote = val(fd, 'note');
+          const generatedNote = `${breakdown} · Kriz: +${crisis} · Hesaplanan: ${rawTotal.toFixed(1)}/55 · Yuvarlanan: ${total}/55`;
+          const note = `${generatedNote}${userNote ? ` · Açıklama: ${userNote}` : ''}`;
           await api.addPoints({ clubId: c.id, eventId: ev ? ev.id : '', label: evLabel, delta: total, note });
           toast(`${c.name}: +${total} puan`);
         },
@@ -2542,6 +2579,16 @@
           if (warning) notice('Giriş hesabı silinemedi', warning); else toast('Kulüp silindi.');
         },
       });
+    },
+
+    'point-details'(id) {
+      const btn = document.querySelector(`[data-act=\"point-details\"][data-id=\"${CSS.escape(id || '')}\"]`);
+      const row = btn?.closest('[data-point-row]');
+      const detail = row?.querySelector('[data-point-detail]');
+      if (!detail) return;
+      const open = !detail.hidden;
+      detail.hidden = open;
+      if (btn) btn.textContent = open ? 'Detaylar' : 'Gizle';
     },
 
     'cal-pick'(id) { state.cal.sel = id; const d = parseYmd(id); state.cal.y = d.getFullYear(); state.cal.m = d.getMonth(); render(); },
