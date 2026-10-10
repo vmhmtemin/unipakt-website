@@ -135,6 +135,7 @@
 "Mesajını buraya yaz...": "Write your message here...",
 "Gönder": "Send",
 "Teşekkürler, mesajın bize ulaştı.": "Thank you, your message has reached us.",
+"Mesajın şu an gönderilemedi. Biraz sonra tekrar dene ya da iletisim@unipakt.com adresine yaz.": "Your message could not be sent right now. Please try again in a moment or write to iletisim@unipakt.com.",
 "Sen de pakta katıl.": "Join the pakt.",
 "Üniversite kulübünüzü UniPakt ağına dahil edin.": "Bring your university club into the UniPakt network.",
 "UniPakt'a katılmanın birkaç yolu var.": "There are a few ways to join UniPakt.",
