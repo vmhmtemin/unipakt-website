@@ -2,8 +2,8 @@
 <html lang="tr" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <!-- Only Google Fonts and the FormSubmit endpoint may be contacted. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src https://formsubmit.co https://hcgotmcbwmleeklbvawb.supabase.co; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'; upgrade-insecure-requests">
+    <!-- Only Google Fonts and the UniPakt Supabase project may be contacted. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src https://hcgotmcbwmleeklbvawb.supabase.co; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'; upgrade-insecure-requests">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>UniPakt — İstanbul Üniversite Kulüpleri Ağı</title>
     <meta name="description" content="UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.">
@@ -9293,13 +9293,13 @@
         });
     })();
 
-    /* ---------- Forms → e-mail (FormSubmit, no backend needed) ----------
-                 Both forms post to FormSubmit, which forwards the message to the
-                 address below. The very first submission triggers a one-time
-                 activation e-mail to that inbox; after it is confirmed, every
-                 message arrives as a normal e-mail. */
-    // FormSubmit alias for iletisim@unipakt.com (keeps the address out of the endpoint).
-    const FORM_ENDPOINT = 'https://formsubmit.co/ajax/d88d61503469b642c1f496bd3e6d244b';
+    /* ---------- Forms → UniPakt veritabanı (Supabase, Frankfurt) ----------
+                 İki form da Supabase'deki bir fonksiyona yazar (submit_contact_message,
+                 submit_join_application). Fonksiyon alanları doğrular, kaydı saklar ve
+                 yöneticilere kişisel veri içermeyen bir "yeni mesaj var" bildirimi
+                 düşer. Mesajlar panelde "Site Mesajları" bölümünden okunur/silinir.
+                 Ziyaretçi kayıtları okuyamaz. */
+    const FORM_RPC = 'https://hcgotmcbwmleeklbvawb.supabase.co/rest/v1/rpc/';
 
     function fieldValue(id) {
         const el = document.getElementById(id);
@@ -9312,34 +9312,26 @@
         const status = document.getElementById(statusId);
         const button = form.querySelector('button[type="submit"]');
         const isContact = statusId === 'contactStatus';
+        const honey = form.querySelector('.hp-field')?.value || '';
 
+        const rpc = isContact ? 'submit_contact_message' : 'submit_join_application';
         const payload = isContact
         ? {
-            _subject: 'UniPakt · İletişim formu',
-            'Ad Soyad': fieldValue('c-ad'),
-            'E-mail': fieldValue('c-mail'),
-            'Mesaj': fieldValue('c-msg')
+            p_name: fieldValue('c-ad'),
+            p_email: fieldValue('c-mail'),
+            p_message: fieldValue('c-msg'),
+            p_honey: honey
         }
         : {
-            _subject: 'UniPakt · Bize Katıl başvurusu',
-            'Ad Soyad': fieldValue('j-ad'),
-            'Üniversite': fieldValue('j-universite'),
-            'Şehir': fieldValue('j-sehir'),
-            'İstanbul dışı üniversite': fieldValue('j-dis-universite'),
-            'Kulüp': fieldValue('j-kulup'),
-            'E-mail': fieldValue('j-mail'),
-            'Mesaj': fieldValue('j-msg')
+            p_name: fieldValue('j-ad'),
+            p_email: fieldValue('j-mail'),
+            p_university: fieldValue('j-universite'),
+            p_city: fieldValue('j-sehir'),
+            p_outside_university: fieldValue('j-dis-universite'),
+            p_club: fieldValue('j-kulup'),
+            p_message: fieldValue('j-msg'),
+            p_honey: honey
         };
-        Object.keys(payload).forEach(k => {
-            if (payload[k] === '')
-                delete payload[k];
-        });
-        payload._template = 'table';
-        payload._captcha = 'false';
-        payload._honey = form.querySelector('.hp-field')?.value || '';
-        const replyTo = payload['E-mail'];
-        if (replyTo)
-            payload._replyto = replyTo;
 
         status.classList.remove('is-error', 'is-ok');
         status.textContent = '';
@@ -9350,17 +9342,22 @@
             button.setAttribute('aria-busy', 'true');
         }
         try {
-            const res = await fetch(FORM_ENDPOINT, {
+            const res = await fetch(FORM_RPC + rpc, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Accept: 'application/json'
+                    Accept: 'application/json',
+                    apikey: CLUBS_KEY
                 },
                 body: JSON.stringify(payload)
             });
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok || String(data.success) === 'false')
-                throw new Error(data.message || `HTTP ${res.status}`);
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                // P0001 = fonksiyonun kendi doğrulama mesajı (ör. "Geçerli bir e-posta gir.")
+                const err = new Error(data.message || `HTTP ${res.status}`);
+                err.userFacing = data.code === 'P0001';
+                throw err;
+            }
             status.classList.add('is-ok');
             status.textContent = 'Teşekkürler, mesajın bize ulaştı.';
             form.reset();
@@ -9370,9 +9367,10 @@
             const reason = String(err && err.message || '');
             console.warn('[UniPakt form]', reason);
             status.classList.add('is-error');
-            // The technical reason stays in the console; visitors get one clear message.
-            // (If FormSubmit asks for activation, the link is in the iletisim@unipakt.com inbox.)
-            status.textContent = 'Mesajın şu an gönderilemedi. Biraz sonra tekrar dene ya da iletisim@unipakt.com adresine yaz.';
+            // Doğrulama mesajları ziyaretçiye gösterilir; teknik nedenler konsolda kalır.
+            status.textContent = err && err.userFacing
+                ? reason
+                : 'Mesajın şu an gönderilemedi. Biraz sonra tekrar dene ya da iletisim@unipakt.com adresine yaz.';
         } finally {
             if (button) {
                 button.disabled = false;

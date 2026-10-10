@@ -908,6 +908,9 @@
     async supportReply(id,body) { const t=db.supportTickets.find(x=>x.id===id); if(!t) throw new Error('Talep bulunamadı.'); t.messages.push({id:uid(),authorRole:isAdmin()?'admin':'club',authorLabel:isAdmin()?'UniPakt Destek':'Kulüp',body,createdAt:stamp()}); t.status=isAdmin()?'answered':'waiting_user'; t.updatedAt=stamp(); save(); },
     async supportUpdate(id, fields) { const t=db.supportTickets.find(x=>x.id===id); if(!t) throw new Error('Talep bulunamadı.'); Object.assign(t, fields, {updatedAt:stamp()}); save(); },
     async supportDelete(id) { db.supportTickets=db.supportTickets.filter(x=>x.id!==id); save(); },
+    // Site formları demo modunda yok: liste hep boş.
+    async siteInbox() { return { contact: [], join: [] }; },
+    async siteInboxDelete() {},
     async refresh() { loadLocal(); },
   };
 
@@ -1107,6 +1110,22 @@
       await loadSupportRemote();
     },
     async supportAttachmentUrl(path) { const data=await call(`/storage/v1/object/sign/support-attachments/${path}`,{method:'POST',body:{expiresIn:300}}); return `${SUPABASE_URL}/storage/v1${data.signedURL}`; },
+    // Sitedeki İletişim ve Bize Katıl formlarından gelen kayıtlar (yalnızca yetkili okur/siler).
+    async siteInbox() {
+      const [contact, join] = await Promise.all([
+        rest('contact_messages?select=*&order=created_at.desc'),
+        rest('join_applications?select=*&order=created_at.desc'),
+      ]);
+      return { contact: contact || [], join: join || [] };
+    },
+    async siteInboxDelete(kind, id) {
+      if (!isAdmin()) throw new Error('Bu işlem için UniPakt yetkisi gerekir.');
+      const table = kind === 'join' ? 'join_applications' : 'contact_messages';
+      const rows = await rest(`${table}?${eq(id)}&select=id`, { method: 'DELETE', headers: { Prefer: 'return=representation' } });
+      if (!Array.isArray(rows) || !rows.some(r => String(r.id) === String(id))) {
+        throw new Error('Kayıt silinemedi veya bulunamadı.');
+      }
+    },
     async refresh() { await loadRemote(); },
     async proofUrl(path) {
       const data = await call(`/storage/v1/object/sign/task-proofs/${path}`, { method: 'POST', body: { expiresIn: 120 } });
@@ -1126,7 +1145,7 @@
 
   // Remote writes are followed by a fresh read, so the screen shows what the server kept.
   const api = DEMO ? local : new Proxy(remote, {
-    get: (target, name) => (['refresh', 'proofUrl', 'login', 'logout', 'accounts', 'account', 'supportCreate', 'supportReply', 'supportUpdate', 'supportDelete'].includes(name) ? target[name]
+    get: (target, name) => (['refresh', 'proofUrl', 'login', 'logout', 'accounts', 'account', 'supportCreate', 'supportReply', 'supportUpdate', 'supportDelete', 'siteInbox', 'siteInboxDelete'].includes(name) ? target[name]
       : async (...args) => { const result = await target[name](...args); await loadRemote(); return result; }),
   });
 
@@ -1142,6 +1161,7 @@
     taskClub: 'all',
     accounts: null,   // { clubId: login e-mail } once loaded, 'loading', or 'unavailable'
     support: { q: '', category: 'all', status: 'all' },
+    inbox: { tab: 'contact', data: null, error: null, loading: false },   // Site Mesajları (yalnızca yetkili)
   };
   if (DEMO) { try { state.user = sessionStorage.getItem(SESSION); } catch (_) {} }
 
@@ -1270,6 +1290,14 @@
     return 'Talebi oluşturan hesap bilgisi bulunamadı';
   };
   const supportNewCount = () => (isAdmin() ? (db.supportTickets || []).filter(t => supportTicketStatus(t) !== 'closed' && !supportHasAdminReply(t)).length : 0);
+  // Site Mesajları ayrı yüklenir: bu tablo ya da istek sorun çıkarsa panelin geri kalanı etkilenmez.
+  const loadSiteInbox = () => {
+    state.inbox.loading = true;
+    return api.siteInbox()
+      .then((data) => { state.inbox.data = data; state.inbox.error = null; },
+            (error) => { state.inbox.error = error; })
+      .finally(() => { state.inbox.loading = false; if (state.view === 'site-mesajlari' && !dlg.open) render(); });
+  };
   const renderSupportTickets = () => {
     if (isAdmin() && state.accounts === null) {
       state.accounts = 'loading';
@@ -1405,6 +1433,7 @@
     ];
     if (isAdmin()) items.splice(8, 0, ['onaylar', 'Onaylamalar', pendingCount()]);
     if (isAdmin()) items.push(['kulupler', 'Kulüpler']);
+    if (isAdmin()) items.push(['site-mesajlari', 'Site Mesajları', state.inbox.data ? state.inbox.data.contact.length + state.inbox.data.join.length : 0]);
     if (SUPPORT_CLUB_TICKETS) items.push(['destek-taleplerim', isAdmin() ? 'Destek Talepleri' : 'UniPakt Destek', supportNewCount()]);
     return items;
   };
@@ -1777,6 +1806,34 @@
               : empty('Henüz duyuru yok.')}
           </div>
         </div>`;
+    },
+
+    'site-mesajlari'() {
+      if (!isAdmin()) return empty('Bu bölüm yalnızca UniPakt yetkilisine açık.');
+      const s = state.inbox;
+      if (!s.data && !s.loading && !s.error) loadSiteInbox();
+      const top = head('Site Mesajları',
+        'Sitedeki İletişim ve Bize Katıl formlarından gelenler. Yalnızca UniPakt yetkilisi görür. İşi biten kaydı sil; kişisel veri gereğinden uzun tutulmamalı.',
+        '<button class="btn ghost" data-act="inbox-refresh">Yenile</button>');
+      if (s.error) return `${top}<div class="support-info"><strong>Mesajlar yüklenemedi</strong><p>${esc(s.error.message || 'Sunucuya ulaşılamadı.')}</p></div>`;
+      if (!s.data) return `${top}${empty('Yükleniyor…')}`;
+      const isJoin = s.tab === 'join';
+      const list = isJoin ? s.data.join : s.data.contact;
+      const when = (iso) => new Date(iso).toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const line = (label, v) => (v ? `<span><b>${esc(label)}:</b> ${esc(v)}</span>` : '');
+      const card = (r) => `<article class="card item">
+          <div class="meta top"><span class="tag wait">${isJoin ? 'Başvuru' : 'Mesaj'}</span><span>${esc(when(r.created_at))}</span></div>
+          <h3>${esc(r.name)}</h3>
+          <div class="meta"><span><a href="mailto:${esc(r.email)}">${esc(r.email)}</a></span>${isJoin ? line('Üniversite', r.university) + line('Şehir', r.city) + line('İstanbul dışı üniversite', r.outside_university) + line('Kulüp', r.club) : ''}</div>
+          ${r.message ? `<p class="body" style="white-space:pre-wrap">${esc(r.message)}</p>` : ''}
+          <div class="actions"><button class="btn danger small" data-act="inbox-delete" data-id="${esc(r.id)}" data-sub="${isJoin ? 'join' : 'contact'}">Sil</button></div>
+        </article>`;
+      return `${top}
+        <div class="toolbar">
+          <button class="chip ${!isJoin ? 'active' : ''}" data-act="inbox-tab" data-id="contact">İletişim (${s.data.contact.length})</button>
+          <button class="chip ${isJoin ? 'active' : ''}" data-act="inbox-tab" data-id="join">Bize Katıl (${s.data.join.length})</button>
+        </div>
+        <div class="stack">${list.length ? list.map(card).join('') : empty(isJoin ? 'Bize Katıl başvurusu yok.' : 'İletişim mesajı yok.')}</div>`;
     },
 
     'destek-taleplerim'() { return SUPPORT_CLUB_TICKETS ? renderSupportTickets() : empty('Destek bölümü henüz kullanıma açılmadı.'); },
@@ -2460,6 +2517,12 @@
     },
     'task-remove'(id) { confirmRemove('Görevi sil', 'Görev kulübün panelinden de silinir.', () => api.removeTask(id), 'Sil'); },
     'task-tab'(id) { state.taskTab = id; render(); },
+    'inbox-tab'(id) { state.inbox.tab = id === 'join' ? 'join' : 'contact'; render(); },
+    'inbox-refresh'() { state.inbox.error = null; return loadSiteInbox(); },
+    'inbox-delete'(id, kind) {
+      confirmRemove('Kaydı sil', 'Bu kayıt veritabanından kalıcı olarak silinir, geri alınamaz.',
+        async () => { await api.siteInboxDelete(kind, id); await loadSiteInbox(); }, 'Sil');
+    },
     // Opened before the request so the browser does not treat it as a pop-up.
     async 'proof-open'(id) {
       const t = db.tasks.find((x) => x.id === id); if (!t || !t.doneFile || !t.doneFile.path) return;
@@ -2715,6 +2778,7 @@
       if (DEMO) { try { sessionStorage.removeItem(SESSION); } catch (_) {} }
       else { remote.logout(); db = null; }
       state.accounts = null;
+      state.inbox = { tab: 'contact', data: null, error: null, loading: false };
       history.replaceState(null, '', location.pathname + location.search);
       render(); window.scrollTo(0, 0);
     },
