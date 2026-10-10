@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'none'; base-uri 'self'; object-src 'none'; frame-src 'none'">
+<!-- The inline script at the bottom is allowed by its sha256 hash. After editing it, run
+     python3 tools/build_pages.py: it prints the new hash to put here. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'sha256-OgU059BvrvfoXVUULZtj7xH0gJ95fFWuuPPSdQOZnEY='; base-uri 'self'; object-src 'none'; frame-src 'none'">
 <meta name="robots" content="noindex">
 <title>Sayfa bulunamadı — UniPakt</title>
 <!-- GitHub Pages serves this file for any missing path, so every link here is absolute. -->
@@ -50,6 +52,47 @@
   .line::before { left: 0; background: var(--ink); }
   .line::after { left: 62%; background: var(--accent); animation: drift 3.2s ease-in-out infinite; }
   @keyframes drift { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -170%); } }
+  /* ---- Snake: a small reward for finding this page ---- */
+  .game { margin-top: clamp(40px, 6vw, 64px); display: grid; grid-template-columns: auto 1fr; gap: 18px 36px; align-items: center; max-width: 640px; }
+  .game-head { grid-column: 1 / -1; }
+  .game-head p { margin: 0; }
+  .game-title { font: 700 clamp(24px, 3vw, 30px)/1 'Caveat', cursive; color: var(--accent); }
+  .game-sub { margin-top: 6px !important; opacity: .7; font-size: 15px; }
+  .board {
+    --cell: clamp(42px, 11vw, 56px);
+    display: grid; grid-template-columns: repeat(5, var(--cell)); grid-template-rows: repeat(5, var(--cell));
+    gap: 6px; padding: 12px; border: 1.5px solid var(--border-strong); border-radius: 18px;
+    touch-action: none; user-select: none; -webkit-user-select: none; outline: none;
+    justify-self: start; width: max-content;
+  }
+  .board:focus-visible { border-color: var(--accent); }
+  .cell { position: relative; border-radius: 10px; }
+  .cell::after { content: ''; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; border-radius: 50%; background: var(--border-strong); transform: translate(-50%, -50%); transition: width .12s ease, height .12s ease, background .12s ease, border-radius .12s ease; }
+  .cell.snake::after { width: 100%; height: 100%; border-radius: 10px; background: var(--accent); }
+  .cell.head::after { background: var(--accent); box-shadow: 0 0 0 2px var(--paper) inset, 0 0 0 4px var(--accent) inset; }
+  .cell.apple::after { width: 46%; height: 46%; background: var(--ink); animation: pulse 1.2s ease-in-out infinite; }
+  .board.over .cell.snake::after { background: #FFFFFF55; }
+  .board.won .cell.snake::after { animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(.82); } }
+  .game-side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .score { font: 900 clamp(40px, 6vw, 56px)/1 'Archivo', sans-serif; letter-spacing: -0.04em; }
+  .score small { font: 500 15px/1.4 'Inter', sans-serif; letter-spacing: 0; opacity: .6; display: block; margin-top: 6px; }
+  .status { min-height: 1.6em; margin: 0; font-weight: 600; }
+  .pad { display: grid; grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(2, 52px); gap: 6px; justify-content: start; }
+  .pad button, .again {
+    font: 600 18px/1 'Inter', sans-serif; color: var(--ink); background: transparent;
+    border: 1.5px solid var(--border-strong); border-radius: 12px; cursor: pointer;
+    transition: border-color .2s ease, color .2s ease, background .2s ease;
+  }
+  .pad button:hover, .pad button:focus-visible { border-color: var(--accent); color: var(--accent); }
+  .pad .up { grid-column: 2; grid-row: 1; } .pad .left { grid-column: 1; grid-row: 2; }
+  .pad .down { grid-column: 2; grid-row: 2; } .pad .right { grid-column: 3; grid-row: 2; }
+  .again { justify-self: start; align-self: flex-start; padding: 12px 22px; border-radius: 999px; font-size: 15px; }
+  .again:hover, .again:focus-visible { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+  .again[hidden] { display: none; }
+  @media (max-width: 560px) { .game { grid-template-columns: 1fr; } }
+  @media (hover: hover) and (pointer: fine) { .pad { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .cell::after, .line::after { transition: none; animation: none !important; } }
 </style>
 </head>
 <body>
@@ -61,13 +104,173 @@
     <div class="actions">
       <a class="btn" href="/">Ana sayfaya dön</a>
       <nav class="links" aria-label="Sayfalar">
-        <a href="/#kulupler">Ortak Kulüpler</a>
-        <a href="/#takvim">Takvim</a>
-        <a href="/#iletisim">İletişim</a>
+        <a href="/kulupler/">Ortak Kulüpler</a>
+        <a href="/takvim/">Takvim</a>
+        <a href="/iletisim/">İletişim</a>
       </nav>
     </div>
     <div class="line" aria-hidden="true"></div>
+    <section class="game" aria-labelledby="gameTitle">
+      <div class="game-head">
+        <p class="game-title" id="gameTitle">Ödülün: 5×5 yılan</p>
+        <p class="game-sub">Kayıp sayfayı bulana küçük bir hediye. Elmaları ye, ağı doldur.</p>
+      </div>
+      <div class="board" id="board" tabindex="0" role="application" aria-label="Yılan oyunu, 5'e 5 alan. Yön tuşları ya da W A S D ile oyna."></div>
+      <div class="game-side">
+        <div class="score"><span id="score">2</span><span aria-hidden="true">/25</span><small id="best">En iyi: 2</small></div>
+        <p class="status" id="status" aria-live="polite">Başlamak için bir yön seç.</p>
+        <div class="pad" aria-label="Yön tuşları">
+          <button class="up" type="button" data-dir="up" aria-label="Yukarı">↑</button>
+          <button class="left" type="button" data-dir="left" aria-label="Sola">←</button>
+          <button class="down" type="button" data-dir="down" aria-label="Aşağı">↓</button>
+          <button class="right" type="button" data-dir="right" aria-label="Sağa">→</button>
+        </div>
+        <button class="again" id="again" type="button" hidden>Tekrar oyna</button>
+      </div>
+    </section>
   </main>
   <footer>© 2026 UniPakt · İstanbul üniversite kulüpleri ağı</footer>
+<script>
+(function () {
+  // The site's pages live at /story, /takvim ... If this page is shown for one of
+  // them (the per-page copies are not published yet), open it through the home page.
+  var routes = ['story', 'takvim', 'kulupler', 'hakkimizda', 'kampus', 'iletisim', 'katil'];
+  var first = location.pathname.replace(/^\/+|\/+$/g, '').split('/')[0];
+  if (routes.indexOf(first) !== -1) {
+    location.replace('/' + location.search + '#' + first);
+    return;
+  }
+
+  var N = 5, TOTAL = N * N, TICK = 240;
+  var board = document.getElementById('board');
+  var scoreEl = document.getElementById('score');
+  var bestEl = document.getElementById('best');
+  var statusEl = document.getElementById('status');
+  var againBtn = document.getElementById('again');
+  var cells = [];
+  for (var i = 0; i < TOTAL; i++) {
+    var c = document.createElement('div');
+    c.className = 'cell';
+    board.appendChild(c);
+    cells.push(c);
+  }
+  var DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+  var OPPOSITE = { up: 'down', down: 'up', left: 'right', right: 'left' };
+  var best = 2;
+  try { best = Math.max(2, parseInt(localStorage.getItem('unipakt404snake'), 10) || 2); } catch (e) {}
+
+  var snake, dir, queue, apple, timer, state;
+
+  function reset() {
+    clearInterval(timer);
+    snake = [[1, 2], [0, 2]];
+    dir = 'right';
+    queue = [];
+    state = 'ready';
+    placeApple();
+    board.classList.remove('over', 'won');
+    againBtn.hidden = true;
+    statusEl.textContent = 'Başlamak için bir yön seç.';
+    draw();
+  }
+  function placeApple() {
+    var free = [];
+    for (var y = 0; y < N; y++) for (var x = 0; x < N; x++) {
+      if (!snake.some(function (p) { return p[0] === x && p[1] === y; })) free.push([x, y]);
+    }
+    apple = free.length ? free[Math.floor(Math.random() * free.length)] : null;
+  }
+  function draw() {
+    cells.forEach(function (c) { c.className = 'cell'; });
+    snake.forEach(function (p, i) { cells[p[1] * N + p[0]].className = 'cell snake' + (i === 0 ? ' head' : ''); });
+    if (apple) cells[apple[1] * N + apple[0]].classList.add('apple');
+    scoreEl.textContent = snake.length;
+    bestEl.textContent = 'En iyi: ' + best;
+  }
+  function turn(next) {
+    if (state === 'over' || state === 'won') return;
+    var last = queue.length ? queue[queue.length - 1] : dir;
+    if (next === last || next === OPPOSITE[last]) {
+      if (state !== 'ready') return;
+      if (next === OPPOSITE[last]) return;
+    }
+    if (queue.length < 2) queue.push(next);
+    if (state === 'ready') {
+      state = 'playing';
+      statusEl.textContent = 'Elmaları topla!';
+      timer = setInterval(step, TICK);
+    }
+  }
+  function step() {
+    if (queue.length) dir = queue.shift();
+    var head = snake[0], d = DIRS[dir];
+    var nx = head[0] + d[0], ny = head[1] + d[1];
+    var eating = apple && nx === apple[0] && ny === apple[1];
+    var body = eating ? snake : snake.slice(0, -1);
+    var hitWall = nx < 0 || ny < 0 || nx >= N || ny >= N;
+    var hitSelf = body.some(function (p) { return p[0] === nx && p[1] === ny; });
+    if (hitWall || hitSelf) return end(false, hitWall ? 'Duvara çarptın.' : 'Kendi kuyruğunu ısırdın.');
+    snake.unshift([nx, ny]);
+    if (eating) {
+      if (snake.length > best) {
+        best = snake.length;
+        try { localStorage.setItem('unipakt404snake', String(best)); } catch (e) {}
+      }
+      if (snake.length === TOTAL) { draw(); return end(true); }
+      placeApple();
+    } else {
+      snake.pop();
+    }
+    draw();
+  }
+  function end(won, why) {
+    clearInterval(timer);
+    state = won ? 'won' : 'over';
+    board.classList.add(won ? 'won' : 'over');
+    statusEl.textContent = won ? 'Ağın tamamı senin! 25/25 🎉' : why + ' Uzunluk: ' + snake.length + '.';
+    againBtn.hidden = false;
+    draw();
+  }
+
+  var KEYS = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right', W: 'up', S: 'down', A: 'left', D: 'right' };
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+    if ((e.key === 'Enter' || e.key === ' ') && (state === 'over' || state === 'won') && t !== againBtn) {
+      e.preventDefault();
+      reset();
+      return;
+    }
+    var next = KEYS[e.key];
+    if (!next) return;
+    if (e.key.indexOf('Arrow') === 0) e.preventDefault();
+    turn(next);
+  });
+  document.querySelectorAll('.pad button').forEach(function (b) {
+    b.addEventListener('click', function () { turn(b.dataset.dir); });
+  });
+  var start = null;
+  board.addEventListener('pointerdown', function (e) { start = [e.clientX, e.clientY]; });
+  board.addEventListener('pointerup', function (e) {
+    if (!start) return;
+    var dx = e.clientX - start[0], dy = e.clientY - start[1];
+    start = null;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 18) return;
+    turn(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
+  });
+  board.addEventListener('pointercancel', function () { start = null; });
+  againBtn.addEventListener('click', function () { reset(); board.focus(); });
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden && state === 'playing') {
+      clearInterval(timer);
+      state = 'ready';
+      queue = [];
+      statusEl.textContent = 'Durduruldu. Devam etmek için bir yön seç.';
+    }
+  });
+  reset();
+})();
+</script>
 </body>
 </html>
