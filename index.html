@@ -1455,7 +1455,6 @@
     .story-logo-camera {
         display: block;
         overflow: visible;
-        preserveAspectRatio: xMidYMid meet;
         transform: translateZ(0);
         will-change: auto;
     }/* During the zoom the outer SVG becomes a full-screen canvas, but the
@@ -6038,7 +6037,7 @@
                     <path d="M14.2 3h3.1c.3 1.9 1.4 3.2 3.2 3.7v3.1c-1.2 0-2.3-.3-3.3-.9v6.2c0 3.7-2.5 5.9-6 5.9-3.2 0-5.5-2.1-5.5-5.1 0-3.2 2.6-5.5 5.9-5.5.4 0 .8 0 1.2.1v3.2c-.4-.1-.8-.2-1.2-.2-1.5 0-2.6.9-2.6 2.3 0 1.2.9 2.1 2.2 2.1 1.6 0 2.9-1 2.9-3.1V3z"/>
                 </svg>
             </a>
-            <a href="https://www.linkedin.com/company/unipakt/home/?viewAsMember=true" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+            <a href="https://www.linkedin.com/company/unipakt/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M5 3.8A2.1 2.1 0 1 1 5 8a2.1 2.1 0 0 1 0-4.2zM3.3 9.5h3.4V21H3.3V9.5zm5.5 0h3.3v1.6h.1c.5-.9 1.7-1.9 3.6-1.9 3.8 0 4.5 2.5 4.5 5.8V21h-3.4v-5.3c0-1.3 0-3.1-1.9-3.1s-2.2 1.5-2.2 3V21H8.8V9.5z"/>
                 </svg>
@@ -6263,7 +6262,7 @@
                 </button>
 
                 <div class="story-team" id="storyTeam" aria-label="UniPakt ekibi">
-                    <article class="story-card" tabindex="0" role="button" aria-label="Ekip üyesi kartı 1">
+                    <article class="story-card" tabindex="0" role="button" aria-label="Ekip üyesi kartı 1: Mehmet Emin Soyal">
                         <div class="story-card-inner">
                             <div class="story-card-face story-card-front">
                                 <div class="story-person">
@@ -6302,7 +6301,7 @@
                             </div>
                         </div>
                     </article>
-                    <article class="story-card" tabindex="0" role="button" aria-label="Ekip üyesi kartı 2">
+                    <article class="story-card" tabindex="0" role="button" aria-label="Ekip üyesi kartı 2: Ömer Akif Tonbul">
                         <div class="story-card-inner">
                             <div class="story-card-face story-card-front">
                                 <div class="story-person">
@@ -6650,7 +6649,7 @@
                             </div>
                             <div class="row">
                                 <span>TikTok</span>
-                                <a href="https://www.tiktok.com/@unipakt?is_from_webapp=1&amp;sender_device=pc" target="_blank" rel="noopener noreferrer">unipakt</a>
+                                <a href="https://www.tiktok.com/@unipakt" target="_blank" rel="noopener noreferrer">unipakt</a>
                             </div>
                             <div class="row">
                                 <span>LinkedIn</span>
@@ -6837,7 +6836,7 @@
                 <h3>Takip et</h3>
                 <a href="https://www.instagram.com/unipakt/" target="_blank" rel="noopener noreferrer">Instagram</a>
                 <a href="https://x.com/UniPakt" target="_blank" rel="noopener noreferrer">X</a>
-                <a href="https://www.tiktok.com/@unipakt?is_from_webapp=1&amp;sender_device=pc" target="_blank" rel="noopener noreferrer">TikTok</a>
+                <a href="https://www.tiktok.com/@unipakt" target="_blank" rel="noopener noreferrer">TikTok</a>
                 <a href="https://www.linkedin.com/company/unipakt/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
             </div>
             <div class="footer-col">
@@ -7386,6 +7385,10 @@
         function searchHtml() {
             return `<div class="site-cal-v2-search" ${searchOpen ? '' : 'hidden'}><input class="site-cal-v2-search-input" id="siteCalSearch" data-no-i18n type="search" value="${esc(searchQuery)}" placeholder="${esc(ui.searchPlaceholder())}" autocomplete="off"></div>`;
         }
+        function resultsHtml() {
+            const list = filteredEvents();
+            return list.length ? `<div class="site-cal-v2-items">${list.map(eventRow).join('')}</div>` : `<p class="site-cal-v2-empty">${esc(dayFilter ? ui.noDay() : (searchQuery ? ui.noSearch() : loaded ? ui.empty() : ui.load()))}</p>`;
+        }
         function renderCalendar() {
             const today = ymd(new Date()),
                 {y, m, sel} = view,
@@ -7402,23 +7405,19 @@
                 const cls = ['site-cal-day', d.getMonth() !== m ? 'out' : '', key === today ? 'today' : '', key === sel ? 'selected' : '', list.length ? 'has-events' : '', i >= cells - 7 ? 'last-row' : ''].filter(Boolean).join(' ');
                 grid += `<button type="button" class="${cls}" data-cal="${key}" aria-label="${esc(longDate(key))}" data-no-i18n><span class="num">${d.getDate()}</span><span class="chips">${list.slice(0, 3).map(e => `<span class="chip" data-no-i18n>${esc(e.title)}</span>`).join('')}</span></button>`;
             }
-            const list = filteredEvents(),
-                listHtml = list.length ? `<div class="site-cal-v2-items">${list.map(eventRow).join('')}</div>` : `<p class="site-cal-v2-empty">${esc(dayFilter ? ui.noDay() : (searchQuery ? ui.noSearch() : loaded ? ui.empty() : ui.load()))}</p>`;
+            const listHtml = `<div class="site-cal-v2-results">${resultsHtml()}</div>`;
             host.innerHTML = `<div class="site-cal-head"><h2>${esc(ui.month(new Date(y, m, 1)))}</h2><div class="site-cal-nav"><button type="button" class="site-cal-btn" data-cal="prev">${esc(ui.prev())}</button><button type="button" class="site-cal-btn" data-cal="today">${esc(ui.today())}</button><button type="button" class="site-cal-btn" data-cal="next">${esc(ui.next())}</button></div></div><div class="site-cal-grid">${['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map((_, i) => `<div class="site-cal-dow" data-no-i18n>${esc(ui.dow(i))}</div>`).join('')}${grid}</div><div class="site-cal-v2-list"><div class="site-cal-v2-head"><div><h2 class="site-cal-sub">${esc(ui.upcoming())}</h2><p class="site-cal-v2-note">${esc(document.documentElement.lang === 'en' ? 'You can follow the event details here' : 'Etkinlik detaylarını buradan takip edebilirsin')}</p></div></div>${dayFilter ? `<div class="site-cal-v2-filter"><span class="site-cal-v2-filter-chip">${esc(ui.selectedDay(dayFilter))}</span><button type="button" class="site-cal-v2-clear" data-clear-day>${esc(ui.clear())}</button></div>` : ''}${searchHtml()}${listHtml}</div><div class="site-cal-v2-detail" hidden></div>`;
             renderDetail(false);
             if (searchOpen) {
                 const input = host.querySelector('#siteCalSearch');
                 if (input) {
+                    // Typing only redraws the result list, so the field keeps its caret,
+                    // selection and any IME composition in progress.
                     input.addEventListener('input', e => {
                         searchQuery = e.target.value;
-                        renderCalendar();
-                        setTimeout(() => {
-                            const i = host.querySelector('#siteCalSearch');
-                            if (i) {
-                                i.focus();
-                                i.setSelectionRange(i.value.length, i.value.length);
-                            }
-                        }, 0);
+                        const results = host.querySelector('.site-cal-v2-results');
+                        if (results)
+                            results.innerHTML = resultsHtml();
                     });
                 }
             }
@@ -9301,14 +9300,9 @@
             const reason = String(err && err.message || '');
             console.warn('[UniPakt form]', reason);
             status.classList.add('is-error');
-            if (/activat/i.test(reason)) {
-                // First submission: FormSubmit mailed a one-time activation link.
-                status.textContent = 'Form henüz etkinleştirilmemiş. iletisim@unipakt.com kutusuna gelen FormSubmit e-postasındaki "Activate Form" butonuna basıp tekrar dene.';
-            } else if (/web server/i.test(reason)) {
-                status.textContent = 'Form, dosya doğrudan açıldığında çalışmaz. Siteyi bir web sunucusu (ör. localhost) üzerinden aç.';
-            } else {
-                status.textContent = `Mesaj gönderilemedi${reason ? ` (${reason})` : ''}. Tekrar dene ya da iletisim@unipakt.com adresine yaz.`;
-            }
+            // The technical reason stays in the console; visitors get one clear message.
+            // (If FormSubmit asks for activation, the link is in the iletisim@unipakt.com inbox.)
+            status.textContent = 'Mesajın şu an gönderilemedi. Biraz sonra tekrar dene ya da iletisim@unipakt.com adresine yaz.';
         } finally {
             if (button) {
                 button.disabled = false;
@@ -9611,7 +9605,7 @@
                 return Promise.resolve(window.UNIPAKT_I18N[code]);
             return loaded[code] = loaded[code] || new Promise((resolve, reject) => {
                 const s = document.createElement('script');
-                s.src = `i18n/${code}.js?v=2`;
+                s.src = `i18n/${code}.js?v=3`;
                 s.onload = () => (window.UNIPAKT_I18N[code] ? resolve(window.UNIPAKT_I18N[code]) : reject(new Error(code)));
                 s.onerror = () => {
                     delete loaded[code];

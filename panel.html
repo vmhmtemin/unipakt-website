@@ -385,10 +385,9 @@
   body { display: flex; flex-direction: column; min-height: 100vh; }
   #root { flex: 1 0 auto; }
   .flower-credit {
-    position: absolute;
-    top: 24px;
-    right: 48px;
-    justify-content: flex-end;
+    align-self: center;
+    margin: 28px auto 24px;
+    justify-content: center;
     padding: 0;
     display: inline-flex;
     align-items: center;
@@ -412,7 +411,7 @@
     flex: none;
   }
   @media (max-width: 600px) {
-    .flower-credit { top: 18px; right: 20px; gap: 6px; font-size: 10px; }
+    .flower-credit { gap: 6px; font-size: 10px; }
     .flower-credit img { width: 14px; height: 18px; }
   }
 </style>
@@ -426,6 +425,12 @@
 <script>
 (() => {
   'use strict';
+  // GitHub Pages cannot send X-Frame-Options / frame-ancestors, so refuse to run
+  // inside another site's frame (clickjacking on the admin panel).
+  if (window.top !== window.self) {
+    try { window.top.location.href = window.location.href; } catch (_) {}
+    return;
+  }
 
   /* ------------------------------------------------------------------
      DEMO DATA LAYER
@@ -952,8 +957,13 @@
     async updateEvent(id, f) {
       const body={ title:f.title, description:f.desc, event_date:f.date, event_time:f.time||null, place:f.place||null, university:f.university||null, address:f.address||null, rules:f.rules||null, poster_url:f.posterUrl||null, tags:f.tags||[], registration_url:f.registration||null, fee_type:f.feeType||'free', fee_amount:f.feeType==='paid'&&f.feeAmount!==''?Number(f.feeAmount):null };
       await rest(`events?${eq(id)}`, {method:'PATCH',body});
-      await rest(`event_occurrences?event_id=eq.${encodeURIComponent(id)}`, {method:'DELETE'});
-      if(f.occurrences?.length) await rest('event_occurrences',{method:'POST',body:f.occurrences.map(o=>({event_id:id,date:o.date,time:o.time||null}))});
+      // Add the new dates first and delete the old rows only afterwards, so a failed
+      // request can never leave the event without any date.
+      if (f.occurrences?.length) {
+        const old = (await rest(`event_occurrences?event_id=eq.${encodeURIComponent(id)}&select=id`)) || [];
+        await rest('event_occurrences', { method:'POST', body:f.occurrences.map(o=>({event_id:id,date:o.date,time:o.time||null})) });
+        if (old.length) await rest(`event_occurrences?id=in.(${old.map(o => encodeURIComponent(o.id)).join(',')})`, { method:'DELETE' });
+      }
     },
     async decideEventEdit(id,status,note='') {
       const req=(await rest(`event_edit_requests?${eq(id)}&select=*`))[0]; if(!req) return;
@@ -1052,7 +1062,7 @@
       const payload={p_subject:subject,p_category:category,p_category_label:categoryLabel||category,p_body:body,p_event_id:eventId||null,p_attachment_path:attachmentPath||null,p_attachment_name:attachmentName||null};
       try { await rest('rpc/support_create_ticket_v2',{method:'POST',body:payload}); }
       catch (error) {
-        if (/404|not found|PGRST202/i.test(String(error.message||''))) await rest('rpc/create_support_ticket',{method:'POST',body:payload});
+        if (error.status === 404 || /PGRST202|could not find the function/i.test(String(error.message||''))) await rest('rpc/create_support_ticket',{method:'POST',body:payload});
         else throw error;
       }
       await loadSupportRemote();
@@ -1060,7 +1070,7 @@
     async supportReply(id,body) {
       try { await rest('rpc/support_reply_ticket_v2',{method:'POST',body:{p_ticket_id:id,p_body:body}}); }
       catch (error) {
-        if (/404|not found|PGRST202/i.test(String(error.message||''))) await rest('rpc/reply_support_ticket',{method:'POST',body:{p_ticket_id:id,p_body:body}});
+        if (error.status === 404 || /PGRST202|could not find the function/i.test(String(error.message||''))) await rest('rpc/reply_support_ticket',{method:'POST',body:{p_ticket_id:id,p_body:body}});
         else throw error;
       }
       await loadSupportRemote();
@@ -2802,7 +2812,13 @@
     }
   });
   document.addEventListener('input', (e) => {
-    if (e.target.matches('[data-support-search]')) { state.support.q = e.target.value; render(); const el=document.querySelector('[data-support-search]'); el?.focus(); el?.setSelectionRange(el.value.length,el.value.length); }
+    if (e.target.matches('[data-support-search]')) {
+      if (e.isComposing) return;   // wait until an IME word is finished
+      const { selectionStart: a, selectionEnd: b } = e.target;
+      state.support.q = e.target.value; render();
+      const el = document.querySelector('[data-support-search]');
+      el?.focus(); el?.setSelectionRange(a, b);   // keep the caret where it was
+    }
   });
   document.addEventListener('change', (e) => {
     if (e.target.id === 'taskClub') { state.taskClub = e.target.value; render(); return; }
