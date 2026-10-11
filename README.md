@@ -106,4 +106,4 @@ This project is currently under development. Licensing information will be added
 A platform for discovering events, communities, and opportunities within university life.
 
 
-Crafted digitally by Flower Software.
+Digitally crafted by Flower Studios.

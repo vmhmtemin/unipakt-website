@@ -381,7 +381,7 @@
   }
   @media (min-width: 641px) { .cal-day .chips { display: grid; gap: 3px; width: 100%; } }
 
-  /* ---- Flower Software credit ---- */
+  /* ---- Flower Studios credit ---- */
   body { display: flex; flex-direction: column; min-height: 100vh; }
   #root { flex: 1 0 auto; }
   .flower-credit {
@@ -399,20 +399,21 @@
     opacity: .58;
     text-decoration: none;
     transition: opacity .2s ease;
-    pointer-events: none;
   }
   .flower-credit:hover { opacity: 1; }
-  .flower-credit img {
-    width: 16px;
-    height: 20px;
-    object-fit: cover;
-    object-position: center;
+  /* F logosu (SVG) — üzerine gelince hafifçe döner */
+  .flower-credit .flower-mark {
+    width: 13px;
+    height: auto;
     display: block;
     flex: none;
+    color: var(--ink);
+    transition: transform .5s cubic-bezier(0.16, 1, 0.3, 1);
   }
+  .flower-credit:hover .flower-mark { transform: rotate(-8deg) scale(1.12); }
   @media (max-width: 600px) {
     .flower-credit { gap: 6px; font-size: 10px; }
-    .flower-credit img { width: 14px; height: 18px; }
+    .flower-credit .flower-mark { width: 12px; }
   }
 </style>
 </head>
@@ -2943,9 +2944,9 @@
 })();
 </script>
 
-  <div class="flower-credit" aria-label="Flower Software">
-    <img src="data:image/png;base64,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" alt="Flower Software" aria-hidden="true">
-    <span>Digitally crafted by Flower Software</span>
+  <div class="flower-credit" aria-label="Flower Studios">
+    <svg class="flower-mark" viewBox="0 0 415 650" aria-hidden="true"><polygon fill="currentColor" points="10,260 142,175 142,643"/><polygon fill="#fe5c1d" points="154,167 405,8 377,138 154,265"/><polygon fill="#fe5c1d" points="154,328 352,235 323,330 154,408"/></svg>
+    <span lang="en">Digitally crafted by Flower Studios.</span>
   </div>
 
 </body>
