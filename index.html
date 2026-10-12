@@ -3699,6 +3699,27 @@
         }
     }
 
+    /* ---------- KVKK onay kutusu ve penceresi ---------- */
+    .kvkk-consent { display: flex; gap: 12px; align-items: flex-start; margin: 6px 0 22px; font-size: 14.5px; line-height: 1.5; cursor: pointer; color: color-mix(in srgb, var(--ink) 80%, transparent); }
+    .kvkk-consent input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; cursor: pointer; accent-color: var(--accent, #FF5A1F); }
+    .kvkk-consent a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+    .kvkk-dialog { width: min(760px, calc(100vw - 32px)); max-height: min(86vh, 900px); padding: 0; border: 1px solid var(--border-strong); border-radius: 20px; background: var(--paper); color: var(--ink); overflow: hidden; }
+    .kvkk-dialog[open] { display: flex; flex-direction: column; }
+    .kvkk-dialog::backdrop { background: rgba(0, 0, 0, .62); backdrop-filter: blur(3px); }
+    .kvkk-dialog-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 22px; border-bottom: 1px solid var(--border); }
+    .kvkk-dialog-head h2 { margin: 0; font-size: 20px; }
+    .kvkk-dialog-close { background: none; border: 0; color: inherit; font-size: 30px; line-height: 1; cursor: pointer; padding: 0 4px; }
+    .kvkk-dialog-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 22px 24px; }
+    .kvkk-dialog-body .legal { max-width: none; padding: 0; }
+    .kvkk-dialog-body .legal h2 { font-size: 18px; margin: 26px 0 8px; }
+    .kvkk-dialog-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 14px 22px; border-top: 1px solid var(--border); }
+    .kvkk-dialog-hint { margin: 0; font-size: 13px; opacity: .65; }
+    .kvkk-dialog-ok:disabled { opacity: .4; cursor: not-allowed; }
+    @media (max-width: 600px) {
+        .kvkk-dialog { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; border: 0; }
+        .kvkk-dialog-ok { width: 100%; }
+    }
+
     /* ---------- KVKK Aydınlatma Metni ---------- */
     .legal { max-width: 76ch; }
     .legal h1 { font-size: clamp(32px, 5vw, 56px); line-height: 1.05; margin: 0 0 14px; }
@@ -6695,6 +6716,10 @@
                             <textarea id="c-msg" placeholder="Mesajını buraya yaz..."></textarea>
                         </div>
                         <div class="form-dot">.</div>
+                        <label class="kvkk-consent">
+                            <input type="checkbox" class="kvkk-check" name="kvkk" required>
+                            <span><a href="/kvkk/" class="kvkk-open">KVKK Aydınlatma Metni</a>'ni okudum, onaylıyorum.</span>
+                        </label>
                         <button type="submit" class="btn-pill">Gönder</button>
                         <p class="form-status" id="contactStatus"></p>
                     </form>
@@ -6811,6 +6836,10 @@
                                 <label for="j-msg">Mesajın</label>
                                 <textarea id="j-msg" placeholder="Mesajını buraya yaz..."></textarea>
                             </div>
+                            <label class="kvkk-consent">
+                                <input type="checkbox" class="kvkk-check" name="kvkk" required>
+                                <span><a href="/kvkk/" class="kvkk-open">KVKK Aydınlatma Metni</a>'ni okudum, onaylıyorum.</span>
+                            </label>
                             <button type="submit" class="btn-pill">Başvur</button>
                             <p class="form-status" id="joinStatus"></p>
                         </div>
@@ -6900,6 +6929,19 @@
             </div>
         </section>
     </main>
+
+    <!-- KVKK onay penceresi: içerik /kvkk/ sayfasındaki metinden kopyalanır (tek kaynak). -->
+    <dialog class="kvkk-dialog" id="kvkkDialog" aria-labelledby="kvkkDialogTitle">
+        <div class="kvkk-dialog-head">
+            <h2 id="kvkkDialogTitle">KVKK Aydınlatma Metni</h2>
+            <button type="button" class="kvkk-dialog-close" aria-label="Kapat">×</button>
+        </div>
+        <div class="kvkk-dialog-body" id="kvkkDialogBody" tabindex="0"></div>
+        <div class="kvkk-dialog-foot">
+            <p class="kvkk-dialog-hint" id="kvkkDialogHint" aria-live="polite">Onaylamak için metni sonuna kadar kaydır.</p>
+            <button type="button" class="btn-pill kvkk-dialog-ok" id="kvkkDialogOk" disabled>Okudum, onaylıyorum</button>
+        </div>
+    </dialog>
 
     <footer class="site-footer">
         <div class="footer-top">
@@ -9414,6 +9456,13 @@
         const button = form.querySelector('button[type="submit"]');
         const isContact = statusId === 'contactStatus';
         const honey = form.querySelector('.hp-field')?.value || '';
+        const kvkk = form.querySelector('.kvkk-check');
+        if (kvkk && !kvkk.checked) {
+            status.classList.remove('is-ok');
+            status.classList.add('is-error');
+            status.textContent = "Göndermeden önce KVKK Aydınlatma Metni'ni onaylaman gerekiyor.";
+            return;
+        }
 
         const rpc = isContact ? 'submit_contact_message' : 'submit_join_application';
         const payload = isContact
@@ -9480,6 +9529,78 @@
             }
         }
     }
+
+    /* ---------- KVKK onayı ----------
+       Formlardaki onay kutusu doğrudan işaretlenmez: önce KVKK metni açılır,
+       "Okudum, onaylıyorum" yalnızca metin sonuna kadar kaydırılınca çalışır ve
+       kutuyu o işaretler. Kutu işaretli değilse form gönderilmez (required). */
+    (function initKvkkConsent() {
+        const dlg = document.getElementById('kvkkDialog');
+        const body = document.getElementById('kvkkDialogBody');
+        const ok = document.getElementById('kvkkDialogOk');
+        const hint = document.getElementById('kvkkDialogHint');
+        const source = document.querySelector('#page-kvkk .legal');
+        if (!dlg || !body || !ok || !hint || !source || typeof dlg.showModal !== 'function')
+            return;   // eski tarayıcı: kutu normal onay kutusu gibi çalışır, metin /kvkk/ sayfasında
+        let target = null;
+
+        const fill = () => {
+            if (body.childElementCount)
+                return;
+            const copy = source.cloneNode(true);
+            copy.querySelector('h1')?.remove();
+            copy.classList.remove('wrap');
+            body.append(copy);
+        };
+        const atEnd = () => body.scrollTop + body.clientHeight >= body.scrollHeight - 8;
+        const update = () => {
+            if (!ok.disabled || !atEnd())
+                return;
+            ok.disabled = false;
+            hint.textContent = 'Metnin sonuna geldin, onaylayabilirsin.';
+        };
+        const open = (box) => {
+            target = box || null;
+            fill();
+            ok.disabled = true;
+            hint.textContent = 'Onaylamak için metni sonuna kadar kaydır.';
+            dlg.showModal();
+            body.scrollTop = 0;
+            body.focus({ preventScroll: true });
+            requestAnimationFrame(update);   // metin kısa kalırsa (kaydırma yoksa) hemen açılır
+        };
+
+        body.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', () => { if (dlg.open) update(); });
+        ok.addEventListener('click', () => {
+            if (ok.disabled)
+                return;
+            if (target) {
+                target.checked = true;
+                target.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            dlg.close();
+        });
+        dlg.addEventListener('close', () => { target?.focus({ preventScroll: true }); });
+        dlg.querySelector('.kvkk-dialog-close').addEventListener('click', () => dlg.close());
+        dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });   // pencere dışına tıklama
+
+        document.querySelectorAll('.kvkk-check').forEach((box) => {
+            box.addEventListener('click', (e) => {
+                if (box.checked) {          // işaretlenmek üzere: önce metni göster
+                    e.preventDefault();
+                    open(box);
+                }                           // işareti kaldırmak serbest
+            });
+        });
+        document.querySelectorAll('.kvkk-open').forEach((link) => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                open(link.closest('.kvkk-consent')?.querySelector('.kvkk-check'));
+            });
+        });
+    })();
 
     /* ---------- Opening screen behavior ---------- */
     (function initIntroScreen() {
