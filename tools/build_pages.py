@@ -32,6 +32,7 @@ ROUTES = {
     "kampus": "Kampüsünde UniPakt",
     "iletisim": "İletişim",
     "katil": "Bize Katıl",
+    "kvkk": "KVKK Aydınlatma Metni",
 }
 
 # Never published: source-only files.
