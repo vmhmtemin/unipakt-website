@@ -165,6 +165,14 @@
 "UniPakt sosyal medya hesapları": "Соцсети UniPakt",
 "Dil seç": "Выбрать язык",
 "UniPakt — İstanbul Üniversite Kulüpleri Ağı": "UniPakt — сеть университетских клубов Стамбула",
-"UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.": "UniPakt — сеть, которая объединяет университетские клубы Стамбула на совместных мероприятиях и доносит их события до всего города. Ни один клуб не одинок."
+"UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.": "UniPakt — сеть, которая объединяет университетские клубы Стамбула на совместных мероприятиях и доносит их события до всего города. Ни один клуб не одинок.",
+"KVKK Aydınlatma Metni": "Уведомление о конфиденциальности KVKK",
+"KVKK Aydınlatma Metni — UniPakt": "Уведомление о конфиденциальности KVKK — UniPakt",
+"KVKK Aydınlatma Metni'ni okudum, onaylıyorum.": "Я прочитал(а) Уведомление о конфиденциальности KVKK и принимаю его.",
+"Kapat": "Закрыть",
+"Onaylamak için metni sonuna kadar kaydır.": "Прокрути текст до конца, чтобы подтвердить.",
+"Metnin sonuna geldin, onaylayabilirsin.": "Ты дочитал(а) до конца, теперь можно подтвердить.",
+"Okudum, onaylıyorum": "Прочитал(а) и принимаю",
+"Göndermeden önce KVKK Aydınlatma Metni'ni onaylaman gerekiyor.": "Перед отправкой прими Уведомление о конфиденциальности KVKK."
 }
 };

@@ -165,6 +165,14 @@
 "UniPakt sosyal medya hesapları": "Réseaux sociaux de UniPakt",
 "Dil seç": "Choisir la langue",
 "UniPakt — İstanbul Üniversite Kulüpleri Ağı": "UniPakt — Réseau des clubs universitaires d’Istanbul",
-"UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.": "UniPakt est un réseau qui réunit les clubs universitaires d’Istanbul autour d’événements communs et les fait connaître dans tout Istanbul. Aucun club n’est seul."
+"UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.": "UniPakt est un réseau qui réunit les clubs universitaires d’Istanbul autour d’événements communs et les fait connaître dans tout Istanbul. Aucun club n’est seul.",
+"KVKK Aydınlatma Metni": "Notice de confidentialité KVKK",
+"KVKK Aydınlatma Metni — UniPakt": "Notice de confidentialité KVKK — UniPakt",
+"KVKK Aydınlatma Metni'ni okudum, onaylıyorum.": "J'ai lu et j'accepte la notice de confidentialité KVKK.",
+"Kapat": "Fermer",
+"Onaylamak için metni sonuna kadar kaydır.": "Fais défiler le texte jusqu'à la fin pour accepter.",
+"Metnin sonuna geldin, onaylayabilirsin.": "Tu es arrivé(e) à la fin, tu peux accepter.",
+"Okudum, onaylıyorum": "J'ai lu et j'accepte",
+"Göndermeden önce KVKK Aydınlatma Metni'ni onaylaman gerekiyor.": "Accepte la notice de confidentialité KVKK avant d'envoyer."
 }
 };

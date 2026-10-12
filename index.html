@@ -3702,7 +3702,7 @@
     /* ---------- KVKK onay kutusu ve penceresi ---------- */
     .kvkk-consent { display: flex; gap: 12px; align-items: flex-start; margin: 6px 0 22px; font-size: 14.5px; line-height: 1.5; cursor: pointer; color: color-mix(in srgb, var(--ink) 80%, transparent); }
     .kvkk-consent input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; cursor: pointer; accent-color: var(--accent, #FF5A1F); }
-    .kvkk-consent a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+    .kvkk-consent span { text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 3px; }
     .kvkk-dialog { width: min(760px, calc(100vw - 32px)); max-height: min(86vh, 900px); padding: 0; border: 1px solid var(--border-strong); border-radius: 20px; background: var(--paper); color: var(--ink); overflow: hidden; }
     .kvkk-dialog[open] { display: flex; flex-direction: column; }
     .kvkk-dialog::backdrop { background: rgba(0, 0, 0, .62); backdrop-filter: blur(3px); }
@@ -6718,7 +6718,7 @@
                         <div class="form-dot">.</div>
                         <label class="kvkk-consent">
                             <input type="checkbox" class="kvkk-check" name="kvkk" required>
-                            <span><a href="/kvkk/" class="kvkk-open">KVKK Aydınlatma Metni</a>'ni okudum, onaylıyorum.</span>
+                            <span>KVKK Aydınlatma Metni'ni okudum, onaylıyorum.</span>
                         </label>
                         <button type="submit" class="btn-pill">Gönder</button>
                         <p class="form-status" id="contactStatus"></p>
@@ -6838,7 +6838,7 @@
                             </div>
                             <label class="kvkk-consent">
                                 <input type="checkbox" class="kvkk-check" name="kvkk" required>
-                                <span><a href="/kvkk/" class="kvkk-open">KVKK Aydınlatma Metni</a>'ni okudum, onaylıyorum.</span>
+                                <span>KVKK Aydınlatma Metni'ni okudum, onaylıyorum.</span>
                             </label>
                             <button type="submit" class="btn-pill">Başvur</button>
                             <p class="form-status" id="joinStatus"></p>
@@ -6925,6 +6925,7 @@
                     <p>Yukarıdaki haklarınızı kullanmak için taleplerinizi <a href="mailto:iletisim@unipakt.com">iletisim@unipakt.com</a> adresine, bize daha önce bildirdiğiniz e-posta adresinizden gönderebilirsiniz. Talebinizde kimliğinizi ve talep konusunu açıkça belirtmeniz gerekir.</p>
                     <p>Taleplerinizi en geç otuz gün içinde yanıtlarız. Yanıtı yetersiz bulursanız ya da süresinde yanıt alamazsanız, Kişisel Verileri Koruma Kurulu'na şikayet hakkınız saklıdır.</p>
                     <p>Bu metin, 12 Ekim 2026 tarihinde yayınlanmıştır ve gerektiğinde güncellenebilir.</p>
+                    <p class="legal-meta">Bu metin Türkçe hazırlanmıştır. Çeviriler yalnızca bilgi amaçlıdır; çeviri ile Türkçe metin arasında farklılık olması halinde Türkçe metin esas alınır.</p>
                 </article>
             </div>
         </section>
@@ -9545,8 +9546,7 @@
         let target = null;
 
         const fill = () => {
-            if (body.childElementCount)
-                return;
+            body.replaceChildren();           // her açılışta güncel (seçili dildeki) metinden kopyala
             const copy = source.cloneNode(true);
             copy.querySelector('h1')?.remove();
             copy.classList.remove('wrap');
@@ -9892,7 +9892,7 @@
                 return Promise.resolve(window.UNIPAKT_I18N[code]);
             return loaded[code] = loaded[code] || new Promise((resolve, reject) => {
                 const s = document.createElement('script');
-                s.src = `/i18n/${code}.js?v=3`;
+                s.src = `/i18n/${code}.js?v=4`;
                 s.onload = () => (window.UNIPAKT_I18N[code] ? resolve(window.UNIPAKT_I18N[code]) : reject(new Error(code)));
                 s.onerror = () => {
                     delete loaded[code];

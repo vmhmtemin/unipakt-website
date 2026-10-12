@@ -165,6 +165,14 @@
 "UniPakt sosyal medya hesapları": "UniPakt के सोशल मीडिया खाते",
 "Dil seç": "भाषा चुनें",
 "UniPakt — İstanbul Üniversite Kulüpleri Ağı": "UniPakt — इस्तांबुल विश्वविद्यालय क्लबों का नेटवर्क",
-"UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.": "UniPakt एक नेटवर्क है जो इस्तांबुल के विश्वविद्यालय क्लबों को साझा कार्यक्रमों में साथ लाता है और उनके कार्यक्रमों को पूरे इस्तांबुल तक पहुँचाता है। कोई भी क्लब अकेला नहीं है।"
+"UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.": "UniPakt एक नेटवर्क है जो इस्तांबुल के विश्वविद्यालय क्लबों को साझा कार्यक्रमों में साथ लाता है और उनके कार्यक्रमों को पूरे इस्तांबुल तक पहुँचाता है। कोई भी क्लब अकेला नहीं है।",
+"KVKK Aydınlatma Metni": "KVKK गोपनीयता सूचना",
+"KVKK Aydınlatma Metni — UniPakt": "KVKK गोपनीयता सूचना — UniPakt",
+"KVKK Aydınlatma Metni'ni okudum, onaylıyorum.": "मैंने KVKK गोपनीयता सूचना पढ़ ली है और मैं इसे स्वीकार करता/करती हूँ।",
+"Kapat": "बंद करें",
+"Onaylamak için metni sonuna kadar kaydır.": "स्वीकार करने के लिए पाठ को अंत तक स्क्रॉल करें।",
+"Metnin sonuna geldin, onaylayabilirsin.": "आप अंत तक पहुँच गए हैं, अब स्वीकार कर सकते हैं।",
+"Okudum, onaylıyorum": "पढ़ लिया, स्वीकार है",
+"Göndermeden önce KVKK Aydınlatma Metni'ni onaylaman gerekiyor.": "भेजने से पहले KVKK गोपनीयता सूचना स्वीकार करें।"
 }
 };

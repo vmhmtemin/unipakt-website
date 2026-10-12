@@ -165,6 +165,14 @@
 "UniPakt sosyal medya hesapları": "Akun media sosial UniPakt",
 "Dil seç": "Pilih bahasa",
 "UniPakt — İstanbul Üniversite Kulüpleri Ağı": "UniPakt — Jaringan Klub Universitas Istanbul",
-"UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.": "UniPakt adalah jaringan yang mempertemukan klub-klub universitas di Istanbul dalam acara bersama dan menyebarkan acara mereka ke seluruh Istanbul. Tidak ada klub yang sendirian."
+"UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.": "UniPakt adalah jaringan yang mempertemukan klub-klub universitas di Istanbul dalam acara bersama dan menyebarkan acara mereka ke seluruh Istanbul. Tidak ada klub yang sendirian.",
+"KVKK Aydınlatma Metni": "Pemberitahuan Privasi KVKK",
+"KVKK Aydınlatma Metni — UniPakt": "Pemberitahuan Privasi KVKK — UniPakt",
+"KVKK Aydınlatma Metni'ni okudum, onaylıyorum.": "Saya telah membaca dan menyetujui Pemberitahuan Privasi KVKK.",
+"Kapat": "Tutup",
+"Onaylamak için metni sonuna kadar kaydır.": "Gulir sampai akhir teks untuk menyetujui.",
+"Metnin sonuna geldin, onaylayabilirsin.": "Kamu sudah sampai di akhir, sekarang bisa menyetujui.",
+"Okudum, onaylıyorum": "Saya telah membaca dan menyetujui",
+"Göndermeden önce KVKK Aydınlatma Metni'ni onaylaman gerekiyor.": "Setujui Pemberitahuan Privasi KVKK sebelum mengirim."
 }
 };

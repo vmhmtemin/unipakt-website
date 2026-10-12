@@ -165,6 +165,14 @@
 "UniPakt sosyal medya hesapları": "UniPakt کے سوشل میڈیا اکاؤنٹس",
 "Dil seç": "زبان منتخب کریں",
 "UniPakt — İstanbul Üniversite Kulüpleri Ağı": "UniPakt — استنبول کی جامعات کے کلبوں کا نیٹ ورک",
-"UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.": "UniPakt ایک نیٹ ورک ہے جو استنبول کی جامعات کے کلبوں کو مشترکہ تقریبات میں اکٹھا کرتا ہے اور ان کی تقریبات پورے استنبول تک پہنچاتا ہے۔ کوئی بھی کلب اکیلا نہیں۔"
+"UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.": "UniPakt ایک نیٹ ورک ہے جو استنبول کی جامعات کے کلبوں کو مشترکہ تقریبات میں اکٹھا کرتا ہے اور ان کی تقریبات پورے استنبول تک پہنچاتا ہے۔ کوئی بھی کلب اکیلا نہیں۔",
+"KVKK Aydınlatma Metni": "KVKK رازداری نوٹس",
+"KVKK Aydınlatma Metni — UniPakt": "KVKK رازداری نوٹس — UniPakt",
+"KVKK Aydınlatma Metni'ni okudum, onaylıyorum.": "میں نے KVKK رازداری نوٹس پڑھ لیا ہے اور اسے قبول کرتا/کرتی ہوں۔",
+"Kapat": "بند کریں",
+"Onaylamak için metni sonuna kadar kaydır.": "قبول کرنے کے لیے متن کو آخر تک اسکرول کریں۔",
+"Metnin sonuna geldin, onaylayabilirsin.": "آپ آخر تک پہنچ گئے ہیں، اب قبول کر سکتے ہیں۔",
+"Okudum, onaylıyorum": "پڑھ لیا، قبول ہے",
+"Göndermeden önce KVKK Aydınlatma Metni'ni onaylaman gerekiyor.": "بھیجنے سے پہلے KVKK رازداری نوٹس قبول کریں۔"
 }
 };
