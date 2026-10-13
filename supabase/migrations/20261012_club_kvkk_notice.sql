@@ -12,6 +12,9 @@
 --
 -- ÖNCE Edge Function'ı (verify_jwt = false) yayına alın, SONRA bu dosyayı çalıştırın.
 -- Tekrar çalıştırmak güvenlidir.
+-- DİKKAT: clubs_kvkk_notice_reset() 20261013_audit_fixes.sql'de genişletildi
+-- (kvkk_consent_at de sıfırlanır). Bu dosya yeniden çalıştırılırsa ardından
+-- 20261013'ü de tekrar çalıştırın.
 -- ============================================================
 
 alter table public.clubs add column if not exists kvkk_notice_sent_at timestamptz;

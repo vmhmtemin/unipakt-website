@@ -9,6 +9,9 @@
 --    Bildirimde kişisel veri YOK: sadece "yeni mesaj var, panelden bak".
 --  * IP adresi ya da tarayıcı bilgisi saklanmaz.
 -- Tekrar çalıştırmak güvenlidir.
+-- DİKKAT: 20261013_audit_fixes.sql iki form fonksiyonunu yeni imzayla
+-- (p_kvkk_version) değiştirdi. 20261013'ten sonra bu dosyayı yeniden
+-- çalıştırmayın; eski imzalar geri gelir ve PostgREST çağrıları karışır.
 -- ============================================================
 
 create table if not exists public.contact_messages (

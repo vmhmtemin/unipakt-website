@@ -3,8 +3,10 @@
 revoke execute on function public.push_notification from public, anon, authenticated;
 revoke execute on function public.push_admin_notification from public, anon, authenticated;
 
--- SECURITY DEFINER functions: no anon access (public_events stays public);
+-- SECURITY DEFINER functions: no anon access (the site's public RPCs stay public);
 -- trigger functions are not callable by anyone directly.
+-- Any new anon-callable SECURITY DEFINER function must be added to this list,
+-- otherwise re-running this file revokes anon from it.
 do $$
 declare r record;
 begin
@@ -12,7 +14,8 @@ begin
     select p.oid::regprocedure as sig, pg_get_function_result(p.oid) = 'trigger' as is_trg
     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'public' and p.prosecdef
-      and p.proname not in ('public_events','push_notification','push_admin_notification','verify_notification_key')
+      and p.proname not in ('public_events','public_clubs','submit_contact_message','submit_join_application',
+                            'push_notification','push_admin_notification','verify_notification_key')
   loop
     execute format('revoke execute on function %s from public, anon', r.sig);
     if r.is_trg then

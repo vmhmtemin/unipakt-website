@@ -3,15 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src https://*.supabase.co; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://*.supabase.co; connect-src https://hcgotmcbwmleeklbvawb.supabase.co; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'">
 <meta name="robots" content="noindex, nofollow">
 <title>UniPakt Panel</title>
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Caveat:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Fonts are served from /fonts/ (no third-party font service). */
+@font-face { font-family: 'Archivo'; font-style: normal; font-weight: 500 900; font-display: swap; src: url(/fonts/archivo-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Archivo'; font-style: normal; font-weight: 500 900; font-display: swap; src: url(/fonts/archivo-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Caveat'; font-style: normal; font-weight: 600 700; font-display: swap; src: url(/fonts/caveat-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Caveat'; font-style: normal; font-weight: 600 700; font-display: swap; src: url(/fonts/caveat-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 400 600; font-display: swap; src: url(/fonts/inter-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 400 600; font-display: swap; src: url(/fonts/inter-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+</style>
 <style>
   :root {
     color-scheme: dark;
@@ -434,9 +440,8 @@
   }
 
   /* ------------------------------------------------------------------
-     DEMO DATA LAYER
-     Everything lives in this browser's localStorage. When the real
-     backend arrives, only `load`, `save` and the login need to change.
+     DEMO DATA LAYER (panel.html?demo, only on a local machine)
+     Everything lives in this browser's localStorage.
      ------------------------------------------------------------------ */
   const KEY = 'unipaktPanelDemo.v4';
   const SESSION = 'unipaktPanelUser';
@@ -452,7 +457,7 @@
   const contactLink = (key, value) => {
     const raw = String(value || '').trim();
     if (!raw) return null;
-    if (key === 'email') return EMAIL_RE.test(raw) ? { href: `mailto:${raw}`, text: raw } : null;
+    if (key === 'email') return EMAIL_RE.test(raw) ? { href: `mailto:${encodeURIComponent(raw)}`, text: raw } : null;
     const base = CONTACT_BASE[key];
     let url = raw;
     if (!/^https?:\/\//i.test(url) && /^[\w-]+(\.[\w-]+)+(\/|$)/.test(url) && (url.includes('/') || !base)) url = `https://${url}`;
@@ -468,8 +473,10 @@
   // enforced by the row level security rules in supabase/schema.sql.
   const SUPABASE_URL = 'https://hcgotmcbwmleeklbvawb.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_RcHJDYGkpd-01DPYG9o3HQ_8prlhUQn';
-  // panel.html?demo keeps everything in this browser and needs no account.
-  const DEMO = new URLSearchParams(location.search).has('demo');
+  // panel.html?demo keeps everything in this browser and needs no account. It only
+  // works on a local machine; on the live site the flag is ignored.
+  const LOCAL_HOST = location.protocol === 'file:' || ['localhost', '127.0.0.1', '[::1]', '::1'].includes(location.hostname);
+  const DEMO = LOCAL_HOST && new URLSearchParams(location.search).has('demo');
   const MAX_FILE = (DEMO ? 1 : 5) * 1024 * 1024;
 
   const pad = (n) => String(n).padStart(2, '0');
@@ -555,10 +562,13 @@
     session = next;
     try { next ? localStorage.setItem(TOKENS, JSON.stringify(next)) : localStorage.removeItem(TOKENS); } catch (_) {}
   };
-  const readSession = () => {
-    try { session = JSON.parse(localStorage.getItem(TOKENS)); } catch (_) { session = null; }
-    if (!session || !session.access_token || !session.refresh_token) session = null;
+  // The stored session is shared by every open panel tab; each tab re-reads it before refreshing.
+  const storedSession = () => {
+    let s = null;
+    try { s = JSON.parse(localStorage.getItem(TOKENS)); } catch (_) { s = null; }
+    return s && s.access_token && s.refresh_token ? s : null;
   };
+  const readSession = () => { session = storedSession(); };
   const signedOut = (message) => { writeSession(null); state.user = null; db = null; return new Error(message); };
 
   const authCall = async (grant, body) => {
@@ -573,11 +583,24 @@
       expires_at: Date.now() + (data.expires_in || 3600) * 1000, user_id: data.user.id });
   };
   let refreshing = null;
+  const fresh = (s) => !!s && Date.now() < s.expires_at - 60000;
+  // Another tab may already have refreshed (and so used up our refresh token): take its tokens.
+  const adoptStored = () => {
+    const stored = storedSession();
+    if (stored && session && stored.user_id === session.user_id && stored.refresh_token !== session.refresh_token) session = stored;
+    return stored;
+  };
   const token = async () => {
     if (!session) throw signedOut('Oturum kapalı. Tekrar giriş yap.');
-    if (Date.now() > session.expires_at - 60000) {
-      refreshing = refreshing || authCall('refresh_token', { refresh_token: session.refresh_token }).finally(() => { refreshing = null; });
+    if (!fresh(session)) {
+      refreshing = refreshing || (async () => {
+        if (!adoptStored()) throw signedOut('Oturum kapalı. Tekrar giriş yap.');
+        if (!fresh(session)) await authCall('refresh_token', { refresh_token: session.refresh_token });
+      })().finally(() => { refreshing = null; });
       try { await refreshing; } catch (e) {
+        if (!session) throw e;
+        adoptStored();   // lost a race with another tab: its new tokens are fine
+        if (fresh(session)) return session.access_token;
         if (e.status) throw signedOut('Oturumun süresi doldu. Tekrar giriş yap.');
         throw e;
       }
@@ -603,6 +626,28 @@
   };
   const rest = (query, opts) => call(`/rest/v1/${query}`, opts);
   const eq = (id) => `id=eq.${encodeURIComponent(id)}`;
+  // PATCH/DELETE that must touch at least one row. Row level security turns a
+  // forbidden or missing row into an empty success, so ask for the rows back.
+  const restMust = async (query, opts = {}) => {
+    const q = /[?&]select=/.test(query) ? query : `${query}${query.includes('?') ? '&' : '?'}select=id`;
+    const rows = await rest(q, { ...opts, headers: { ...(opts.headers || {}), Prefer: 'return=representation' } });
+    if (!Array.isArray(rows) || !rows.length) throw new Error('Kayıt bulunamadı ya da bu işlem için yetkin yok.');
+    return rows;
+  };
+  // Best-effort file cleanup: a failure here never blocks the action it follows.
+  const storageRemove = async (bucket, paths) => {
+    const list = [...new Set((paths || []).filter(Boolean))];
+    if (!list.length) return true;
+    try { await call(`/storage/v1/object/${bucket}`, { method: 'DELETE', body: { prefixes: list } }); return true; }
+    catch (error) { console.warn(`[panel] ${bucket} dosyaları silinemedi:`, error && error.message); return false; }
+  };
+  // Every object in a folder of a bucket (one level), or [] when listing is not allowed.
+  const storageList = async (bucket, prefix) => {
+    try {
+      const rows = await call(`/storage/v1/object/list/${bucket}`, { method: 'POST', body: { prefix, limit: 1000, offset: 0 } });
+      return (Array.isArray(rows) ? rows : []).filter((r) => r && r.id && r.name).map((r) => `${prefix}/${r.name}`);
+    } catch (_) { return []; }
+  };
 
   // Reads everything this account is allowed to see into the same shape the demo uses.
   // Support is intentionally loaded and refreshed in isolation. A support
@@ -662,6 +707,7 @@
     const owner = (clubId) => clubId || ADMIN;
     db = {
       clubs: clubs.map((c) => ({ id: c.id, name: c.name, uni: c.university, category: c.category || '', visible: c.visible !== false,
+        kvkkNoticeSentAt: c.kvkk_notice_sent_at || null, kvkkConsentAt: c.kvkk_consent_at || null,
         contact: Object.fromEntries(CONTACT_KEYS.map(([k]) => [k, c[k] || ''])) })),
       announcements: anns.map((a) => ({ id: a.id, title: a.title, body: a.body, authorId: owner(a.club_id), status: a.status, note: a.note || '', createdAt: a.created_at, decidedAt: a.decided_at })),
       events: events.map((e) => ({ id: e.id, title: e.title, desc: e.description, date: e.event_date, time: (e.event_time || '').slice(0, 5), place: e.place || '', address: e.address || '', rules: e.rules || '', poster: e.poster_url || '', tags: Array.isArray(e.tags) ? e.tags : [], registration: e.registration_url || '', feeType: e.fee_type || 'free', feeAmount: e.fee_amount ?? null, university: e.university || '', visible: e.visible !== false, seeking: e.seeking || '',
@@ -850,7 +896,7 @@
       if (e.ownerId === state.user) throw new Error('Kendi etkinliğine ortak olamazsın.');
       if (e.applications.some((p) => p.clubId === state.user)) throw new Error('Bu etkinliğe zaten başvurdun.');
       e.applications.push({ id: uid(), clubId: state.user, note, status: 'pending', createdAt: stamp() });
-      db.notifications ||= []; const host = e.ownerId; db.notifications.unshift({id:uid(),type:'partnership_application',title:'Yeni ortaklık başvurusu',body:`${club(state.user)?.name || 'Bir kulüp'} “${e.title}” etkinliğine ortak olmak istiyor.`,eventId:e.id,applicationId:e.applications.at(-1).id,actionable:true,resolved:false,createdAt:stamp()}); save();
+      db.notifications ||= []; db.notifications.unshift({id:uid(),type:'partnership_application',title:'Yeni ortaklık başvurusu',body:`${club(state.user)?.name || 'Bir kulüp'} “${e.title}” etkinliğine ortak olmak istiyor.`,eventId:e.id,applicationId:e.applications.at(-1).id,actionable:true,resolved:false,createdAt:stamp()}); save();
     },
     async decideApplication(eventId, appId, status, note='') {
       const e=db.events.find(x=>x.id===eventId); const p=e?.applications.find(x=>x.id===appId); if(!p) return;
@@ -886,6 +932,7 @@
     async saveClub(id, fields, account) {
       let c = id ? club(id) : null;
       if (!c) db.clubs.push(c = { id: uid(), account: '', visible: true });
+      if ((c.contact?.email || '') !== (fields.contact?.email || '')) c.kvkkConsentAt = null;   // as the database does
       Object.assign(c, fields);
       if (typeof c.visible !== 'boolean') c.visible = true;
       if (account.email) c.account = account.email;
@@ -895,6 +942,7 @@
       const c = club(id); if (!c) return;
       c.visible = !!visible; save();
     },
+    async setClubConsent(id, at) { const c = club(id); if (!c) return; c.kvkkConsentAt = at; save(); },
     async removeClub(id) {
       db.clubs = db.clubs.filter((c) => c.id !== id);
       db.announcements = db.announcements.filter((a) => a.authorId !== id);
@@ -906,12 +954,14 @@
     },
     async accounts() { return Object.fromEntries(db.clubs.map((c) => [c.id, c.account || ''])); },
     async supportCreate({subject,category,categoryLabel,body,eventId,attachmentName,attachmentPath}) { const t={id:uid(),number:'#UP-'+String(Date.now()).slice(-6),clubId:state.user,subject,category,categoryLabel:categoryLabel||category,eventId:eventId||'',attachmentName:attachmentName||'',attachmentPath:attachmentPath||'',status:'open',createdAt:stamp(),updatedAt:stamp(),messages:[{id:uid(),authorRole:'club',authorLabel:'Kulüp',body,createdAt:stamp()}]}; db.supportTickets.unshift(t); save(); },
-    async supportReply(id,body) { const t=db.supportTickets.find(x=>x.id===id); if(!t) throw new Error('Talep bulunamadı.'); t.messages.push({id:uid(),authorRole:isAdmin()?'admin':'club',authorLabel:isAdmin()?'UniPakt Destek':'Kulüp',body,createdAt:stamp()}); t.status=isAdmin()?'answered':'waiting_user'; t.updatedAt=stamp(); save(); },
+    async supportReply(id,body) { const t=db.supportTickets.find(x=>x.id===id); if(!t) throw new Error('Talep bulunamadı.'); if(!isAdmin()&&t.status==='closed') throw new Error('Bu talep kapatıldı; yanıt verilemez.'); t.messages.push({id:uid(),authorRole:isAdmin()?'admin':'club',authorLabel:isAdmin()?'UniPakt Destek':'Kulüp',body,createdAt:stamp()}); t.status=isAdmin()?'answered':'open'; t.updatedAt=stamp(); save(); },
     async supportUpdate(id, fields) { const t=db.supportTickets.find(x=>x.id===id); if(!t) throw new Error('Talep bulunamadı.'); Object.assign(t, fields, {updatedAt:stamp()}); save(); },
     async supportDelete(id) { db.supportTickets=db.supportTickets.filter(x=>x.id!==id); save(); },
     // Site formları demo modunda yok: liste hep boş.
     async siteInbox() { return { contact: [], join: [] }; },
     async siteInboxDelete() {},
+    async siteInboxDeleteAll() { return 0; },
+    async siteInboxCount() { return { contact: 0, join: 0 }; },
     async refresh() { loadLocal(); },
   };
 
@@ -920,11 +970,10 @@
       if (!file) return '';
       if (!['image/jpeg','image/png','image/webp'].includes(file.type)) throw new Error('Afiş yalnızca JPG, PNG veya WebP olabilir.');
       if (file.size > 5 * 1024 * 1024) throw new Error('Afiş en fazla 5 MB olabilir.');
-      const safe = file.name.normalize('NFKD').replace(/[^A-Za-z0-9._-]+/g, '_').slice(-80) || 'poster';
-      const random = (globalThis.crypto && crypto.randomUUID) ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const path = `${state.user || 'unipakt'}/${random}-${safe}`;
-      // Her yükleme yeni bir obje oluşturur; upsert kullanmıyoruz.
-      // Böylece Storage UPDATE/SELECT RLS'i upload'ı engellemez.
+      const ext = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }[file.type];
+      const path = `${state.user || ADMIN}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      // Her yükleme kulübün klasöründe yeni bir obje oluşturur; upsert (x-upsert) yok.
+      // Kulüpler afiş objelerini güncelleyemez ya da silemez, yalnızca ekleyebilir.
       await call(`/storage/v1/object/event-posters/${path}`, { method:'POST', body:file, raw:true, headers:{'Content-Type':file.type} });
       return `${SUPABASE_URL}/storage/v1/object/public/event-posters/${path}`;
     },
@@ -934,9 +983,9 @@
         : { title, body, club_id: state.user } });
     },
     async decideAnnouncement(id, status, note = '') {
-      await rest(`announcements?${eq(id)}`, { method: 'PATCH', body: { status, note: note || null, decided_at: stamp() } });
+      await restMust(`announcements?${eq(id)}`, { method: 'PATCH', body: { status, note: note || null, decided_at: stamp() } });
     },
-    async removeAnnouncement(id) { await rest(`announcements?${eq(id)}`, { method: 'DELETE' }); },
+    async removeAnnouncement(id) { await restMust(`announcements?${eq(id)}`, { method: 'DELETE' }); },
     async deleteRejectedApplication(kind, id, eventId = '') {
       await rest('rpc/delete_my_rejected_application', { method:'POST', body:{ p_kind:kind, p_id:id, p_event_id:eventId || null } });
     },
@@ -953,14 +1002,14 @@
       await rest('rpc/submit_event', { method: 'POST', body: { p_event: payload } });
     },
     async decideEvent(id, status, note = '') {
-      await rest(`events?${eq(id)}`, { method: 'PATCH', body: { status, note: note || null, decided_at: stamp() } });
+      await restMust(`events?${eq(id)}`, { method: 'PATCH', body: { status, note: note || null, decided_at: stamp() } });
     },
     async requestEventEdit(id, changes) {
       await rest('event_edit_requests', { method:'POST', body:{ event_id:id, club_id:state.user, changes, status:'pending' } });
     },
     async updateEvent(id, f) {
       const body={ title:f.title, description:f.desc, event_date:f.date, event_time:f.time||null, place:f.place||null, university:f.university||null, address:f.address||null, rules:f.rules||null, poster_url:f.posterUrl||null, tags:f.tags||[], registration_url:f.registration||null, fee_type:f.feeType||'free', fee_amount:f.feeType==='paid'&&f.feeAmount!==''?Number(f.feeAmount):null };
-      await rest(`events?${eq(id)}`, {method:'PATCH',body});
+      await restMust(`events?${eq(id)}`, {method:'PATCH',body});
       // Add the new dates first and delete the old rows only afterwards, so a failed
       // request can never leave the event without any date.
       if (f.occurrences?.length) {
@@ -972,25 +1021,25 @@
     async decideEventEdit(id,status,note='') {
       const req=(await rest(`event_edit_requests?${eq(id)}&select=*`))[0]; if(!req) return;
       if(status==='approved') await remote.updateEvent(req.event_id, req.changes||{});
-      await rest(`event_edit_requests?${eq(id)}`, {method:'PATCH',body:{status,note:note||null,decided_at:stamp()}});
+      await restMust(`event_edit_requests?${eq(id)}`, {method:'PATCH',body:{status,note:note||null,decided_at:stamp()}});
     },
     async setEventVisibility(id, visible) {
-      await rest(`events?${eq(id)}`, { method: 'PATCH', body: { visible: !!visible } });
+      await restMust(`events?${eq(id)}`, { method: 'PATCH', body: { visible: !!visible } });
     },
     async requestEventVisibility(id, visible, note = '') {
       await rest('event_visibility_requests', { method: 'POST', body: { event_id: id, club_id: state.user, desired_visible: !!visible, note: note || null } });
     },
     async decideEventVisibility(reqId, status, note = '') {
-      await rest(`event_visibility_requests?${eq(reqId)}`, { method: 'PATCH', body: { status, note: note || null, decided_at: stamp() } });
+      await restMust(`event_visibility_requests?${eq(reqId)}`, { method: 'PATCH', body: { status, note: note || null, decided_at: stamp() } });
       if (status === 'approved') {
         const req = (db.eventVisibilityRequests || []).find((r) => r.id === reqId);
-        if (req) await rest(`events?${eq(req.eventId)}`, { method: 'PATCH', body: { visible: !!req.desiredVisible } });
+        if (req) await restMust(`events?${eq(req.eventId)}`, { method: 'PATCH', body: { visible: !!req.desiredVisible } });
       }
     },
-    async removeEvent(id) { await rest(`events?${eq(id)}`, { method: 'DELETE' }); },
+    async removeEvent(id) { await restMust(`events?${eq(id)}`, { method: 'DELETE' }); },
     // A club cannot edit events directly; asking for the calendar goes through a database function.
     async requestCalendar(id) { await rest('rpc/request_calendar', { method: 'POST', body: { p_event: id } }); },
-    async setCalendar(id, value, note = '') { await rest(`events?${eq(id)}`, { method: 'PATCH', body: { calendar: value, note: note || null } }); },
+    async setCalendar(id, value, note = '') { await restMust(`events?${eq(id)}`, { method: 'PATCH', body: { calendar: value, note: note || null } }); },
     async applyEvent(eventId, note) {
       await rest('rpc/submit_event_application', { method:'POST', body:{ p_event:eventId, p_note:note } });
     },
@@ -1001,7 +1050,7 @@
       await rest('rpc/remove_event_partner', { method:'POST', body:{ p_event:eventId, p_club:clubId, p_note:note } });
     },
     async markNotificationRead(id) { await rest(`notifications?${eq(id)}`, {method:'PATCH',body:{read_at:stamp()}}); },
-    async deleteNotification(id) { await rest(`notifications?${eq(id)}`, {method:'DELETE'}); },
+    async deleteNotification(id) { await restMust(`notifications?${eq(id)}`, {method:'DELETE'}); },
     async reviewTask(id, status, note='') { await rest('rpc/review_task', {method:'POST',body:{p_task:id,p_status:status,p_note:note}}); },
     async addTasks(clubIds, { title, desc, due }) {
       await rest('tasks', { method: 'POST', body: clubIds.map((club_id) => ({ club_id, title, description: desc || null, due_date: due || null })) });
@@ -1014,9 +1063,19 @@
         path = `${state.user}/${task.id}/${Date.now()}-${safe}`;
         await call(`/storage/v1/object/task-proofs/${path}`, { method: 'POST', body: file, raw: true, headers: { 'Content-Type': file.type } });
       }
-      await rest('rpc/complete_task', { method: 'POST', body: { p_task: task.id, p_text: text, p_path: path, p_name: file ? file.name.slice(0, 120) : null } });
+      try { await rest('rpc/complete_task', { method: 'POST', body: { p_task: task.id, p_text: text, p_path: path, p_name: file ? file.name.slice(0, 120) : null } }); }
+      catch (error) { if (path) await storageRemove('task-proofs', [path]); throw error; }   // no orphan proof file
     },
-    async removeTask(id) { await rest(`tasks?${eq(id)}`, { method: 'DELETE' }); },
+    async removeTask(id) {
+      const t = db.tasks.find((x) => x.id === id);
+      await restMust(`tasks?${eq(id)}`, { method: 'DELETE' });
+      if (t) {
+        // The current proof plus any earlier (rejected) uploads in the task's folder.
+        const files = await storageList('task-proofs', `${t.clubId}/${t.id}`);
+        if (!await storageRemove('task-proofs', [t.doneFile && t.doneFile.path, ...files])) return 'Görev silindi, ama kanıt dosyaları depodan silinemedi. Supabase Storage’daki task-proofs klasöründen elle silinmeli.';
+      }
+      return '';
+    },
     async addPoints({ clubId, eventId, label, delta, note }) {
       await rest('point_entries', { method: 'POST', body: { club_id: clubId, event_id: eventId || null, label, delta, note: note || null } });
     },
@@ -1034,21 +1093,33 @@
     async saveClub(id, fields, account) {
       const row = { name: fields.name, university: fields.uni, category: fields.category || null, visible: fields.visible !== false };
       CONTACT_KEYS.forEach(([k]) => { row[k] = fields.contact[k] || null; });
-      if (id) await rest(`clubs?${eq(id)}`, { method: 'PATCH', body: row });
+      if (id) await restMust(`clubs?${eq(id)}`, { method: 'PATCH', body: row });
       else id = (await rest('clubs', { method: 'POST', body: row, headers: { Prefer: 'return=representation' } }))[0].id;
       if (!account.email) return '';
       try { await remote.account({ action: 'set', club_id: id, email: account.email, password: account.password }); return ''; }
       catch (e) { if (!state.user) throw e; return `Kulüp kaydedildi. Hesap açılamadı, çünkü ${e.message.replace(/^./, (ch) => ch.toLocaleLowerCase('tr'))}`; }
     },
     async setClubVisibility(id, visible) {
-      await rest(`clubs?${eq(id)}`, { method: 'PATCH', body: { visible: !!visible } });
+      await restMust(`clubs?${eq(id)}`, { method: 'PATCH', body: { visible: !!visible } });
     },
+    // at: ISO time the club's KVKK consent was received, or null to withdraw it.
+    async setClubConsent(id, at) {
+      await restMust(`clubs?${eq(id)}`, { method: 'PATCH', body: { kvkk_consent_at: at } });
+    },
+    // The login(s) go first: club-account finds them through the club row, and the
+    // profiles disappear with the club (on delete cascade). If the club row then
+    // fails to delete, deleting again is safe: the account step finds nothing left.
     async removeClub(id) {
-      let warning = '';
+      const email = state.accounts && typeof state.accounts === 'object' ? state.accounts[id] || '' : '';
       try { await remote.account({ action: 'remove', club_id: id }); }
-      catch (e) { if (!state.user) throw e; warning = `Kulüp silindi. Hesabı silinemedi, çünkü ${e.message.replace(/^./, (ch) => ch.toLocaleLowerCase('tr'))}`; }
-      await rest(`clubs?${eq(id)}`, { method: 'DELETE' });
-      return warning;
+      catch (e) {
+        if (!state.user) throw e;
+        const why = String(e.message || 'bilinmeyen bir hata oluştu').replace(/^./, (ch) => ch.toLocaleLowerCase('tr'));
+        throw new Error(`Kulüp silinmedi: giriş hesabı${email ? ` (${email})` : ''} silinemedi, çünkü ${why}${/[.!?]$/.test(why) ? '' : '.'}`);
+      }
+      try { await restMust(`clubs?${eq(id)}`, { method: 'DELETE' }); }
+      catch (e) { throw new Error(`Giriş hesabı silindi ama kulüp kaydı silinemedi (${e.message}). Kulübü tekrar silmeyi dene.`); }
+      return '';
     },
     async accounts() {
       const data = await remote.account({ action: 'list' });
@@ -1057,7 +1128,7 @@
     async supportCreate({subject,category,categoryLabel,body,eventId,attachment}) {
       let attachmentPath=''; let attachmentName='';
       if(attachment){
-        if(attachment.size>5*1024*1024) throw new Error('Dosya en fazla 5 MB olabilir.');
+        const problem=supportAttachmentProblem(attachment); if(problem) throw new Error(problem);
         const safe=attachment.name.normalize('NFKD').replace(/[^A-Za-z0-9._-]+/g,'_').slice(-100)||'attachment';
         attachmentName=attachment.name;
         attachmentPath=`${state.user}/${crypto.randomUUID()}-${safe}`;
@@ -1065,18 +1136,12 @@
       }
       const payload={p_subject:subject,p_category:category,p_category_label:categoryLabel||category,p_body:body,p_event_id:eventId||null,p_attachment_path:attachmentPath||null,p_attachment_name:attachmentName||null};
       try { await rest('rpc/support_create_ticket_v2',{method:'POST',body:payload}); }
-      catch (error) {
-        if (error.status === 404 || /PGRST202|could not find the function/i.test(String(error.message||''))) await rest('rpc/create_support_ticket',{method:'POST',body:payload});
-        else throw error;
-      }
+      catch (error) { if (attachmentPath) await storageRemove('support-attachments',[attachmentPath]); throw error; }
       await loadSupportRemote();
     },
+    // Both sides reply through this function (an admin reply → 'answered', a club reply → 'open').
     async supportReply(id,body) {
-      try { await rest('rpc/support_reply_ticket_v2',{method:'POST',body:{p_ticket_id:id,p_body:body}}); }
-      catch (error) {
-        if (error.status === 404 || /PGRST202|could not find the function/i.test(String(error.message||''))) await rest('rpc/reply_support_ticket',{method:'POST',body:{p_ticket_id:id,p_body:body}});
-        else throw error;
-      }
+      await rest('rpc/support_reply_ticket_v2',{method:'POST',body:{p_ticket_id:id,p_body:body}});
       await loadSupportRemote();
     },
     async supportUpdate(id, fields) {
@@ -1101,14 +1166,17 @@
     },
     async supportDelete(id) {
       if (!isAdmin()) throw new Error('Bu işlem için UniPakt yetkisi gerekir.');
-      const rows = await rest(`support_tickets?${eq(id)}&select=id`, {
+      const ticket = (db.supportTickets || []).find(t => String(t.id) === String(id));
+      const rows = await rest(`support_tickets?${eq(id)}&select=id,attachment_path`, {
         method:'DELETE',
         headers:{ Prefer:'return=representation' },
       });
       if (!Array.isArray(rows) || !rows.some(r => String(r.id) === String(id))) {
         throw new Error('Destek talebi silinemedi veya bulunamadı.');
       }
+      const removed = await storageRemove('support-attachments', [ticket && ticket.attachmentPath, ...rows.map(r => r.attachment_path)]);
       await loadSupportRemote();
+      return removed ? '' : 'Ticket silindi, ama ek dosyası depodan silinemedi. Supabase Storage’daki support-attachments klasöründen elle silinmeli.';
     },
     async supportAttachmentUrl(path) { const data=await call(`/storage/v1/object/sign/support-attachments/${path}`,{method:'POST',body:{expiresIn:300}}); return `${SUPABASE_URL}/storage/v1${data.signedURL}`; },
     // Sitedeki İletişim ve Bize Katıl formlarından gelen kayıtlar (yalnızca yetkili okur/siler).
@@ -1126,6 +1194,29 @@
       if (!Array.isArray(rows) || !rows.some(r => String(r.id) === String(id))) {
         throw new Error('Kayıt silinemedi veya bulunamadı.');
       }
+    },
+    // Deletes exactly the records the admin saw on screen (not whatever arrived since).
+    async siteInboxDeleteAll(kind, ids) {
+      if (!isAdmin()) throw new Error('Bu işlem için UniPakt yetkisi gerekir.');
+      const table = kind === 'join' ? 'join_applications' : 'contact_messages';
+      let deleted = 0;
+      for (let i = 0; i < ids.length; i += 100) {
+        const chunk = ids.slice(i, i + 100).map(x => encodeURIComponent(x)).join(',');
+        deleted += (await restMust(`${table}?id=in.(${chunk})`, { method: 'DELETE' })).length;
+      }
+      return deleted;
+    },
+    // Admin only: how many site form records are waiting (head request, no rows sent).
+    async siteInboxCount() {
+      const count = async (table) => {
+        const auth = await token();
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=id`, { method: 'HEAD', headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${auth}`, Prefer: 'count=exact' } });
+        if (!r.ok) throw new Error('Site mesajları sayılamadı.');
+        const total = Number(String(r.headers.get('content-range') || '').split('/')[1]);
+        return Number.isFinite(total) ? total : 0;
+      };
+      const [contact, join] = await Promise.all([count('contact_messages'), count('join_applications')]);
+      return { contact, join };
     },
     async refresh() { await loadRemote(); },
     async proofUrl(path) {
@@ -1146,7 +1237,7 @@
 
   // Remote writes are followed by a fresh read, so the screen shows what the server kept.
   const api = DEMO ? local : new Proxy(remote, {
-    get: (target, name) => (['refresh', 'proofUrl', 'login', 'logout', 'accounts', 'account', 'supportCreate', 'supportReply', 'supportUpdate', 'supportDelete', 'siteInbox', 'siteInboxDelete'].includes(name) ? target[name]
+    get: (target, name) => (['refresh', 'proofUrl', 'login', 'logout', 'accounts', 'account', 'supportCreate', 'supportReply', 'supportUpdate', 'supportDelete', 'siteInbox', 'siteInboxDelete', 'siteInboxDeleteAll', 'siteInboxCount'].includes(name) ? target[name]
       : async (...args) => { const result = await target[name](...args); await loadRemote(); return result; }),
   });
 
@@ -1162,7 +1253,7 @@
     taskClub: 'all',
     accounts: null,   // { clubId: login e-mail } once loaded, 'loading', or 'unavailable'
     support: { q: '', category: 'all', status: 'all' },
-    inbox: { tab: 'contact', data: null, error: null, loading: false },   // Site Mesajları (yalnızca yetkili)
+    inbox: { tab: 'contact', data: null, error: null, loading: false, count: null },   // Site Mesajları (yalnızca yetkili)
   };
   if (DEMO) { try { state.user = sessionStorage.getItem(SESSION); } catch (_) {} }
 
@@ -1195,9 +1286,7 @@
   const upcomingEvents = () => calendarEvents().filter((e) => e.date >= today());
   const kindLabel = (e) => (e.kind === 'event' ? 'Etkinlik' : 'Ortak arama');
   const feeLabel = (e) => e.feeType === 'paid' ? (e.feeAmount != null && e.feeAmount !== '' ? `Ücretli · ${Number(e.feeAmount).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} TL` : 'Ücretli') : 'Ücretsiz';
-  const SUPPORT_CLUB_TICKETS = true;
-  const SUPPORT_MEMBER_TICKETS = false;
-  const SUPPORT_STATUS = { open:['wait','Açık'], reviewing:['wait','İnceleniyor'], waiting_user:['wait','Kullanıcı Yanıtı Bekleniyor'], answered:['ok','Yanıtlandı'], resolved:['ok','Çözüldü'], closed:['','Kapatıldı'] };
+  const SUPPORT_STATUS = { open:['wait','Açık'], reviewing:['wait','İnceleniyor'], waiting_user:['wait','Kulüp Yanıtı Bekleniyor'], answered:['ok','Yanıtlandı'], resolved:['ok','Çözüldü'], closed:['','Kapatıldı'] };
   const SUPPORT_CATEGORIES = {
     technical: {
       label:'Teknik Destek',
@@ -1290,12 +1379,26 @@
     if (t.createdBy) return `Hesap ID: ${esc(t.createdBy)}`;
     return 'Talebi oluşturan hesap bilgisi bulunamadı';
   };
-  const supportNewCount = () => (isAdmin() ? (db.supportTickets || []).filter(t => supportTicketStatus(t) !== 'closed' && !supportHasAdminReply(t)).length : 0);
+  // A club can write as long as the ticket is not closed; the club's reply reopens it (status 'open').
+  const supportCanReply = (t) => isAdmin() || supportTicketStatus(t) !== 'closed';
+  // Waiting for UniPakt: the last word is the club's and the ticket is not closed.
+  const supportAwaitsAdmin = (t) => { const m = Array.isArray(t.messages) ? t.messages : []; return supportTicketStatus(t) !== 'closed' && m.length > 0 && m[m.length - 1].authorRole !== 'admin'; };
+  const supportNewCount = () => (isAdmin() ? (db.supportTickets || []).filter(supportAwaitsAdmin).length : 0);
   // Site Mesajları ayrı yüklenir: bu tablo ya da istek sorun çıkarsa panelin geri kalanı etkilenmez.
+  // The badge shows every stored site form record (İletişim + Bize Katıl); old ones are deleted after 12 months.
+  const siteInboxTotal = () => {
+    const d = state.inbox.data, c = state.inbox.count;
+    return d ? d.contact.length + d.join.length : c ? c.contact + c.join : 0;
+  };
+  // At login only the counts are read (head request), not the messages themselves.
+  const loadSiteInboxCount = () => {
+    if (DEMO || !isAdmin()) return;
+    api.siteInboxCount().then((count) => { state.inbox.count = count; if (state.user && !dlg.open) render(); }, () => {});
+  };
   const loadSiteInbox = () => {
     state.inbox.loading = true;
     return api.siteInbox()
-      .then((data) => { state.inbox.data = data; state.inbox.error = null; },
+      .then((data) => { state.inbox.data = data; state.inbox.count = { contact: data.contact.length, join: data.join.length }; state.inbox.error = null; },
             (error) => { state.inbox.error = error; })
       .finally(() => { state.inbox.loading = false; if (state.view === 'site-mesajlari' && !dlg.open) render(); });
   };
@@ -1380,10 +1483,10 @@
         <div class="support-thread">${messages.length?messages.map(m=>`<div class="quote"><small>${esc(m.authorLabel||(m.authorRole==='admin'?'UniPakt Destek':'Kulüp'))} · ${fmtStamp(m.createdAt)}</small>${esc(m.body||'')}</div>`).join(''):'<div class="empty">Henüz mesaj yok.</div>'}</div>
         ${t.attachmentName?`<div class="quote"><small>Eklenen dosya</small>${esc(t.attachmentName)}${t.attachmentPath&&remote.supportAttachmentUrl?`<div style="margin-top:8px"><button type="button" class="btn ghost small" data-act="support-attachment-open" data-id="${esc(t.id)}">Dosyayı görüntüle</button></div>`:''}</div>`:''}
         ${adminFields}
-        ${isAdmin()||status==='waiting_user'?field('Yanıt','<textarea name="body" required maxlength="4000" placeholder="Kulübe göndermek istediğiniz mesajı yazın."></textarea>'):''}`,
-      submit:isAdmin()||status==='waiting_user'?'Yanıt gönder':'Kapat',
+        ${supportCanReply(t)?field('Yanıt',`<textarea name="body" required maxlength="4000" placeholder="${isAdmin()?'Kulübe':'UniPakt’a'} göndermek istediğiniz mesajı yazın."></textarea>`):'<div class="support-info"><strong>Talep kapatıldı</strong><p>Kapatılan talebe yanıt yazılamaz. Konu devam ediyorsa yeni bir destek talebi oluşturabilirsiniz.</p></div>'}`,
+      submit:supportCanReply(t)?'Yanıt gönder':'Kapat',
       onSubmit:async(fd)=>{
-        if(isAdmin()||status==='waiting_user'){
+        if(supportCanReply(t)){
           await api.supportReply(t.id,val(fd,'body'));
           toast('Mesaj gönderildi.');
         }
@@ -1434,8 +1537,8 @@
     ];
     if (isAdmin()) items.splice(8, 0, ['onaylar', 'Onaylamalar', pendingCount()]);
     if (isAdmin()) items.push(['kulupler', 'Kulüpler']);
-    if (isAdmin()) items.push(['site-mesajlari', 'Site Mesajları', state.inbox.data ? state.inbox.data.contact.length + state.inbox.data.join.length : 0]);
-    if (SUPPORT_CLUB_TICKETS) items.push(['destek-taleplerim', isAdmin() ? 'Destek Talepleri' : 'UniPakt Destek', supportNewCount()]);
+    if (isAdmin()) items.push(['site-mesajlari', 'Site Mesajları', siteInboxTotal()]);
+    items.push(['destek-taleplerim', isAdmin() ? 'Destek Talepleri' : 'UniPakt Destek', supportNewCount()]);
     return items;
   };
 
@@ -1460,7 +1563,7 @@
     approved: ['ok', 'Onaylandı'],
     rejected: ['no', 'Reddedildi'],
   };
-  const tag = (status) => { const [cls, label] = STATUS[status] || ['', status]; return `<span class="tag ${cls}">${label}</span>`; };
+  const tag = (status) => { const [cls, label] = STATUS[status] || ['', status]; return `<span class="tag ${cls}">${esc(label)}</span>`; };
   const empty = (text) => `<div class="empty">${esc(text)}</div>`;
   const dateBlock = (s) => { const d = parseYmd(s); return `<div class="date-block"><b>${d.getDate()}</b><span>${MONTHS_SHORT[d.getMonth()]}</span></div>`; };
 
@@ -1519,8 +1622,12 @@
       if (btn.matches('[data-act="support-attachment-open"]')) {
         const t = clubSupportTickets().find(x => String(x.id) === String(id));
         if (!t?.attachmentPath) return toast('Ek dosya bulunamadı.');
-        const url = await remote.supportAttachmentUrl(t.attachmentPath);
-        window.open(url, '_blank', 'noopener,noreferrer');
+        // Opened before the request so the browser does not treat it as a pop-up.
+        const tab = window.open('', '_blank');
+        try {
+          const url = await remote.supportAttachmentUrl(t.attachmentPath);
+          if (tab) { tab.opener = null; tab.location.href = url; } else location.href = url;
+        } catch (error) { if (tab) tab.close(); throw error; }
         return;
       }
       if (!isAdmin()) return toast('Bu işlem için UniPakt yetkisi gerekir.');
@@ -1536,9 +1643,9 @@
         await api.supportUpdate(id, {status:'open'});
         toast('Ticket yeniden açıldı.');
       } else if (btn.matches('[data-support-delete]')) {
-        if (!confirm('Bu ticketı ve tüm konuşma geçmişini kalıcı olarak silmek istediğine emin misin? Bu işlem geri alınamaz.')) return;
-        await api.supportDelete(id);
-        toast('Ticket kalıcı olarak silindi.');
+        if (!confirm('Bu ticketı, tüm konuşma geçmişini ve ek dosyasını kalıcı olarak silmek istediğine emin misin? Bu işlem geri alınamaz.')) return;
+        const warning = await api.supportDelete(id);
+        if (warning) notice('Ek dosya silinemedi', warning); else toast('Ticket kalıcı olarak silindi.');
       }
       dlg.close();
       render();
@@ -1578,7 +1685,7 @@
     dlg.showModal();
   });
 
-  const field = (label, control) => `<label class="field"><span>${label}</span>${control}</label>`;
+  const field = (label, control) => `<label class="field"><span>${esc(label)}</span>${control}</label>`;
   const val = (fd, name) => String(fd.get(name) || '').trim();
   // Registration links end up as a button on unipakt.com: only plain web links are allowed.
   const badLink = (v) => !!v && !/^https?:\/\/[^\s"'<>]+$/i.test(v);
@@ -1601,7 +1708,7 @@
      ------------------------------------------------------------------ */
   const head = (title, sub, action = '') => `
     <div class="page-head">
-      <div><h1>${title}</h1>${sub ? `<p>${esc(sub)}</p>` : ''}</div>
+      <div><h1>${esc(title).replace(/^UniPakt\.Vanguard$/, 'UniPakt<span>.</span>Vanguard')}</h1>${sub ? `<p>${esc(sub)}</p>` : ''}</div>
       ${action}
     </div>`;
 
@@ -1613,7 +1720,7 @@
       ${mine && a.status === 'rejected' && a.note ? `<div class="quote"><small>UniPakt notu</small>${esc(a.note)}</div>` : ''}
       ${mine ? '' : `<div class="meta"><span>${esc(who(a.authorId))}</span><span>${fmtStamp(a.decidedAt || a.createdAt)}</span></div>`}
       ${mine && a.status === 'rejected' ? `<div class="actions"><button class="btn danger small" data-act="rejected-ann-delete" data-id="${esc(a.id)}">Reddedilen başvuruyu sil</button></div>` : ''}
-      ${isAdmin() && !mine ? `<div class="actions"><button class="btn ghost small" data-act="ann-remove" data-id="${a.id}">Kaldır</button></div>` : ''}
+      ${isAdmin() && !mine ? `<div class="actions"><button class="btn ghost small" data-act="ann-remove" data-id="${esc(a.id)}">Kaldır</button></div>` : ''}
     </article>`;
 
   const organizerNames = (e) => {
@@ -1697,12 +1804,38 @@
     <div class="app-row">
       <p><strong>${esc(who(p.clubId))}</strong>${p.note ? ` — ${esc(p.note)}` : ''}</p>
       <div class="actions">
-        <button class="btn small" data-act="app-approve" data-id="${e.id}" data-sub="${p.id}">Onayla</button>
-        <button class="btn ghost small" data-act="app-reject" data-id="${e.id}" data-sub="${p.id}">Reddet</button>
+        <button class="btn small" data-act="app-approve" data-id="${esc(e.id)}" data-sub="${esc(p.id)}">Onayla</button>
+        <button class="btn ghost small" data-act="app-reject" data-id="${esc(e.id)}" data-sub="${esc(p.id)}">Reddet</button>
       </div>
     </div>`;
 
+  // Approvals: before/after for every field a club's edit request carries. Everything is escaped.
+  const EDIT_LABELS = { title: 'Başlık', desc: 'Açıklama', date: 'İlk tarih', time: 'Saat', occurrences: 'Tarihler', university: 'Üniversite', place: 'Mekan', address: 'Açık adres', rules: 'Bilgiler / kurallar', posterUrl: 'Afiş', tags: 'Etiketler', registration: 'Kayıt bağlantısı', feeType: 'Ücret durumu', feeAmount: 'Ücret tutarı', seeking: 'Aranan ortak', kind: 'Tür' };
+  const editValue = (k, v) => {
+    if (v === null || v === undefined || v === '') return '';
+    if (k === 'occurrences' && Array.isArray(v)) return v.map((o) => `${o.date || ''}${o.time ? ` ${o.time}` : ''}`).join('\n');
+    if (k === 'feeType') return v === 'paid' ? 'Ücretli' : 'Ücretsiz';
+    if (k === 'time') return String(v).slice(0, 5);
+    if (Array.isArray(v)) return v.map((x) => (typeof x === 'object' ? JSON.stringify(x) : String(x))).join(', ');
+    if (typeof v === 'object') return JSON.stringify(v);
+    return String(v);
+  };
+  const eventEditDiff = (e, changes) => {
+    const before = e ? { ...e, posterUrl: e.poster, feeType: e.feeType || 'free',
+      occurrences: e.occurrences && e.occurrences.length ? e.occurrences : [{ date: e.date, time: e.time || '' }] } : {};
+    const rows = Object.keys(changes || {}).map((k) => ({ k, label: EDIT_LABELS[k] || k, old: editValue(k, before[k]), next: editValue(k, changes[k]) }));
+    const changed = rows.filter((r) => r.old !== r.next);
+    const same = rows.filter((r) => r.old === r.next);
+    const poster = (url, alt) => (url ? `<div class="approval-poster"><img src="${esc(url)}" alt="${esc(alt)}" loading="lazy" referrerpolicy="no-referrer"></div>` : '<em>afiş yok</em>');
+    const row = (r) => r.k === 'posterUrl'
+      ? `<div class="quote"><small>${esc(r.label)}</small><b>Önce:</b> ${poster(r.old, 'Mevcut afiş')}<b>Sonra:</b> ${poster(r.next, 'Yeni afiş')}</div>`
+      : `<div class="quote"><small>${esc(r.label)}</small><b>Önce:</b> ${esc(r.old || '—')}\n<b>Sonra:</b> ${esc(r.next || '—')}</div>`;
+    return `${changed.length ? changed.map(row).join('') : '<div class="quote"><small>Değişiklik</small>Mevcut etkinlikten farklı bir alan yok.</div>'}${same.length ? `<div class="meta"><span>Değişmeyen: ${esc(same.map((r) => r.label).join(', '))}</span></div>` : ''}`;
+  };
   const FILE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf'];
+  // Support attachments: same file types as task proofs, at most 5 MB. Returns the error text or ''.
+  const supportAttachmentProblem = (file) => (!FILE_TYPES.includes(file.type) || file.size > 5 * 1024 * 1024)
+    ? 'Ek dosya PNG, JPG, WEBP ya da PDF olmalı ve 5 MB’ı geçmemeli.' : '';
   const proofFile = (f, taskId) => {
     if (f && f.path) return `<button type="button" class="proof" data-act="proof-open" data-id="${esc(taskId)}"><span>Ek: ${esc(f.name)}</span></button>`;
     if (!f || !FILE_TYPES.includes(f.type) || !String(f.data).startsWith(`data:${f.type};base64,`)) return '';
@@ -1723,8 +1856,8 @@
       ${t.status === 'done' ? `<div class="quote"><small>Kanıt · ${fmtStamp(t.doneAt)}${t.reviewStatus === 'pending' ? ' · UniPakt incelemesinde' : t.reviewStatus === 'approved' ? ' · UniPakt onayladı' : ''}</small>${esc(t.doneText || '')}${proofFile(t.doneFile, t.id)}</div>` : ''}
       ${t.reviewStatus === 'rejected' ? `<div class="quote"><small>UniPakt red notu</small>${esc(t.reviewNote || '')}</div>` : ''}
       <div class="actions">
-        ${!isAdmin() && t.status === 'open' ? `<button class="btn small" data-act="task-done" data-id="${t.id}">Görevi bitir</button>` : ''}
-        ${isAdmin() ? `${t.status === 'done' && t.reviewStatus === 'pending' ? `<button class="btn small" data-act="task-approve" data-id="${t.id}">Onayla</button><button class="btn ghost small" data-act="task-reject" data-id="${t.id}">Reddet</button>` : ''}<button class="btn ghost small" data-act="task-remove" data-id="${t.id}">Sil</button>` : ''}
+        ${!isAdmin() && t.status === 'open' ? `<button class="btn small" data-act="task-done" data-id="${esc(t.id)}">Görevi bitir</button>` : ''}
+        ${isAdmin() ? `${t.status === 'done' && t.reviewStatus === 'pending' ? `<button class="btn small" data-act="task-approve" data-id="${esc(t.id)}">Onayla</button><button class="btn ghost small" data-act="task-reject" data-id="${esc(t.id)}">Reddet</button>` : ''}<button class="btn ghost small" data-act="task-remove" data-id="${esc(t.id)}">Sil</button>` : ''}
       </div>
     </article>`;
   };
@@ -1815,29 +1948,45 @@
       if (!s.data && !s.loading && !s.error) loadSiteInbox();
       const top = head('Site Mesajları',
         'Sitedeki İletişim ve Bize Katıl formlarından gelenler. Yalnızca UniPakt yetkilisi görür. İşi biten kaydı sil; kişisel veri gereğinden uzun tutulmamalı.',
-        '<button class="btn ghost" data-act="inbox-refresh">Yenile</button>');
+        '<button class="btn ghost" data-act="inbox-refresh">Yenile</button>')
+        + '<p class="muted" style="margin:-8px 0 18px">12 aydan eski mesajlar otomatik silinir.</p>';
       if (s.error) return `${top}<div class="support-info"><strong>Mesajlar yüklenemedi</strong><p>${esc(s.error.message || 'Sunucuya ulaşılamadı.')}</p></div>`;
       if (!s.data) return `${top}${empty('Yükleniyor…')}`;
       const isJoin = s.tab === 'join';
       const list = isJoin ? s.data.join : s.data.contact;
       const when = (iso) => new Date(iso).toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const ago = (iso) => {
+        const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+        if (!Number.isFinite(days)) return '';
+        if (days <= 0) return 'bugün';
+        if (days === 1) return 'dün';
+        if (days < 30) return `${days} gün önce`;
+        if (days < 365) return `${Math.floor(days / 30)} ay önce`;
+        return `${Math.floor(days / 365)} yıl önce`;
+      };
       const line = (label, v) => (v ? `<span><b>${esc(label)}:</b> ${esc(v)}</span>` : '');
+      // The address goes into the link as one encoded value, so a crafted "email" cannot add cc/bcc/body.
+      const mail = (v) => (EMAIL_RE.test(String(v || '')) ? `<a href="${esc(`mailto:${encodeURIComponent(v)}`)}">${esc(v)}</a>` : esc(v));
+      const kvkk = (r) => (r.kvkk_version || r.kvkk_ack_at
+        ? `<div class="meta"><span>KVKK metni: ${esc(r.kvkk_version ? `v${String(r.kvkk_version).replace(/^v/i, '')}` : '—')}${r.kvkk_ack_at ? ` · ${esc(when(r.kvkk_ack_at))}` : ''}</span></div>` : '');
       const card = (r) => `<article class="card item">
-          <div class="meta top"><span class="tag wait">${isJoin ? 'Başvuru' : 'Mesaj'}</span><span>${esc(when(r.created_at))}</span></div>
+          <div class="meta top"><span class="tag wait">${isJoin ? 'Başvuru' : 'Mesaj'}</span><span>${esc(when(r.created_at))}</span><span>${esc(ago(r.created_at))}</span></div>
           <h3>${esc(r.name)}</h3>
-          <div class="meta"><span><a href="mailto:${esc(r.email)}">${esc(r.email)}</a></span>${isJoin ? line('Üniversite', r.university) + line('Şehir', r.city) + line('İstanbul dışı üniversite', r.outside_university) + line('Kulüp', r.club) : ''}</div>
+          <div class="meta"><span>${mail(r.email)}</span>${isJoin ? line('Üniversite', r.university) + line('Şehir', r.city) + line('İstanbul dışı üniversite', r.outside_university) + line('Kulüp', r.club) : ''}</div>
           ${r.message ? `<p class="body" style="white-space:pre-wrap">${esc(r.message)}</p>` : ''}
+          ${kvkk(r)}
           <div class="actions"><button class="btn danger small" data-act="inbox-delete" data-id="${esc(r.id)}" data-sub="${isJoin ? 'join' : 'contact'}">Sil</button></div>
         </article>`;
       return `${top}
         <div class="toolbar">
           <button class="chip ${!isJoin ? 'active' : ''}" data-act="inbox-tab" data-id="contact">İletişim (${s.data.contact.length})</button>
           <button class="chip ${isJoin ? 'active' : ''}" data-act="inbox-tab" data-id="join">Bize Katıl (${s.data.join.length})</button>
+          ${list.length ? `<button class="btn danger small" data-act="inbox-delete-all" data-id="${isJoin ? 'join' : 'contact'}">Tümünü sil</button>` : ''}
         </div>
         <div class="stack">${list.length ? list.map(card).join('') : empty(isJoin ? 'Bize Katıl başvurusu yok.' : 'İletişim mesajı yok.')}</div>`;
     },
 
-    'destek-taleplerim'() { return SUPPORT_CLUB_TICKETS ? renderSupportTickets() : empty('Destek bölümü henüz kullanıma açılmadı.'); },
+    'destek-taleplerim'() { return renderSupportTickets(); },
 
     bildirimler() {
       const list = [...(db.notifications || [])].sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
@@ -1958,8 +2107,8 @@
       const cals = pendingCalendar();
       const buttons = (kind, id, sub = '') => `
         <div class="actions">
-          <button class="btn small" data-act="${kind}-approve" data-id="${id}" ${sub ? `data-sub="${sub}"` : ''}>Onayla</button>
-          <button class="btn ghost small" data-act="${kind}-reject" data-id="${id}" ${sub ? `data-sub="${sub}"` : ''}>Reddet</button>
+          <button class="btn small" data-act="${kind}-approve" data-id="${esc(id)}" ${sub ? `data-sub="${esc(sub)}"` : ''}>Onayla</button>
+          <button class="btn ghost small" data-act="${kind}-reject" data-id="${esc(id)}" ${sub ? `data-sub="${esc(sub)}"` : ''}>Reddet</button>
         </div>`;
       return `
         ${head('Onaylamalar', 'Kulüplerin panelde yayınlanmak üzere gönderdiği, onayını bekleyen işlemler.')}
@@ -1992,7 +2141,7 @@
           </article>`).join('') : empty('Bekleyen etkinlik isteği yok.')}</div>
 
         <div class="section-head"><h2>Etkinlik düzenleme talepleri (${pendingEventEdits().length})</h2></div>
-        <div class="stack">${pendingEventEdits().length ? pendingEventEdits().map((q) => { const e=db.events.find(x=>x.id===q.eventId); const c=q.changes||{}; const summary=[c.title&&`Başlık: ${c.title}`,c.university&&`Üniversite: ${c.university}`,c.place&&`Mekan: ${c.place}`,c.address&&`Adres: ${c.address}`,c.date&&`Tarih: ${c.date}${c.time?' · '+c.time:''}`,c.feeType&&`Ücret: ${c.feeType==='paid'?`Ücretli · ${c.feeAmount||0} TL`:'Ücretsiz'}`].filter(Boolean).join('\n'); return `<article class="card item"><div class="meta top"><span class="tag wait">Düzenleme</span><span>${esc(who(q.clubId))} · ${fmtStamp(q.createdAt)}</span></div><h3>${esc(e?.title || c.title || 'Etkinlik')}</h3>${c.posterUrl ? `<div class="approval-poster"><img src="${esc(c.posterUrl)}" alt="Yeni etkinlik afişi" loading="lazy"></div>` : ''}<div class="quote"><small>Değişiklik özeti</small>${esc(summary || 'Etkinlik detayları güncellendi.')}</div><div class="actions"><button class="btn small" data-act="event-edit-approve" data-id="${esc(q.id)}">Onayla</button><button class="btn ghost small" data-act="event-edit-reject" data-id="${esc(q.id)}">Reddet</button></div></article>`; }).join('') : empty('Bekleyen etkinlik düzenleme isteği yok.')}</div>
+        <div class="stack">${pendingEventEdits().length ? pendingEventEdits().map((q) => { const e=db.events.find(x=>x.id===q.eventId); const c=q.changes||{}; return `<article class="card item"><div class="meta top"><span class="tag wait">Düzenleme</span><span>${esc(who(q.clubId))} · ${fmtStamp(q.createdAt)}</span></div><h3>${esc(e?.title || c.title || 'Etkinlik')}</h3>${eventEditDiff(e, c)}<div class="actions"><button class="btn small" data-act="event-edit-approve" data-id="${esc(q.id)}">Onayla</button><button class="btn ghost small" data-act="event-edit-reject" data-id="${esc(q.id)}">Reddet</button></div></article>`; }).join('') : empty('Bekleyen etkinlik düzenleme isteği yok.')}</div>
 
         <div class="section-head"><h2>Takvime alma talepleri (${cals.length})</h2></div>
         <div class="stack">${cals.length ? cals.map((e) => `
@@ -2075,14 +2224,14 @@
               <span class="pos">${i + 1}</span>
               <div><strong>${esc(c.name)}</strong><small>${esc(c.uni)}</small><div class="bar"><i style="width:${Math.max(0, Math.round(c.points / max * 100))}%"></i></div></div>
               <div class="pts"><b>${c.points}</b>
-                ${isAdmin() ? `<button class="btn ghost small" data-act="pts-new" data-id="${c.id}">Puan ver</button>` : ''}</div>
+                ${isAdmin() ? `<button class="btn ghost small" data-act="pts-new" data-id="${esc(c.id)}">Puan ver</button>` : ''}</div>
             </div>`).join('')}
         </div>`;
 
       if (isAdmin()) {
         const log = [...db.pointLog].sort(newest).slice(0, 12);
         return `
-          ${head('UniPakt<span>.</span>Vanguard', 'Kulüp seç, etkinliği seç, artı ya da eksi puanı gönder. Kulüp, puanın hangi etkinlikten geldiğini kendi panelinde görür.',
+          ${head('UniPakt.Vanguard', 'Kulüp seç, etkinliği seç, artı ya da eksi puanı gönder. Kulüp, puanın hangi etkinlikten geldiğini kendi panelinde görür.',
             '<button class="btn" data-act="pts-new">Puan gönder</button>')}
           ${board}
           <div class="section-head"><h2>Son puan hareketleri</h2></div>
@@ -2100,7 +2249,7 @@
       const top = Math.max(1, ...sources.map((x) => Math.abs(x.total)));
       const rank = list.findIndex((c) => c.id === state.user) + 1;
       return `
-        ${head('UniPakt<span>.</span>Vanguard', 'Kazandığın puanlar ve hangi etkinliklerden geldikleri.')}
+        ${head('UniPakt.Vanguard', 'Kazandığın puanlar ve hangi etkinliklerden geldikleri.')}
         <div class="stats two">
           <div class="stat hot"><b>${pts(state.user)}</b><span>Toplam puan</span></div>
           <div class="stat"><b>${rank}.</b><span>${list.length} kulüp arasında sıran</span></div>
@@ -2130,10 +2279,17 @@
         const email = state.accounts[c.id];
         return email ? `Giriş hesabı: ${esc(email)}` : '<span class="tag no">Giriş hesabı yok</span>';
       };
+      const when = (iso) => new Date(iso).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+      const kvkkLine = (c) => c.kvkkConsentAt
+        ? `<span class="tag ok">KVKK: Onay alındı (${esc(when(c.kvkkConsentAt))})</span>`
+        : c.kvkkNoticeSentAt
+          ? `<span class="tag wait">KVKK: Onay maili gitti (${esc(when(c.kvkkNoticeSentAt))})</span>`
+          : '<span class="tag no">KVKK: Onay maili gitmedi</span>';
       const list = [...db.clubs].sort((a, b) => a.name.localeCompare(b.name, 'tr'));
       return `
         ${head('Kulüpler', 'Buradaki kulüpler unipakt.com’daki Ortak Kulüpler sayfasında görünür. İletişim bilgilerini değiştirdiğinde sitede de değişir.',
           '<button class="btn" data-act="club-new">Kulüp ekle</button>')}
+        <div class="support-info" style="margin-bottom:18px"><strong>KVKK onayı</strong><p>Kulübün iletişim bilgileri sitede ancak KVKK onayı kaydedildikten sonra görünür. Kulüp sitede görünür ve e-postası kayıtlıysa onay maili kendiliğinden bir kez gider; kulüp onay verdiğinde “Onay alındı” ile kaydet. E-posta değişirse onay sıfırlanır ve yeni adrese yeniden mail gider.</p></div>
         <div class="stack">${list.length ? list.map((c) => {
           const filled = CONTACT_KEYS.filter(([k]) => c.contact && c.contact[k]);
           return `
@@ -2146,6 +2302,7 @@
                 : `<span class="bad">${label}: ${esc(c.contact[k])} (geçersiz, sitede görünmez)</span>`;
             }).join('') : '<span>İletişim bilgisi eklenmemiş</span>'}</div>
             <div class="meta"><span>${accountLine(c)}</span></div>
+            <div class="meta">${kvkkLine(c)}</div>
             <div class="actions">
               <button class="club-visibility ${c.visible === false ? 'is-hidden' : ''}" data-act="club-visibility" data-id="${esc(c.id)}" aria-label="${c.visible === false ? 'Kulübü sitede görünür yap' : 'Kulübü sitede gizle'}" title="${c.visible === false ? 'Sitede görünür yap' : 'Sitede gizle'}">
                 ${c.visible === false
@@ -2153,6 +2310,9 @@
                   : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z"/><circle cx="12" cy="12" r="2.5"/></svg>'}
               </button>
               <button class="btn ghost small" data-act="club-edit" data-id="${esc(c.id)}">Düzenle</button>
+              ${c.kvkkConsentAt
+                ? `<button class="btn ghost small" data-act="club-consent-withdraw" data-id="${esc(c.id)}">KVKK onayını geri çek</button>`
+                : `<button class="btn small" data-act="club-consent" data-id="${esc(c.id)}">KVKK onayı alındı</button>`}
               <button class="btn danger small" data-act="club-remove" data-id="${esc(c.id)}">Sil</button>
             </div>
           </article>`; }).join('') : empty('Henüz kulüp yok.')}</div>`;
@@ -2195,12 +2355,12 @@
   });
   const confirmRemove = (title, lead, apply, submit = 'Kaldır') => openForm({
     title, lead, submit, danger: true,
-    onSubmit: async () => { await apply(); toast(submit === 'Sil' ? 'Silindi.' : 'Kaldırıldı.'); },
+    onSubmit: async () => { await apply(); toast(/sil$/i.test(submit) ? 'Silindi.' : 'Kaldırıldı.'); },
   });
 
   const actions = {
     'support-ticket-new'() {
-      if (isAdmin() || !SUPPORT_CLUB_TICKETS || SUPPORT_MEMBER_TICKETS) return;
+      if (isAdmin()) return;
 
       const categoryCards = Object.entries(SUPPORT_CATEGORIES).map(([key, cfg]) => `
         <button type="button" class="support-category-card" data-support-category="${key}">
@@ -2246,6 +2406,7 @@
           const subject = topic === 'Başka bir konu...' ? val(fd, 'subject').trim() : topic;
           if (!kind || !topic || !subject) throw new Error('Destek kategorisi ve konu zorunludur.');
           const file = fd.get('attachment');
+          if (file && file.size && supportAttachmentProblem(file)) return supportAttachmentProblem(file);
           await api.supportCreate({
             subject,
             category: kind,
@@ -2516,10 +2677,19 @@
         },
       });
     },
-    'task-remove'(id) { confirmRemove('Görevi sil', 'Görev kulübün panelinden de silinir.', () => api.removeTask(id), 'Sil'); },
+    'task-remove'(id) { confirmRemove('Görevi sil', 'Görev kulübün panelinden de silinir; kanıt dosyaları da depodan silinir.', async () => { const warning = await api.removeTask(id); if (warning) notice('Dosyalar silinemedi', warning); }, 'Sil'); },
     'task-tab'(id) { state.taskTab = id; render(); },
     'inbox-tab'(id) { state.inbox.tab = id === 'join' ? 'join' : 'contact'; render(); },
     'inbox-refresh'() { state.inbox.error = null; return loadSiteInbox(); },
+    'inbox-delete-all'(kind) {
+      const isJoin = kind === 'join';
+      const list = (state.inbox.data && (isJoin ? state.inbox.data.join : state.inbox.data.contact)) || [];
+      if (!list.length) return;
+      const ids = list.map((r) => r.id);
+      confirmRemove(isJoin ? 'Tüm Bize Katıl başvurularını sil' : 'Tüm İletişim mesajlarını sil',
+        `Bu sekmede görünen ${ids.length} kayıt veritabanından kalıcı olarak silinir, geri alınamaz.`,
+        async () => { await api.siteInboxDeleteAll(isJoin ? 'join' : 'contact', ids); await loadSiteInbox(); }, 'Tümünü sil');
+    },
     'inbox-delete'(id, kind) {
       confirmRemove('Kaydı sil', 'Bu kayıt veritabanından kalıcı olarak silinir, geri alınamaz.',
         async () => { await api.siteInboxDelete(kind, id); await loadSiteInbox(); }, 'Sil');
@@ -2701,6 +2871,22 @@
       toast(next ? 'Kulüp ortak kulüplerde görünür.' : 'Kulüp sitede gizlendi.');
       render();
     },
+    'club-consent'(id) {
+      const c = club(id); if (!c) return;
+      openForm({
+        title: 'KVKK onayını kaydet', submit: 'Onay alındı',
+        lead: `“${c.name}” kulübünün KVKK onayını verdiğini kaydediyorsun. Kayıttan sonra kulübün iletişim bilgileri sitede görünür. Yalnızca kulüpten açık onay geldiyse kaydet.`,
+        onSubmit: async () => { await api.setClubConsent(id, stamp()); toast('KVKK onayı kaydedildi.'); },
+      });
+    },
+    'club-consent-withdraw'(id) {
+      const c = club(id); if (!c) return;
+      openForm({
+        title: 'KVKK onayını geri çek', submit: 'Onayı geri çek', danger: true,
+        lead: `“${c.name}” kulübünün KVKK onayı silinir; iletişim bilgileri sitede artık görünmez.`,
+        onSubmit: async () => { await api.setClubConsent(id, null); toast('KVKK onayı geri çekildi.'); },
+      });
+    },
     'club-new'() { actions['club-edit'](''); },
     'club-edit'(id) {
       const c = id ? club(id) : null;
@@ -2733,6 +2919,7 @@
           const warning = await api.saveClub(id || null, fields, account);
           state.accounts = null;
           if (warning) notice('Giriş hesabı ayarlanamadı', `${warning} Kulübü “Düzenle” ile açıp giriş e-postası ve şifresini yeniden girebilirsin.`);
+          else if (c && c.kvkkConsentAt && (c.contact.email || '') !== contact.email) notice('KVKK onayı sıfırlandı', 'Kulübün e-postası değiştiği için KVKK onayı sıfırlandı; iletişim bilgileri yeni adresten onay alınıp kaydedilene kadar sitede görünmez.');
           else toast(c ? 'Kulüp güncellendi.' : 'Kulüp eklendi.');
         },
       });
@@ -2742,7 +2929,7 @@
       openForm({
         title: 'Kulübü sil', submit: 'Kulübü sil', danger: true,
         lead: `“${c.name}” siteden kalkar; giriş hesabı, duyuruları, etkinlikleri, başvuruları, görevleri ve puanları da silinir. Bu geri alınamaz.`,
-        fields: field(`Onaylamak için kulübün adını yaz: ${esc(c.name)}`, '<input name="confirm" required autocomplete="off">'),
+        fields: field(`Onaylamak için kulübün adını yaz: ${c.name}`, '<input name="confirm" required autocomplete="off">'),
         onSubmit: async (fd) => {
           if (val(fd, 'confirm') !== c.name) return 'Kulüp adı eşleşmiyor.';
           const warning = await api.removeClub(id);
@@ -2779,7 +2966,7 @@
       if (DEMO) { try { sessionStorage.removeItem(SESSION); } catch (_) {} }
       else { remote.logout(); db = null; }
       state.accounts = null;
-      state.inbox = { tab: 'contact', data: null, error: null, loading: false };
+      state.inbox = { tab: 'contact', data: null, error: null, loading: false, count: null };
       history.replaceState(null, '', location.pathname + location.search);
       render(); window.scrollTo(0, 0);
     },
@@ -2823,7 +3010,7 @@
         <h2>Demo girişi: bir hesap seç</h2>
         <div class="account-list">
           <button class="account is-admin" data-act="login" data-id="${ADMIN}"><span><strong>UniPakt</strong><small>Tüm panelleri yönetir</small></span><span class="role">UniPakt yetkilisi</span></button>
-          ${db.clubs.map((c) => `<button class="account" data-act="login" data-id="${c.id}"><span><strong>${esc(c.name)}</strong><small>${esc(c.uni)}</small></span><span class="role">Kulüp başkanı</span></button>`).join('')}
+          ${db.clubs.map((c) => `<button class="account" data-act="login" data-id="${esc(c.id)}"><span><strong>${esc(c.name)}</strong><small>${esc(c.uni)}</small></span><span class="role">Kulüp başkanı</span></button>`).join('')}
         </div>
         <p class="demo-note">Bu bir demo. Şifre yok ve veriler yalnızca bu tarayıcıda saklanıyor.</p>
       </div></main>`;
@@ -2908,6 +3095,7 @@
       await remote.login(email, password);
       state.view = 'genel';
       render(); window.scrollTo(0, 0);
+      loadSiteInboxCount();
     } catch (error) {
       if (!document.body.contains(form)) { renderLogin(error.message); return; }
       err.textContent = error.message || 'Giriş yapılamadı.'; err.hidden = false;
@@ -2921,14 +3109,34 @@
   const sync = async () => {
     if (!state.user || dlg.open) return;
     try {
-      await api.refresh();
-      try { await loadSupportRemote(); } catch (error) { supportLoadError = error; }
+      await api.refresh();   // the remote refresh reloads support too
       lastSync = Date.now();
       render();
     } catch (error) { fail(error); }
   };
   if (DEMO) window.addEventListener('storage', (e) => { if (e.key === KEY) sync(); });
   else document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastSync > 30000) sync(); });
+
+  // Several panel tabs share one stored session: follow what the other tabs did to it.
+  const dropToLogin = (message) => {
+    session = null; state.user = null; db = null; state.accounts = null;
+    state.inbox = { tab: 'contact', data: null, error: null, loading: false, count: null };
+    pendingNotice = null;
+    if (dlg.open) dlg.close();
+    history.replaceState(null, '', location.pathname + location.search);
+    renderLogin(message);
+  };
+  if (!DEMO) window.addEventListener('storage', (e) => {
+    if (e.key !== TOKENS && e.key !== null) return;   // null: the whole storage was cleared
+    const next = storedSession();
+    if (!next) { if (session || state.user) dropToLogin('Başka bir sekmede çıkış yapıldı.'); return; }
+    if (!session || next.user_id !== session.user_id) {   // signed in (as someone else) elsewhere
+      pendingNotice = null; if (dlg.open) dlg.close();
+      state.accounts = null; state.inbox = { tab: 'contact', data: null, error: null, loading: false, count: null };
+      start(); return;
+    }
+    session = next;   // the other tab refreshed the tokens
+  });
 
   const start = async () => {
     state.view = location.hash.slice(1) || 'genel';
@@ -2937,8 +3145,8 @@
     readSession();
     if (!session) { renderLogin(); return; }
     root.innerHTML = '<main class="login"><p class="loading">Yükleniyor…</p></main>';
-    try { await loadRemote(); lastSync = Date.now(); render(); }
-    catch (error) { renderLogin(state.user ? '' : error.message); if (state.user) { state.user = null; renderLogin(error.message); } }
+    try { await loadRemote(); lastSync = Date.now(); render(); loadSiteInboxCount(); }
+    catch (error) { state.user = null; renderLogin(error.message); }
   };
   start();
 })();

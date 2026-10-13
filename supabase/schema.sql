@@ -3,6 +3,8 @@
 -- Generated from the production database (hcgotmcbwmleeklbvawb) on 2026-10-10 19:52 Europe/Istanbul.
 -- This file documents the schema; it is NOT a migration. Changes go through
 -- supabase/migrations/. Vault secrets and data are not included.
+-- OUT OF DATE: predates migrations 20261011 and later (site forms, club KVKK,
+-- audit fixes). Regenerate from production before relying on it.
 -- ============================================================
 
 -- ---------- Tables ----------

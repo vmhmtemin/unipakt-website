@@ -5,17 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- The inline script at the bottom is allowed by its sha256 hash. After editing it, run
      python3 tools/build_pages.py: it prints the new hash to put here. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'sha256-+2/lPavu+fGvPZAbEW/qvaO3mWG+RH470XtGJMzP9QY='; base-uri 'self'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; script-src 'sha256-7k8k5b514lBa/X/qe/CwkoVK44VpRQV+pRCZglTGhME='; base-uri 'self'; object-src 'none'; frame-src 'none'">
 <meta name="robots" content="noindex">
 <title>Sayfa bulunamadı — UniPakt</title>
 <!-- GitHub Pages serves this file for any missing path, so every link here is absolute. -->
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;900&family=Caveat:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* Self-hosted fonts (/fonts/), the same files as the main site. */
+  @font-face { font-family: 'Archivo'; font-style: normal; font-weight: 500 900; font-display: swap; src: url(/fonts/archivo-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+  @font-face { font-family: 'Archivo'; font-style: normal; font-weight: 500 900; font-display: swap; src: url(/fonts/archivo-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Caveat'; font-style: normal; font-weight: 600 700; font-display: swap; src: url(/fonts/caveat-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+  @font-face { font-family: 'Caveat'; font-style: normal; font-weight: 600 700; font-display: swap; src: url(/fonts/caveat-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400 600; font-display: swap; src: url(/fonts/inter-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+  @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400 600; font-display: swap; src: url(/fonts/inter-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
   :root { color-scheme: dark; --ink: #fff; --paper: #000; --border: #FFFFFF20; --border-strong: #FFFFFF35; --accent: #FF5A1F; --on-accent: #000; }
   * { box-sizing: border-box; }
   html { -webkit-tap-highlight-color: transparent; }
@@ -52,7 +56,6 @@
   .line::before { left: 0; background: var(--ink); }
   .line::after { left: 62%; background: var(--accent); animation: drift 3.2s ease-in-out infinite; }
   @keyframes drift { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -170%); } }
-  @media (prefers-reduced-motion: reduce) { .line::after { animation: none; } }
 </style>
 </head>
 <body>
@@ -74,9 +77,10 @@
   <footer>2026 UniPakt · İstanbul üniversite kulüpleri ağı</footer>
 <script>
 (function () {
-  // The site's pages live at /story/, /takvim/ ... If this page is shown for one of
-  // them (the per-page copies are not published), open it through the home page.
-  var routes = ['story', 'takvim', 'kulupler', 'hakkimizda', 'kampus', 'iletisim', 'katil'];
+  // The site's pages live at /story/, /takvim/ ... (copies built by tools/build_pages.py).
+  // If this page is shown for one of them anyway (e.g. a deploy without those copies),
+  // open it through the home page. Keep in sync with ROUTES in tools/build_pages.py.
+  var routes = ['story', 'takvim', 'kulupler', 'hakkimizda', 'kampus', 'iletisim', 'katil', 'kvkk'];
   var first = location.pathname.replace(/^\/+|\/+$/g, '').split('/')[0];
   if (routes.indexOf(first) !== -1) location.replace('/' + location.search + '#' + first);
 })();
