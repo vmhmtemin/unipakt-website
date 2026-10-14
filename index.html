@@ -3711,20 +3711,23 @@
     .kvkk-consent input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; cursor: pointer; accent-color: var(--accent, #FF5A1F); }
     .kvkk-consent a { color: inherit; text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 3px; }
     .kvkk-consent a:hover { text-decoration-color: currentColor; }
-    .kvkk-dialog { width: min(760px, calc(100vw - 32px)); max-height: min(86vh, 900px); padding: 0; border: 1px solid var(--border-strong); border-radius: 20px; background: var(--paper); color: var(--ink); overflow: hidden; }
+    .kvkk-dialog { width: min(1040px, calc(100vw - 40px)); height: min(90dvh, 1000px); max-height: 90dvh; padding: 0; border: 1px solid var(--border-strong); border-radius: 20px; background: var(--paper); color: var(--ink); overflow: hidden; }
     .kvkk-dialog[open] { display: flex; flex-direction: column; }
     .kvkk-dialog::backdrop { background: rgba(0, 0, 0, .62); backdrop-filter: blur(3px); }
-    .kvkk-dialog-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 22px; border-bottom: 1px solid var(--border); }
-    .kvkk-dialog-head h2 { margin: 0; font-size: 20px; }
+    .kvkk-dialog-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px 30px; border-bottom: 1px solid var(--border); }
+    .kvkk-dialog-head h2 { margin: 0; font-size: 22px; }
     .kvkk-dialog-close { background: none; border: 0; color: inherit; font-size: 30px; line-height: 1; cursor: pointer; padding: 0 4px; }
-    .kvkk-dialog-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 22px 24px; }
+    .kvkk-dialog-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 8px 30px 30px; font-size: 17px; line-height: 1.75; }
     .kvkk-dialog-body .legal { max-width: none; padding: 0; }
-    .kvkk-dialog-body .legal h2 { font-size: 18px; margin: 26px 0 8px; }
-    .kvkk-dialog-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 14px 22px; border-top: 1px solid var(--border); }
+    .kvkk-dialog-body .legal h2 { font-size: 21px; margin: 28px 0 10px; }
+    .kvkk-dialog-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 16px 30px; border-top: 1px solid var(--border); }
     .kvkk-dialog-hint { margin: 0; font-size: 13px; opacity: .65; }
     .kvkk-dialog-ok:disabled { opacity: .4; cursor: not-allowed; }
     @media (max-width: 600px) {
         .kvkk-dialog { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; border: 0; }
+        .kvkk-dialog-head { padding: 16px 20px; }
+        .kvkk-dialog-body { padding: 8px 20px 24px; font-size: 16px; }
+        .kvkk-dialog-foot { padding: 12px 20px; }
         .kvkk-dialog-ok { width: 100%; }
     }
 
