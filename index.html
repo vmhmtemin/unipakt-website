@@ -7102,6 +7102,11 @@
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/ı/g, 'i')
+        // "İstanbul Üniversitesi - Cerrahpaşa" and "İstanbul Üniversitesi-Cerrahpaşa"
+        // are the same university: unify dashes and the spaces around them.
+        .replace(/[\u2010-\u2015\u2212]/g, '-')
+        .replace(/\s*-\s*/g, '-')
+        .replace(/\s+/g, ' ')
         .trim();
     }
 
