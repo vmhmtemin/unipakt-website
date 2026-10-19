@@ -447,7 +447,7 @@
   const SESSION = 'unipaktPanelUser';
   const ADMIN = 'unipakt';
   const OTHER = 'Etkinlik dışı';
-  const CLUB_CATEGORIES = ['Yazılım', 'Tasarım', 'Girişim', 'Eğlence'];
+  const CLUB_CATEGORIES = ['Yazılım & Teknoloji', 'Tasarım & Medya', 'Girişim & Kariyer', 'Sosyal Sorumluluk', 'Sanat & Kültür', 'Spor & Outdoor', 'Yaşam & Hobi'];
   // Same keys as the public site's club contact tiles.
   const CONTACT_KEYS = [['email', 'E-posta'], ['instagram', 'Instagram'], ['linkedin', 'LinkedIn'], ['x', 'X'], ['tiktok', 'TikTok'], ['web', 'Web sitesi']];
   const CONTACT_BASE = { instagram: 'https://www.instagram.com/', linkedin: 'https://www.linkedin.com/company/', x: 'https://x.com/', tiktok: 'https://www.tiktok.com/@' };
@@ -494,11 +494,11 @@
 
   const seed = () => ({
     clubs: [
-      { id: 'c1', name: 'GDG on Campus', uni: 'İstinye Üniversitesi', category: 'Yazılım', account: 'gdg@ornek.com',
+      { id: 'c1', name: 'GDG on Campus', uni: 'İstinye Üniversitesi', category: 'Yazılım & Teknoloji', account: 'gdg@ornek.com',
         contact: { email: 'iletisim@unipakt.com', instagram: 'unipakt', linkedin: 'https://www.linkedin.com/company/unipakt/', x: 'UniPakt', tiktok: 'unipakt', web: '' } },
-      { id: 'c2', name: 'Örnek Tasarım Kulübü', uni: 'Marmara Üniversitesi', category: 'Tasarım', account: 'tasarim@ornek.com', contact: {} },
-      { id: 'c3', name: 'Örnek Girişimcilik Kulübü', uni: 'Boğaziçi Üniversitesi', category: 'Girişim', account: '', contact: {} },
-      { id: 'c4', name: 'Örnek Müzik Kulübü', uni: 'Yıldız Teknik Üniversitesi', category: 'Eğlence', account: '', contact: {} },
+      { id: 'c2', name: 'Örnek Tasarım Kulübü', uni: 'Marmara Üniversitesi', category: 'Tasarım & Medya', account: 'tasarim@ornek.com', contact: {} },
+      { id: 'c3', name: 'Örnek Girişimcilik Kulübü', uni: 'Boğaziçi Üniversitesi', category: 'Girişim & Kariyer', account: '', contact: {} },
+      { id: 'c4', name: 'Örnek Müzik Kulübü', uni: 'Yıldız Teknik Üniversitesi', category: 'Sanat & Kültür', account: '', contact: {} },
     ],
     announcements: [
       { id: 'a1', title: 'Panele hoş geldiniz', body: 'UniPakt paneli artık açık. Duyurularınızı, ortak aradığınız etkinlikleri ve görevlerinizi buradan yönetebilirsiniz.', authorId: ADMIN, status: 'published', createdAt: isoOffset(-6), decidedAt: isoOffset(-6) },
