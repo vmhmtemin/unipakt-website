@@ -6316,6 +6316,7 @@
     .sp-hero.is-text .sp-hero-text > :nth-child(2) { transition-delay: .08s; }
     .sp-hero.is-text .sp-hero-text > :nth-child(3) { transition-delay: .16s; }
     .sp-hero.is-text .sp-hero-text > :nth-child(4) { transition-delay: .24s; }
+    .sp-hero.is-text .sp-hero-text > :nth-child(5) { transition-delay: .4s; }
     .sp-kicker { margin: 0 0 14px; line-height: 0; }
     .sp-kicker .sp-logo-img { display: block; height: clamp(40px, 4.6vw, 64px); width: auto; }
     .sp-brand-logo { display: block; height: 26px; width: auto; }
@@ -6323,6 +6324,17 @@
     .sp-lead { margin: 14px 0 0; max-width: 34ch; font-size: clamp(16px, 1.6vw, 20px); color: #0a0a0aa6; }
     .sp-down { pointer-events: auto; margin-top: 26px; padding: 13px 24px; border-radius: 999px; border: 1.5px solid #0a0a0a; background: #0a0a0a; color: #fff; font: inherit; font-weight: 600; cursor: pointer; transition: background .2s ease, color .2s ease, border-color .2s ease; }
     .sp-down:hover { background: var(--sp-accent); border-color: var(--sp-accent); color: #0a0a0a; }
+    /* Sıradaki büyük etkinlik kartı: hero'nun sol altındaki boşluğu doldurur, sponsorluk mailine götürür. */
+    .sp-next { pointer-events: auto; display: grid; gap: 8px; width: min(400px, 100%); margin-top: clamp(48px, 12vh, 140px); padding: 22px 24px; border: 1px solid #0a0a0a1f; border-radius: 18px; background: #fff; color: #0a0a0a; text-decoration: none; transition: border-color .2s ease, transform .25s ease, box-shadow .25s ease; }
+    .sp-next:hover { border-color: #0a0a0a; transform: translateY(-2px); box-shadow: 0 10px 30px #0a0a0a12; }
+    .sp-next-kick { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #0a0a0a8c; }
+    .sp-next-kick i { width: 8px; height: 8px; background: var(--sp-accent); display: inline-block; }
+    .sp-next-title { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(24px, 2.4vw, 32px); letter-spacing: -0.03em; line-height: 1.05; }
+    .sp-next-meta { font-size: 14px; color: #0a0a0aa6; }
+    .sp-next-meta > span { white-space: nowrap; }
+    .sp-next-cta { margin-top: 6px; font-weight: 700; font-size: 15px; }
+    .sp-next-cta b { display: inline-block; color: var(--sp-accent); transition: transform .2s ease; }
+    .sp-next:hover .sp-next-cta b { transform: translateX(4px); }
     .sp-body { padding-top: clamp(56px, 8vw, 110px); padding-bottom: clamp(56px, 8vw, 110px); border-top: 1px solid #0a0a0a14; }
     .sp-h2 { margin: 0 0 clamp(22px, 3vw, 36px); font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(28px, 3.6vw, 46px); letter-spacing: -0.03em; }
     .sp-join { background: #fff; color: #0a0a0a; border-top: 1px solid #0a0a0a14; }
@@ -6941,6 +6953,12 @@
                     <h1>Sponsorlar</h1>
                     <p class="sp-lead">UniPakt ağındaki etkinlikleri destekleyen kurumlar.</p>
                     <button type="button" class="sp-down" data-sp-down>Sponsor ol ↓</button>
+                    <a class="sp-next" href="mailto:sponsorluk@unipakt.com?subject=HACKFEST27%3A%20MIXIT%20Sponsorlu%C4%9Fu">
+                        <span class="sp-next-kick"><i aria-hidden="true"></i>Sıradaki</span>
+                        <strong class="sp-next-title" data-no-i18n>HACKFEST27: MIXIT</strong>
+                        <span class="sp-next-meta"><span>6 Mart 2027</span> · <span>İki günlük festival</span> · <span>24 saatlik hackathon</span></span>
+                        <span class="sp-next-cta">Bu etkinliğe sponsor ol <b aria-hidden="true">→</b></span>
+                    </a>
                 </div>
             </div>
             <div class="wrap sp-body" id="spList">
@@ -11036,7 +11054,7 @@
                 return Promise.resolve(window.UNIPAKT_I18N[code]);
             return loaded[code] = loaded[code] || new Promise((resolve, reject) => {
                 const s = document.createElement('script');
-                s.src = `/i18n/${code}.js?v=11`;
+                s.src = `/i18n/${code}.js?v=12`;
                 s.onload = () => (window.UNIPAKT_I18N[code] ? resolve(window.UNIPAKT_I18N[code]) : reject(new Error(code)));
                 s.onerror = () => {
                     delete loaded[code];
