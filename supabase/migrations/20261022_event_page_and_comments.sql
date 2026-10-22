@@ -247,6 +247,7 @@ create index if not exists event_comments_email_idx on public.event_comments (em
 -- Anon/kulüp doğrudan erişemez; yalnızca yönetici okur, onaylar, siler.
 revoke all on table public.event_comments from anon, authenticated;
 grant select, update, delete on table public.event_comments to authenticated;
+grant select, insert, update, delete on table public.event_comments to service_role;
 
 drop policy if exists event_comments_admin_select on public.event_comments;
 create policy event_comments_admin_select on public.event_comments for select to authenticated
