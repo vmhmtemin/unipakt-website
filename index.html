@@ -10063,10 +10063,10 @@
                 layer.style.width = span.offsetWidth + 'px';
                 layer.style.height = span.offsetHeight + 'px';
                 layer.style.lineHeight = span.offsetHeight + 'px';
-                return { a, span, layer, target, start: 0.3 + i * 0.12 };
+                return { a, span, layer, target, start: 0.2 + i * 0.08 };
             });
-            // Sakin tempo: karakterler her karede değil ~110 ms'de bir değişir.
-            const t0 = performance.now(), DUR = 3.2, STEP = 110;
+            // Orta tempo: karakterler her karede değil ~55 ms'de bir (saniyede ~18) değişir.
+            const t0 = performance.now(), DUR = 2.3, STEP = 55;
             let lastTick = -1;
             const frame = (now) => {
                 const t = (now - t0) / 1000;
@@ -10115,7 +10115,7 @@
             logoLink.classList.remove('is-alt');
             if (!active()) return;
             if (still) { logoLink.classList.add('is-alt'); return; }
-            const STEPS = 12, STEP = 120;
+            const STEPS = 16, STEP = 75;
             let n = 0;
             const tick = () => {
                 if (!active()) { resetGlitch(); logoLink.classList.remove('is-alt'); return; }
