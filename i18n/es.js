@@ -12,7 +12,6 @@
 },
 "t": {
 "Sponsorlarımız": "Patrocinadores",
-"Bu ağı birlikte büyütüyoruz.": "Hacemos crecer esta red juntos.",
 "Ana Sayfa": "Inicio",
 "Ortak Kulüpler": "Clubes aliados",
 "Hakkımızda": "Sobre nosotros",

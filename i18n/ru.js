@@ -12,7 +12,6 @@
 },
 "t": {
 "Sponsorlarımız": "Наши спонсоры",
-"Bu ağı birlikte büyütüyoruz.": "Мы вместе растим эту сеть.",
 "Ana Sayfa": "Главная",
 "Ortak Kulüpler": "Клубы-партнёры",
 "Hakkımızda": "О нас",
