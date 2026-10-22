@@ -343,8 +343,92 @@
   }
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+  /* ---- Menü grupları ---- */
+  .nav-group { margin: 14px 12px 4px; font-size: 12px; font-weight: 700; letter-spacing: .02em; opacity: .45; }
+  .nav-group:first-child { margin-top: 0; }
+
+  /* ---- Etkinlik oluşturma sayfası ---- */
+  .evp-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 22px; }
+  .evp-head h1 { font: 900 clamp(26px, 3.4vw, 38px)/1.05 'Archivo', sans-serif; letter-spacing: -0.03em; }
+  .evp-head h1 span { color: var(--accent); }
+  .evp-types { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 760px; }
+  .evp-type { display: grid; gap: 12px; align-content: start; padding: 26px; border-radius: 18px; border: 1px solid var(--border); background: var(--surface); }
+  .evp-type:hover { border-color: var(--accent); }
+  .evp-type h2 { font: 800 22px/1.15 'Archivo', sans-serif; letter-spacing: -0.02em; }
+  .evp-type .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); }
+  .evp-type.free .dot { background: transparent; border: 2px solid var(--accent); }
+  .evp-type p { opacity: .72; font-size: 14px; }
+  .evp-type .btn { justify-self: start; margin-top: 6px; }
+  .evp-note { margin-top: 18px; padding: 12px 16px; border: 1px dashed var(--border-strong); border-radius: 12px; font-size: 13.5px; opacity: .85; max-width: 760px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+  .evp { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: 26px; align-items: start; }
+  .evp-form { display: grid; gap: 18px; min-width: 0; }
+  .evp-sec { display: grid; gap: 14px; }
+  .evp-sec > h2 { font: 800 17px/1.2 'Archivo', sans-serif; letter-spacing: -0.01em; display: flex; align-items: center; gap: 10px; }
+  .evp-sec > h2::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .evp-sec > .hint { font-size: 12.5px; opacity: .6; margin-top: -8px; }
+  .field-row.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .field .opt { font-weight: 400; opacity: .6; }
+  .field small.hint { font-size: 12px; opacity: .6; }
+  .evp-img { display: grid; gap: 8px; }
+  .evp-img .thumb { border: 1px dashed var(--border-strong); border-radius: 12px; background: #050505; overflow: hidden; display: grid; place-items: center; font-size: 12px; opacity: .9; }
+  .evp-img .thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .evp-img .thumb.banner { aspect-ratio: 5 / 1; }
+  .evp-img .thumb.poster { aspect-ratio: 1 / 1; max-width: 220px; }
+  .evp-img .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .evp-toolbar { display: flex; gap: 6px; flex-wrap: wrap; }
+  .evp-toolbar button { padding: 6px 11px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--paper-soft); font-size: 13px; }
+  .evp-toolbar button:hover { border-color: var(--accent); }
+  .evp-check { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+  .evp-check input { width: 17px; height: 17px; margin-top: 3px; accent-color: var(--accent); flex: none; }
+  .evp-check small { display: block; opacity: .6; font-size: 12.5px; }
+  .evp-save { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; position: sticky; bottom: 0; padding: 14px 0; background: linear-gradient(to top, var(--paper) 70%, transparent); }
+  .evp-save .form-error { flex-basis: 100%; }
+  .evp-save .status { font-size: 12.5px; opacity: .55; }
+  .evp-banner-msg { padding: 10px 14px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); font-size: 13.5px; display: flex; gap: 10px; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+
+  /* Canlı önizleme */
+  .evp-preview { position: sticky; top: 20px; display: grid; gap: 10px; }
+  .evp-preview > small { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .5; }
+  .pv { border: 1px solid var(--border); border-radius: 18px; overflow: hidden; background: #000; color: #fff; font-size: 13px; }
+  .pv-hero { position: relative; padding: 34px 18px 22px; text-align: center; background: #000 center / cover no-repeat; isolation: isolate; }
+  .pv-hero::before { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,.66); z-index: -1; }
+  .pv-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; opacity: .25; background-image: radial-gradient(#fff 1px, transparent 1.2px); background-size: 14px 14px; }
+  .pv-hero h3 { font: 900 22px/1.1 'Archivo', sans-serif; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+  .pv-hero i { display: block; width: 38px; height: 3px; margin: 10px auto; background: var(--accent); border-radius: 2px; }
+  .pv-hero p { opacity: .8; font-size: 12px; }
+  .pv-body { padding: 16px; display: grid; gap: 14px; }
+  .pv-fee { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid #ffffff22; border-radius: 12px; }
+  .pv-fee b { color: var(--accent); }
+  .pv-poster { aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden; background: #111; display: grid; place-items: center; font-size: 12px; color: #ffffff80; }
+  .pv-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pv-detail { line-height: 1.55; overflow-wrap: anywhere; }
+  .pv-detail ul { padding-left: 18px; list-style: disc; }
+  .pv-detail a { color: var(--accent); text-decoration: underline; }
+  .pv-card { border: 1px solid #ffffff22; border-radius: 12px; padding: 12px; display: grid; gap: 9px; }
+  .pv-card h4 { font: 800 14px/1.2 'Archivo', sans-serif; }
+  .pv-row { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; align-items: start; }
+  .pv-row svg { width: 16px; height: 16px; color: var(--accent); margin-top: 2px; }
+  .pv-row small { display: block; opacity: .55; font-size: 11px; }
+  .pv-row span { overflow-wrap: anywhere; }
+  .pv-social { display: flex; gap: 8px; }
+  .pv-social svg { width: 18px; height: 18px; color: #fff; }
+  .pv-empty { opacity: .45; font-style: italic; }
+
+  /* Yorum onayı */
+  .comment-body { white-space: pre-line; overflow-wrap: anywhere; }
+
+  @media (max-width: 1100px) {
+    .evp { grid-template-columns: minmax(0, 1fr); }
+    .evp-preview { position: static; }
+  }
+  @media (max-width: 640px) {
+    .evp-types, .field-row.three { grid-template-columns: minmax(0, 1fr); }
+  }
+
   /* ---- Mobile ---- */
   @media (max-width: 900px) {
+    .nav-group { margin: 0; align-self: center; flex: none; white-space: nowrap; font-size: 10.5px; padding: 0 2px 0 8px; }
+    .nav-group:first-child { padding-left: 0; }
     .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; }
     .side {
       position: sticky; top: 0; z-index: 20; height: auto; overflow: visible;
@@ -692,17 +776,48 @@
     supportLoadError = null;
   };
 
+  // Etkinliğin 2026-10 sonrası eklenen isteğe bağlı alanları (eski kayıtlarda boş gelir).
+  const eventExtras = (e) => ({
+    endDate: e.end_date || '', endTime: (e.end_time || '').slice(0, 5), banner: e.banner_url || '', city: e.city || '',
+    category: e.category || '', biletimgo: e.biletimgo_url || '', instagram: e.instagram_url || '', facebook: e.facebook_url || '',
+    x: e.x_url || '', youtube: e.youtube_url || '', capacity: e.capacity ?? '',
+  });
+
+  // Formdaki adı → events sütunu. onlyPresent: düzenleme talebinde olmayan alan hiç yazılmaz,
+  // böylece bu alanlardan önce gönderilmiş eski talepler onaylanınca hiçbir şey sıfırlanmaz.
+  const EXTRA_COLS = [['endDate', 'end_date'], ['endTime', 'end_time'], ['bannerUrl', 'banner_url'], ['city', 'city'], ['category', 'category'],
+    ['biletimgo', 'biletimgo_url'], ['instagram', 'instagram_url'], ['facebook', 'facebook_url'], ['x', 'x_url'], ['youtube', 'youtube_url'], ['capacity', 'capacity']];
+  const extraPayload = (f, onlyPresent = false) => {
+    const out = {};
+    EXTRA_COLS.forEach(([k, col]) => {
+      if (onlyPresent && !(k in f)) return;
+      const v = f[k];
+      out[col] = (v === '' || v === null || v === undefined) ? null : (k === 'capacity' ? Number(v) : v);
+    });
+    return out;
+  };
+  const extraModel = (f, onlyPresent = false) => {
+    const out = {};
+    EXTRA_COLS.forEach(([k]) => {
+      if (onlyPresent && !(k in f)) return;
+      out[k === 'bannerUrl' ? 'banner' : k] = f[k] ?? '';
+    });
+    return out;
+  };
+
   const loadRemote = async () => {
     const profiles = await rest(`profiles?select=role,club_id&id=eq.${encodeURIComponent(session.user_id)}`);
     const profile = profiles && profiles[0];
     if (!profile) throw signedOut('Bu hesaba panel yetkisi verilmemiş. UniPakt ile iletişime geç.');
-    const [clubs, anns, events, apps, tasks, points, eventVisibilityRequests, eventEditRequests, notifications, board] = await Promise.all([
+    const [clubs, anns, events, apps, tasks, points, eventVisibilityRequests, eventEditRequests, notifications, board, eventComments] = await Promise.all([
       rest('clubs?select=*&order=name'), rest('announcements?select=*'), rest('events?select=*,event_occurrences(date,time)&order=event_date'),
       rest('event_applications?select=*&order=created_at'), rest('tasks?select=*'), rest('point_entries?select=*'),
       rest('event_visibility_requests?select=*&order=created_at.desc'),
       rest('event_edit_requests?select=*&order=created_at.desc'),
       rest('notifications?select=*&order=created_at.desc'),
       rest('rpc/leaderboard', { method: 'POST', body: {} }),
+      // Yorumları yalnızca yetkili okuyabilir (RLS); kulüp hesabı hiç istemez.
+      profile.role === 'admin' ? rest('event_comments?select=id,event_id,name,email,body,status,created_at&status=eq.pending&order=created_at') : [],
     ]);
     const owner = (clubId) => clubId || ADMIN;
     db = {
@@ -711,10 +826,12 @@
         contact: Object.fromEntries(CONTACT_KEYS.map(([k]) => [k, c[k] || ''])) })),
       announcements: anns.map((a) => ({ id: a.id, title: a.title, body: a.body, authorId: owner(a.club_id), status: a.status, note: a.note || '', createdAt: a.created_at, decidedAt: a.decided_at })),
       events: events.map((e) => ({ id: e.id, title: e.title, desc: e.description, date: e.event_date, time: (e.event_time || '').slice(0, 5), place: e.place || '', address: e.address || '', rules: e.rules || '', poster: e.poster_url || '', tags: Array.isArray(e.tags) ? e.tags : [], registration: e.registration_url || '', feeType: e.fee_type || 'free', feeAmount: e.fee_amount ?? null, university: e.university || '', visible: e.visible !== false, seeking: e.seeking || '',
+        ...eventExtras(e),
         occurrences: Array.isArray(e.event_occurrences) && e.event_occurrences.length ? e.event_occurrences.map(o => ({ date: o.date, time: (o.time || '').slice(0,5) })).sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time)) : [{ date: e.event_date, time: (e.event_time || '').slice(0,5) }],
         kind: e.kind || 'partner', calendar: e.calendar || 'none', ownerId: owner(e.club_id), status: e.status, note: e.note || '', createdAt: e.created_at, decidedAt: e.decided_at,
         applications: apps.filter((p) => p.event_id === e.id).map((p) => ({ id: p.id, clubId: p.club_id, note: p.note, status: p.status, createdAt: p.created_at, decidedAt: p.decided_at })) })),
       eventVisibilityRequests: (eventVisibilityRequests || []).map((r) => ({ id: r.id, eventId: r.event_id, clubId: r.club_id, desiredVisible: !!r.desired_visible, note: r.note || '', status: r.status, createdAt: r.created_at, decidedAt: r.decided_at })),
+      eventComments: (eventComments || []).map((c) => ({ id: c.id, eventId: c.event_id, name: c.name, email: c.email || '', body: c.body, status: c.status, createdAt: c.created_at })),
       eventEdits: (eventEditRequests || []).map((r) => ({ id:r.id, eventId:r.event_id, clubId:r.club_id, changes:r.changes || {}, note:r.note || '', status:r.status, createdAt:r.created_at, decidedAt:r.decided_at })),
       notifications: (notifications || []).map((n) => ({ id:n.id, type:n.type, title:n.title, body:n.body || '', eventId:n.event_id || '', applicationId:n.application_id || '', taskId:n.task_id || '', actionable: !!n.actionable, resolved: !!n.resolved, createdAt:n.created_at, readAt:n.read_at })),
       supportCreators: [],
@@ -816,7 +933,7 @@
     },
     async addEvent(f) {
       const occurrences = (f.occurrences && f.occurrences.length) ? f.occurrences : [{ date: f.date, time: f.time || '' }];
-      db.events.push({ id: uid(), ...f, address: f.address || '', rules: f.rules || '', poster: f.posterUrl || '', tags: f.tags || [], registration: f.registration || '', date: occurrences[0].date, time: occurrences[0].time || '', occurrences, calendar: isAdmin() ? 'on' : 'none', visible: true, ownerId: state.user, status: isAdmin() ? 'published' : 'pending', createdAt: stamp(), applications: [] });
+      db.events.push({ id: uid(), ...f, address: f.address || '', rules: f.rules || '', poster: f.posterUrl || '', tags: f.tags || [], registration: f.registration || '', ...extraModel(f), date: occurrences[0].date, time: occurrences[0].time || '', occurrences, calendar: isAdmin() ? 'on' : 'none', visible: f.visible !== false, ownerId: state.user, status: isAdmin() ? 'published' : 'pending', createdAt: stamp(), applications: [] });
       save();
     },
     async requestCalendar(id) {
@@ -866,13 +983,19 @@
     },
     async updateEvent(id, f) {
       const e = db.events.find((x) => x.id === id); if (!e) return;
-      Object.assign(e, { title:f.title, desc:f.desc, date:f.date, time:f.time||'', occurrences:f.occurrences||[{date:f.date,time:f.time||''}], place:f.place||'', university:f.university||'', address:f.address||'', rules:f.rules||'', poster:f.posterUrl||'', tags:f.tags||[], registration:f.registration||'', feeType:f.feeType||'free', feeAmount:f.feeAmount ?? null });
+      Object.assign(e, { title:f.title, desc:f.desc, date:f.date, time:f.time||'', occurrences:f.occurrences||[{date:f.date,time:f.time||''}], place:f.place||'', university:f.university||'', address:f.address||'', rules:f.rules||'', poster:f.posterUrl||'', tags:f.tags||[], registration:f.registration||'', feeType:f.feeType||'free', feeAmount:f.feeAmount ?? null, ...extraModel(f, true) });
       save();
     },
     async decideEventEdit(id,status,note='') {
       const q=(db.eventEdits||[]).find(x=>x.id===id); if(!q) return;
       q.status=status; q.note=note; q.decidedAt=stamp();
-      if(status==='approved') { const e=db.events.find(x=>x.id===q.eventId); if(e) Object.assign(e, q.changes, { date:q.changes.date, time:q.changes.time||'', poster:q.changes.posterUrl||'' }); }
+      if(status==='approved') { const e=db.events.find(x=>x.id===q.eventId); if(e) Object.assign(e, q.changes, { date:q.changes.date, time:q.changes.time||'', poster:q.changes.posterUrl||'', ...extraModel(q.changes, true) }); }
+      save();
+    },
+    async decideComment(id, status) {
+      db.eventComments ||= [];
+      if (status === 'approved') { const c = db.eventComments.find((x) => x.id === id); if (c) c.status = 'approved'; }
+      else db.eventComments = db.eventComments.filter((x) => x.id !== id);
       save();
     },
     async setEventVisibility(id, visible) {
@@ -996,7 +1119,8 @@
         rules: f.rules || null, poster_url: f.posterUrl || null, tags: f.tags || [],
         registration_url: f.registration || null, fee_type: f.feeType || 'free',
         fee_amount: f.feeType === 'paid' && f.feeAmount !== '' ? Number(f.feeAmount) : null,
-        seeking: f.seeking || null, kind: f.kind || 'event',
+        seeking: f.seeking || null, kind: f.kind || 'event', university: f.university || null,
+        visible: f.visible !== false, ...extraPayload(f),
         occurrences
       };
       await rest('rpc/submit_event', { method: 'POST', body: { p_event: payload } });
@@ -1008,7 +1132,8 @@
       await rest('event_edit_requests', { method:'POST', body:{ event_id:id, club_id:state.user, changes, status:'pending' } });
     },
     async updateEvent(id, f) {
-      const body={ title:f.title, description:f.desc, event_date:f.date, event_time:f.time||null, place:f.place||null, university:f.university||null, address:f.address||null, rules:f.rules||null, poster_url:f.posterUrl||null, tags:f.tags||[], registration_url:f.registration||null, fee_type:f.feeType||'free', fee_amount:f.feeType==='paid'&&f.feeAmount!==''?Number(f.feeAmount):null };
+      const body={ title:f.title, description:f.desc, event_date:f.date, event_time:f.time||null, place:f.place||null, university:f.university||null, address:f.address||null, rules:f.rules||null, poster_url:f.posterUrl||null, tags:f.tags||[], registration_url:f.registration||null, fee_type:f.feeType||'free', fee_amount:f.feeType==='paid'&&f.feeAmount!==''?Number(f.feeAmount):null, ...extraPayload(f, true) };
+      if ('seeking' in f) body.seeking = f.seeking || null;
       await restMust(`events?${eq(id)}`, {method:'PATCH',body});
       // Add the new dates first and delete the old rows only afterwards, so a failed
       // request can never leave the event without any date.
@@ -1022,6 +1147,11 @@
       const req=(await rest(`event_edit_requests?${eq(id)}&select=*`))[0]; if(!req) return;
       if(status==='approved') await remote.updateEvent(req.event_id, req.changes||{});
       await restMust(`event_edit_requests?${eq(id)}`, {method:'PATCH',body:{status,note:note||null,decided_at:stamp()}});
+    },
+    // Onay: yorum sitede görünür. Red: yorum (ve e-posta adresi) tamamen silinir.
+    async decideComment(id, status) {
+      if (status === 'approved') await restMust(`event_comments?${eq(id)}`, { method: 'PATCH', body: { status: 'approved', decided_at: stamp() } });
+      else await restMust(`event_comments?${eq(id)}`, { method: 'DELETE' });
     },
     async setEventVisibility(id, visible) {
       await restMust(`events?${eq(id)}`, { method: 'PATCH', body: { visible: !!visible } });
@@ -1275,7 +1405,8 @@
   const pendingApplications = () => db.events.filter((e) => e.status === 'published')
     .flatMap((e) => e.applications.filter((p) => p.status === 'pending').map((p) => ({ event: e, app: p })));
   const pendingCalendar = () => db.events.filter((e) => e.status === 'published' && e.kind === 'partner' && e.calendar === 'requested').sort(byDate);
-  const pendingCount = () => pendingAnnouncements().length + pendingEvents().length + pendingCalendar().length + pendingVisibility().length + pendingEventEdits().length;
+  const pendingComments = () => (db.eventComments || []).filter((c) => c.status === 'pending').sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
+  const pendingCount = () => pendingAnnouncements().length + pendingEvents().length + pendingCalendar().length + pendingVisibility().length + pendingEventEdits().length + pendingComments().length;
   const publishedAnnouncements = () => db.announcements.filter((a) => a.status === 'published')
     .sort((a, b) => String(b.decidedAt || b.createdAt).localeCompare(String(a.decidedAt || a.createdAt)));
   const publishedEvents = () => db.events.filter((e) => e.status === 'published').sort(byDate);
@@ -1393,20 +1524,20 @@
   // At login only the counts are read (head request), not the messages themselves.
   const loadSiteInboxCount = () => {
     if (DEMO || !isAdmin()) return;
-    api.siteInboxCount().then((count) => { state.inbox.count = count; if (state.user && !dlg.open) render(); }, () => {});
+    api.siteInboxCount().then((count) => { state.inbox.count = count; if (state.user && !busy()) render(); }, () => {});
   };
   const loadSiteInbox = () => {
     state.inbox.loading = true;
     return api.siteInbox()
       .then((data) => { state.inbox.data = data; state.inbox.count = { contact: data.contact.length, join: data.join.length }; state.inbox.error = null; },
             (error) => { state.inbox.error = error; })
-      .finally(() => { state.inbox.loading = false; if (state.view === 'site-mesajlari' && !dlg.open) render(); });
+      .finally(() => { state.inbox.loading = false; if (state.view === 'site-mesajlari' && !busy()) render(); });
   };
   const renderSupportTickets = () => {
     if (isAdmin() && state.accounts === null) {
       state.accounts = 'loading';
       api.accounts().then((map) => { state.accounts = map; }, () => { state.accounts = 'unavailable'; })
-        .then(() => { if (state.view === 'destek-taleplerim' && !dlg.open) render(); });
+        .then(() => { if (state.view === 'destek-taleplerim' && !busy()) render(); });
     }
     const all = clubSupportTickets();
     const list = supportFilteredTickets();
@@ -1521,26 +1652,30 @@
   })).sort((a, b) => b.points - a.points || a.name.localeCompare(b.name, 'tr'));
   const signed = (n) => `${n >= 0 ? '+' : '−'}${Math.abs(n)}`;
 
+  // Sol menü iki grupta: [id, etiket, sayaç, grup]. Kulüp hesabı Onaylamalar, Kulüpler ve Site Mesajları'nı görmez.
+  const NAV_GROUPS = [['events', 'Etkinlik İşlemleri'], ['unipakt', 'UniPakt']];
   const NAV = () => {
     const openMine = visibleTasks().filter((t) => t.status === 'open').length;
     const items = [
-      ['genel', 'Genel Bakış'],
-      ['vanguard', 'UniPakt.Vanguard'],
-      ['duyurular', 'Duyurular'],
-      ['etkinlikler', 'Etkinlikler'],
-      ['ortak', 'Ortak Arama'],
-      ['takvim', 'Takvim'],
-      ['etkinliklerim', 'Etkinliklerim'],
-      ['gorevler', 'Görevler', isAdmin() ? 0 : openMine],
-      ['basvuru', 'Başvurular'],
-      ['bildirimler', 'Bildirimler', (db.notifications || []).filter(n => !n.readAt).length],
+      ['etkinlikler', 'Etkinlikler', 0, 'events'],
+      ['ortak', 'Ortak Arama', 0, 'events'],
+      ['takvim', 'Takvim', 0, 'events'],
+      ['etkinliklerim', 'Etkinliklerim', 0, 'events'],
+      ...(isAdmin() ? [['onaylar', 'Onaylamalar', pendingCount(), 'events']] : []),
+      ['basvuru', 'Başvurular', 0, 'events'],
+      ['genel', 'Genel Bakış', 0, 'unipakt'],
+      ['vanguard', 'UniPakt.Vanguard', 0, 'unipakt'],
+      ['duyurular', 'Duyurular', 0, 'unipakt'],
+      ['gorevler', 'Görevler', isAdmin() ? 0 : openMine, 'unipakt'],
+      ['bildirimler', 'Bildirimler', (db.notifications || []).filter(n => !n.readAt).length, 'unipakt'],
+      ...(isAdmin() ? [['kulupler', 'Kulüpler', 0, 'unipakt'], ['site-mesajlari', 'Site Mesajları', siteInboxTotal(), 'unipakt']] : []),
+      ['destek-taleplerim', isAdmin() ? 'Destek Talepleri' : 'UniPakt Destek', supportNewCount(), 'unipakt'],
     ];
-    if (isAdmin()) items.splice(8, 0, ['onaylar', 'Onaylamalar', pendingCount()]);
-    if (isAdmin()) items.push(['kulupler', 'Kulüpler']);
-    if (isAdmin()) items.push(['site-mesajlari', 'Site Mesajları', siteInboxTotal()]);
-    items.push(['destek-taleplerim', isAdmin() ? 'Destek Talepleri' : 'UniPakt Destek', supportNewCount()]);
     return items;
   };
+  // Menüde görünmeyen ama açılabilen sayfalar.
+  const HIDDEN_VIEWS = ['etkinlik-olustur'];
+  const knownView = (view) => HIDDEN_VIEWS.includes(view) || NAV().some(([id]) => id === view);
 
   /* ------------------------------------------------------------------
      SMALL UI HELPERS
@@ -1810,7 +1945,9 @@
     </div>`;
 
   // Approvals: before/after for every field a club's edit request carries. Everything is escaped.
-  const EDIT_LABELS = { title: 'Başlık', desc: 'Açıklama', date: 'İlk tarih', time: 'Saat', occurrences: 'Tarihler', university: 'Üniversite', place: 'Mekan', address: 'Açık adres', rules: 'Bilgiler / kurallar', posterUrl: 'Afiş', tags: 'Etiketler', registration: 'Kayıt bağlantısı', feeType: 'Ücret durumu', feeAmount: 'Ücret tutarı', seeking: 'Aranan ortak', kind: 'Tür' };
+  const EDIT_LABELS = { title: 'Başlık', desc: 'Açıklama', date: 'İlk tarih', time: 'Saat', occurrences: 'Tarihler', university: 'Üniversite', place: 'Mekan', address: 'Açık adres', rules: 'Bilgiler / kurallar', posterUrl: 'Afiş', tags: 'Etiketler', registration: 'Kayıt bağlantısı', feeType: 'Ücret durumu', feeAmount: 'Ücret tutarı', seeking: 'Aranan ortak', kind: 'Tür',
+    endDate: 'Bitiş tarihi', endTime: 'Bitiş saati', bannerUrl: 'Banner', city: 'İl', category: 'Kategori', biletimgo: 'biletimGO sayfası',
+    instagram: 'Instagram', facebook: 'Facebook', x: 'X / Twitter', youtube: 'YouTube', capacity: 'Kontenjan' };
   const editValue = (k, v) => {
     if (v === null || v === undefined || v === '') return '';
     if (k === 'occurrences' && Array.isArray(v)) return v.map((o) => `${o.date || ''}${o.time ? ` ${o.time}` : ''}`).join('\n');
@@ -1821,14 +1958,14 @@
     return String(v);
   };
   const eventEditDiff = (e, changes) => {
-    const before = e ? { ...e, posterUrl: e.poster, feeType: e.feeType || 'free',
+    const before = e ? { ...e, posterUrl: e.poster, bannerUrl: e.banner, feeType: e.feeType || 'free',
       occurrences: e.occurrences && e.occurrences.length ? e.occurrences : [{ date: e.date, time: e.time || '' }] } : {};
     const rows = Object.keys(changes || {}).map((k) => ({ k, label: EDIT_LABELS[k] || k, old: editValue(k, before[k]), next: editValue(k, changes[k]) }));
     const changed = rows.filter((r) => r.old !== r.next);
     const same = rows.filter((r) => r.old === r.next);
     const poster = (url, alt) => (url ? `<div class="approval-poster"><img src="${esc(url)}" alt="${esc(alt)}" loading="lazy" referrerpolicy="no-referrer"></div>` : '<em>afiş yok</em>');
-    const row = (r) => r.k === 'posterUrl'
-      ? `<div class="quote"><small>${esc(r.label)}</small><b>Önce:</b> ${poster(r.old, 'Mevcut afiş')}<b>Sonra:</b> ${poster(r.next, 'Yeni afiş')}</div>`
+    const row = (r) => (r.k === 'posterUrl' || r.k === 'bannerUrl')
+      ? `<div class="quote"><small>${esc(r.label)}</small><b>Önce:</b> ${poster(r.old, 'Mevcut görsel')}<b>Sonra:</b> ${poster(r.next, 'Yeni görsel')}</div>`
       : `<div class="quote"><small>${esc(r.label)}</small><b>Önce:</b> ${esc(r.old || '—')}\n<b>Sonra:</b> ${esc(r.next || '—')}</div>`;
     return `${changed.length ? changed.map(row).join('') : '<div class="quote"><small>Değişiklik</small>Mevcut etkinlikten farklı bir alan yok.</div>'}${same.length ? `<div class="meta"><span>Değişmeyen: ${esc(same.map((r) => r.label).join(', '))}</span></div>` : ''}`;
   };
@@ -1862,7 +1999,425 @@
     </article>`;
   };
 
+  /* ------------------------------------------------------------------
+     ETKİNLİK OLUŞTUR / DÜZENLE — ayrı sayfa (#etkinlik-olustur)
+     Yeni etkinlikte önce Ücretli / Ücretsiz seçilir, sonra form açılır.
+     Sağda canlı önizleme; yarım form bu tarayıcıda taslak olarak saklanır.
+     ------------------------------------------------------------------ */
+  const EV_CATEGORIES = CLUB_CATEGORIES;
+  const evForm = { mode: 'new', kind: 'event', id: '', fee: '', back: 'etkinlikler', values: null, images: { poster: null, banner: null }, dirty: false, restored: false };
+  const busy = () => dlg.open || state.view === 'etkinlik-olustur';
+
+  // Kaydedilmemiş değişiklik varken sayfadan çıkmadan önce sorar. true: çıkılabilir.
+  const leaveEventPage = () => {
+    if (state.view !== 'etkinlik-olustur' || !evForm.dirty) return true;
+    if (!confirm('Kaydedilmemiş değişiklikler var. Taslak bu tarayıcıda saklanıyor; yine de sayfadan çıkmak istiyor musun?')) return false;
+    evForm.dirty = false;
+    return true;
+  };
+
+  const draftKey = () => `unipakt.panel.eventDraft.${state.user}.${evForm.mode === 'edit' ? evForm.id : `new-${evForm.kind}`}`;
+  const readDraft = () => { try { const raw = localStorage.getItem(draftKey()); return raw ? JSON.parse(raw) : null; } catch (_) { return null; } };
+  const clearDraft = () => { try { localStorage.removeItem(draftKey()); } catch (_) {} };
+  const writeDraft = () => {
+    const img = (x) => (x && x.dataUrl && x.dataUrl.length < 700000 ? { dataUrl: x.dataUrl, name: x.name } : null);
+    const data = { fee: evForm.fee, values: evForm.values, images: { poster: img(evForm.images.poster), banner: img(evForm.images.banner) }, at: stamp() };
+    try { localStorage.setItem(draftKey(), JSON.stringify(data)); }
+    catch (_) { try { data.images = { poster: null, banner: null }; localStorage.setItem(draftKey(), JSON.stringify(data)); } catch (__) {} }
+  };
+  const dataUrlToFile = async (dataUrl, name) => { const blob = await (await fetch(dataUrl)).blob(); return new File([blob], name || 'gorsel.jpg', { type: blob.type || 'image/jpeg' }); };
+
+  // Görseli tarayıcıda 1 MB'ın altına indirir (canvas, JPEG). Zaten küçükse olduğu gibi döner.
+  const MAX_IMAGE = 1000 * 1000 - 1;
+  const loadImage = (file) => new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file); const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Görsel açılamadı.')); };
+    img.src = url;
+  });
+  const shrinkImage = async (file) => {
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) throw new Error('Görsel yalnızca JPG, PNG veya WebP olabilir.');
+    const img = await loadImage(file);
+    const ratio = img.naturalWidth / Math.max(1, img.naturalHeight);
+    if (file.size <= MAX_IMAGE) return { file, ratio };
+    let scale = Math.min(1, 2400 / Math.max(img.naturalWidth, img.naturalHeight));
+    let quality = 0.86;
+    for (let i = 0; i < 10; i += 1) {
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise((r) => canvas.toBlob(r, 'image/jpeg', quality));
+      if (blob && blob.size <= MAX_IMAGE) return { file: new File([blob], String(file.name || 'gorsel').replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' }), ratio };
+      if (quality > 0.6) quality -= 0.1; else scale *= 0.8;
+    }
+    throw new Error('Görsel 1 MB altına küçültülemedi. Daha küçük bir görsel dene.');
+  };
+  const readAsDataUrl = (file) => new Promise((resolve) => { const r = new FileReader(); r.onload = () => resolve(String(r.result)); r.onerror = () => resolve(''); r.readAsDataURL(file); });
+
+  // Detay metni: **kalın**, *italik*, [metin](https://adres), "- " ile başlayan satır = madde.
+  // Önce her şey kaçırılır, sonra yalnızca bu biçimler HTML'e çevrilir; başka etiket oluşamaz.
+  const mdInline = (t) => esc(t)
+    .replace(/\[([^\]\n]{1,200})\]\((https?:\/\/[^\s)]+)\)/g, (m, label, url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`)
+    .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+  const mdLite = (src) => {
+    const out = []; let list = null; let para = [];
+    const flush = () => { if (para.length) { out.push(`<p>${para.join('<br>')}</p>`); para = []; } };
+    const endList = () => { if (list) { out.push(`<ul>${list.join('')}</ul>`); list = null; } };
+    String(src || '').split(/\r?\n/).forEach((line) => {
+      const m = line.match(/^\s*[-•]\s+(.*)$/);
+      if (m) { flush(); (list ||= []).push(`<li>${mdInline(m[1])}</li>`); return; }
+      endList();
+      if (!line.trim()) { flush(); return; }
+      para.push(mdInline(line));
+    });
+    flush(); endList();
+    return out.join('');
+  };
+
+  const ICON = {
+    start: '<path d="M3 5h18v16H3zM3 10h18M8 3v4M16 3v4"/>',
+    end: '<path d="M5 21V4h11l-2 4 2 4H5"/>',
+    org: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',
+    cat: '<path d="M3 12V3h9l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+    place: '<path d="M12 22s7-7.2 7-12a7 7 0 0 0-14 0c0 4.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
+    link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+    cap: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5.5 6.5-5.5s5.5 2 6.5 5.5M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c1.8.8 3 2.6 3.5 5.2"/>',
+    instagram: '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".8" fill="currentColor"/>',
+    facebook: '<path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z"/>',
+    x: '<path d="M4 4l16 16M20 4L4 20"/>',
+    youtube: '<rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10 9.3v5.4l4.6-2.7z" fill="currentColor"/>',
+  };
+  const icon = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
+
+  const EMPTY_VALUES = { title: '', category: '', date: '', time: '', endDate: '', endTime: '', extraDates: '', place: '', city: '', university: '', address: '',
+    desc: '', rules: '', registration: '', capacity: '', tags: '', seeking: '', feeAmount: '', biletimgo: '', instagram: '', facebook: '', x: '', youtube: '', hidden: false };
+  const valuesFromEvent = (e) => {
+    const occ = e.occurrences && e.occurrences.length ? e.occurrences : [{ date: e.date, time: e.time || '' }];
+    return { ...EMPTY_VALUES, title: e.title || '', category: e.category || '', date: occ[0].date || '', time: occ[0].time || '', endDate: e.endDate || '', endTime: e.endTime || '',
+      extraDates: occ.slice(1).map((o) => `${o.date}${o.time ? ` ${o.time}` : ''}`).join('\n'), place: e.place || '', city: e.city || '', university: e.university || '',
+      address: e.address || '', desc: e.desc || '', rules: e.rules || '', registration: e.registration || '', capacity: e.capacity === '' || e.capacity == null ? '' : String(e.capacity),
+      tags: (e.tags || []).join(', '), seeking: e.seeking || '', feeAmount: e.feeAmount == null ? '' : String(e.feeAmount), biletimgo: e.biletimgo || '',
+      instagram: e.instagram || '', facebook: e.facebook || '', x: e.x || '', youtube: e.youtube || '', hidden: e.visible === false };
+  };
+
+  // Sayfayı açar. Yeni etkinlikte tür seçimiyle başlar; taslak varsa tür seçilince geri yüklenir.
+  const openEventPage = (mode, { kind = 'event', id = '' } = {}) => {
+    const back = HIDDEN_VIEWS.includes(state.view) ? evForm.back : state.view;
+    Object.assign(evForm, { mode, kind, id, fee: '', back: back || 'etkinlikler', values: null, images: { poster: null, banner: null }, dirty: false, restored: false });
+    if (mode === 'edit') {
+      const e = db.events.find((x) => x.id === id);
+      evForm.kind = e.kind || 'event';
+      evForm.fee = e.feeType === 'paid' ? 'paid' : 'free';
+      evForm.values = valuesFromEvent(e);
+      evForm.images = { poster: e.poster ? { url: e.poster } : null, banner: e.banner ? { url: e.banner } : null };
+      applyDraft();
+    }
+    go('etkinlik-olustur');
+  };
+  const applyDraft = async () => {
+    const d = readDraft(); if (!d || !d.values) return;
+    evForm.values = { ...EMPTY_VALUES, ...d.values };
+    if (evForm.mode === 'new' && d.fee) evForm.fee = evForm.fee || d.fee;
+    evForm.restored = true;
+    for (const k of ['poster', 'banner']) {
+      const im = d.images && d.images[k];
+      if (im && im.dataUrl) { try { evForm.images[k] = { file: await dataUrlToFile(im.dataUrl, im.name), url: im.dataUrl, dataUrl: im.dataUrl, name: im.name }; } catch (_) {} }
+    }
+    if (state.view === 'etkinlik-olustur') render();
+  };
+
+  const organizerName = () => {
+    if (evForm.mode === 'edit') { const e = db.events.find((x) => x.id === evForm.id); return e ? who(e.ownerId) : ''; }
+    return isAdmin() ? 'UniPakt' : (club(state.user)?.name || '');
+  };
+
+  const evField = (label, control, { opt = false, hint = '' } = {}) =>
+    `<label class="field"><span>${esc(label)}${opt ? ' <em class="opt">(isteğe bağlı)</em>' : ''}</span>${control}${hint ? `<small class="hint">${esc(hint)}</small>` : ''}</label>`;
+
+  const eventTypeView = () => {
+    const d = readDraft();
+    const partner = evForm.kind === 'partner';
+    return `
+      <div class="evp-head"><h1>${partner ? (isAdmin() ? 'Yeni ortak etkinlik' : 'Ortak arıyorum') : 'Yeni etkinlik'}<span>.</span></h1>
+        <button class="btn ghost small" data-act="ev-cancel">Vazgeç</button></div>
+      <p style="opacity:.75;margin:-8px 0 22px">Önce etkinliğinin türünü seç. ${isAdmin() ? 'Kaydettiğin anda yayınlanır.' : 'Kaydettiğinde UniPakt onayına gider.'}</p>
+      <div class="evp-types">
+        <div class="evp-type paid"><span class="dot"></span><h2>Ücretli Etkinlik</h2>
+          <p>Katılımın bir ücreti varsa bunu seç. Ücret tutarını formda yazarsın; bilet ya da kayıt işlemleri senin kayıt bağlantın veya biletimGO sayfan üzerinden yürür.</p>
+          <button class="btn" data-act="ev-type" data-id="paid">Etkinlik Oluştur</button></div>
+        <div class="evp-type free"><span class="dot"></span><h2>Ücretsiz Etkinlik</h2>
+          <p>Katılım ücretsizse bunu seç. Sitede “Ücretsiz” yazar; istersen kayıt bağlantısı ve kontenjan ekleyebilirsin.</p>
+          <button class="btn" data-act="ev-type" data-id="free">Etkinlik Oluştur</button></div>
+      </div>
+      ${d && d.values ? `<div class="evp-note"><span>Yarım kalmış bir taslağın var${d.values.title ? `: “${esc(d.values.title)}”` : ''}.</span>
+        <span style="display:flex;gap:8px"><button class="btn small" data-act="ev-type" data-id="${d.fee === 'paid' ? 'paid' : 'free'}">Taslağa devam et</button>
+        <button class="btn ghost small" data-act="ev-draft-discard">Taslağı sil</button></span></div>` : ''}`;
+  };
+
+  const eventPageView = () => {
+    if (evForm.mode === 'new' && !evForm.fee) return eventTypeView();
+    const v = evForm.values || EMPTY_VALUES;
+    const partner = evForm.kind === 'partner';
+    const editing = evForm.mode === 'edit';
+    const thumb = (k) => { const im = evForm.images[k]; return im && im.url ? `<img src="${esc(im.url)}" alt="">` : (k === 'banner' ? '5:1 · isteğe bağlı' : '1:1 · zorunlu'); };
+    const title = editing ? 'Etkinliği düzenle' : (partner ? (isAdmin() ? 'Yeni ortak etkinlik' : 'Ortak arıyorum') : 'Yeni etkinlik');
+    return `
+      <div class="evp-head"><h1>${esc(title)}<span>.</span></h1><button class="btn ghost small" data-act="ev-cancel">Vazgeç</button></div>
+      <div class="evp">
+        <form class="evp-form" id="evpForm" novalidate>
+          ${evForm.restored ? `<div class="evp-banner-msg"><span>Bu tarayıcıdaki taslağın geri yüklendi.</span><button type="button" class="btn ghost small" data-ev-reset>Taslağı sil</button></div>` : ''}
+          ${editing && !isAdmin() ? '<div class="evp-banner-msg"><span>Değişiklikler UniPakt Onaylamalar’a gönderilir; yayındaki etkinlik onay gelene kadar değişmez.</span></div>' : ''}
+
+          <section class="card evp-sec"><h2>Etkinlik Bilgileri</h2>
+            ${evField('Etkinlik adı', `<input name="title" required maxlength="120" value="${esc(v.title)}">`)}
+            ${evField('Kategori', `<select name="category" required><option value="">Seç</option>${EV_CATEGORIES.map((c) => `<option ${v.category === c ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select>`)}
+            <div class="field-row">${evField('Başlangıç tarihi', `<input type="date" name="date" required value="${esc(v.date)}" ${editing ? '' : `min="${today()}"`}>`)}${evField('Bitiş tarihi', `<input type="date" name="endDate" value="${esc(v.endDate)}">`, { opt: true })}</div>
+            <div class="field-row">${evField('Başlangıç saati', `<input type="time" name="time" value="${esc(v.time)}">`, { opt: true })}${evField('Bitiş saati', `<input type="time" name="endTime" value="${esc(v.endTime)}">`, { opt: true })}</div>
+            ${evField('Ek etkinlik tarihleri', `<textarea name="extraDates" placeholder="Her satıra: YYYY-AA-GG HH:MM\nÖrn: 2026-11-07 21:00" style="min-height:76px">${esc(v.extraDates)}</textarea>`, { opt: true, hint: 'Aynı etkinlik birden çok günde tekrarlanıyorsa.' })}
+          </section>
+
+          <section class="card evp-sec"><h2>Bilet</h2>
+            ${evField('Ücret durumu', `<select name="feeType" data-ev-fee><option value="free" ${evForm.fee !== 'paid' ? 'selected' : ''}>Ücretsiz</option><option value="paid" ${evForm.fee === 'paid' ? 'selected' : ''}>Ücretli</option></select>`)}
+            ${evForm.fee === 'paid' ? evField('Ücret tutarı (TL)', `<input type="number" name="feeAmount" required min="0.01" step="0.01" inputmode="decimal" value="${esc(v.feeAmount)}" placeholder="Örn. 150">`) : ''}
+            ${evField('biletimGO sayfası', `<input type="url" name="biletimgo" maxlength="1000" value="${esc(v.biletimgo)}" placeholder="https://biletimgo.com/...">`, { opt: true, hint: 'Yalnızca biletimgo.com adresleri kabul edilir. Sitede tıklanabilir biletimGO logosu çıkar.' })}
+            <div class="field-row">${evField('Kayıt linki', `<input type="url" name="registration" maxlength="1000" value="${esc(v.registration)}" placeholder="https://...">`, { opt: true })}${evField('Kontenjan', `<input type="number" name="capacity" min="1" step="1" inputmode="numeric" value="${esc(v.capacity)}">`, { opt: true })}</div>
+          </section>
+
+          <section class="card evp-sec"><h2>Etkinlik Detayları</h2>
+            <div class="evp-img"><span class="field-label">Etkinlik görseli <em class="opt">(zorunlu, 1:1)</em></span>
+              <div class="thumb poster" data-ev-thumb="poster">${thumb('poster')}</div>
+              <div class="row"><input type="file" accept="image/jpeg,image/png,image/webp" data-ev-image="poster"><small class="hint" data-ev-hint="poster"></small></div></div>
+            <div class="evp-img"><span class="field-label">Banner görseli <em class="opt">(isteğe bağlı, 5:1)</em></span>
+              <div class="thumb banner" data-ev-thumb="banner">${thumb('banner')}</div>
+              <div class="row"><input type="file" accept="image/jpeg,image/png,image/webp" data-ev-image="banner">${evForm.images.banner ? '<button type="button" class="btn ghost small" data-ev-clear="banner">Banner’ı kaldır</button>' : ''}<small class="hint" data-ev-hint="banner"></small></div></div>
+            <small class="hint" style="opacity:.6;font-size:12px">Görseller yüklenmeden önce tarayıcında 1 MB’ın altına küçültülür.</small>
+            <div class="field-row three">${evField('Etkinlik yeri', `<input name="place" maxlength="120" value="${esc(v.place)}" placeholder="Volkswagen Arena">`)}${evField('İl', `<input name="city" maxlength="60" value="${esc(v.city)}" placeholder="İstanbul">`, { opt: true })}${evField('Üniversite', `<input name="university" maxlength="200" value="${esc(v.university)}">`, { opt: true })}</div>
+            ${evField('Açık adres', `<textarea name="address" required maxlength="300" style="min-height:70px" placeholder="Tam adresi yaz. Ziyaretçi “Haritada aç” ile Google Maps’e gider.">${esc(v.address)}</textarea>`)}
+            <label class="field"><span>Detay metni</span>
+              <div class="evp-toolbar" role="toolbar" aria-label="Biçimlendirme"><button type="button" data-md="bold"><b>K</b> Kalın</button><button type="button" data-md="italic"><i>İ</i> İtalik</button><button type="button" data-md="link">Link</button><button type="button" data-md="list">• Madde</button></div>
+              <textarea name="desc" required maxlength="5000" style="min-height:170px">${esc(v.desc)}</textarea>
+              <small class="hint">**kalın**, *italik*, [metin](https://adres) ve “- ” ile başlayan satırlar madde olur.</small></label>
+            ${evField('Kurallar', `<textarea name="rules" maxlength="2000" placeholder="Her satır ayrı bir madde olarak gösterilir.">${esc(v.rules)}</textarea>`, { opt: true })}
+            ${evField('Etiketler', `<input name="tags" maxlength="300" value="${esc(v.tags)}" placeholder="Workshop, Yazılım, Networking">`, { opt: true, hint: 'Virgülle ayır, en fazla 12.' })}
+            ${partner ? evField('Nasıl bir ortak arıyorsun?', `<input name="seeking" required maxlength="200" value="${esc(v.seeking)}">`) : ''}
+          </section>
+
+          <section class="card evp-sec"><h2>Sosyal Medya</h2><p class="hint">Etkinliğin kendi sayfaları. Hepsi isteğe bağlı, yalnızca https.</p>
+            <div class="field-row">${evField('Instagram', `<input type="url" name="instagram" maxlength="500" value="${esc(v.instagram)}" placeholder="https://instagram.com/...">`)}${evField('Facebook', `<input type="url" name="facebook" maxlength="500" value="${esc(v.facebook)}" placeholder="https://facebook.com/...">`)}</div>
+            <div class="field-row">${evField('X / Twitter', `<input type="url" name="x" maxlength="500" value="${esc(v.x)}" placeholder="https://x.com/...">`)}${evField('YouTube', `<input type="url" name="youtube" maxlength="500" value="${esc(v.youtube)}" placeholder="https://youtube.com/...">`)}</div>
+          </section>
+
+          <section class="card evp-sec">
+            <label class="evp-check"><input type="checkbox" name="hidden" ${v.hidden ? 'checked' : ''}><span>Etkinliği gizle<small>Takvimde ve listelerde görünmez; linki bilen etkinlik sayfasını açabilir.${editing && !isAdmin() ? ' Değiştirirsen UniPakt’a görünürlük talebi gider.' : ''}</small></span></label>
+          </section>
+
+          <div class="evp-save">
+            <p class="form-error" id="evpError" hidden></p>
+            <button type="submit" class="btn">${editing ? (isAdmin() ? 'Kaydet' : 'Düzenleme talebini gönder') : (isAdmin() ? 'Kaydet ve yayınla' : 'Kaydet ve onaya gönder')}</button>
+            <button type="button" class="btn ghost" data-act="ev-cancel">Vazgeç</button>
+            <span class="status" data-ev-status></span>
+          </div>
+        </form>
+        <aside class="evp-preview" aria-label="Canlı önizleme"><small>Sitedeki görünüm · canlı önizleme</small><div class="pv" data-ev-preview></div></aside>
+      </div>`;
+  };
+
+  const readValues = (form) => {
+    const fd = new FormData(form); const out = { ...EMPTY_VALUES };
+    Object.keys(EMPTY_VALUES).forEach((k) => { if (k !== 'hidden') out[k] = String(fd.get(k) ?? (evForm.values?.[k] ?? '')); });
+    out.hidden = !!form.querySelector('[name="hidden"]')?.checked;
+    if (!form.querySelector('[name="feeAmount"]')) out.feeAmount = evForm.values?.feeAmount || '';
+    if (!form.querySelector('[name="seeking"]')) out.seeking = evForm.values?.seeking || '';
+    return out;
+  };
+
+  const parseOccurrences = (v) => {
+    const occ = [];
+    if (v.date) occ.push({ date: v.date, time: v.time || '' });
+    String(v.extraDates).split(/\n+/).map((x) => x.trim()).filter(Boolean).forEach((line) => {
+      const m = line.match(/^(\d{4}-\d{2}-\d{2})(?:\s+(\d{1,2}:\d{2}))?$/);
+      if (m && !occ.some((o) => o.date === m[1] && o.time === (m[2] || ''))) occ.push({ date: m[1], time: m[2] ? m[2].padStart(5, '0') : '' });
+    });
+    return occ.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  };
+
+  const HTTPS = /^https:\/\/[^\s"'<>]+$/i;
+  const BILETIMGO = /^https:\/\/(www\.)?biletimgo\.com\/[^\s"'<>]*$/i;
+  const validateEvent = (v) => {
+    if (!v.title.trim()) return 'Etkinlik adını yaz.';
+    if (!v.category) return 'Kategori seç.';
+    if (!v.date) return 'Başlangıç tarihini seç.';
+    const bad = String(v.extraDates).split(/\n+/).map((x) => x.trim()).filter(Boolean).find((l) => !/^\d{4}-\d{2}-\d{2}(\s+\d{1,2}:\d{2})?$/.test(l));
+    if (bad) return `Ek tarih satırı anlaşılamadı: “${bad}”. Biçim: YYYY-AA-GG HH:MM`;
+    if (v.endDate && v.endDate < v.date) return 'Bitiş tarihi başlangıçtan önce olamaz.';
+    if (v.endTime && v.time && (!v.endDate || v.endDate === v.date) && v.endTime < v.time) return 'Bitiş saati başlangıç saatinden önce olamaz.';
+    if (evForm.fee === 'paid' && !(Number(v.feeAmount) > 0)) return 'Ücretli etkinlikte ücret tutarı 0’dan büyük olmalı.';
+    if (!evForm.images.poster) return 'Etkinlik görseli zorunlu.';
+    if (!v.address.trim()) return 'Açık adresi yaz.';
+    if (!v.desc.trim()) return 'Detay metnini yaz.';
+    if (evForm.kind === 'partner' && !v.seeking.trim()) return 'Nasıl bir ortak aradığını yaz.';
+    if (v.capacity && !(Number.isInteger(Number(v.capacity)) && Number(v.capacity) > 0)) return 'Kontenjan pozitif bir tam sayı olmalı.';
+    if (v.biletimgo && !BILETIMGO.test(v.biletimgo)) return 'biletimGO alanına yalnızca https://biletimgo.com/… adresi yazılabilir.';
+    if (badLink(v.registration)) return 'Kayıt linki http:// ya da https:// ile başlamalı.';
+    for (const [k, label] of [['instagram', 'Instagram'], ['facebook', 'Facebook'], ['x', 'X / Twitter'], ['youtube', 'YouTube']]) {
+      if (v[k] && !HTTPS.test(v[k])) return `${label} linki https:// ile başlamalı.`;
+    }
+    return '';
+  };
+
+  const fmtWhen = (date, time) => (date ? `${fmtDay(date)}${time ? ` · ${time}` : ''}` : '');
+  const renderPreview = (box, v) => {
+    const occ = parseOccurrences(v);
+    const first = occ[0] || { date: v.date, time: v.time };
+    const img = evForm.images.poster?.url || '';
+    const hero = evForm.images.banner?.url || img;
+    const socials = ['instagram', 'facebook', 'x', 'youtube'].filter((k) => v[k]);
+    const row = (ic, label, val) => (val ? `<div class="pv-row">${icon(ic)}<div><small>${esc(label)}</small><span>${val}</span></div></div>` : '');
+    const placeText = [v.place, v.address, v.city].map((x) => String(x).trim()).filter(Boolean).map(esc).join('<br>');
+    box.innerHTML = `
+      <div class="pv-hero" ${hero ? `style="background-image:url('${esc(hero).replace(/'/g, '%27')}')"` : ''}>
+        <h3>${esc(v.title) || '<span class="pv-empty">Etkinlik adı</span>'}</h3><i></i>
+        <p>${[v.place, fmtWhen(first.date, first.time)].filter(Boolean).map(esc).join(' · ') || '<span class="pv-empty">Yer · tarih</span>'}</p>
+      </div>
+      <div class="pv-body">
+        <div class="pv-fee"><b>${evForm.fee === 'paid' ? (v.feeAmount ? `${esc(v.feeAmount)} TL` : 'Ücretli') : 'Ücretsiz'}</b>
+          <span>${v.registration ? 'Kayıt ol' : ''}${v.registration && v.biletimgo ? ' · ' : ''}${v.biletimgo ? 'biletimGO' : ''}</span></div>
+        <div class="pv-poster">${img ? `<img src="${esc(img)}" alt="">` : 'Etkinlik görseli'}</div>
+        <div class="pv-detail">${mdLite(v.desc) || '<p class="pv-empty">Detay metni burada görünür.</p>'}</div>
+        <div class="pv-card"><h4>Etkinlik Bilgileri</h4>
+          ${row('start', 'Başlangıç', esc(fmtWhen(first.date, first.time)))}
+          ${row('end', 'Bitiş', esc(fmtWhen(v.endDate || (v.endTime ? first.date : ''), v.endTime)))}
+          ${row('org', 'Organizatör', esc(organizerName()))}
+          ${row('cat', 'Kategori', esc(v.category))}
+          ${row('place', 'Yer', placeText)}
+          ${socials.length ? row('link', 'Etkinlik sayfaları', `<span class="pv-social">${socials.map((k) => icon(k)).join('')}</span>`) : ''}
+          ${row('cap', 'Kontenjan', esc(v.capacity))}
+        </div>
+      </div>`;
+  };
+
+  const mountEventPage = () => {
+    const form = document.getElementById('evpForm');
+    if (!form) return;
+    const box = root.querySelector('[data-ev-preview]');
+    const status = form.querySelector('[data-ev-status]');
+    const err = form.querySelector('#evpError');
+    const refresh = (markDirty) => {
+      evForm.values = readValues(form);
+      renderPreview(box, evForm.values);
+      if (!markDirty) return;
+      evForm.dirty = true;
+      clearTimeout(evForm.saveTimer);
+      evForm.saveTimer = setTimeout(() => {
+        if (state.view !== 'etkinlik-olustur' || !evForm.dirty) return;
+        writeDraft(); status.textContent = 'Taslak bu tarayıcıya kaydedildi.';
+      }, 500);
+    };
+    form.addEventListener('input', () => refresh(true));
+    form.addEventListener('change', (e) => {
+      if (e.target.matches('[data-ev-fee]')) { evForm.values = readValues(form); evForm.fee = e.target.value; evForm.dirty = true; writeDraft(); render(); return; }
+      if (!e.target.matches('[data-ev-image]')) refresh(true);
+    });
+    form.querySelectorAll('[data-ev-image]').forEach((input) => input.addEventListener('change', async () => {
+      const k = input.dataset.evImage; const file = input.files && input.files[0]; if (!file) return;
+      const hint = form.querySelector(`[data-ev-hint="${k}"]`);
+      hint.textContent = 'Hazırlanıyor…';
+      try {
+        const { file: small, ratio } = await shrinkImage(file);
+        const dataUrl = await readAsDataUrl(small);
+        evForm.images[k] = { file: small, url: dataUrl, dataUrl, name: small.name };
+        const target = k === 'banner' ? 5 : 1;
+        const off = Math.abs(ratio / target - 1) > 0.15;
+        form.querySelector(`[data-ev-thumb="${k}"]`).innerHTML = `<img src="${esc(dataUrl)}" alt="">`;
+        hint.textContent = `${Math.round(small.size / 1024)} KB${off ? ` · önerilen oran ${k === 'banner' ? '5:1' : '1:1'}, sitede kenarlardan kırpılabilir` : ''}`;
+        evForm.values = readValues(form); evForm.dirty = true; writeDraft(); renderPreview(box, evForm.values);
+        if (k === 'banner' && !form.querySelector('[data-ev-clear="banner"]')) render();
+      } catch (error) { input.value = ''; hint.textContent = error.message || 'Görsel eklenemedi.'; }
+    }));
+    form.addEventListener('click', (e) => {
+      const clear = e.target.closest('[data-ev-clear]');
+      if (clear) { evForm.values = readValues(form); evForm.images[clear.dataset.evClear] = null; evForm.dirty = true; writeDraft(); render(); return; }
+      if (e.target.closest('[data-ev-reset]')) {
+        if (!confirm('Taslak silinsin mi? Form başa döner.')) return;
+        clearDraft(); evForm.dirty = false; evForm.restored = false;
+        if (evForm.mode === 'edit') { const ev = db.events.find((x) => x.id === evForm.id); evForm.values = valuesFromEvent(ev); evForm.images = { poster: ev.poster ? { url: ev.poster } : null, banner: ev.banner ? { url: ev.banner } : null }; }
+        else { evForm.values = null; evForm.images = { poster: null, banner: null }; }
+        render(); return;
+      }
+      const md = e.target.closest('[data-md]'); if (!md) return;
+      const ta = form.querySelector('[name="desc"]');
+      const a = ta.selectionStart; const b = ta.selectionEnd; const sel = ta.value.slice(a, b);
+      let ins = sel;
+      if (md.dataset.md === 'bold') ins = `**${sel || 'kalın metin'}**`;
+      else if (md.dataset.md === 'italic') ins = `*${sel || 'italik metin'}*`;
+      else if (md.dataset.md === 'link') {
+        const url = prompt('Link adresi (https://...)', 'https://'); if (!url) return;
+        if (!/^https?:\/\/[^\s"'<>()]+$/i.test(url.trim())) { alert('Link http:// ya da https:// ile başlamalı.'); return; }
+        ins = `[${sel || 'bağlantı'}](${url.trim()})`;
+      } else if (md.dataset.md === 'list') ins = (sel || 'madde').split('\n').map((l) => (l.startsWith('- ') ? l : `- ${l}`)).join('\n');
+      ta.setRangeText(ins, a, b, 'end'); ta.focus(); refresh(true);
+    });
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const button = form.querySelector('button[type="submit"]'); if (button.disabled) return;
+      const v = readValues(form); evForm.values = v;
+      const problem = validateEvent(v);
+      if (problem) { err.textContent = problem; err.hidden = false; return; }
+      err.hidden = true; button.disabled = true; status.textContent = 'Kaydediliyor…';
+      clearTimeout(evForm.saveTimer);
+      try {
+        await saveEvent(v);
+        clearDraft(); evForm.dirty = false;
+        const target = evForm.back && evForm.back !== 'etkinlik-olustur' ? evForm.back : (isAdmin() ? 'etkinlikler' : 'etkinliklerim');
+        go(target);
+      } catch (error) {
+        if (!state.user) { render(); return; }
+        err.textContent = error.message || 'Kaydedilemedi.'; err.hidden = false; status.textContent = '';
+        button.disabled = false;
+      }
+    });
+    renderPreview(box, readValues(form));
+  };
+
+  const saveEvent = async (v) => {
+    const occ = parseOccurrences(v);
+    const upload = async (k) => { const im = evForm.images[k]; if (!im) return ''; return im.file ? api.uploadEventPoster(im.file) : im.url; };
+    const posterUrl = await upload('poster');
+    const bannerUrl = await upload('banner');
+    const f = {
+      title: v.title.trim(), desc: v.desc, date: occ[0].date, time: occ[0].time, occurrences: occ,
+      endDate: v.endDate, endTime: v.endTime, place: v.place.trim(), city: v.city.trim(), university: v.university.trim(), address: v.address.trim(),
+      rules: v.rules, posterUrl, bannerUrl, category: v.category,
+      tags: String(v.tags).split(',').map((x) => x.trim()).filter(Boolean).slice(0, 12),
+      registration: v.registration.trim(), feeType: evForm.fee === 'paid' ? 'paid' : 'free', feeAmount: evForm.fee === 'paid' ? v.feeAmount : '',
+      biletimgo: v.biletimgo.trim(), instagram: v.instagram.trim(), facebook: v.facebook.trim(), x: v.x.trim(), youtube: v.youtube.trim(), capacity: v.capacity,
+    };
+    if (evForm.kind === 'partner') f.seeking = v.seeking.trim();
+    const visible = !v.hidden;
+    if (evForm.mode === 'new') {
+      await api.addEvent({ ...f, kind: evForm.kind, visible });
+      toast(isAdmin() ? (evForm.kind === 'partner' ? 'Ortak Arama’da yayınlandı.' : 'Etkinlik takvime eklendi.') : 'Etkinlik onaya gönderildi.');
+      return;
+    }
+    const e = db.events.find((x) => x.id === evForm.id);
+    const visChanged = e && (e.visible !== false) !== visible;
+    if (isAdmin()) {
+      await api.updateEvent(evForm.id, f);
+      if (visChanged) await api.setEventVisibility(evForm.id, visible);
+      toast('Etkinlik güncellendi.');
+    } else {
+      await api.requestEventEdit(evForm.id, f);
+      if (visChanged) await api.requestEventVisibility(evForm.id, visible, '');
+      toast(visChanged ? 'Düzenleme ve görünürlük talebin Onaylamalar’a gönderildi.' : 'Düzenleme talebi Onaylamalar’a gönderildi.');
+    }
+  };
+
   const views = {
+    'etkinlik-olustur': () => eventPageView(),
     genel() {
       const events = upcomingEvents().slice(0, 3);
       const eventsBlock = `
@@ -1878,6 +2433,7 @@
           ...pendingAnnouncements().map((a) => ({ kind: 'Duyuru', title: a.title, by: who(a.authorId) })),
           ...pendingEvents().map((e) => ({ kind: kindLabel(e), title: e.title, by: who(e.ownerId) })),
           ...pendingCalendar().map((e) => ({ kind: 'Takvim talebi', title: e.title, by: who(e.ownerId) })),
+          ...pendingComments().map((c) => ({ kind: 'Yorum', title: db.events.find((e) => e.id === c.eventId)?.title || 'Etkinlik', by: c.name })),
         ];
         const done = db.tasks.filter((t) => t.status === 'done').sort((a, b) => String(b.doneAt).localeCompare(String(a.doneAt))).slice(0, 3);
         return `
@@ -2143,6 +2699,17 @@
         <div class="section-head"><h2>Etkinlik düzenleme talepleri (${pendingEventEdits().length})</h2></div>
         <div class="stack">${pendingEventEdits().length ? pendingEventEdits().map((q) => { const e=db.events.find(x=>x.id===q.eventId); const c=q.changes||{}; return `<article class="card item"><div class="meta top"><span class="tag wait">Düzenleme</span><span>${esc(who(q.clubId))} · ${fmtStamp(q.createdAt)}</span></div><h3>${esc(e?.title || c.title || 'Etkinlik')}</h3>${eventEditDiff(e, c)}<div class="actions"><button class="btn small" data-act="event-edit-approve" data-id="${esc(q.id)}">Onayla</button><button class="btn ghost small" data-act="event-edit-reject" data-id="${esc(q.id)}">Reddet</button></div></article>`; }).join('') : empty('Bekleyen etkinlik düzenleme isteği yok.')}</div>
 
+        <div class="section-head"><h2>Yorumlar (${pendingComments().length})</h2></div>
+        <div class="stack">${pendingComments().length ? pendingComments().map((c) => { const e = db.events.find((x) => x.id === c.eventId); return `
+          <article class="card item">
+            <div class="meta top"><span class="tag wait">Yorum</span><span>${esc(e?.title || 'Etkinlik')} · ${fmtStamp(c.createdAt)}</span></div>
+            <h3>${esc(c.name)}</h3>
+            ${c.email ? `<div class="meta"><span>${esc(c.email)}</span></div>` : ''}
+            <div class="quote comment-body">${esc(c.body)}</div>
+            <div class="meta"><span>Onaylarsan etkinlik sayfasında ad ve yorum görünür; e-posta asla gösterilmez. Reddedersen yorum silinir.</span></div>
+            <div class="actions"><button class="btn small" data-act="comment-approve" data-id="${esc(c.id)}">Onayla</button><button class="btn ghost small" data-act="comment-reject" data-id="${esc(c.id)}">Reddet</button></div>
+          </article>`; }).join('') : empty('Bekleyen yorum yok.')}</div>
+
         <div class="section-head"><h2>Takvime alma talepleri (${cals.length})</h2></div>
         <div class="stack">${cals.length ? cals.map((e) => `
           <article class="card item event">
@@ -2271,7 +2838,7 @@
       if (state.accounts === null) {
         state.accounts = 'loading';
         api.accounts().then((map) => { state.accounts = map; }, () => { state.accounts = 'unavailable'; })
-          .then(() => { if (state.view === 'kulupler' && state.user && !dlg.open) render(); });
+          .then(() => { if (state.view === 'kulupler' && state.user && !busy()) render(); });
       }
       const accountLine = (c) => {
         if (state.accounts === 'loading') return 'Giriş hesabı: yükleniyor…';
@@ -2470,47 +3037,10 @@
     'ann-reject'(id) { rejectWithNote('Duyuruyu reddet', (note) => api.decideAnnouncement(id, 'rejected', note)); },
     'ann-remove'(id) { confirmRemove('Duyuruyu kaldır', 'Duyuru tüm kulüplerin panelinden kalkar.', () => api.removeAnnouncement(id)); },
 
-    'event-new'(kind) {
-      const partner = kind !== 'event';
-      openForm({
-        title: partner ? (isAdmin() ? 'Yeni ortak etkinlik' : 'Ortak arıyorum') : 'Yeni etkinlik',
-        lead: partner
-          ? (isAdmin() ? 'Yayınladığın anda Ortak Arama sayfasına düşer. Takvime almak için “Yayına al”ı kullan.' : 'UniPakt onayladığında Ortak Arama sayfasına düşer.')
-          : (isAdmin() ? 'Yayınladığın anda takvimde görünür.' : 'UniPakt onayladığında takvimde görünür.'),
-        fields: field('Etkinlik adı', '<input name="title" required maxlength="120">')
-          + field('Afiş / etkinlik görseli', '<div class="poster-upload"><div class="poster-file-row"><input type="file" name="poster" accept="image/jpeg,image/png,image/webp"><button type="button" class="btn ghost small poster-clear" data-clear-poster hidden aria-label="Afişi kaldır" title="Afişi kaldır">×</button></div><div class="poster-preview" data-poster-preview hidden></div></div>')
-          + field('Açıklama', '<textarea name="desc" required maxlength="2000"></textarea>')
-          + `<div class="field-row">${field('İlk tarih', `<input type="date" name="date" required min="${today()}">`)}${field('Saat', '<input type="time" name="time">')}</div>`
-          + field('Ek etkinlik tarihleri', '<textarea name="extraDates" placeholder="Her satıra: YYYY-AA-GG HH:MM\nÖrn: 2026-11-07 21:00"></textarea>')
-          + field('Etkinlik yeri', '<input name="place" maxlength="120" placeholder="Volkswagen Arena">')
-          + field('Açık adres', '<textarea name="address" required maxlength="300" placeholder="Tam adresi yazın. Ziyaretçi tıkladığında Google Maps açılır."></textarea>')
-          + field('Etkinlik bilgileri / kurallar', '<textarea name="rules" maxlength="2000" placeholder="Katılım koşulları, kontenjan, yaş sınırı vb."></textarea>')
-          + field('Etiketler', '<input name="tags" maxlength="300" placeholder="Workshop, Yazılım, Networking">')
-          + field('Kayıt / katılım bağlantısı (isteğe bağlı)', '<input type="url" name="registration" maxlength="1000" placeholder="https://...">')
-          + field('Ücret durumu', '<select name="feeType"><option value="free">Ücretsiz</option><option value="paid">Ücretli</option></select>')
-          + field('Ücret (TL) — ücretliyse', '<input type="number" name="feeAmount" min="0" step="0.01" inputmode="decimal" placeholder="Örn. 150">')
-          + (partner ? field('Nasıl bir ortak arıyorsun?', '<input name="seeking" required maxlength="200">') : ''),
-        submit: isAdmin() ? 'Yayınla' : 'Onaya gönder',
-        onSubmit: async (fd) => {
-          if (badLink(val(fd,'registration'))) return LINK_ERROR;
-          const poster = fd.get('poster');
-          const occurrences = [{ date: val(fd,'date'), time: val(fd,'time') }];
-          String(val(fd,'extraDates')).split(/\n+/).map(x => x.trim()).filter(Boolean).forEach(line => {
-            const m = line.match(/^(\d{4}-\d{2}-\d{2})(?:\s+(\d{1,2}:\d{2}))?$/);
-            if (m) occurrences.push({ date: m[1], time: m[2] || '' });
-          });
-          const unique = [...new Map(occurrences.map(o => [`${o.date} ${o.time}`, o])).values()].sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time));
-          const posterUrl = poster && poster.size ? await api.uploadEventPoster(poster) : '';
-          await api.addEvent({
-            title: val(fd,'title'), desc: val(fd,'desc'), date: unique[0].date, time: unique[0].time,
-            occurrences: unique, place: val(fd,'place'), address: val(fd,'address'), rules: val(fd,'rules'), posterUrl,
-            tags: String(val(fd,'tags')).split(',').map(x => x.trim()).filter(Boolean).slice(0,12), registration: val(fd,'registration'), feeType: val(fd,'feeType') || 'free', feeAmount: val(fd,'feeAmount'),
-            seeking: partner ? val(fd,'seeking') : '', kind: partner ? 'partner' : 'event'
-          });
-          toast(isAdmin() ? (partner ? 'Ortak Arama’da yayınlandı.' : 'Etkinlik takvime eklendi.') : 'Etkinlik onaya gönderildi.');
-        },
-      });
-    },
+    'event-new'(kind) { openEventPage('new', { kind: kind === 'event' ? 'event' : 'partner' }); },
+    'ev-type'(fee) { evForm.fee = fee === 'paid' ? 'paid' : 'free'; evForm.values = null; applyDraft(); render(); window.scrollTo(0, 0); },
+    'ev-draft-discard'() { if (!confirm('Taslak silinsin mi?')) return; clearDraft(); render(); },
+    'ev-cancel'() { go(evForm.back && evForm.back !== 'etkinlik-olustur' ? evForm.back : 'etkinlikler'); },
     async 'pub-request'(id) { await api.requestCalendar(id); toast('Yayına alma talebin gönderildi.'); render(); },
     async 'pub-approve'(id) { await api.setCalendar(id, 'on'); toast('Etkinlik takvime alındı.'); render(); },
     'pub-reject'(id) { rejectWithNote('Yayına alma talebini reddet', async (note) => { await api.setCalendar(id, 'none', note); toast('Takvim talebi reddedildi.'); render(); }); },
@@ -2520,39 +3050,10 @@
     'event-edit'(id) {
       const e = db.events.find((x) => x.id === id);
       if (!e || e.status !== 'published' || (!isAdmin() && e.ownerId !== state.user)) return;
-      const occText = (e.occurrences || [{date:e.date,time:e.time}]).map(o => `${o.date}${o.time ? ' '+o.time : ''}`).join('\n');
-      openForm({
-        title: 'Etkinliği düzenle',
-        lead: isAdmin() ? 'Değişiklikler doğrudan yayınlanır.' : 'Değişiklikler UniPakt Onaylamalar’a gönderilir; mevcut etkinlik onay gelene kadar değişmez.',
-        fields: field('Etkinlik adı', `<input name="title" required maxlength="120" value="${esc(e.title)}">`)
-          + field('Afiş / etkinlik görseli', `<div class="poster-upload"><div class="poster-file-row"><input type="file" name="poster" accept="image/jpeg,image/png,image/webp"><button type="button" class="btn ghost small poster-clear" data-clear-poster hidden aria-label="Afişi kaldır" title="Afişi kaldır">×</button></div><div class="poster-preview" data-poster-preview ${e.poster ? '' : 'hidden'}>${e.poster ? `<img src="${esc(e.poster)}" alt="">` : ''}</div></div>`)
-          + field('Açıklama', `<textarea name="desc" required maxlength="5000">${esc(e.desc)}</textarea>`)
-          + `<div class="field-row">${field('İlk tarih', `<input type="date" name="date" required value="${esc(e.date)}">`)}${field('Saat', `<input type="time" name="time" value="${esc(e.time)}">`)}</div>`
-          + field('Diğer tarihler', `<textarea name="extraDates" placeholder="Her satıra: YYYY-AA-GG HH:MM">${esc(occText)}</textarea>`)
-          + field('Üniversite', `<input name="university" maxlength="200" value="${esc(e.university)}">`)
-          + field('Yer', `<input name="place" maxlength="120" value="${esc(e.place)}">`)
-          + field('Açık adres', `<input name="address" maxlength="500" value="${esc(e.address)}">`)
-          + field('Kurallar / bilgiler', `<textarea name="rules" maxlength="5000">${esc(e.rules)}</textarea>`)
-          + field('Etiketler', `<input name="tags" maxlength="500" value="${esc((e.tags||[]).join(', '))}">`)
-          + field('Kayıt linki', `<input type="url" name="registration" value="${esc(e.registration)}">`)
-          + `<div class="field-row">${field('Ücret', `<select name="feeType"><option value="free" ${e.feeType!=='paid'?'selected':''}>Ücretsiz</option><option value="paid" ${e.feeType==='paid'?'selected':''}>Ücretli</option></select>`)}${field('Ücret tutarı', `<input type="number" min="0" step="0.01" name="feeAmount" value="${e.feeAmount ?? ''}">`)}</div>`,
-        submit: isAdmin() ? 'Değişiklikleri kaydet' : 'Düzenleme talebini gönder',
-        onSubmit: async (fd) => {
-          if (badLink(val(fd,'registration'))) return LINK_ERROR;
-          const poster = fd.get('poster');
-          let posterUrl = e.poster;
-          if (poster && poster.size) posterUrl = await api.uploadEventPoster(poster);
-          const occ = [];
-          const firstDate=val(fd,'date'), firstTime=val(fd,'time');
-          if(firstDate) occ.push({date:firstDate,time:firstTime});
-          String(val(fd,'extraDates')).split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(line=>{ const m=line.match(/^(\d{4}-\d{2}-\d{2})(?:\s+(\d{1,2}:\d{2}))?$/); if(m && !occ.some(o=>o.date===m[1]&&o.time===(m[2]||''))) occ.push({date:m[1],time:m[2]||''}); });
-          occ.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
-          const f={title:val(fd,'title'),desc:val(fd,'desc'),date:occ[0]?.date||firstDate,time:occ[0]?.time||firstTime,occurrences:occ,place:val(fd,'place'),university:val(fd,'university'),address:val(fd,'address'),rules:val(fd,'rules'),posterUrl,tags:String(val(fd,'tags')).split(',').map(x=>x.trim()).filter(Boolean).slice(0,12),registration:val(fd,'registration'),feeType:val(fd,'feeType')||'free',feeAmount:val(fd,'feeAmount')};
-          if(isAdmin()) await api.updateEvent(id,f); else await api.requestEventEdit(id,f);
-          toast(isAdmin()?'Etkinlik güncellendi.':'Düzenleme talebi Onaylamalar’a gönderildi.');
-        }
-      });
+      openEventPage('edit', { id });
     },
+    async 'comment-approve'(id) { await api.decideComment(id, 'approved'); toast('Yorum onaylandı; sitede görünür.'); render(); },
+    async 'comment-reject'(id) { if (!confirm('Yorum silinsin mi?')) return; await api.decideComment(id, 'rejected'); toast('Yorum silindi.'); render(); },
     async 'event-edit-approve'(id){ await api.decideEventEdit(id,'approved'); toast('Etkinlik düzenlemesi onaylandı.'); render(); },
     'event-edit-reject'(id){ rejectWithNote('Etkinlik düzenlemesini reddet',note=>api.decideEventEdit(id,'rejected',note)); },
     async 'event-visibility'(id) {
@@ -2981,7 +3482,8 @@
      RENDER
      ------------------------------------------------------------------ */
   const go = (view) => {
-    if (!NAV().some(([id]) => id === view)) view = 'genel';
+    if (!knownView(view)) view = 'genel';
+    if (view !== state.view && !leaveEventPage()) return;
     state.view = view;
     if (location.hash !== `#${view}`) history.pushState(null, '', `#${view}`);
     render(); window.scrollTo(0, 0);
@@ -3019,7 +3521,7 @@
   const render = () => {
     if (!db || !state.user || (state.user !== ADMIN && !club(state.user))) { state.user = null; renderLogin(); return; }
     const nav = NAV();
-    if (!nav.some(([id]) => id === state.view)) state.view = 'genel';
+    if (!knownView(state.view)) state.view = 'genel';
     const me = isAdmin() ? { name: 'UniPakt', role: 'UniPakt yetkilisi' } : { name: club(state.user).name, role: 'Kulüp başkanı' };
     root.innerHTML = `
       <div class="app">
@@ -3029,7 +3531,7 @@
             <p class="kicker">Panel</p>
           </div>
           <nav class="side-nav" aria-label="Panel">
-            ${nav.map(([id, label, count]) => `<button class="nav-item ${state.view === id ? 'active' : ''}" data-go="${id}" ${state.view === id ? 'aria-current="page"' : ''}>${esc(label)}${count ? `<span class="badge">${count}</span>` : ''}</button>`).join('')}
+            ${NAV_GROUPS.map(([g, title]) => `<p class="nav-group">${esc(title)}</p>${nav.filter((n) => n[3] === g).map(([id, label, count]) => `<button class="nav-item ${state.view === id ? 'active' : ''}" data-go="${id}" ${state.view === id ? 'aria-current="page"' : ''}>${esc(label)}${count ? `<span class="badge">${count}</span>` : ''}</button>`).join('')}`).join('')}
           </nav>
           <div class="side-foot">
             <div class="side-user"><strong>${esc(me.name)}</strong><small>${me.role}</small></div>
@@ -3044,6 +3546,7 @@
         </div></main>
       </div>`;
     root.querySelector('.nav-item.active')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+    if (state.view === 'etkinlik-olustur') mountEventPage();
   };
 
   // A failed action says why; if it signed the user out, the login screen follows.
@@ -3102,12 +3605,19 @@
       button.disabled = false; button.textContent = 'Giriş yap';
     }
   });
-  window.addEventListener('hashchange', () => { state.view = location.hash.slice(1) || 'genel'; if (state.user) render(); });
+  window.addEventListener('hashchange', () => {
+    const next = location.hash.slice(1) || 'genel';
+    if (next === state.view) return;
+    // Geri tuşuyla kaydedilmemiş formdan çıkılıyorsa önce sor; vazgeçerse adresi geri al.
+    if (!leaveEventPage()) { history.pushState(null, '', '#etkinlik-olustur'); return; }
+    state.view = next; if (state.user) render();
+  });
+  window.addEventListener('beforeunload', (e) => { if (state.view === 'etkinlik-olustur' && evForm.dirty) { e.preventDefault(); e.returnValue = ''; } });
 
   // Keep the screen current: another tab in the demo, or coming back to the tab with Supabase.
   let lastSync = Date.now();
   const sync = async () => {
-    if (!state.user || dlg.open) return;
+    if (!state.user || busy()) return;
     try {
       await api.refresh();   // the remote refresh reloads support too
       lastSync = Date.now();
