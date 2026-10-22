@@ -12,7 +12,6 @@
 },
 "t": {
 "Sponsorlarımız": "赞助商",
-"Bu ağı birlikte büyütüyoruz.": "我们一起壮大这个网络。",
 "Ana Sayfa": "首页",
 "Ortak Kulüpler": "合作社团",
 "Hakkımızda": "关于我们",

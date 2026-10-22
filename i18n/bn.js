@@ -12,7 +12,6 @@
 },
 "t": {
 "Sponsorlarımız": "আমাদের স্পনসর",
-"Bu ağı birlikte büyütüyoruz.": "আমরা একসাথে এই নেটওয়ার্ক বাড়াচ্ছি।",
 "Ana Sayfa": "হোম",
 "Ortak Kulüpler": "অংশীদার ক্লাব",
 "Hakkımızda": "আমাদের সম্পর্কে",

@@ -12,7 +12,6 @@
 },
 "t": {
 "Sponsorlarımız": "Sponsor kami",
-"Bu ağı birlikte büyütüyoruz.": "Kami menumbuhkan jaringan ini bersama.",
 "Ana Sayfa": "Beranda",
 "Ortak Kulüpler": "Klub Mitra",
 "Hakkımızda": "Tentang Kami",

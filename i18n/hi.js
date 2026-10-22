@@ -12,7 +12,6 @@
 },
 "t": {
 "Sponsorlarımız": "हमारे प्रायोजक",
-"Bu ağı birlikte büyütüyoruz.": "हम मिलकर इस नेटवर्क को बढ़ा रहे हैं।",
 "Ana Sayfa": "होम",
 "Ortak Kulüpler": "साझेदार क्लब",
 "Hakkımızda": "हमारे बारे में",

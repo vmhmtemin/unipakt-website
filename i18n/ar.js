@@ -12,7 +12,6 @@
 },
 "t": {
 "Sponsorlarımız": "الرعاة",
-"Bu ağı birlikte büyütüyoruz.": "ننمّي هذه الشبكة معًا.",
 "Ana Sayfa": "الرئيسية",
 "Ortak Kulüpler": "الأندية الشريكة",
 "Hakkımızda": "من نحن",
