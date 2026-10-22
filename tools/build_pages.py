@@ -30,7 +30,6 @@ ROUTES = {
     "takvim": ("Takvim", "UniPakt ağındaki üniversite kulüplerinin ortak etkinlikleri, tek takvimde."),
     "kulupler": ("Ortak Kulüpler", "UniPakt ağına katılan İstanbul üniversite kulüpleri: yazılım, tasarım, girişimcilik, eğlence ve daha fazlası."),
     "hakkimizda": ("Hakkımızda", "UniPakt, üniversite kulüplerini ortak etkinliklerde buluşturan ve birbirlerini desteklemelerini sağlayan bir öğrenci kulüpleri ağıdır."),
-    "kampus": ("Kampüsünde UniPakt", "Her üniversiteden bir temsilci kulüp, kampüsler arası ortak etkinlikler ve tüm ağa ulaşan duyurular."),
     "iletisim": ("İletişim", "UniPakt'a soru, öneri ve iş birliği teklifleriniz için iletişim formu ve e-posta adresi."),
     "katil": ("Bize Katıl", "Üniversite kulübünü UniPakt ağına dahil etmek ya da şehrine geldiğimizde öncelikli olmak için başvur."),
     "etkinlik": ("Etkinlik", "UniPakt ağındaki bir üniversite kulübü etkinliğinin tarih, yer, kayıt ve bilet bilgileri."),

@@ -6309,7 +6309,8 @@
     .sp-hub.is-in { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     .sp-hub:hover { box-shadow: 0 0 0 8px #ffffff, 0 0 0 10px var(--sp-accent); }
     /* Sponsorlar: başlık bloğu ve menü sayfanın sol kenarına yakın (ortalanmış dar kolon yerine). */
-    .sp-page .sp-hero-text.wrap, .sp-page .sp-nav-in.wrap { max-width: none; margin-left: 0; margin-right: 0; padding-left: clamp(20px, 4vw, 64px); padding-right: clamp(20px, 4vw, 64px); }
+    /* Sponsorlar: başlık bloğu ana sayfadaki "İstanbul Üniversite Kulüpleri Ağı" başlığıyla aynı hizada (aynı kap ölçüleri). */
+    @media (min-width: 901px) { .sp-page .sp-hero-text.wrap { max-width: 1560px; width: 100%; padding-left: clamp(32px, 6vw, 110px); padding-right: clamp(32px, 6vw, 110px); } }
     .sp-hero-text { position: relative; z-index: 3; padding-top: clamp(28px, 5vh, 56px); padding-bottom: 48px; pointer-events: none; }
     .sp-hero-text > * { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .8s cubic-bezier(.2, .8, .2, 1); }
     .sp-hero.is-text .sp-hero-text > * { opacity: 1; transform: none; }
@@ -6464,7 +6465,6 @@
                 <a href="/kulupler/" data-route="kulupler">Ortak Kulüpler</a>
                 <a href="/sponsorlar/" data-route="sponsorlar">Sponsorlar</a>
 
-                <a href="/kampus/" data-route="kampus">Kampüsünde UniPakt</a>
                 <a href="/iletisim/" data-route="iletisim">İletişim</a>
                 <a href="/katil/" data-route="katil">Bize Katıl</a>
             </nav>
@@ -6987,97 +6987,6 @@
         </section>
 
         <!-- ================= KAMPÜSÜNDE UNİPAKT ================= -->
-        <section class="page" id="page-kampus" data-page="kampus">
-            <div class="section kampus-section" style="padding-top: clamp(90px, 12vw, 130px);">
-                <div class="kampus-dot-grid" aria-hidden="true"></div>
-                <div class="wrap">
-                    <div class="section-title">
-                        <h1 data-reveal>Kampüsünde UniPakt</h1>
-                        <p data-reveal>UniPakt bir kampüste soyut bir fikir değil; somut bir bağlantı ağı olarak var olur.</p>
-                    </div>
-
-                    <div class="kampus-university-search" data-reveal>
-                        <label for="kampusUniversitySearch">Üniversiteni bul</label>
-                        <input id="kampusUniversitySearch" type="search" autocomplete="off" spellcheck="false" placeholder="İstanbul'daki üniversiteni ara..." aria-controls="kampusUniversityResults">
-                        <div class="kampus-university-results" id="kampusUniversityResults"></div>
-                        <div class="kampus-selected-club" id="kampusSelectedClub" aria-live="polite"></div>
-                    </div>
-
-                    <div class="kampus-layout">
-                        <div class="kampus-list" data-reveal-stagger>
-                            <div class="row">
-                                <div class="b"></div>
-                                <div>
-                                    <h3>Temsilci kulüpler</h3>
-                                    <p>Her üniversiteden UniPakt'ı temsil eden bir kulüp.</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="b"></div>
-                                <div>
-                                    <h3>Ortak etkinlikler</h3>
-                                    <p>Birden fazla kampüsün birlikte kurguladığı etkinlikler.</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="b"></div>
-                                <div>
-                                    <h3>Kampüsler arası iş birlikleri</h3>
-                                    <p>Kulüplerin birbirinin kaynağından ve deneyiminden faydalanması.</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="b"></div>
-                                <div>
-                                    <h3>Etkinlik duyuruları</h3>
-                                    <p>Bir kampüsteki etkinlik, temsilci kulüpler aracılığıyla tüm ağa ulaşır.</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="b"></div>
-                                <div>
-                                    <h3>Organizasyon desteği</h3>
-                                    <p>Büyük işlere birlikte imza atmak için pratik destek.</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="b"></div>
-                                <div>
-                                    <h3>Öğrenci toplulukları arası bağlantılar</h3>
-                                    <p>Farklı kampüslerden öğrencilerin doğrudan tanışması.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="network-wrap" id="istanbulNetwork" aria-hidden="true">
-                            <svg viewBox="0 0 500 460" xmlns="http://www.w3.org/2000/svg">
-                                <!-- Connections are updated every frame so the network stays connected while the nodes drift. -->
-                                <g class="network-links">
-                                    <line class="network-link" data-a="0" data-b="1"/>
-                                    <line class="network-link" data-a="1" data-b="3"/>
-                                    <line class="network-link" data-a="1" data-b="2"/>
-                                    <line class="network-link" data-a="3" data-b="5"/>
-                                    <line class="network-link" data-a="2" data-b="4"/>
-                                    <line class="network-link" data-a="5" data-b="4"/>
-                                    <line class="network-link" data-a="5" data-b="6"/>
-                                    <line class="network-link" data-a="4" data-b="7"/>
-                                    <line class="network-link" data-a="0" data-b="3"/>
-                                </g>
-                                <g class="network-nodes">
-                                    <circle class="network-node" data-x="90" data-y="80" data-r="7" cx="90" cy="80" r="7"/>
-                                    <circle class="network-node" data-x="230" data-y="150" data-r="10" cx="230" cy="150" r="10"/>
-                                    <circle class="network-node" data-x="360" data-y="120" data-r="7" cx="360" cy="120" r="7"/>
-                                    <circle class="network-node" data-x="150" data-y="260" data-r="8" cx="150" cy="260" r="8"/>
-                                    <circle class="network-node" data-x="420" data-y="230" data-r="9" cx="420" cy="230" r="9"/>
-                                    <circle class="network-node" data-x="280" data-y="330" data-r="8" cx="280" cy="330" r="8"/>
-                                    <circle class="network-node" data-x="200" data-y="400" data-r="6" cx="200" cy="400" r="6"/>
-                                    <circle class="network-node" data-x="390" data-y="360" data-r="6" cx="390" cy="360" r="6"/>
-                                </g>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
         <section class="page" id="page-iletisim" data-page="iletisim">
             <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
@@ -7432,7 +7341,6 @@
                 <a href="/story/" data-route="story">The Story</a>
                 <a href="/takvim/" data-route="takvim">Takvim</a>
                 <a href="/kulupler/" data-route="kulupler">Ortak Kulüpler</a>
-                <a href="/kampus/" data-route="kampus">Kampüsünde UniPakt</a>
             </nav>
             <div class="footer-col footer-col-contact">
                 <h3>İletişim</h3>
@@ -8662,59 +8570,6 @@
         'Zonguldak': ['Zonguldak Bülent Ecevit Üniversitesi']
     };
 
-    /* ---------- Kampüsünde UniPakt / university finder ---------- */
-    const kampusUniversitySearch = document.getElementById('kampusUniversitySearch');
-    const kampusUniversityResults = document.getElementById('kampusUniversityResults');
-    const kampusSelectedClub = document.getElementById('kampusSelectedClub');
-
-    function renderKampusUniversityResults(query='') {
-        if (!kampusUniversityResults)
-            return;
-        const q = normalizeClubSearch(query);
-        const matches = ISTANBUL_UNIVERSITIES.filter(uni => !q || normalizeClubSearch(uni).includes(q));
-        kampusUniversityResults.innerHTML = matches.length
-        ? matches.map(uni => `<button type="button" class="kampus-university-option" data-university="${esc(uni)}">${esc(uni)}</button>`).join('')
-        : '<div class="kampus-university-option" style="cursor:default;opacity:.55;">Üniversite bulunamadı.</div>';
-        kampusUniversityResults.classList.add('open');
-    }
-
-    function showKampusUniversity(university) {
-        if (!kampusSelectedClub)
-            return;
-        const needle = normalizeClubSearch(university);
-        const clubs = CLUBS.filter(c => normalizeClubSearch(c.uni) === needle);
-        if (!clubs.length) {
-            kampusSelectedClub.innerHTML = `<div class="kampus-selected-empty"><strong>${esc(university)}</strong> — Bu üniversitede henüz UniPakt temsilcisi görünmüyor.</div>`;
-            return;
-        }
-        kampusSelectedClub.innerHTML = clubs.map(c =>
-        `<div class="kampus-selected-card"><div class="club-name">${esc(c.name)}</div><div class="club-meta">${esc(c.uni)} · ${esc(c.cat)}</div>${clubContactMarkup(c)}</div>`
-        ).join('');
-    }
-
-    kampusUniversitySearch?.addEventListener('focusin', () => renderKampusUniversityResults(kampusUniversitySearch.value));
-    kampusUniversitySearch?.addEventListener('input', () => renderKampusUniversityResults(kampusUniversitySearch.value));
-    const pickKampusUniversity = (event) => {
-        const option = event.target.closest('.kampus-university-option[data-university]');
-        if (!option)
-            return;
-        event.preventDefault();
-        const university = option.dataset.university;
-        kampusUniversitySearch.value = university;
-        kampusUniversityResults.classList.remove('open');
-        showKampusUniversity(university);
-    };
-    kampusUniversityResults?.addEventListener('mousedown', pickKampusUniversity);
-    // Keyboard (Tab to an option, then Enter/Space) produces a click with detail 0.
-    kampusUniversityResults?.addEventListener('click', (event) => {
-        if (event.detail === 0)
-            pickKampusUniversity(event);
-    });
-
-    document.addEventListener('click', (event) => {
-        if (!event.target.closest('.kampus-university-search'))
-            kampusUniversityResults?.classList.remove('open');
-    });
 
 
     const universityInput = document.getElementById('j-universite');
@@ -9318,7 +9173,7 @@
     const routeLinks = document.querySelectorAll('[data-route]');
     const menuToggle = document.getElementById('menuToggle');
     const navLinks = document.getElementById('navLinks');
-    const validRoutes = ['ana-sayfa', 'kulupler', 'hakkimizda', 'kampus', 'story', 'takvim', 'iletisim', 'katil', 'kvkk', 'etkinlik', 'sponsorlar'];
+    const validRoutes = ['ana-sayfa', 'kulupler', 'hakkimizda', 'story', 'takvim', 'iletisim', 'katil', 'kvkk', 'etkinlik', 'sponsorlar'];
 
     function showRoute(route) {
         if (!validRoutes.includes(route))
@@ -9375,7 +9230,6 @@
         takvim: 'Takvim',
         kulupler: 'Ortak Kulüpler',
         hakkimizda: 'Hakkımızda',
-        kampus: 'Kampüsünde UniPakt',
         iletisim: 'İletişim',
         katil: 'Bize Katıl',
         kvkk: 'KVKK Aydınlatma Metni',
@@ -9504,254 +9358,6 @@
         });
     }
 
-    /* ---------- Kampüsünde UniPakt / water-like network motion ----------
-                 Eight nodes gently drift around their own centers. The edges follow the
-                 live node positions, so the connections never break or detach. */
-    (function initNetworkMotion() {
-        const wrap = document.getElementById('istanbulNetwork');
-        if (!wrap)
-            return;
-        const svg = wrap.querySelector('svg');
-        const nodes = [...wrap.querySelectorAll('.network-node')];
-        const links = [...wrap.querySelectorAll('.network-link')];
-        if (nodes.length !== 8)
-            return;
-
-        const motions = [
-        {
-            ax: 8,
-            ay: 7,
-            sx: 0.62,
-            sy: 0.48,
-            p: 0.2
-        },
-        {
-            ax: 11,
-            ay: 9,
-            sx: 0.49,
-            sy: 0.40,
-            p: 1.4
-        },
-        {
-            ax: 8,
-            ay: 8,
-            sx: 0.57,
-            sy: 0.44,
-            p: 2.5
-        },
-        {
-            ax: 10,
-            ay: 9,
-            sx: 0.45,
-            sy: 0.55,
-            p: 3.3
-        },
-        {
-            ax: 9,
-            ay: 8,
-            sx: 0.52,
-            sy: 0.43,
-            p: 4.1
-        },
-        {
-            ax: 12,
-            ay: 10,
-            sx: 0.43,
-            sy: 0.50,
-            p: 5.0
-        },
-        {
-            ax: 8,
-            ay: 7,
-            sx: 0.55,
-            sy: 0.46,
-            p: 5.8
-        },
-        {
-            ax: 9,
-            ay: 8,
-            sx: 0.47,
-            sy: 0.51,
-            p: 6.6
-        }
-        ];
-
-        const NS = 'http://www.w3.org/2000/svg';
-        const baseR = nodes.map(n => +n.dataset.r);
-
-        // Cursor node: joins the network and links to the two nearest nodes.
-        const cursorLinks = [0, 1].map(() => {
-            const l = document.createElementNS(NS, 'line');
-            l.setAttribute('class', 'network-cursor-link');
-            svg.querySelector('.network-links').appendChild(l);
-            return l;
-        });
-        const cursorRing = document.createElementNS(NS, 'circle');
-        cursorRing.setAttribute('class', 'network-cursor-ring');
-        const cursorNode = document.createElementNS(NS, 'circle');
-        cursorNode.setAttribute('class', 'network-cursor');
-        cursorNode.setAttribute('r', '5');
-        svg.appendChild(cursorRing);
-        svg.appendChild(cursorNode);
-
-        const hint = document.createElement('div');
-        hint.className = 'network-hint';
-        hint.textContent = window.matchMedia('(hover: hover)').matches ? 'imleci gezdir →' : 'dokun ve sürükle';
-        wrap.appendChild(hint);
-
-        // Pointer in SVG units; null when outside.
-        let pointer = null;
-        const cursorPos = {
-            x: 250,
-            y: 230
-        };
-        const offsets = nodes.map(() => ({
-            x: 0,
-            y: 0,
-            s: 1
-        }));
-        const REPEL_R = 150,
-            PUSH = 42;
-
-        function toSvg(e) {
-            const pt = svg.createSVGPoint();
-            pt.x = e.clientX;
-            pt.y = e.clientY;
-            const m = svg.getScreenCTM();
-            return m ? pt.matrixTransform(m.inverse()) : null;
-        }
-        const onMove = (e) => {
-            const p = toSvg(e);
-            if (!p)
-                return;
-            if (!pointer) {
-                cursorPos.x = p.x;
-                cursorPos.y = p.y;
-            }
-            pointer = {
-                x: p.x,
-                y: p.y
-            };
-            wrap.classList.add('active');
-            if (animationFrame === null)
-                animationFrame = requestAnimationFrame(update);
-        };
-        const onLeave = () => {
-            pointer = null;
-            wrap.classList.remove('active');
-        };
-        const zone = wrap.closest('.kampus-layout') || wrap;
-        zone.addEventListener('pointermove', onMove);
-        zone.addEventListener('pointerdown', onMove);
-        zone.addEventListener('pointerleave', onLeave);
-        wrap.addEventListener('pointerup', (e) => {
-            if (e.pointerType !== 'mouse')
-                setTimeout(onLeave, 900);
-        });
-
-        const update = (ms) => {
-            const t = ms / 1000;
-            if (pointer) {
-                cursorPos.x += (pointer.x - cursorPos.x) * 0.2;
-                cursorPos.y += (pointer.y - cursorPos.y) * 0.2;
-            }
-            const pos = nodes.map((node, i) => {
-                const m = motions[i];
-                // Two very slow overlapping waves create a soft, underwater drift.
-                const bx = +node.dataset.x + Math.sin(t * m.sx + m.p) * m.ax + Math.sin(t * m.sx * 0.53 + m.p * 1.7) * (m.ax * 0.28);
-                const by = +node.dataset.y + Math.cos(t * m.sy + m.p * 0.8) * m.ay + Math.sin(t * m.sy * 0.61 + m.p * 1.3) * (m.ay * 0.24);
-
-                // Nodes near the cursor are pushed away and swell a little.
-                let tx = 0,
-                    ty = 0,
-                    ts = 1;
-                if (pointer) {
-                    const dx = bx - cursorPos.x,
-                        dy = by - cursorPos.y;
-                    const d = Math.hypot(dx, dy) || 1;
-                    if (d < REPEL_R) {
-                        const f = Math.pow(1 - d / REPEL_R, 2);
-                        tx = (dx / d) * f * PUSH;
-                        ty = (dy / d) * f * PUSH;
-                        ts = 1 + f * 0.9;
-                    }
-                }
-                const o = offsets[i];
-                o.x += (tx - o.x) * 0.12;
-                o.y += (ty - o.y) * 0.12;
-                o.s += (ts - o.s) * 0.15;
-
-                const x = bx + o.x,
-                    y = by + o.y;
-                node.setAttribute('cx', x.toFixed(2));
-                node.setAttribute('cy', y.toFixed(2));
-                node.setAttribute('r', (baseR[i] * o.s).toFixed(2));
-                return {
-                    x,
-                    y
-                };
-            });
-
-            links.forEach((line) => {
-                const a = pos[Number(line.dataset.a)];
-                const b = pos[Number(line.dataset.b)];
-                line.setAttribute('x1', a.x.toFixed(2));
-                line.setAttribute('y1', a.y.toFixed(2));
-                line.setAttribute('x2', b.x.toFixed(2));
-                line.setAttribute('y2', b.y.toFixed(2));
-                // Edges near the cursor light up.
-                let glow = 0;
-                if (pointer) {
-                    const d = Math.hypot((a.x + b.x) / 2 - cursorPos.x, (a.y + b.y) / 2 - cursorPos.y);
-                    glow = Math.max(0, 1 - d / 190);
-                }
-                line.style.strokeOpacity = (0.34 + glow * 0.66).toFixed(3);
-                line.style.strokeWidth = (1.2 + glow * 1.2).toFixed(2);
-            });
-
-            // Cursor node + its two nearest links.
-            cursorNode.setAttribute('cx', cursorPos.x.toFixed(2));
-            cursorNode.setAttribute('cy', cursorPos.y.toFixed(2));
-            cursorRing.setAttribute('cx', cursorPos.x.toFixed(2));
-            cursorRing.setAttribute('cy', cursorPos.y.toFixed(2));
-            cursorRing.setAttribute('r', (13 + Math.sin(t * 3) * 3).toFixed(2));
-            const nearest = pos
-            .map((p, i) => ({
-                i,
-                d: Math.hypot(p.x - cursorPos.x, p.y - cursorPos.y)
-            }))
-            .sort((a, b) => a.d - b.d);
-            cursorLinks.forEach((l, k) => {
-                const p = pos[nearest[k].i];
-                l.setAttribute('x1', cursorPos.x.toFixed(2));
-                l.setAttribute('y1', cursorPos.y.toFixed(2));
-                l.setAttribute('x2', p.x.toFixed(2));
-                l.setAttribute('y2', p.y.toFixed(2));
-            });
-
-            animationFrame = requestAnimationFrame(update);
-        };
-
-        let animationFrame = null;
-        // Draw the links once right away so the network never shows bare nodes.
-        update(0);
-        cancelAnimationFrame(animationFrame);
-        animationFrame = null;
-
-        const visibilityObserver = new IntersectionObserver(([entry]) => {
-            if (entry.isIntersecting) {
-                if (animationFrame === null)
-                    animationFrame = requestAnimationFrame(update);
-            } else if (animationFrame !== null) {
-                cancelAnimationFrame(animationFrame);
-                animationFrame = null;
-            }
-        }, {
-            threshold: 0.05
-        });
-
-        visibilityObserver.observe(wrap);
-    })();
 
     /* ---------- Hero orbit: clubs in the network ----------
                  Every dot on the orbit is a club from CLUBS. The three rings spin at
@@ -10337,27 +9943,65 @@
             }));
         }
 
+        // İmleç ağa katılır: turuncu bir düğüm olur, en yakın iki noktaya bağlanır,
+        // yakındaki noktaları suda gibi iter ve büyütür, çevresindeki çizgiler belirginleşir.
+        let pointer = null;
+        const cursor = { x: 0, y: 0 };
+        const REPEL_R = 150, PUSH = 34;
+        const toLocal = (e) => { const r = hero.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+        hero.addEventListener('pointermove', (e) => { const q = toLocal(e); if (!pointer) { cursor.x = q.x; cursor.y = q.y; } pointer = q; });
+        hero.addEventListener('pointerdown', (e) => { const q = toLocal(e); if (!pointer) { cursor.x = q.x; cursor.y = q.y; } pointer = q; });
+        hero.addEventListener('pointerleave', () => { pointer = null; });
+        hero.addEventListener('pointerup', (e) => { if (e.pointerType !== 'mouse') setTimeout(() => { pointer = null; }, 900); });
+
         function draw(t) {
-            // t: saniye. Giriş ~2.6 sn; sonrası noktalar hafifçe salınır.
+            // t: saniye. Giriş ~2.6 sn; sonrası noktalar suda gibi yavaşça süzülür.
             ctx.clearRect(0, 0, w, h);
-            const hp = hubPoint();
-            const drift = (n) => (t > 2.6 && !still ? Math.sin(t * 0.6 + n.ph) * 2.2 : 0);
-            ctx.lineWidth = 1;
+            const live = t > 2.6 && !still;
+            const k = live ? Math.min(1, (t - 2.6) / 1.2) : 0;
+            if (pointer) { cursor.x += (pointer.x - cursor.x) * 0.2; cursor.y += (pointer.y - cursor.y) * 0.2; }
+            const ptr = live && pointer;
+            nodes.forEach((n) => {
+                // İki çok yavaş, üst üste binen dalga: su altı salınımı.
+                const dx0 = (Math.sin(t * 0.55 + n.ph) * 5 + Math.sin(t * 0.29 + n.ph * 1.7) * 1.6) * k;
+                const dy0 = (Math.cos(t * 0.47 + n.ph * 0.8) * 4.5 + Math.sin(t * 0.31 + n.ph * 1.3) * 1.3) * k;
+                const bx = n.x + dx0, by = n.y + dy0;
+                let tx = 0, ty = 0, ts = 1;
+                if (ptr) {
+                    const ddx = bx - cursor.x, ddy = by - cursor.y, d = Math.hypot(ddx, ddy) || 1;
+                    if (d < REPEL_R) { const f = Math.pow(1 - d / REPEL_R, 2); tx = (ddx / d) * f * PUSH; ty = (ddy / d) * f * PUSH; ts = 1 + f * 0.9; }
+                }
+                n.ox = (n.ox || 0) + (tx - (n.ox || 0)) * 0.12;
+                n.oy = (n.oy || 0) + (ty - (n.oy || 0)) * 0.12;
+                n.os = (n.os || 1) + (ts - (n.os || 1)) * 0.15;
+                n.px = bx + n.ox; n.py = by + n.oy;
+            });
             links.forEach((l) => {
                 const p = ease((t - l.delay) / 0.6);
                 if (p <= 0) return;
-                const ax = l.a.x + drift(l.a), ay = l.a.y + drift(l.a);
-                const ex = l.b.x + drift(l.b), ey = l.b.y + drift(l.b);
+                const ax = l.a.px, ay = l.a.py, ex = l.b.px, ey = l.b.py;
                 const bx = ax + (ex - ax) * p, by = ay + (ey - ay) * p;
-                ctx.strokeStyle = `rgba(10,10,10,${0.06 + 0.1 * (1 - l.d / maxDraw)})`;
+                let glow = 0;
+                if (ptr) glow = Math.max(0, 1 - Math.hypot((ax + ex) / 2 - cursor.x, (ay + ey) / 2 - cursor.y) / 190);
+                ctx.lineWidth = 1 + glow * 0.9;
+                ctx.strokeStyle = `rgba(10,10,10,${(0.06 + 0.1 * (1 - l.d / maxDraw) + glow * 0.34).toFixed(3)})`;
                 ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
             });
             nodes.forEach((n) => {
                 const p = ease((t - n.delay) / 0.45);
                 if (p <= 0) return;
                 ctx.fillStyle = n.orange ? ACCENT : 'rgba(10,10,10,.78)';
-                ctx.beginPath(); ctx.arc(n.x + drift(n), n.y + drift(n), n.r * p, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(n.px, n.py, n.r * p * n.os, 0, Math.PI * 2); ctx.fill();
             });
+            if (ptr) {
+                const near = nodes.map((n) => ({ n, d: Math.hypot(n.px - cursor.x, n.py - cursor.y) })).sort((x, y) => x.d - y.d).slice(0, 2);
+                ctx.strokeStyle = 'rgba(240,74,15,.75)'; ctx.lineWidth = 1.5;
+                near.forEach(({ n, d }) => { if (d > 260) return; ctx.beginPath(); ctx.moveTo(cursor.x, cursor.y); ctx.lineTo(n.px, n.py); ctx.stroke(); });
+                ctx.strokeStyle = 'rgba(240,74,15,.35)'; ctx.lineWidth = 1.2;
+                ctx.beginPath(); ctx.arc(cursor.x, cursor.y, 13 + Math.sin(t * 3) * 3, 0, Math.PI * 2); ctx.stroke();
+                ctx.fillStyle = ACCENT;
+                ctx.beginPath(); ctx.arc(cursor.x, cursor.y, 5, 0, Math.PI * 2); ctx.fill();
+            }
         }
 
         function loop(now) {
