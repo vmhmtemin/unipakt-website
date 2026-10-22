@@ -6375,7 +6375,7 @@
     /* Menü yazıları açılışta karışık karakterlerden çözülür; asıl metin altta durur, üstte geçici bir katman oynar. */
     .nav-scramble { position: relative; }
     .nav .logo { position: relative; }
-    .nav .logo .logo-alt { position: absolute; left: 0; top: 0; opacity: 0; pointer-events: none; filter: none; }
+    .nav .logo .logo-alt { position: absolute; left: 0; top: 0; height: 100%; width: auto !important; max-height: none !important; opacity: 0; pointer-events: none; filter: none; }
     /* Koyu temada (Sponsorlar'dan çıkarken glitch sırasında) turuncu noktalı logo beyaz yazılı görünür, nokta turuncu kalır. */
     :root[data-theme="dark"] .nav .logo .logo-alt { filter: invert(1) hue-rotate(180deg); }
     @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .nav .logo .logo-alt { filter: invert(1) hue-rotate(180deg); } }
@@ -10120,7 +10120,7 @@
         if (logoLink && logoBase) {
             logoAlt = document.createElement('img');
             logoAlt.className = 'logo-img logo-alt';
-            logoAlt.src = '/unipakt-logo-black.png';
+            logoAlt.src = '/unipakt-logo-bg.png';
             logoAlt.alt = '';
             logoAlt.setAttribute('aria-hidden', 'true');
             logoLink.appendChild(logoAlt);
