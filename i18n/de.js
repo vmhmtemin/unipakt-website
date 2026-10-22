@@ -11,6 +11,8 @@
 "card": "Karte des Teammitglieds {n}"
 },
 "t": {
+"Sponsorlarımız": "Sponsoren",
+"Bu ağı birlikte büyütüyoruz.": "Wir lassen dieses Netzwerk gemeinsam wachsen.",
 "Ana Sayfa": "Startseite",
 "Ortak Kulüpler": "Partnerclubs",
 "Hakkımızda": "Über uns",
