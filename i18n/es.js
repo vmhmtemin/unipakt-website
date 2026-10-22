@@ -240,6 +240,7 @@
 "Sponsorlar": "Patrocinadores",
 "UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "Las organizaciones que apoyan los eventos de la red UniPakt.",
 "Sponsor olmak ister misin?": "¿Quieres ser patrocinador?",
-"Sponsorluk ve iş birliği teklifleri için bize yaz.": "Escríbenos para propuestas de patrocinio y colaboración."
+"Sponsorluk ve iş birliği teklifleri için bize yaz.": "Escríbenos para propuestas de patrocinio y colaboración.",
+"Sponsor ol ↓": "Hazte patrocinador ↓"
 }
 };

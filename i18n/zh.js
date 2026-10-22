@@ -240,6 +240,7 @@
 "Sponsorlar": "赞助商",
 "UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "支持 UniPakt 网络活动的机构。",
 "Sponsor olmak ister misin?": "想成为赞助商吗？",
-"Sponsorluk ve iş birliği teklifleri için bize yaz.": "如有赞助与合作意向，请写信给我们。"
+"Sponsorluk ve iş birliği teklifleri için bize yaz.": "如有赞助与合作意向，请写信给我们。",
+"Sponsor ol ↓": "成为赞助商 ↓"
 }
 };

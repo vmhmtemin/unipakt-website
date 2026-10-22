@@ -240,6 +240,7 @@
 "Sponsorlar": "Sponsor",
 "UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "Organisasi yang mendukung acara-acara di jaringan UniPakt.",
 "Sponsor olmak ister misin?": "Ingin menjadi sponsor?",
-"Sponsorluk ve iş birliği teklifleri için bize yaz.": "Tulis kepada kami untuk tawaran sponsor dan kerja sama."
+"Sponsorluk ve iş birliği teklifleri için bize yaz.": "Tulis kepada kami untuk tawaran sponsor dan kerja sama.",
+"Sponsor ol ↓": "Jadi sponsor ↓"
 }
 };

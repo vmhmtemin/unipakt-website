@@ -240,6 +240,7 @@
 "Sponsorlar": "प्रायोजक",
 "UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "वे संस्थाएँ जो UniPakt नेटवर्क के इवेंट्स का समर्थन करती हैं।",
 "Sponsor olmak ister misin?": "प्रायोजक बनना चाहते हैं?",
-"Sponsorluk ve iş birliği teklifleri için bize yaz.": "प्रायोजन और साझेदारी के प्रस्तावों के लिए हमें लिखें।"
+"Sponsorluk ve iş birliği teklifleri için bize yaz.": "प्रायोजन और साझेदारी के प्रस्तावों के लिए हमें लिखें।",
+"Sponsor ol ↓": "प्रायोजक बनें ↓"
 }
 };

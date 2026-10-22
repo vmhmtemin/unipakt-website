@@ -240,6 +240,7 @@
 "Sponsorlar": "اسپانسرز",
 "UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "وہ ادارے جو UniPakt نیٹ ورک کے ایونٹس کی معاونت کرتے ہیں۔",
 "Sponsor olmak ister misin?": "کیا آپ اسپانسر بننا چاہتے ہیں؟",
-"Sponsorluk ve iş birliği teklifleri için bize yaz.": "اسپانسرشپ اور شراکت کی پیشکشوں کے لیے ہمیں لکھیں۔"
+"Sponsorluk ve iş birliği teklifleri için bize yaz.": "اسپانسرشپ اور شراکت کی پیشکشوں کے لیے ہمیں لکھیں۔",
+"Sponsor ol ↓": "اسپانسر بنیں ↓"
 }
 };
