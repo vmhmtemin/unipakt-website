@@ -6328,12 +6328,11 @@
     .sp-hero.is-text .sp-hero-text > :nth-child(4) { transition-delay: .24s; }
     .sp-hero.is-text .sp-hero-text > :nth-child(5) { transition-delay: .4s; }
     .sp-kicker { margin: 0 0 14px; line-height: 0; }
-    /* Önce normal logo gelir, sonra belirgin bir glitch ile arka plan işlerinde kullanılan turuncu kare noktalı logoya dönüşür. */
+    /* Önce normal logo gelir, sonra belirgin bir glitch ile noktası turuncu kare olan logoya dönüşür. */
     .sp-kicker { display: inline-grid; align-items: end; justify-items: start; }
     .sp-kicker > * { grid-area: 1 / 1; }
     .sp-kicker .sp-logo-img { display: block; height: clamp(40px, 4.6vw, 64px); width: auto; }
-    /* Arka plan logosu normal logoyla aynı genişlikte (aynı kutu), taban çizgisi hizalı. */
-    .sp-kicker .sp-logo-img.sp-wordmark { opacity: 0; height: calc(clamp(40px, 4.6vw, 64px) * 0.781); margin-bottom: calc(clamp(40px, 4.6vw, 64px) * 0.05); }
+    .sp-kicker .sp-logo-img.sp-wordmark { opacity: 0; }
     .sp-kicker.is-word .sp-logo-img:not(.sp-wordmark) { opacity: 0; }
     .sp-kicker.is-word .sp-wordmark { opacity: 1; }
     .sp-brand-logo { display: block; height: 26px; width: auto; }
@@ -6376,7 +6375,7 @@
     /* Menü yazıları açılışta karışık karakterlerden çözülür; asıl metin altta durur, üstte geçici bir katman oynar. */
     .nav-scramble { position: relative; }
     .nav .logo { position: relative; }
-    .nav .logo .logo-alt { position: absolute; left: 0; top: auto; bottom: 5%; width: 100% !important; height: auto !important; max-height: none !important; opacity: 0; pointer-events: none; filter: none; }
+    .nav .logo .logo-alt { position: absolute; left: 0; top: 0; width: 100% !important; height: 100% !important; max-height: none !important; opacity: 0; pointer-events: none; filter: none; }
     /* Koyu temada (Sponsorlar'dan çıkarken glitch sırasında) turuncu noktalı logo beyaz yazılı görünür, nokta turuncu kalır. */
     :root[data-theme="dark"] .nav .logo .logo-alt { filter: invert(1) hue-rotate(180deg); }
     @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .nav .logo .logo-alt { filter: invert(1) hue-rotate(180deg); } }
@@ -6970,7 +6969,7 @@
             <div class="sp-hero" id="spHero">
                 <canvas class="sp-canvas" id="spCanvas" aria-hidden="true"></canvas>
                 <div class="wrap sp-hero-text">
-                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><img class="sp-logo-img sp-wordmark" src="/unipakt-logo-bg.png" alt="" aria-hidden="true"></p>
+                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><img class="sp-logo-img sp-wordmark" src="/unipakt-logo-black.png" alt="" aria-hidden="true"></p>
                     <h1>Sponsorlar</h1>
                     <p class="sp-lead">UniPakt ağındaki etkinlikleri destekleyen kurumlar.</p>
                     <button type="button" class="sp-down" data-sp-down>Sponsor ol ↓</button>
@@ -10121,7 +10120,7 @@
         if (logoLink && logoBase) {
             logoAlt = document.createElement('img');
             logoAlt.className = 'logo-img logo-alt';
-            logoAlt.src = '/unipakt-logo-bg.png';
+            logoAlt.src = '/unipakt-logo-black.png';
             logoAlt.alt = '';
             logoAlt.setAttribute('aria-hidden', 'true');
             logoLink.appendChild(logoAlt);
