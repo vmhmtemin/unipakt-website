@@ -2274,7 +2274,7 @@
     const occ = parseOccurrences(v);
     const first = occ[0] || { date: v.date, time: v.time };
     const img = evForm.images.poster?.url || '';
-    const hero = evForm.images.banner?.url || img;
+    const hero = evForm.images.banner?.url || '/event-banner-placeholder.jpg';   // sitedekiyle aynı yer tutucu
     const socials = ['instagram', 'facebook', 'x', 'youtube'].filter((k) => v[k]);
     const row = (ic, label, val) => (val ? `<div class="pv-row">${icon(ic)}<div><small>${esc(label)}</small><span>${val}</span></div></div>` : '');
     const placeText = [v.place, v.address, v.city].map((x) => String(x).trim()).filter(Boolean).map(esc).join('<br>');
