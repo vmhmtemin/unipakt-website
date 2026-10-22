@@ -234,6 +234,12 @@
 "Adını, e-postanı ve yorumunu yaz.": "请填写你的姓名、电子邮箱和评论。",
 "Yorumunu yaz.": "请写下你的评论。",
 "Etkinlik bulunamadı.": "未找到该活动。",
-"Çok fazla yorum gönderildi. Biraz sonra tekrar dene.": "评论发送过多，请稍后再试。"
+"Çok fazla yorum gönderildi. Biraz sonra tekrar dene.": "评论发送过多，请稍后再试。",
+"Hikâye": "故事",
+"Misyon": "使命",
+"Sponsorlar": "赞助商",
+"UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "支持 UniPakt 网络活动的机构。",
+"Sponsor olmak ister misin?": "想成为赞助商吗？",
+"Sponsorluk ve iş birliği teklifleri için bize yaz.": "如有赞助与合作意向，请写信给我们。"
 }
 };

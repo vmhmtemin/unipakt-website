@@ -234,6 +234,12 @@
 "Adını, e-postanı ve yorumunu yaz.": "اپنا نام، ای میل اور تبصرہ لکھیں۔",
 "Yorumunu yaz.": "اپنا تبصرہ لکھیں۔",
 "Etkinlik bulunamadı.": "ایونٹ نہیں ملا۔",
-"Çok fazla yorum gönderildi. Biraz sonra tekrar dene.": "بہت زیادہ تبصرے بھیجے گئے۔ تھوڑی دیر بعد دوبارہ کوشش کریں۔"
+"Çok fazla yorum gönderildi. Biraz sonra tekrar dene.": "بہت زیادہ تبصرے بھیجے گئے۔ تھوڑی دیر بعد دوبارہ کوشش کریں۔",
+"Hikâye": "کہانی",
+"Misyon": "مشن",
+"Sponsorlar": "اسپانسرز",
+"UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "وہ ادارے جو UniPakt نیٹ ورک کے ایونٹس کی معاونت کرتے ہیں۔",
+"Sponsor olmak ister misin?": "کیا آپ اسپانسر بننا چاہتے ہیں؟",
+"Sponsorluk ve iş birliği teklifleri için bize yaz.": "اسپانسرشپ اور شراکت کی پیشکشوں کے لیے ہمیں لکھیں۔"
 }
 };

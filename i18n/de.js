@@ -234,6 +234,12 @@
 "Adını, e-postanı ve yorumunu yaz.": "Schreib deinen Namen, deine E-Mail-Adresse und deinen Kommentar.",
 "Yorumunu yaz.": "Schreib deinen Kommentar.",
 "Etkinlik bulunamadı.": "Veranstaltung nicht gefunden.",
-"Çok fazla yorum gönderildi. Biraz sonra tekrar dene.": "Es wurden zu viele Kommentare gesendet. Versuch es gleich noch einmal."
+"Çok fazla yorum gönderildi. Biraz sonra tekrar dene.": "Es wurden zu viele Kommentare gesendet. Versuch es gleich noch einmal.",
+"Hikâye": "Geschichte",
+"Misyon": "Mission",
+"Sponsorlar": "Sponsoren",
+"UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "Die Unternehmen, die Veranstaltungen im UniPakt-Netzwerk unterstützen.",
+"Sponsor olmak ister misin?": "Möchtest du Sponsor werden?",
+"Sponsorluk ve iş birliği teklifleri için bize yaz.": "Schreib uns für Sponsoring- und Kooperationsangebote."
 }
 };

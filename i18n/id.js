@@ -234,6 +234,12 @@
 "Adını, e-postanı ve yorumunu yaz.": "Tulis nama, email, dan komentarmu.",
 "Yorumunu yaz.": "Tulis komentarmu.",
 "Etkinlik bulunamadı.": "Acara tidak ditemukan.",
-"Çok fazla yorum gönderildi. Biraz sonra tekrar dene.": "Terlalu banyak komentar yang dikirim. Coba lagi sebentar lagi."
+"Çok fazla yorum gönderildi. Biraz sonra tekrar dene.": "Terlalu banyak komentar yang dikirim. Coba lagi sebentar lagi.",
+"Hikâye": "Cerita",
+"Misyon": "Misi",
+"Sponsorlar": "Sponsor",
+"UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "Organisasi yang mendukung acara-acara di jaringan UniPakt.",
+"Sponsor olmak ister misin?": "Ingin menjadi sponsor?",
+"Sponsorluk ve iş birliği teklifleri için bize yaz.": "Tulis kepada kami untuk tawaran sponsor dan kerja sama."
 }
 };

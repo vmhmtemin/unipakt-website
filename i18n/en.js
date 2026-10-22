@@ -338,6 +338,12 @@
 "Adını, e-postanı ve yorumunu yaz.": "Write your name, email and comment.",
 "Yorumunu yaz.": "Write your comment.",
 "Etkinlik bulunamadı.": "Event not found.",
-"Çok fazla yorum gönderildi. Biraz sonra tekrar dene.": "Too many comments were sent. Please try again in a moment."
+"Çok fazla yorum gönderildi. Biraz sonra tekrar dene.": "Too many comments were sent. Please try again in a moment.",
+"Hikâye": "Story",
+"Misyon": "Mission",
+"Sponsorlar": "Sponsors",
+"UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "The organizations supporting events across the UniPakt network.",
+"Sponsor olmak ister misin?": "Want to become a sponsor?",
+"Sponsorluk ve iş birliği teklifleri için bize yaz.": "Write to us for sponsorship and partnership offers."
 }
 };
