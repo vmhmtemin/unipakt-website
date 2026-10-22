@@ -33,6 +33,7 @@
   header { padding-top: 28px; padding-bottom: 28px; border-bottom: 1px solid var(--border); max-width: none; }
   .wordmark { color: var(--ink); text-decoration: none; font: 900 30px/1 'Archivo', sans-serif; letter-spacing: -0.04em; }
   .wordmark span { color: var(--accent); }
+  .wordmark-img { display: block; height: 30px; width: auto; }
   main { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-top: clamp(48px, 9vw, 110px); padding-bottom: clamp(48px, 9vw, 110px); }
   .kicker { margin: 0 0 10px; font: 700 clamp(24px, 3vw, 32px)/1 'Caveat', cursive; color: var(--accent); }
   h1 { margin: 0; font: 900 clamp(96px, 22vw, 260px)/.85 'Archivo', sans-serif; letter-spacing: -0.06em; }
@@ -59,7 +60,7 @@
 </style>
 </head>
 <body>
-  <header><a class="wordmark" href="/">UniPakt<span>.</span></a></header>
+  <header><a class="wordmark" href="/" aria-label="UniPakt"><img class="wordmark-img" src="/unipakt-logo-bg-white.png" alt="UniPakt"></a></header>
   <main>
     <p class="kicker">Bu nokta ağda yok.</p>
     <h1>404<span>.</span></h1>

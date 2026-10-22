@@ -3903,12 +3903,12 @@
     }
 
     :root[data-theme="dark"] .site-footer .footer-wordmark {
-        filter: invert(1);
+        filter: invert(1) hue-rotate(180deg);
     }
 
     @media (prefers-color-scheme: dark) {
         :root:not([data-theme="light"]) .site-footer .footer-wordmark {
-            filter: invert(1);
+            filter: invert(1) hue-rotate(180deg);
         }
     }
 
@@ -6973,7 +6973,7 @@
             <div class="sp-hero" id="spHero">
                 <canvas class="sp-canvas" id="spCanvas" aria-hidden="true"></canvas>
                 <div class="wrap sp-hero-text">
-                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><img class="sp-logo-img sp-wordmark" src="/unipakt-logo-black.png" alt="" aria-hidden="true"></p>
+                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><img class="sp-logo-img sp-wordmark" src="/unipakt-logo-bg.png" alt="" aria-hidden="true"></p>
                     <h1>Sponsorlar</h1>
                     <p class="sp-lead">UniPakt ağındaki etkinlikleri destekleyen kurumlar.</p>
                     <button type="button" class="sp-down" data-sp-down>Sponsor ol ↓</button>
@@ -10124,7 +10124,7 @@
         if (logoLink && logoBase) {
             logoAlt = document.createElement('img');
             logoAlt.className = 'logo-img logo-alt';
-            logoAlt.src = '/unipakt-logo-black.png';
+            logoAlt.src = '/unipakt-logo-bg.png';
             logoAlt.alt = '';
             logoAlt.setAttribute('aria-hidden', 'true');
             logoLink.appendChild(logoAlt);
@@ -10229,8 +10229,9 @@
     (function initFooterWordmark() {
         const mark = document.getElementById('footerWordmark');
         const logo = document.querySelector('.logo-img');
-        if (mark && logo)
-            mark.src = logo.src;
+        // Alttaki büyük silik logo bir arka plan işi: arka plan logosu (noktası turuncu kare).
+        if (mark)
+            mark.src = '/unipakt-logo-bg.png';
         // Alt kısımdaki marka da menüdeki asıl logo görselini kullanır.
         const brand = document.getElementById('footerBrandLogo');
         if (brand && logo)
