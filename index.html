@@ -6308,6 +6308,8 @@
     .sp-hub img { display: block; height: clamp(22px, 2.6vw, 34px); width: auto; }
     .sp-hub.is-in { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     .sp-hub:hover { box-shadow: 0 0 0 8px #ffffff, 0 0 0 10px var(--sp-accent); }
+    /* Sponsorlar: başlık bloğu ve menü sayfanın sol kenarına yakın (ortalanmış dar kolon yerine). */
+    .sp-page .sp-hero-text.wrap, .sp-page .sp-nav-in.wrap { max-width: none; margin-left: 0; margin-right: 0; padding-left: clamp(20px, 4vw, 64px); padding-right: clamp(20px, 4vw, 64px); }
     .sp-hero-text { position: relative; z-index: 3; padding-top: clamp(28px, 5vh, 56px); padding-bottom: 48px; pointer-events: none; }
     .sp-hero-text > * { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .8s cubic-bezier(.2, .8, .2, 1); }
     .sp-hero.is-text .sp-hero-text > * { opacity: 1; transform: none; }
