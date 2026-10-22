@@ -10008,7 +10008,8 @@
         function loop(now) {
             const t = (now - t0) / 1000;
             draw(t);
-            if (t > 2.2) hero.classList.add('is-text');
+            // Yazılar ağ animasyonunu beklemez, sayfa açılır açılmaz (kısa bir yumuşak girişle) gelir.
+            if (t > 0.05) hero.classList.add('is-text');
             raf = requestAnimationFrame(loop);
         }
 
