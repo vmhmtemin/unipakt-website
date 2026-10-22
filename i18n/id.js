@@ -249,6 +249,7 @@
 "Sponsor olmak için": "Untuk menjadi sponsor",
 "← Siteye dön": "← Kembali ke situs",
 "Sponsor ol": "Jadi sponsor",
+"Yazılım Sponsoru": "Sponsor Perangkat Lunak",
 "Dijital Biletleme Sponsoru": "Sponsor Tiket Digital"
 }
 };

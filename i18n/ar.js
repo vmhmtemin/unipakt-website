@@ -249,6 +249,7 @@
 "Sponsor olmak için": "لتصبح راعيًا",
 "← Siteye dön": "→ العودة إلى الموقع",
 "Sponsor ol": "كن راعيًا",
+"Yazılım Sponsoru": "راعي البرمجيات",
 "Dijital Biletleme Sponsoru": "راعي التذاكر الرقمية"
 }
 };

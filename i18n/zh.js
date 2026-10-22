@@ -249,6 +249,7 @@
 "Sponsor olmak için": "成为赞助商",
 "← Siteye dön": "← 返回网站",
 "Sponsor ol": "成为赞助商",
+"Yazılım Sponsoru": "软件赞助商",
 "Dijital Biletleme Sponsoru": "数字票务赞助商"
 }
 };
