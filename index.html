@@ -6282,6 +6282,30 @@
         .site-footer .footer-col .footer-social { width: 36px; height: 36px; border-radius: 10px; }
         .site-footer .footer-social svg { width: 18px; height: 18px; }
     }
+
+    /* ---- The Story: Hikâye / Misyon switch ---- */
+    .story-switch { display: none; }
+    .story-stage.story-complete .story-switch { display: flex; width: max-content; margin: clamp(28px, 4vw, 44px) auto 0; padding: 4px; gap: 4px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--paper-soft); position: relative; z-index: 3; }
+    .story-switch-btn { border: 0; border-radius: 999px; padding: 10px 26px; background: transparent; color: inherit; font: inherit; font-size: 15px; font-weight: 600; opacity: .7; cursor: pointer; transition: background .2s ease, color .2s ease, opacity .2s ease; }
+    .story-switch-btn:hover { opacity: 1; }
+    .story-switch-btn.is-active { background: var(--accent); color: var(--on-accent, #000); opacity: 1; }
+    .story-stage.story-complete .story-switch ~ .story-team { padding-top: 48px; }
+    .story-stage.show-mission .story-team, .story-stage.show-mission .story-after-content { display: none !important; }
+    .story-mission { padding-top: clamp(40px, 6vw, 80px); padding-bottom: clamp(80px, 10vw, 140px); }
+    .story-mission[hidden] { display: none; }
+
+    /* ---- Sponsorlar sayfası ---- */
+    .sponsor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-top: clamp(28px, 4vw, 48px); }
+    .sponsor-card { display: grid; justify-items: start; gap: 18px; padding: 28px; border: 1px solid var(--border-strong); border-radius: 20px; background: var(--paper-soft); color: inherit; text-decoration: none; transition: border-color .2s ease; }
+    .sponsor-card:hover { border-color: var(--accent); }
+    .sponsor-card img { display: block; height: 32px; width: auto; max-width: 100%; }
+    .sponsor-card span { font-size: 14px; opacity: .6; }
+    :root[data-theme="light"] .sponsor-card img { filter: invert(1); }
+    @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .sponsor-card img { filter: invert(1); } }
+    .sponsor-cta { margin-top: clamp(48px, 7vw, 90px); padding-top: clamp(32px, 4vw, 48px); border-top: 1px solid var(--border); display: grid; justify-items: start; gap: 12px; }
+    .sponsor-cta h2 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(26px, 3.4vw, 40px); letter-spacing: -0.03em; }
+    .sponsor-cta p { margin: 0 0 8px; opacity: .7; }
+    .sponsor-cta .btn-pill { text-decoration: none; }
     </style>
 </head>
 <body>
@@ -6331,7 +6355,8 @@
                 <a href="/story/" data-route="story">The Story</a>
                 <a href="/takvim/" data-route="takvim">Takvim</a>
                 <a href="/kulupler/" data-route="kulupler">Ortak Kulüpler</a>
-                <a href="/hakkimizda/" data-route="hakkimizda">Hakkımızda</a>
+                <a href="/sponsorlar/" data-route="sponsorlar">Sponsorlar</a>
+
                 <a href="/kampus/" data-route="kampus">Kampüsünde UniPakt</a>
                 <a href="/iletisim/" data-route="iletisim">İletişim</a>
                 <a href="/katil/" data-route="katil">Bize Katıl</a>
@@ -6536,6 +6561,59 @@
                     </svg>
                 </button>
 
+                <div class="story-switch" role="tablist" aria-label="The Story">
+                    <button type="button" role="tab" class="story-switch-btn is-active" aria-selected="true" data-story-tab="story">Hikâye</button>
+                    <button type="button" role="tab" class="story-switch-btn" aria-selected="false" data-story-tab="mission">Misyon</button>
+                </div>
+                <div class="story-mission wrap" id="storyMission" hidden>
+                    <h2 class="manifesto" data-reveal>
+
+
+                                                                        İstanbul'daki kulüpleri
+                                                                        
+                                                
+                        <br>
+
+
+                                                                        birbirine bağlamak.
+                                                                    
+                                            
+                    </h2>
+
+                    <div class="qa-list">
+                        <div class="qa-row" data-reveal>
+                            <h3>UniPakt nedir?</h3>
+                            <p>UniPakt, üniversitelerdeki öğrenci kulüplerini ortak aktivitelerde buluşturarak birbirlerini sponsorluklar, duyuru, organizasyon gibi alanlarda desteklemelerini sağlamayı amaçlayan bir sosyal ağ topluluğudur.</p>
+                        </div>
+                        <div class="qa-row" data-reveal>
+                            <h3>Ne yapıyoruz?</h3>
+                            <p>Kampüsler arasında temsilci kulüpler üzerinden ortak etkinlikler, duyurular ve iş birlikleri kuruyoruz.</p>
+                        </div>
+                        <div class="qa-row" data-reveal>
+                            <h3>Nasıl çalışıyoruz?</h3>
+                            <p>İstanbul'daki tüm üniversitelerden temsilci kulüplerimiz aracılığıyla projelerimizi doğrudan üniversite öğrencileriyle buluşturuyoruz.</p>
+                        </div>
+                        <div class="qa-row" data-reveal>
+                            <h3>Neyi hedefliyoruz?</h3>
+                            <p>Türkiye'nin en büyük öğrenci kulüpleri ağını oluşturmayı hedefliyoruz.</p>
+                        </div>
+                    </div>
+
+                    <div class="grow-dots" id="growDots">
+                        <div class="grow-row">
+                            <div class="label">1 kulüp</div>
+                            <div class="dots">.</div>
+                        </div>
+                        <div class="grow-row">
+                            <div class="label">10 kulüp</div>
+                            <div class="dots">..........</div>
+                        </div>
+                        <div class="grow-row">
+                            <div class="label">100 kulüp</div>
+                            <div class="dots">....................................................................................................</div>
+                        </div>
+                    </div>
+                </div>
                 <div class="story-team" id="storyTeam" aria-label="UniPakt ekibi">
                     <article class="story-card" tabindex="0" role="button" aria-label="Ekip üyesi kartı 1: Mehmet Emin Soyal">
                         <div class="story-card-inner">
@@ -6759,56 +6837,24 @@
             </div>
         </section>
 
-        <!-- ================= HAKKIMIZDA ================= -->
-        <section class="page" id="page-hakkimizda" data-page="hakkimizda">
+        <!-- ================= SPONSORLAR ================= -->
+        <section class="page" id="page-sponsorlar" data-page="sponsorlar">
             <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
                 <div class="wrap">
-                    <h1 class="manifesto" data-reveal>
-
-
-                                                                        İstanbul'daki kulüpleri
-                                                                        
-                                                
-                        <br>
-
-
-                                                                        birbirine bağlamak.
-                                                                    
-                                            
-                    </h1>
-
-                    <div class="qa-list">
-                        <div class="qa-row" data-reveal>
-                            <h3>UniPakt nedir?</h3>
-                            <p>UniPakt, üniversitelerdeki öğrenci kulüplerini ortak aktivitelerde buluşturarak birbirlerini sponsorluklar, duyuru, organizasyon gibi alanlarda desteklemelerini sağlamayı amaçlayan bir sosyal ağ topluluğudur.</p>
-                        </div>
-                        <div class="qa-row" data-reveal>
-                            <h3>Ne yapıyoruz?</h3>
-                            <p>Kampüsler arasında temsilci kulüpler üzerinden ortak etkinlikler, duyurular ve iş birlikleri kuruyoruz.</p>
-                        </div>
-                        <div class="qa-row" data-reveal>
-                            <h3>Nasıl çalışıyoruz?</h3>
-                            <p>İstanbul'daki tüm üniversitelerden temsilci kulüplerimiz aracılığıyla projelerimizi doğrudan üniversite öğrencileriyle buluşturuyoruz.</p>
-                        </div>
-                        <div class="qa-row" data-reveal>
-                            <h3>Neyi hedefliyoruz?</h3>
-                            <p>Türkiye'nin en büyük öğrenci kulüpleri ağını oluşturmayı hedefliyoruz.</p>
-                        </div>
+                    <div class="section-title">
+                        <h1 data-reveal>Sponsorlar</h1>
+                        <p data-reveal>UniPakt ağındaki etkinlikleri destekleyen kurumlar.</p>
                     </div>
-
-                    <div class="grow-dots" id="growDots">
-                        <div class="grow-row">
-                            <div class="label">1 kulüp</div>
-                            <div class="dots">.</div>
-                        </div>
-                        <div class="grow-row">
-                            <div class="label">10 kulüp</div>
-                            <div class="dots">..........</div>
-                        </div>
-                        <div class="grow-row">
-                            <div class="label">100 kulüp</div>
-                            <div class="dots">....................................................................................................</div>
-                        </div>
+                    <div class="sponsor-grid" data-reveal>
+                        <a class="sponsor-card" href="https://www.biletimgo.com" target="_blank" rel="noopener noreferrer sponsored">
+                            <img src="/sponsors/biletimgo.png" alt="biletimGO" width="754" height="120" loading="lazy" decoding="async">
+                            <span>biletimgo.com ↗</span>
+                        </a>
+                    </div>
+                    <div class="sponsor-cta" data-reveal>
+                        <h2>Sponsor olmak ister misin?</h2>
+                        <p>Sponsorluk ve iş birliği teklifleri için bize yaz.</p>
+                        <a class="btn-pill" href="mailto:sponsorluk@unipakt.com">sponsorluk@unipakt.com</a>
                     </div>
                 </div>
             </div>
@@ -7276,6 +7322,7 @@
             <nav class="footer-col" aria-label="UniPakt">
                 <h3>UniPakt</h3>
                 <a href="/hakkimizda/" data-route="hakkimizda">Hakkımızda</a>
+                <a href="/sponsorlar/" data-route="sponsorlar">Sponsorlar</a>
                 <a href="/katil/" data-route="katil">Bize Katıl</a>
                 <a href="/kvkk/" data-route="kvkk">KVKK Aydınlatma Metni</a>
             </nav>
@@ -9022,6 +9069,52 @@
 
         logoButton.addEventListener('click', openStory);
 
+        // Üstteki switch: Hikâye (ekip + hikâye) / Misyon (eski Hakkımızda içeriği).
+        // /hakkimizda/ adresi sayfayı doğrudan Misyon sekmesinde, giriş animasyonu atlanmış açar.
+        const missionEl = document.getElementById('storyMission');
+        const storyTabs = [...stage.querySelectorAll('[data-story-tab]')];
+        const setStoryTab = (tab) => {
+            const mission = tab === 'mission';
+            stage.classList.toggle('show-mission', mission);
+            if (missionEl)
+                missionEl.hidden = !mission;
+            storyTabs.forEach((b) => {
+                const on = b.dataset.storyTab === tab;
+                b.classList.toggle('is-active', on);
+                b.setAttribute('aria-selected', String(on));
+            });
+            if (mission && typeof observeReveals === 'function')
+                requestAnimationFrame(observeReveals);
+        };
+        const completeStoryNow = () => {
+            if (stage.classList.contains('story-complete'))
+                return;
+            opened = true;
+            stage.classList.add('story-complete');
+            team.classList.add('show');
+            unlockStory();
+        };
+        storyTabs.forEach((b) => b.addEventListener('click', () => {
+            const tab = b.dataset.storyTab;
+            setStoryTab(tab);
+            try {
+                history.replaceState(history.state, '', tab === 'mission' ? '/hakkimizda/' : '/story/');
+            } catch (_) {}
+            if (typeof syncRouteMeta === 'function')
+                syncRouteMeta(tab === 'mission' ? 'hakkimizda' : 'story');
+        }));
+        const storyTabFromPath = () => {
+            const seg = location.pathname.replace(/^\/+|\/+$/g, '').split('/')[0];
+            if (seg === 'hakkimizda') {
+                completeStoryNow();
+                setStoryTab('mission');
+            } else if (seg === 'story') {
+                setStoryTab('story');
+            }
+        };
+        window.addEventListener('unipakt:route', storyTabFromPath);
+        storyTabFromPath();
+
         // Touch: swiping up (the natural "scroll down" gesture) opens it too.
         let swipeStartY = null;
         window.addEventListener('touchstart', (e) => {
@@ -9099,12 +9192,14 @@
     const routeLinks = document.querySelectorAll('[data-route]');
     const menuToggle = document.getElementById('menuToggle');
     const navLinks = document.getElementById('navLinks');
-    const validRoutes = ['ana-sayfa', 'kulupler', 'hakkimizda', 'kampus', 'story', 'takvim', 'iletisim', 'katil', 'kvkk', 'etkinlik'];
+    const validRoutes = ['ana-sayfa', 'kulupler', 'hakkimizda', 'kampus', 'story', 'takvim', 'iletisim', 'katil', 'kvkk', 'etkinlik', 'sponsorlar'];
 
     function showRoute(route) {
         if (!validRoutes.includes(route))
             route = 'ana-sayfa';
-        pages.forEach(p => p.classList.toggle('active', p.dataset.page === route));
+        // /hakkimizda/ artık The Story sayfasının "Misyon" sekmesi.
+        const pageRoute = route === 'hakkimizda' ? 'story' : route;
+        pages.forEach(p => p.classList.toggle('active', p.dataset.page === pageRoute));
         routeLinks.forEach(a => a.classList.toggle('active', a.dataset.route === route));
 
         const storyStage = document.getElementById('storyStage');
@@ -9158,7 +9253,8 @@
         iletisim: 'İletişim',
         katil: 'Bize Katıl',
         kvkk: 'KVKK Aydınlatma Metni',
-        etkinlik: 'Etkinlik'
+        etkinlik: 'Etkinlik',
+        sponsorlar: 'Sponsorlar'
     };
     function syncRouteMeta(route) {
         const eventId = route === 'etkinlik' ? new URLSearchParams(location.search).get('id') : '';
@@ -10613,7 +10709,7 @@
                 return Promise.resolve(window.UNIPAKT_I18N[code]);
             return loaded[code] = loaded[code] || new Promise((resolve, reject) => {
                 const s = document.createElement('script');
-                s.src = `/i18n/${code}.js?v=7`;
+                s.src = `/i18n/${code}.js?v=8`;
                 s.onload = () => (window.UNIPAKT_I18N[code] ? resolve(window.UNIPAKT_I18N[code]) : reject(new Error(code)));
                 s.onerror = () => {
                     delete loaded[code];

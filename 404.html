@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- The inline script at the bottom is allowed by its sha256 hash. After editing it, run
      python3 tools/build_pages.py: it prints the new hash to put here. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; script-src 'sha256-3QtU1cWlPkU//XiKWzdE0Yyobe2IPDGNukVJ0GTFkF4='; base-uri 'self'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; script-src 'sha256-PD9OxZ95ze52NUlIoQtYhQZiMgfyBvFQ0bOM48IDK60='; base-uri 'self'; object-src 'none'; frame-src 'none'">
 <meta name="robots" content="noindex">
 <title>Sayfa bulunamadı — UniPakt</title>
 <!-- GitHub Pages serves this file for any missing path, so every link here is absolute. -->
@@ -80,7 +80,7 @@
   // The site's pages live at /story/, /takvim/ ... (copies built by tools/build_pages.py).
   // If this page is shown for one of them anyway (e.g. a deploy without those copies),
   // open it through the home page. Keep in sync with ROUTES in tools/build_pages.py.
-  var routes = ['story', 'takvim', 'kulupler', 'hakkimizda', 'kampus', 'iletisim', 'katil', 'kvkk', 'etkinlik'];
+  var routes = ['story', 'takvim', 'kulupler', 'hakkimizda', 'kampus', 'iletisim', 'katil', 'kvkk', 'etkinlik', 'sponsorlar'];
   var first = location.pathname.replace(/^\/+|\/+$/g, '').split('/')[0];
   if (routes.indexOf(first) !== -1) location.replace('/' + location.search + '#' + first);
 })();

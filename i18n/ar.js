@@ -234,6 +234,12 @@
 "Adını, e-postanı ve yorumunu yaz.": "اكتب اسمك وبريدك الإلكتروني وتعليقك.",
 "Yorumunu yaz.": "اكتب تعليقك.",
 "Etkinlik bulunamadı.": "لم يتم العثور على الفعالية.",
-"Çok fazla yorum gönderildi. Biraz sonra tekrar dene.": "تم إرسال تعليقات كثيرة جدًا. حاول مرة أخرى بعد قليل."
+"Çok fazla yorum gönderildi. Biraz sonra tekrar dene.": "تم إرسال تعليقات كثيرة جدًا. حاول مرة أخرى بعد قليل.",
+"Hikâye": "القصة",
+"Misyon": "المهمة",
+"Sponsorlar": "الرعاة",
+"UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "الجهات التي تدعم فعاليات شبكة UniPakt.",
+"Sponsor olmak ister misin?": "هل تريد أن تصبح راعيًا؟",
+"Sponsorluk ve iş birliği teklifleri için bize yaz.": "راسلنا بعروض الرعاية والشراكة."
 }
 };
