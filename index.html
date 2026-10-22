@@ -6364,7 +6364,8 @@
     html.sp-mode .nav .logo.is-alt .logo-img:not(.logo-alt) { opacity: 0; }
     html.sp-mode .nav .logo.is-alt .logo-alt { opacity: 1; }
     .nav-scramble > .nav-scramble-text { color: transparent; }
-    .nav-scramble-layer { position: absolute; left: 0; top: 50%; transform: translateY(-50%); white-space: nowrap; pointer-events: none; font-variant-numeric: tabular-nums; }
+    .nav-scramble-layer { position: absolute; left: 0; top: 0; display: flex; align-items: center; justify-content: center; white-space: nowrap; pointer-events: none; font-variant-numeric: tabular-nums; }
+    .nav-scramble > .nav-scramble-text { display: inline-block; }
     html.sp-mode, html.sp-mode body { background: #fff; }
     html.sp-mode .scroll-progress { background: #F04A0F; }
     .sp-nav { position: sticky; top: 0; z-index: 40; background: #ffffffe6; backdrop-filter: blur(10px); border-bottom: 1px solid #0a0a0a14; }
@@ -10055,6 +10056,13 @@
                 layer.setAttribute('aria-hidden', 'true');
                 a.appendChild(layer);
                 a.classList.add('nav-scramble');
+                // Katman, gerçek yazının tam üstüne oturur (butonun iç boşluğu dahil); karışık
+                // karakterler daha geniş olsa bile yazının ortasından taşar, butonun içinde kayma olmaz.
+                layer.style.left = span.offsetLeft + 'px';
+                layer.style.top = span.offsetTop + 'px';
+                layer.style.width = span.offsetWidth + 'px';
+                layer.style.height = span.offsetHeight + 'px';
+                layer.style.lineHeight = span.offsetHeight + 'px';
                 return { a, span, layer, target, start: 0.3 + i * 0.12 };
             });
             // Sakin tempo: karakterler her karede değil ~110 ms'de bir değişir.
