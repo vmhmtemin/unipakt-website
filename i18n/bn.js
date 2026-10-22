@@ -239,7 +239,8 @@
 "Misyon": "মিশন",
 "Sponsorlar": "স্পনসর",
 "UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "যে প্রতিষ্ঠানগুলো UniPakt নেটওয়ার্কের ইভেন্টগুলোকে সহায়তা করে।",
-"Sponsor olmak ister misin?": "স্পনসর হতে চান?",
-"Sponsorluk ve iş birliği teklifleri için bize yaz.": "স্পনসরশিপ ও অংশীদারিত্বের প্রস্তাবের জন্য আমাদের লিখুন।"
+"Sponsorluk ve iş birliği teklifleri için bize yaz.": "স্পনসরশিপ ও অংশীদারিত্বের প্রস্তাবের জন্য আমাদের লিখুন।",
+"Sponsor ol ↓": "স্পনসর হোন ↓",
+"Sponsor olmak için": "স্পনসর হতে"
 }
 };

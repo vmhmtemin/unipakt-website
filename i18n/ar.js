@@ -239,7 +239,8 @@
 "Misyon": "المهمة",
 "Sponsorlar": "الرعاة",
 "UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "الجهات التي تدعم فعاليات شبكة UniPakt.",
-"Sponsor olmak ister misin?": "هل تريد أن تصبح راعيًا؟",
-"Sponsorluk ve iş birliği teklifleri için bize yaz.": "راسلنا بعروض الرعاية والشراكة."
+"Sponsorluk ve iş birliği teklifleri için bize yaz.": "راسلنا بعروض الرعاية والشراكة.",
+"Sponsor ol ↓": "كن راعيًا ↓",
+"Sponsor olmak için": "لتصبح راعيًا"
 }
 };

@@ -239,7 +239,8 @@
 "Misyon": "Mission",
 "Sponsorlar": "Sponsoren",
 "UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "Die Unternehmen, die Veranstaltungen im UniPakt-Netzwerk unterstützen.",
-"Sponsor olmak ister misin?": "Möchtest du Sponsor werden?",
-"Sponsorluk ve iş birliği teklifleri için bize yaz.": "Schreib uns für Sponsoring- und Kooperationsangebote."
+"Sponsorluk ve iş birliği teklifleri için bize yaz.": "Schreib uns für Sponsoring- und Kooperationsangebote.",
+"Sponsor ol ↓": "Sponsor werden ↓",
+"Sponsor olmak için": "Um Sponsor zu werden"
 }
 };

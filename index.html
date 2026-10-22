@@ -6294,18 +6294,53 @@
     .story-mission { padding-top: clamp(40px, 6vw, 80px); padding-bottom: clamp(80px, 10vw, 140px); }
     .story-mission[hidden] { display: none; }
 
-    /* ---- Sponsorlar sayfası ---- */
-    .sponsor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-top: clamp(28px, 4vw, 48px); }
-    .sponsor-card { display: grid; justify-items: start; gap: 18px; padding: 28px; border: 1px solid var(--border-strong); border-radius: 20px; background: var(--paper-soft); color: inherit; text-decoration: none; transition: border-color .2s ease; }
-    .sponsor-card:hover { border-color: var(--accent); }
-    .sponsor-card img { display: block; height: 32px; width: auto; max-width: 100%; }
-    .sponsor-card span { font-size: 14px; opacity: .6; }
-    :root[data-theme="light"] .sponsor-card img { filter: invert(1); }
-    @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .sponsor-card img { filter: invert(1); } }
-    .sponsor-cta { margin-top: clamp(48px, 7vw, 90px); padding-top: clamp(32px, 4vw, 48px); border-top: 1px solid var(--border); display: grid; justify-items: start; gap: 12px; }
-    .sponsor-cta h2 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(26px, 3.4vw, 40px); letter-spacing: -0.03em; }
-    .sponsor-cta p { margin: 0 0 8px; opacity: .7; }
-    .sponsor-cta .btn-pill { text-decoration: none; }
+
+    /* ============================================================
+       SPONSORLAR — sitenin geri kalanından ayrışan, beyaz zeminli kurumsal sayfa.
+       Girişte noktalar düşer, çizgilerle ağa bağlanır, sponsor logosu ağın merkezinde belirir.
+       ============================================================ */
+    .sp-page { background: #fff; color: #0a0a0a; --sp-accent: #F04A0F; }
+    .sp-hero { position: relative; min-height: calc(100svh - var(--nav-h, 86px)); overflow: hidden; display: flex; align-items: flex-end; }
+    .sp-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    /* Yazının arkasındaki ağı yumuşatan beyaz geçiş. */
+    .sp-hero::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to right, #fff 0%, #ffffffd9 34%, #ffffff00 62%); }
+    .sp-hub { position: absolute; left: 64%; top: 44%; transform: translate(-50%, -50%) scale(.6); opacity: 0; z-index: 2; display: grid; place-items: center; padding: 22px 30px; border-radius: 22px; background: #0a0a0a; box-shadow: 0 0 0 8px #ffffff, 0 0 0 9px #0a0a0a1a; transition: opacity .7s ease, transform .9s cubic-bezier(.2, .8, .2, 1); }
+    .sp-hub img { display: block; height: clamp(22px, 2.6vw, 34px); width: auto; }
+    .sp-hub.is-in { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    .sp-hub:hover { box-shadow: 0 0 0 8px #ffffff, 0 0 0 10px var(--sp-accent); }
+    .sp-hero-text { position: relative; z-index: 3; padding-bottom: clamp(48px, 8vh, 96px); pointer-events: none; }
+    .sp-hero-text > * { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .8s cubic-bezier(.2, .8, .2, 1); }
+    .sp-hero.is-text .sp-hero-text > * { opacity: 1; transform: none; }
+    .sp-hero.is-text .sp-hero-text > :nth-child(2) { transition-delay: .08s; }
+    .sp-hero.is-text .sp-hero-text > :nth-child(3) { transition-delay: .16s; }
+    .sp-hero.is-text .sp-hero-text > :nth-child(4) { transition-delay: .24s; }
+    .sp-kicker { margin: 0 0 6px; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 20px; letter-spacing: -0.03em; }
+    .sp-kicker span { color: var(--sp-accent); }
+    .sp-hero h1 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(54px, 10vw, 150px); line-height: .92; letter-spacing: -0.05em; }
+    .sp-lead { margin: 14px 0 0; max-width: 34ch; font-size: clamp(16px, 1.6vw, 20px); color: #0a0a0aa6; }
+    .sp-down { pointer-events: auto; margin-top: 26px; padding: 13px 24px; border-radius: 999px; border: 1.5px solid #0a0a0a; background: #0a0a0a; color: #fff; font: inherit; font-weight: 600; cursor: pointer; transition: background .2s ease, color .2s ease, border-color .2s ease; }
+    .sp-down:hover { background: var(--sp-accent); border-color: var(--sp-accent); color: #0a0a0a; }
+    .sp-body { padding-top: clamp(56px, 8vw, 110px); padding-bottom: clamp(56px, 8vw, 110px); border-top: 1px solid #0a0a0a14; }
+    .sp-h2 { margin: 0 0 clamp(22px, 3vw, 36px); font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(28px, 3.6vw, 46px); letter-spacing: -0.03em; }
+    .sp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .sp-card { display: grid; justify-items: start; gap: 22px; padding: 30px; border-radius: 20px; border: 1px solid #0a0a0a1f; background: #fafafa; color: inherit; text-decoration: none; transition: border-color .2s ease, transform .2s ease; }
+    .sp-card:hover { border-color: var(--sp-accent); transform: translateY(-2px); }
+    .sp-card img { display: block; height: 34px; width: auto; max-width: 100%; filter: invert(1); }
+    .sp-card span { font-size: 14px; color: #0a0a0a99; }
+    .sp-join { background: #0a0a0a; color: #fff; }
+    .sp-join-in { display: grid; justify-items: start; gap: 12px; padding-top: clamp(56px, 8vw, 110px); padding-bottom: clamp(56px, 8vw, 110px); }
+    .sp-join h2 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(32px, 5vw, 64px); letter-spacing: -0.04em; line-height: 1; }
+    .sp-join p { margin: 0 0 10px; color: #ffffffb3; font-size: 17px; }
+    .sp-mail { display: inline-block; padding: 15px 28px; border-radius: 999px; background: var(--sp-accent); color: #0a0a0a; font-weight: 700; text-decoration: none; transition: transform .2s ease; }
+    .sp-mail:hover { transform: translateY(-2px); }
+    @media (max-width: 720px) {
+        .sp-hub { left: 50%; top: 32%; }
+        .sp-hero::after { background: linear-gradient(to top, #fff 0%, #ffffffe0 42%, #ffffff00 62%); }
+        .sp-hero { min-height: calc(92svh - var(--nav-h, 70px)); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .sp-hub, .sp-hero-text > * { transition: none; }
+    }
     </style>
 </head>
 <body>
@@ -6838,24 +6873,33 @@
         </section>
 
         <!-- ================= SPONSORLAR ================= -->
-        <section class="page" id="page-sponsorlar" data-page="sponsorlar">
-            <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
-                <div class="wrap">
-                    <div class="section-title">
-                        <h1 data-reveal>Sponsorlar</h1>
-                        <p data-reveal>UniPakt ağındaki etkinlikleri destekleyen kurumlar.</p>
-                    </div>
-                    <div class="sponsor-grid" data-reveal>
-                        <a class="sponsor-card" href="https://www.biletimgo.com" target="_blank" rel="noopener noreferrer sponsored">
-                            <img src="/sponsors/biletimgo.png" alt="biletimGO" width="754" height="120" loading="lazy" decoding="async">
-                            <span>biletimgo.com ↗</span>
-                        </a>
-                    </div>
-                    <div class="sponsor-cta" data-reveal>
-                        <h2>Sponsor olmak ister misin?</h2>
-                        <p>Sponsorluk ve iş birliği teklifleri için bize yaz.</p>
-                        <a class="btn-pill" href="mailto:sponsorluk@unipakt.com">sponsorluk@unipakt.com</a>
-                    </div>
+        <section class="page sp-page" id="page-sponsorlar" data-page="sponsorlar">
+            <div class="sp-hero" id="spHero">
+                <canvas class="sp-canvas" id="spCanvas" aria-hidden="true"></canvas>
+                <a class="sp-hub" id="spHub" href="https://www.biletimgo.com" target="_blank" rel="noopener noreferrer sponsored" aria-label="biletimGO">
+                    <img src="/sponsors/biletimgo.png" alt="biletimGO" width="754" height="120" decoding="async">
+                </a>
+                <div class="wrap sp-hero-text">
+                    <p class="sp-kicker" data-no-i18n>UniPakt<span>.</span></p>
+                    <h1>Sponsorlar</h1>
+                    <p class="sp-lead">UniPakt ağındaki etkinlikleri destekleyen kurumlar.</p>
+                    <button type="button" class="sp-down" data-sp-down>Sponsor ol ↓</button>
+                </div>
+            </div>
+            <div class="wrap sp-body">
+                <h2 class="sp-h2">Sponsorlarımız</h2>
+                <div class="sp-grid">
+                    <a class="sp-card" href="https://www.biletimgo.com" target="_blank" rel="noopener noreferrer sponsored">
+                        <img src="/sponsors/biletimgo.png" alt="biletimGO" width="754" height="120" loading="lazy" decoding="async">
+                        <span>biletimgo.com ↗</span>
+                    </a>
+                </div>
+            </div>
+            <div class="sp-join" id="spJoin">
+                <div class="wrap sp-join-in">
+                    <h2>Sponsor olmak için</h2>
+                    <p>Sponsorluk ve iş birliği teklifleri için bize yaz.</p>
+                    <a class="sp-mail" href="mailto:sponsorluk@unipakt.com">sponsorluk@unipakt.com</a>
                 </div>
             </div>
         </section>
@@ -10156,6 +10200,108 @@
         visibility.observe(wrap);
     })();
 
+
+    /* ---------- Sponsorlar: girişte noktalar ağa dönüşür ----------
+                 Noktalar düşer, yakın olanlar ince çizgilerle bağlanır, ağın merkezine (sponsor logosu)
+                 bağlantılar çekilir, ardından başlık gelir. Sayfaya her girişte baştan oynar;
+                 sayfadan çıkınca durur. Hareket azaltma tercihinde son hâli doğrudan çizilir. */
+    (function initSponsorsPage() {
+        const section = document.getElementById('page-sponsorlar');
+        const hero = document.getElementById('spHero');
+        const canvas = document.getElementById('spCanvas');
+        const hub = document.getElementById('spHub');
+        if (!section || !hero || !canvas || !hub)
+            return;
+        const ctx = canvas.getContext('2d');
+        const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let nodes = [], links = [], hubLinks = [], raf = 0, t0 = 0, w = 0, h = 0, dpr = 1;
+        const ACCENT = '#F04A0F';
+        const ease = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
+        const hubPoint = () => (w <= 720 ? { x: w * 0.5, y: h * 0.32 } : { x: w * 0.72, y: h * 0.38 });
+
+        function build() {
+            const r = hero.getBoundingClientRect();
+            dpr = Math.min(2, window.devicePixelRatio || 1);
+            w = r.width; h = r.height;
+            canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            const count = Math.round(Math.min(90, Math.max(28, (w * h) / 16000)));
+            const hp = hubPoint();
+            // Basit, tekrarlanabilir dağılım: noktalar merkez çevresinde yoğun, kenarlara seyrek.
+            let seed = 7;
+            const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+            nodes = Array.from({ length: count }, (_, i) => {
+                const a = rnd() * Math.PI * 2, d = Math.pow(rnd(), 0.75);
+                const x = hp.x + Math.cos(a) * d * w * 0.62, y = hp.y + Math.sin(a) * d * h * 0.7;
+                return { x: Math.max(8, Math.min(w - 8, x)), y: Math.max(8, Math.min(h - 8, y)), r: 2 + rnd() * 2.6, orange: rnd() < 0.12, delay: rnd() * 0.85, ph: rnd() * 6.28 };
+            });
+            const maxD = Math.max(110, Math.min(170, w / 9));
+            links = [];
+            nodes.forEach((a, i) => nodes.forEach((b, j) => {
+                if (j <= i) return;
+                const d = Math.hypot(a.x - b.x, a.y - b.y);
+                if (d < maxD) links.push({ a, b, d, delay: 0.55 + Math.max(a.delay, b.delay) * 0.9 });
+            }));
+            hubLinks = nodes.map((n) => ({ n, d: Math.hypot(n.x - hp.x, n.y - hp.y) })).sort((p, q) => p.d - q.d).slice(0, 7).map((x, i) => ({ n: x.n, delay: 1.7 + i * 0.07 }));
+            hub.style.left = `${hp.x}px`; hub.style.top = `${hp.y}px`;
+        }
+
+        function draw(t) {
+            // t: saniye. Giriş ~2.6 sn; sonrası noktalar hafifçe salınır.
+            ctx.clearRect(0, 0, w, h);
+            const hp = hubPoint();
+            const drift = (n) => (t > 2.6 && !still ? Math.sin(t * 0.6 + n.ph) * 2.2 : 0);
+            ctx.lineWidth = 1;
+            links.forEach((l) => {
+                const p = ease((t - l.delay) / 0.6);
+                if (p <= 0) return;
+                const ax = l.a.x + drift(l.a), ay = l.a.y + drift(l.a);
+                const ex = l.b.x + drift(l.b), ey = l.b.y + drift(l.b);
+                const bx = ax + (ex - ax) * p, by = ay + (ey - ay) * p;
+                ctx.strokeStyle = `rgba(10,10,10,${0.13 * (1 - l.d / 190)})`;
+                ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+            });
+            ctx.lineWidth = 1.4;
+            hubLinks.forEach((l) => {
+                const p = ease((t - l.delay) / 0.55);
+                if (p <= 0) return;
+                const sx = l.n.x + drift(l.n), sy = l.n.y + drift(l.n);
+                ctx.strokeStyle = 'rgba(240,74,15,.55)';
+                ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx + (hp.x - sx) * p, sy + (hp.y - sy) * p); ctx.stroke();
+            });
+            nodes.forEach((n) => {
+                const p = ease((t - n.delay) / 0.45);
+                if (p <= 0) return;
+                ctx.fillStyle = n.orange ? ACCENT : 'rgba(10,10,10,.78)';
+                ctx.beginPath(); ctx.arc(n.x + drift(n), n.y + drift(n), n.r * p, 0, Math.PI * 2); ctx.fill();
+            });
+        }
+
+        function loop(now) {
+            const t = (now - t0) / 1000;
+            draw(t);
+            if (t > 1.9) hub.classList.add('is-in');
+            if (t > 2.2) hero.classList.add('is-text');
+            raf = requestAnimationFrame(loop);
+        }
+
+        function start() {
+            cancelAnimationFrame(raf);
+            hub.classList.remove('is-in'); hero.classList.remove('is-text');
+            build();
+            if (still) { draw(10); hub.classList.add('is-in'); hero.classList.add('is-text'); return; }
+            requestAnimationFrame((now) => { t0 = now; raf = requestAnimationFrame(loop); });
+        }
+        const stop = () => { cancelAnimationFrame(raf); raf = 0; };
+        const active = () => section.classList.contains('active');
+        window.addEventListener('unipakt:route', () => (active() ? start() : stop()));
+        let rt;
+        window.addEventListener('resize', () => { if (!active()) return; clearTimeout(rt); rt = setTimeout(() => { build(); if (still || !raf) draw(10); }, 150); });
+        document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else if (active() && !still && !raf) requestAnimationFrame((now) => { t0 = now - 3000; raf = requestAnimationFrame(loop); }); });
+        section.querySelector('[data-sp-down]')?.addEventListener('click', () => document.getElementById('spJoin')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+        if (active()) start();
+    })();
+
     /* ---------- Footer wordmark: reuse the header logo image ---------- */
     (function initFooterWordmark() {
         const mark = document.getElementById('footerWordmark');
@@ -10709,7 +10855,7 @@
                 return Promise.resolve(window.UNIPAKT_I18N[code]);
             return loaded[code] = loaded[code] || new Promise((resolve, reject) => {
                 const s = document.createElement('script');
-                s.src = `/i18n/${code}.js?v=8`;
+                s.src = `/i18n/${code}.js?v=10`;
                 s.onload = () => (window.UNIPAKT_I18N[code] ? resolve(window.UNIPAKT_I18N[code]) : reject(new Error(code)));
                 s.onerror = () => {
                     delete loaded[code];
