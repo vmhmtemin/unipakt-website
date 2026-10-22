@@ -6116,19 +6116,23 @@
     .ev-page { min-height: 40vh; }
     .ev-hero {
         position: relative; isolation: isolate; color: #fff; background: #000;
-        padding: calc(var(--nav-h, 86px) + clamp(40px, 7vw, 90px)) 0 clamp(36px, 6vw, 70px); text-align: center; overflow: hidden;
+        padding: 0 0 clamp(36px, 6vw, 70px); text-align: center; overflow: hidden;
     }
-    /* Banner 5:1: tam genişlikte, kırpılmadan üstte durur; altı siyaha erir. */
-    .ev-hero::before { content: ''; position: absolute; inset: 0; z-index: -2; background: var(--ev-hero, none) center top / 100% auto no-repeat; }
     .ev-hero::after {
         content: ''; position: absolute; inset: 0; z-index: -1;
-        background: radial-gradient(#ffffff38 1px, transparent 1.3px) 0 0 / 18px 18px, linear-gradient(rgba(0,0,0,.3), rgba(0,0,0,.6) 12vw, #000 20vw);
+        background: radial-gradient(#ffffff38 1px, transparent 1.3px) 0 0 / 18px 18px;
     }
+    /* Banner 5:1: başlığın üstünde ayrı bir şerit; geniş ekranda yüksekliği sınırlı, alt kenarı siyaha erir.
+       Hiçbir yazı banner'ın üstüne binmez. */
+    .ev-banner { position: relative; width: min(100%, 1500px); margin: 0 auto; aspect-ratio: 5 / 1; max-height: 300px; background: var(--ev-hero, none) center / cover no-repeat; }
+    .ev-banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 55%, #000); }
+    @media (min-width: 1540px) { .ev-banner { margin-top: 24px; border-radius: 20px; overflow: hidden; } }
+    .ev-hero-in { padding-top: clamp(18px, 3vw, 34px); }
     .ev-hero-in { display: grid; justify-items: center; gap: 12px; }
     .ev-hero h1 { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(34px, 6.4vw, 78px); line-height: 1; letter-spacing: -0.035em; max-width: 18ch; overflow-wrap: anywhere; margin: 0; }
     .ev-bar { display: block; width: 56px; height: 4px; border-radius: 2px; background: var(--accent); margin: 6px 0 2px; }
     .ev-hero-meta { opacity: .85; font-size: clamp(14px, 1.6vw, 17px); margin: 0; }
-    .ev-back { justify-self: start; background: none; border: 1px solid #ffffff40; color: #fff; padding: 8px 16px; border-radius: 999px; font: inherit; font-size: 14px; cursor: pointer; margin-bottom: clamp(10px, 3vw, 30px); }
+    .ev-back { justify-self: start; background: none; border: 1px solid #ffffff40; color: #fff; padding: 8px 16px; border-radius: 999px; font: inherit; font-size: 14px; cursor: pointer; margin-bottom: clamp(6px, 2vw, 20px); }
     .ev-back:hover { border-color: var(--accent); color: var(--accent); }
     .ev-count { display: flex; gap: clamp(10px, 2.4vw, 22px); margin-top: clamp(12px, 2.5vw, 26px); }
     .ev-count div { display: grid; justify-items: center; min-width: clamp(58px, 9vw, 86px); padding: 12px 8px; border: 1px solid #ffffff2a; border-radius: 14px; background: #00000066; }
@@ -8077,6 +8081,7 @@
             const rules = String(e.rules || '').split(/\r?\n/).map((l) => l.replace(/^\s*[-•]\s*/, '').trim()).filter(Boolean);
             host.innerHTML = `
                 <header class="ev-hero"${hero ? ` style="--ev-hero:url('${esc(hero).replace(/'/g, '%27')}')"` : ''}>
+                    <div class="ev-banner" aria-hidden="true"></div>
                     <div class="wrap ev-hero-in">
                         <button type="button" class="ev-back" data-ev-back>← Takvime dön</button>
                         <h1 data-no-i18n>${esc(e.title)}</h1><i class="ev-bar" aria-hidden="true"></i>
