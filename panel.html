@@ -344,7 +344,15 @@
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
   /* ---- Menü grupları ---- */
-  .nav-group { margin: 14px 12px 4px; font-size: 12px; font-weight: 700; letter-spacing: .02em; opacity: .45; }
+  .nav-group { margin: 6px 12px 2px; font-size: 12px; font-weight: 700; letter-spacing: .02em; opacity: .45; }
+  /* Masaüstü: kenar çubuğu ekran boyunda; logo ve alttaki kullanıcı/Çıkış hep görünür, gerekirse yalnızca menü listesi kayar. */
+  @media (min-width: 901px) {
+    .side { overflow: hidden; gap: 10px; padding-top: 18px; padding-bottom: 14px; }
+    .side-nav { flex: 1 1 auto; min-height: 0; overflow-y: auto; gap: 2px; align-content: start; scrollbar-width: thin; }
+    .side-nav .nav-item { padding: 6px 12px; font-size: 14.5px; line-height: 1.4; }
+    .side-brand .kicker { margin-top: 0; }
+    .side-foot { flex: none; padding-top: 12px; gap: 8px; }
+  }
   .nav-group:first-child { margin-top: 0; }
 
   /* ---- Etkinlik oluşturma sayfası ---- */
@@ -1653,7 +1661,7 @@
   const signed = (n) => `${n >= 0 ? '+' : '−'}${Math.abs(n)}`;
 
   // Sol menü iki grupta: [id, etiket, sayaç, grup]. Kulüp hesabı Onaylamalar, Kulüpler ve Site Mesajları'nı görmez.
-  const NAV_GROUPS = [['events', 'Etkinlik İşlemleri'], ['unipakt', 'UniPakt']];
+  const NAV_GROUPS = [['unipakt', 'UniPakt'], ['events', 'Etkinlik İşlemleri']];
   const NAV = () => {
     const openMine = visibleTasks().filter((t) => t.status === 'open').length;
     const items = [

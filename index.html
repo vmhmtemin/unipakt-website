@@ -6116,7 +6116,7 @@
     .ev-page { min-height: 40vh; }
     /* Üst alan: görsel (banner, yoksa yer tutucu) tam genişlikte karartılmış arka plan; üstünde ortalı başlık,
        turuncu çizgi, ikonlu yer · tarih ve geri sayım. */
-    .ev-hero { position: relative; isolation: isolate; overflow: hidden; color: #fff; background: #000; text-align: center; padding: clamp(46px, 6.5vw, 96px) 0 clamp(44px, 6vw, 88px); }
+    .ev-hero { position: relative; isolation: isolate; overflow: hidden; color: #fff; background: #000; text-align: center; padding: clamp(70px, 7vw, 104px) 0 clamp(44px, 6vw, 88px); }
     .ev-hero::before { content: ''; position: absolute; inset: 0; z-index: -2; background: var(--ev-hero, none) center / cover no-repeat; }
     .ev-hero.is-placeholder::before { filter: invert(1); }
     .ev-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(#ffffff30 1px, transparent 1.3px) 0 0 / 18px 18px, rgba(0, 0, 0, .66); }
@@ -6129,6 +6129,10 @@
     .ev-hero-meta svg { width: 18px; height: 18px; color: var(--accent); flex: none; }
     .ev-back { justify-self: start; background: none; border: 0; padding: 0; color: inherit; opacity: .7; font: inherit; font-size: 14px; cursor: pointer; }
     .ev-back:hover { opacity: 1; color: var(--accent); }
+    /* Üst alanın sol üst köşesinde "Takvime dön". */
+    .ev-hero-top { position: absolute; top: clamp(14px, 2vw, 24px); left: 0; right: 0; text-align: left; }
+    .ev-back-top { display: inline-flex; align-items: center; padding: 7px 14px; border: 1px solid #ffffff40; border-radius: 999px; background: #00000059; color: #fff; opacity: .9; }
+    .ev-back-top:hover { border-color: var(--accent); }
     .ev-count { display: flex; gap: clamp(10px, 2.4vw, 22px); margin-top: clamp(12px, 2.5vw, 26px); }
     .ev-count div { display: grid; justify-items: center; min-width: clamp(58px, 9vw, 86px); padding: 12px 8px; border: 1.5px solid var(--accent); border-radius: 14px; background: #00000059; }
     .ev-count b { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(24px, 4vw, 40px); line-height: 1; font-variant-numeric: tabular-nums; }
@@ -8076,6 +8080,7 @@
             const rules = String(e.rules || '').split(/\r?\n/).map((l) => l.replace(/^\s*[-•]\s*/, '').trim()).filter(Boolean);
             host.innerHTML = `
                 <header class="ev-hero${e.banner ? '' : ' is-placeholder'}" style="--ev-hero:url('${esc(hero).replace(/'/g, '%27')}')">
+                    <div class="wrap ev-hero-top"><button type="button" class="ev-back ev-back-top" data-ev-back>← Takvime dön</button></div>
                     <div class="wrap ev-hero-in">
                         <h1 data-no-i18n>${esc(e.title)}</h1><i class="ev-bar" aria-hidden="true"></i>
                         <p class="ev-hero-meta">${placeLine ? `<span>${icon('place')}<span data-no-i18n>${esc(placeLine)}</span></span>` : ''}${first ? `<span>${icon('start')}<span>${when(first.date, first.time)}</span></span>` : ''}</p>
@@ -8083,7 +8088,6 @@
                     </div>
                 </header>
                 <div class="wrap ev-body">
-                    <button type="button" class="ev-back" data-ev-back>← Takvime dön</button>
                     <div class="ev-ticket">
                         <b class="ev-fee">${e.feeType === 'paid' && e.feeAmount != null ? `<span data-no-i18n>${esc(feeText(e))}</span>` : 'Ücretsiz'}</b>
                         <div class="ev-ticket-act">
