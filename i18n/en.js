@@ -501,6 +501,7 @@
 "Sponsor olmak için": "To become a sponsor",
 "← Siteye dön": "← Back to site",
 "Sponsor ol": "Become a sponsor",
+"Yazılım Sponsoru": "Software Sponsor",
 "Dijital Biletleme Sponsoru": "Digital Ticketing Sponsor"
 }
 };

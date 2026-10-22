@@ -6418,6 +6418,8 @@
     .sp-idx { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 15px; color: #0a0a0a66; transition: color .35s ease; }
     .sp-row:hover .sp-idx { color: var(--sp-accent); }
     .sp-logo img { display: block; height: clamp(30px, 3.6vw, 46px); width: auto; max-width: 100%; filter: invert(1); transition: filter .35s ease; }
+    /* Renkli logolar (ör. FMJ Software'in turuncu yaprak ve noktası) olduğu gibi gösterilir. */
+    .sp-logo img.sp-logo-raw { filter: none; }
     .sp-name { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(24px, 3.4vw, 44px); letter-spacing: -0.035em; line-height: 1; }
     .sp-role { justify-self: end; font-size: 14px; padding: 7px 14px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; transition: color .3s ease, border-color .3s ease; }
     .sp-arrow { justify-self: end; font-size: 26px; transition: transform .35s ease, color .35s ease; }
@@ -7164,12 +7166,20 @@
             <div class="wrap sp-body" id="spList">
                 <div class="sp-list-head">
                     <h2 class="sp-h2">Sponsorlarımız</h2>
-                    <span class="sp-count" data-no-i18n>01</span>
+                    <span class="sp-count" data-no-i18n>02</span>
                 </div>
                 <ol class="sp-list">
                     <li class="sp-item">
-                        <a class="sp-row" href="https://www.biletimgo.com" target="_blank" rel="noopener noreferrer sponsored">
+                        <div class="sp-row">
                             <span class="sp-idx" data-no-i18n>01</span>
+                            <span class="sp-logo"><img class="sp-logo-raw" src="/sponsors/fmj-software.png" alt="FMJ Software" width="1200" height="197" loading="lazy" decoding="async"></span>
+                            <span class="sp-role">Yazılım Sponsoru</span>
+                            <span class="sp-arrow" aria-hidden="true"></span>
+                        </div>
+                    </li>
+                    <li class="sp-item">
+                        <a class="sp-row" href="https://www.biletimgo.com" target="_blank" rel="noopener noreferrer sponsored">
+                            <span class="sp-idx" data-no-i18n>02</span>
                             <span class="sp-logo"><img src="/sponsors/biletimgo.png" alt="biletimGO" width="754" height="120" loading="lazy" decoding="async"></span>
                             <span class="sp-role">Dijital Biletleme Sponsoru</span>
                             <span class="sp-arrow" aria-hidden="true">↗</span>
@@ -11264,7 +11274,7 @@
                 return Promise.resolve(window.UNIPAKT_I18N[code]);
             return loaded[code] = loaded[code] || new Promise((resolve, reject) => {
                 const s = document.createElement('script');
-                s.src = `/i18n/${code}.js?v=13`;
+                s.src = `/i18n/${code}.js?v=14`;
                 s.onload = () => (window.UNIPAKT_I18N[code] ? resolve(window.UNIPAKT_I18N[code]) : reject(new Error(code)));
                 s.onerror = () => {
                     delete loaded[code];

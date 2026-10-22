@@ -249,6 +249,7 @@
 "Sponsor olmak için": "प्रायोजक बनने के लिए",
 "← Siteye dön": "← साइट पर वापस",
 "Sponsor ol": "प्रायोजक बनें",
+"Yazılım Sponsoru": "सॉफ़्टवेयर प्रायोजक",
 "Dijital Biletleme Sponsoru": "डिजिटल टिकटिंग प्रायोजक"
 }
 };

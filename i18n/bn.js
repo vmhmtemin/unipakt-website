@@ -249,6 +249,7 @@
 "Sponsor olmak için": "স্পনসর হতে",
 "← Siteye dön": "← সাইটে ফিরে যান",
 "Sponsor ol": "স্পনসর হোন",
+"Yazılım Sponsoru": "সফটওয়্যার স্পনসর",
 "Dijital Biletleme Sponsoru": "ডিজিটাল টিকিটিং স্পনসর"
 }
 };

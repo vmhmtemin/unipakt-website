@@ -249,6 +249,7 @@
 "Sponsor olmak için": "Чтобы стать спонсором",
 "← Siteye dön": "← Назад на сайт",
 "Sponsor ol": "Стать спонсором",
+"Yazılım Sponsoru": "Спонсор программного обеспечения",
 "Dijital Biletleme Sponsoru": "Спонсор цифровой продажи билетов"
 }
 };
