@@ -53,6 +53,8 @@
     font: 900 30px/1 'Archivo', sans-serif; letter-spacing: -0.04em;
   }
   .wordmark span { color: var(--accent); }
+  /* Logo görseli: asıl UniPakt logosu, noktası turuncu kare (koyu panelde beyaz yazılı). */
+  .wordmark-img { display: block; height: .9em; width: auto; }
   .wordmark:hover { opacity: .8; }
   .kicker { font: 700 22px/1 'Caveat', cursive; color: var(--accent); }
 
@@ -3501,7 +3503,7 @@
     if (!DEMO) {
       root.innerHTML = `
         <main class="login"><div class="login-box">
-          <a class="wordmark" href="https://unipakt.com/">UniPakt<span>.</span></a>
+          <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="/unipakt-logo-white.png" alt="UniPakt"></a>
           <p class="kicker">Panel</p>
           <form class="login-form" id="loginForm" novalidate>
             ${field('E-posta', '<input type="email" name="email" required autocomplete="username">')}
@@ -3515,7 +3517,7 @@
     }
     root.innerHTML = `
       <main class="login"><div class="login-box">
-        <a class="wordmark" href="https://unipakt.com/">UniPakt<span>.</span></a>
+        <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="/unipakt-logo-white.png" alt="UniPakt"></a>
         <p class="kicker">Panel</p>
         <h2>Demo girişi: bir hesap seç</h2>
         <div class="account-list">
@@ -3535,7 +3537,7 @@
       <div class="app">
         <aside class="side">
           <div class="side-brand">
-            <a class="wordmark" href="https://unipakt.com/" title="unipakt.com’a git">UniPakt<span>.</span></a>
+            <a class="wordmark" href="https://unipakt.com/" title="unipakt.com’a git" aria-label="UniPakt"><img class="wordmark-img" src="/unipakt-logo-white.png" alt="UniPakt"></a>
             <p class="kicker">Panel</p>
           </div>
           <nav class="side-nav" aria-label="Panel">
