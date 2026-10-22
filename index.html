@@ -6469,8 +6469,12 @@
     .hf-stage.hf-play .hf-l-hack { animation: hfHack .8s cubic-bezier(.2, .7, .2, 1) both; }
     .hf-stage.hf-play .hf-l-uni { animation: hfUni .6s ease-out .62s both; }
     .hf-stage.hf-play .hf-l-mix { animation: hfMix .95s cubic-bezier(.55, .05, .3, 1) 1.08s both; }
-    .hf-stage.hf-done .hf-l-full { opacity: 1; animation: hfGlow .9s ease-out both; }
-    .hf-stage.hf-done .hf-l-hack, .hf-stage.hf-done .hf-l-uni, .hf-stage.hf-done .hf-l-mix { opacity: 0; animation: none; }
+    /* Parçalar tam logoyla aynı hizada üretildi; bitişte tam logo (yıldız ve kavis çizgisiyle) yumuşakça üstüne oturur, parçalar söner. */
+    .hf-stage.hf-done .hf-l-full { opacity: 1; animation: hfFullIn .7s ease-out both; }
+    .hf-stage.hf-done .hf-l-hack, .hf-stage.hf-done .hf-l-uni, .hf-stage.hf-done .hf-l-mix { opacity: 0; animation: hfPartsOut .7s ease-out both; }
+    @keyframes hfFullIn { 0% { opacity: 0; filter: drop-shadow(0 0 0 #ff5a1f00) brightness(1.12); } 45% { opacity: 1; filter: drop-shadow(0 0 22px #ff5a1f55) brightness(1.06); } 100% { opacity: 1; filter: drop-shadow(0 0 0 #ff5a1f00) brightness(1); } }
+    @keyframes hfPartsOut { from { opacity: 1; } to { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { .hf-stage.hf-done .hf-l { animation: none; } }
     @keyframes hfHack {
         0% { opacity: 0; transform: scale(1.06); filter: blur(14px) brightness(1.8); clip-path: inset(0 100% 0 0); }
         55% { opacity: 1; filter: blur(3px) brightness(1.25); }
@@ -6546,7 +6550,8 @@
     .hf-photo { margin: 0; }
     .hf-photo img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 14px; background: #ffffff10; }
     .hf-photo figcaption { margin-top: 12px; font-weight: 700; font-size: 15px; }
-    .hf-past { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 18px; margin-top: clamp(28px, 4vw, 48px); }
+    /* KVKK: katılımcı fotoğrafları (açık rıza alınmadığı için) kullanılmıyor; geçmiş organizasyon yalnızca rakamla anlatılır. */
+    .hf-past { display: grid; grid-template-columns: minmax(0, 520px); gap: 18px; margin-top: clamp(28px, 4vw, 48px); }
     .hf-photo-wide img { aspect-ratio: 1218 / 462; height: 100%; }
     .hf-stat hr { border: 0; border-top: 1px solid #ffffff1f; margin: 18px 0 0; }
     .hf-stat h3 { text-transform: none; margin-top: 16px; }
@@ -7145,11 +7150,11 @@
             <div class="sp-hero" id="spHero">
                 <canvas class="sp-canvas" id="spCanvas" aria-hidden="true"></canvas>
                 <div class="wrap sp-hero-text">
-                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><img class="sp-logo-img sp-wordmark" src="/unipakt-logo-bg.png" alt="" aria-hidden="true"></p>
+                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><img class="sp-logo-img sp-wordmark" src="/unipakt-logo-bg.png?v=3" alt="" aria-hidden="true"></p>
                     <h1>Sponsorlar</h1>
                     <p class="sp-lead">UniPakt ağındaki etkinlikleri destekleyen kurumlar.</p>
                     <button type="button" class="sp-down" data-sp-down>Sponsor ol ↓</button>
-                    <a class="sp-next" href="/hackfest/" data-route="hackfest">
+                    <a class="sp-next" href="/hackfest27/" data-route="hackfest27">
                         <span class="sp-next-kick"><i aria-hidden="true"></i>Sıradaki</span>
                         <strong class="sp-next-title" data-no-i18n>HACKFEST27: MIXIT</strong>
                         <span class="sp-next-meta"><span>6–7 Mart 2027</span> · <span>İstanbul Kongre Merkezi</span></span>
@@ -7183,7 +7188,7 @@
         </section>
 
         <!-- ================= HACKFEST27: MIXIT ================= -->
-        <section class="page hf-page" id="page-hackfest" data-page="hackfest">
+        <section class="page hf-page" id="page-hackfest27" data-page="hackfest27">
             <div class="hf-hero" id="hfHero">
                 <a class="hf-back" href="/sponsorlar/" data-route="sponsorlar">← Sponsorlar</a>
                 <div class="hf-stage" id="hfStage" role="img" aria-label="UniPakt HACKFEST27 MIXIT">
@@ -7225,7 +7230,6 @@
                     <h2 class="hf-h hf-caps" data-reveal>HACKFEST 2026</h2>
                     <p class="hf-lead" data-reveal>İstinye Üniversitesi · GDG on Campus İstinye liderliğinde</p>
                     <div class="hf-past" data-reveal>
-                        <figure class="hf-photo hf-photo-wide"><img src="/hackfest-media/hf26-sahne.webp" alt="HACKFEST 2026 katılımcıları sahnede" width="1218" height="462" loading="lazy" decoding="async"></figure>
                         <div class="hf-card hf-stat">
                             <p class="hf-big">200</p>
                             <p class="hf-label">Gerçekleşen katılım</p>
@@ -7238,18 +7242,6 @@
                 </div>
             </section>
 
-            <section class="hf-sec hf-light">
-                <div class="hf-wrap">
-                    <p class="hf-kick" data-reveal>2026 HACKFEST’ten gerçek kareler</p>
-                    <h2 class="hf-h" data-reveal>Deneyimden gelen güven.</h2>
-                    <div class="hf-grid hf-g3 hf-photos" data-reveal-stagger>
-                        <figure class="hf-photo"><img src="/hackfest-media/hf26-calisma.webp" alt="Hackathon çalışma ortamı" width="546" height="432" loading="lazy" decoding="async"><figcaption>Hackathon çalışma ortamı</figcaption></figure>
-                        <figure class="hf-photo"><img src="/hackfest-media/hf26-konusma.webp" alt="Etkinlik konuşması" width="632" height="432" loading="lazy" decoding="async"><figcaption>Etkinlik konuşması</figcaption></figure>
-                        <figure class="hf-photo"><img src="/hackfest-media/hf26-katilim.webp" alt="Öğrenci katılımı" width="577" height="432" loading="lazy" decoding="async"><figcaption>Öğrenci katılımı</figcaption></figure>
-                    </div>
-                    <p class="hf-note" data-reveal>Bu fotoğraflar 2026 HACKFEST’e aittir; 2027 MIXIT’in gerçekleşmiş görüntüleri değildir.</p>
-                </div>
-            </section>
 
             <section class="hf-sec hf-dark">
                 <div class="hf-wrap">
@@ -7435,7 +7427,7 @@
                         </div>
                     </div>
                     <div class="hf-sign" data-reveal>
-                        <img src="/unipakt-logo-bg.png" alt="UniPakt" width="885" height="208" loading="lazy">
+                        <img src="/unipakt-logo-bg.png?v=3" alt="UniPakt" width="885" height="208" loading="lazy">
                         <p><b lang="en">Made in UniPakt</b><span>6–7 Mart 2027 · İstanbul Kongre Merkezi</span></p>
                     </div>
                 </div>
@@ -9628,7 +9620,7 @@
     const routeLinks = document.querySelectorAll('[data-route]');
     const menuToggle = document.getElementById('menuToggle');
     const navLinks = document.getElementById('navLinks');
-    const validRoutes = ['ana-sayfa', 'kulupler', 'hakkimizda', 'story', 'takvim', 'iletisim', 'katil', 'kvkk', 'etkinlik', 'sponsorlar', 'hackfest'];
+    const validRoutes = ['ana-sayfa', 'kulupler', 'hakkimizda', 'story', 'takvim', 'iletisim', 'katil', 'kvkk', 'etkinlik', 'sponsorlar', 'hackfest27'];
 
     function showRoute(route) {
         if (!validRoutes.includes(route))
@@ -9668,14 +9660,18 @@
     const SITE_ORIGIN = 'https://unipakt.com';
     // GitHub Pages redirects /takvim to /takvim/, so the trailing slash is the real address.
     const routePath = (route) => (route === 'ana-sayfa' ? '/' : `/${route}/`);
+    // Eski adres: /hackfest/ artık /hackfest27/.
+    const ROUTE_ALIASES = { hackfest: 'hackfest27' };
     function routeFromLocation() {
-        const legacy = (location.hash || '').slice(1);
+        let legacy = (location.hash || '').slice(1);
+        legacy = ROUTE_ALIASES[legacy] || legacy;
         if (validRoutes.includes(legacy))
             return legacy;
         let segment = '';
         try {
             segment = decodeURIComponent(location.pathname).replace(/^\/+|\/+$/g, '').split('/')[0];
         } catch (e) {}
+        segment = ROUTE_ALIASES[segment] || segment;
         return validRoutes.includes(segment) ? segment : 'ana-sayfa';
     }
     // Page titles (Turkish source). Must match ROUTES in tools/build_pages.py.
@@ -9690,7 +9686,7 @@
         kvkk: 'KVKK Aydınlatma Metni',
         etkinlik: 'Etkinlik',
         sponsorlar: 'Sponsorlar',
-        hackfest: 'HACKFEST27: MIXIT'
+        hackfest27: 'HACKFEST27: MIXIT'
     };
     function syncRouteMeta(route) {
         const eventId = route === 'etkinlik' ? new URLSearchParams(location.search).get('id') : '';
@@ -9752,7 +9748,8 @@
         syncRouteMeta(route);
     });
     window.addEventListener('hashchange', () => {
-        const legacy = (location.hash || '').slice(1);
+        let legacy = (location.hash || '').slice(1);
+        legacy = ROUTE_ALIASES[legacy] || legacy;
         if (validRoutes.includes(legacy))
             navigateTo(legacy, { replace: true });
     });
@@ -10556,7 +10553,7 @@
         if (logoLink && logoBase) {
             logoAlt = document.createElement('img');
             logoAlt.className = 'logo-img logo-alt';
-            logoAlt.src = '/unipakt-logo-bg.png';
+            logoAlt.src = '/unipakt-logo-bg.png?v=3';
             logoAlt.alt = '';
             logoAlt.setAttribute('aria-hidden', 'true');
             logoLink.appendChild(logoAlt);
@@ -10602,7 +10599,7 @@
         const kicker = document.getElementById('spKicker');
         const kickImg = document.getElementById('spKickLogo');
         const kickWord = kicker?.querySelector('.sp-wordmark');
-        if (kickImg) kickImg.src = "/unipakt-logo-normal.png";
+        if (kickImg) kickImg.src = "/unipakt-logo-normal.png?v=3";
         let kickTimer = 0;
         const kickReset = () => {
             clearTimeout(kickTimer);
@@ -10661,7 +10658,7 @@
        Kendi koyu dünyası (html.hf-mode). Sayfaya her girişte logo jenerik gibi kurulur:
        Hackfest27 → UniPakt (saydamdan opağa) → el yazısı Mixit, toplam ~2,1 sn; sonra tam logoya geçilir. */
     (function initHackfestPage() {
-        const section = document.getElementById('page-hackfest');
+        const section = document.getElementById('page-hackfest27');
         const hero = document.getElementById('hfHero');
         const stage = document.getElementById('hfStage');
         if (!section || !hero || !stage)
@@ -10706,7 +10703,7 @@
         const logo = document.querySelector('.logo-img');
         // Alttaki büyük silik logo bir arka plan işi: arka plan logosu (noktası turuncu kare).
         if (mark)
-            mark.src = '/unipakt-logo-bg.png';
+            mark.src = '/unipakt-logo-bg.png?v=3';
         // Alt kısımdaki marka da menüdeki asıl logo görselini kullanır.
         const brand = document.getElementById('footerBrandLogo');
         if (brand && logo)
