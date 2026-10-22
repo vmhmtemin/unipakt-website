@@ -6328,7 +6328,14 @@
     .sp-hero.is-text .sp-hero-text > :nth-child(4) { transition-delay: .24s; }
     .sp-hero.is-text .sp-hero-text > :nth-child(5) { transition-delay: .4s; }
     .sp-kicker { margin: 0 0 14px; line-height: 0; }
+    /* Önce normal logo gelir, sonra belirgin bir glitch ile arka plan işlerinde kullanılan yazı logoya (UniPakt + turuncu nokta) dönüşür. */
+    .sp-kicker { display: inline-grid; align-items: end; justify-items: start; }
+    .sp-kicker > * { grid-area: 1 / 1; }
     .sp-kicker .sp-logo-img { display: block; height: clamp(40px, 4.6vw, 64px); width: auto; }
+    .sp-wordmark { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(52px, 6vw, 84px); letter-spacing: -0.045em; line-height: .8; color: #0a0a0a; white-space: nowrap; opacity: 0; }
+    .sp-wordmark span { color: var(--sp-accent); }
+    .sp-kicker.is-word .sp-logo-img { opacity: 0; }
+    .sp-kicker.is-word .sp-wordmark { opacity: 1; }
     .sp-brand-logo { display: block; height: 26px; width: auto; }
     .sp-hero h1 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(54px, 10vw, 150px); line-height: .92; letter-spacing: -0.05em; }
     .sp-lead { margin: 14px 0 0; max-width: 34ch; font-size: clamp(16px, 1.6vw, 20px); color: #0a0a0aa6; }
@@ -6963,7 +6970,7 @@
             <div class="sp-hero" id="spHero">
                 <canvas class="sp-canvas" id="spCanvas" aria-hidden="true"></canvas>
                 <div class="wrap sp-hero-text">
-                    <p class="sp-kicker"><img class="sp-logo-img" src="/unipakt-logo-black.png" alt="UniPakt"></p>
+                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><span class="sp-wordmark" aria-hidden="true" data-no-i18n>UniPakt<span>.</span></span></p>
                     <h1>Sponsorlar</h1>
                     <p class="sp-lead">UniPakt ağındaki etkinlikleri destekleyen kurumlar.</p>
                     <button type="button" class="sp-down" data-sp-down>Sponsor ol ↓</button>
@@ -10156,6 +10163,46 @@
             };
             glitchTimer = setTimeout(tick, toSp ? 200 : 60);
         };
+        // Başlıktaki logo: normal logo → sert glitch (dilim kaymaları, turuncu/camgöbeği renk ayrışması, titreme) → yazı logo.
+        const kicker = document.getElementById('spKicker');
+        const kickImg = document.getElementById('spKickLogo');
+        const kickWord = kicker?.querySelector('.sp-wordmark');
+        if (kickImg) kickImg.src = "/unipakt-logo-normal.png";
+        let kickTimer = 0;
+        const kickReset = () => {
+            clearTimeout(kickTimer);
+            [kickImg, kickWord].forEach((el) => { if (el) { el.style.clipPath = ''; el.style.transform = ''; el.style.opacity = ''; el.style.filter = ''; } });
+        };
+        const glitchKicker = () => {
+            if (!kicker || !kickImg || !kickWord) return;
+            kickReset();
+            kicker.classList.remove('is-word');
+            if (still) { kicker.classList.add('is-word'); return; }
+            const STEPS = 22, STEP = 50;
+            let n = 0;
+            const split = (amt) => `drop-shadow(${-amt}px 0 rgba(240,74,15,.85)) drop-shadow(${amt}px 0 rgba(0,200,255,.75))`;
+            const tick = () => {
+                if (!active()) { kickReset(); return; }
+                if (n >= STEPS) { kickReset(); kicker.classList.add('is-word'); return; }
+                const p = n / STEPS;
+                const showWord = Math.random() < 0.15 + p * 0.75;
+                const on = showWord ? kickWord : kickImg, off = showWord ? kickImg : kickWord;
+                const top = Math.random() * 80, h = 8 + Math.random() * 30;
+                const dx = (Math.random() * 2 - 1) * (18 - p * 8);
+                on.style.opacity = '1';
+                on.style.clipPath = Math.random() < 0.35 ? '' : `inset(${top.toFixed(0)}% 0 ${Math.max(0, 100 - top - h).toFixed(0)}% 0)`;
+                on.style.transform = `translateX(${dx.toFixed(1)}px)`;
+                on.style.filter = split(3 + Math.random() * 5);
+                // Diğer logo arada parçalı ve kaymış halde görünmeye devam eder.
+                off.style.opacity = Math.random() < 0.6 ? '1' : '0';
+                off.style.clipPath = `inset(0 0 ${(30 + Math.random() * 50).toFixed(0)}% 0)`;
+                off.style.transform = `translateX(${(-dx * 0.6).toFixed(1)}px)`;
+                off.style.filter = split(2 + Math.random() * 3);
+                n++;
+                kickTimer = setTimeout(tick, STEP + (Math.random() < 0.2 ? 90 : 0));
+            };
+            kickTimer = setTimeout(tick, 900);
+        };
         const items = [...section.querySelectorAll('.sp-item')];
         const io = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => entries.forEach((e) => {
             if (!e.isIntersecting) return;
@@ -10164,14 +10211,14 @@
             io.unobserve(e.target);
         }), { threshold: 0.2 }) : null;
         const revealList = () => items.forEach((it) => { it.classList.remove('is-in'); if (io) io.observe(it); else it.classList.add('is-in'); });
-        window.addEventListener('unipakt:route', () => { setMode(); glitchLogo(); if (active()) { start(); revealList(); scrambleNav(); } else stop(); });
+        window.addEventListener('unipakt:route', () => { setMode(); glitchLogo(); if (active()) { start(); revealList(); scrambleNav(); glitchKicker(); } else { stop(); kickReset(); } });
         let rt;
         window.addEventListener('resize', () => { if (!active()) return; clearTimeout(rt); rt = setTimeout(() => { build(); if (still || !raf) draw(10); }, 150); });
         document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else if (active() && !still && !raf) requestAnimationFrame((now) => { t0 = now - 3000; raf = requestAnimationFrame(loop); }); });
         section.querySelector('[data-sp-down]')?.addEventListener('click', () => document.getElementById('spJoin')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
         setMode();
         glitchLogo();
-        if (active()) { start(); revealList(); scrambleNav(); }
+        if (active()) { start(); revealList(); scrambleNav(); glitchKicker(); }
     })();
 
     /* ---------- Footer wordmark: reuse the header logo image ---------- */
