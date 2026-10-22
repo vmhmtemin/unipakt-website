@@ -10200,7 +10200,8 @@
                 n++;
                 kickTimer = setTimeout(tick, STEP + (Math.random() < 0.2 ? 90 : 0));
             };
-            kickTimer = setTimeout(tick, 900);
+            // Normal logo ~2 sn ekranda kalır, değişim belirgin olsun.
+            kickTimer = setTimeout(tick, 2000);
         };
         const items = [...section.querySelectorAll('.sp-item')];
         const io = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => entries.forEach((e) => {
