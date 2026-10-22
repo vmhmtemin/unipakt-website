@@ -6300,7 +6300,7 @@
        Girişte noktalar düşer, çizgilerle ağa bağlanır, sponsor logosu ağın merkezinde belirir.
        ============================================================ */
     .sp-page { background: #fff; color: #0a0a0a; --sp-accent: #F04A0F; }
-    .sp-hero { position: relative; min-height: calc(100svh - 64px); overflow: hidden; display: flex; align-items: flex-start; }
+    .sp-hero { position: relative; min-height: calc(100svh - var(--nav-h, 86px)); overflow: hidden; display: flex; align-items: flex-start; }
     .sp-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
     /* Yazının arkasındaki ağı yumuşatan beyaz geçiş. */
     .sp-hero::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to right, #fff 0%, #ffffffd9 34%, #ffffff00 62%); }
@@ -6334,14 +6334,20 @@
     @media (max-width: 720px) {
         .sp-hub { left: 50%; top: 74%; }
         .sp-hero::after { background: linear-gradient(to bottom, #fff 0%, #ffffffe0 48%, #ffffff00 66%); }
-        .sp-hero { min-height: calc(92svh - 58px); }
+        .sp-hero { min-height: calc(92svh - var(--nav-h, 70px)); }
     }
     @media (prefers-reduced-motion: reduce) {
         .sp-hub, .sp-hero-text > * { transition: none; }
     }
 
     /* ---- Sponsorlar "ayrı dünya": sitenin üst menüsü ve footer'ı gizlenir, sayfanın kendi menüsü ve alt kısmı gelir ---- */
-    html.sp-mode header.nav, html.sp-mode footer.site-footer, html.sp-mode .lang-switch { display: none !important; }
+    /* Sponsorlar sayfasında site menüsü ve footer aynı kalır ama beyaz paletle: zemin beyaz, yazı siyah, turuncu vurgu. */
+    html.sp-mode[data-theme] { --ink: #0a0a0a; --paper: #FFFFFF; --paper-soft: #F6F6F4; --border: #0000001a; --border-strong: #00000030; --dot: #00000070; --dot-soft: #00000030; --accent: #F04A0F; color-scheme: light; }
+    html.sp-mode .logo-img, html.sp-mode .site-footer .footer-wordmark, html.sp-mode .site-footer .footer-brand-logo { filter: none !important; }
+    /* Menü yazıları açılışta karışık karakterlerden çözülür; asıl metin altta durur, üstte geçici bir katman oynar. */
+    .nav-scramble { position: relative; }
+    .nav-scramble > .nav-scramble-text { color: transparent; }
+    .nav-scramble-layer { position: absolute; left: 0; top: 50%; transform: translateY(-50%); white-space: nowrap; pointer-events: none; font-variant-numeric: tabular-nums; }
     html.sp-mode, html.sp-mode body { background: #fff; }
     html.sp-mode .scroll-progress { background: #F04A0F; }
     .sp-nav { position: sticky; top: 0; z-index: 40; background: #ffffffe6; backdrop-filter: blur(10px); border-bottom: 1px solid #0a0a0a14; }
@@ -6356,7 +6362,7 @@
     .sp-menu button:hover::after { transform: scaleX(1); }
     .sp-menu .sp-back { padding: 8px 16px; border-radius: 999px; border: 1px solid #0a0a0a; transition: background .2s ease, color .2s ease; }
     .sp-menu .sp-back:hover { background: #0a0a0a; color: #fff; }
-    #spList, #spJoin { scroll-margin-top: 64px; }
+    #spList, #spJoin { scroll-margin-top: var(--nav-h, 86px); }
     .sp-list-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; border-bottom: 2px solid #0a0a0a; padding-bottom: 14px; }
     .sp-list-head .sp-h2 { margin: 0; }
     .sp-count { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(18px, 2vw, 24px); color: var(--sp-accent); }
@@ -6924,21 +6930,8 @@
 
         <!-- ================= SPONSORLAR ================= -->
         <section class="page sp-page" id="page-sponsorlar" data-page="sponsorlar">
-            <header class="sp-nav">
-                <div class="wrap sp-nav-in">
-                    <a class="sp-brand" href="/" aria-label="UniPakt"><img class="sp-logo-img sp-brand-logo" src="/unipakt-logo-black.png" alt="UniPakt"><em>Sponsorlar</em></a>
-                    <nav class="sp-menu" aria-label="Sponsorlar">
-                        <button type="button" data-sp-go="spList">Sponsorlar</button>
-                        <button type="button" data-sp-go="spJoin">Sponsor ol</button>
-                        <a class="sp-back" href="/">← Siteye dön</a>
-                    </nav>
-                </div>
-            </header>
             <div class="sp-hero" id="spHero">
                 <canvas class="sp-canvas" id="spCanvas" aria-hidden="true"></canvas>
-                <a class="sp-hub" id="spHub" href="https://www.biletimgo.com" target="_blank" rel="noopener noreferrer sponsored" aria-label="biletimGO">
-                    <img src="/sponsors/biletimgo.png" alt="biletimGO" width="754" height="120" decoding="async">
-                </a>
                 <div class="wrap sp-hero-text">
                     <p class="sp-kicker"><img class="sp-logo-img" src="/unipakt-logo-black.png" alt="UniPakt"></p>
                     <h1>Sponsorlar</h1>
@@ -6969,12 +6962,6 @@
                     <a class="sp-mail" href="mailto:sponsorluk@unipakt.com">sponsorluk@unipakt.com</a>
                 </div>
             </div>
-            <footer class="sp-foot">
-                <div class="wrap sp-foot-in">
-                    <a href="mailto:sponsorluk@unipakt.com">sponsorluk@unipakt.com</a>
-                    <a class="sp-back" href="/">← Siteye dön</a>
-                </div>
-            </footer>
         </section>
 
         <!-- ================= KAMPÜSÜNDE UNİPAKT ================= -->
@@ -10282,12 +10269,11 @@
         const section = document.getElementById('page-sponsorlar');
         const hero = document.getElementById('spHero');
         const canvas = document.getElementById('spCanvas');
-        const hub = document.getElementById('spHub');
-        if (!section || !hero || !canvas || !hub)
+        if (!section || !hero || !canvas)
             return;
         const ctx = canvas.getContext('2d');
         const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        let nodes = [], links = [], hubLinks = [], raf = 0, t0 = 0, w = 0, h = 0, dpr = 1, maxDraw = 120;
+        let nodes = [], links = [], raf = 0, t0 = 0, w = 0, h = 0, dpr = 1, maxDraw = 120;
         const ACCENT = '#F04A0F';
         const ease = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
         const hubPoint = () => (w <= 720 ? { x: w * 0.5, y: h * 0.74 } : { x: w * 0.72, y: h * 0.58 });
@@ -10314,7 +10300,6 @@
                     if (rnd() > Math.min(1, edge + 0.08)) { rnd(); rnd(); continue; }
                     const jx = (rnd() - 0.5) * sp * 0.18, jy = (rnd() - 0.5) * sp * 0.18;
                     const nx = x + jx, ny = y + jy;
-                    if (Math.hypot(nx - hp.x, ny - hp.y) < sp * 0.7) continue;
                     nodes.push({ x: nx, y: ny, r: 2.2 + rnd() * 1.6, orange: rnd() < 0.1, ph: rnd() * 6.28 });
                 }
             }
@@ -10328,8 +10313,6 @@
                 const d = Math.hypot(a.x - b.x, a.y - b.y);
                 if (d < maxD) links.push({ a, b, d, delay: 0.45 + Math.max(a.delay, b.delay) });
             }));
-            hubLinks = nodes.map((n) => ({ n, d: Math.hypot(n.x - hp.x, n.y - hp.y) })).sort((p, q) => p.d - q.d).slice(0, 6).map((x, i) => ({ n: x.n, delay: 1.5 + i * 0.07 }));
-            hub.style.left = `${hp.x}px`; hub.style.top = `${hp.y}px`;
         }
 
         function draw(t) {
@@ -10347,14 +10330,6 @@
                 ctx.strokeStyle = `rgba(10,10,10,${0.06 + 0.1 * (1 - l.d / maxDraw)})`;
                 ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
             });
-            ctx.lineWidth = 1.4;
-            hubLinks.forEach((l) => {
-                const p = ease((t - l.delay) / 0.55);
-                if (p <= 0) return;
-                const sx = l.n.x + drift(l.n), sy = l.n.y + drift(l.n);
-                ctx.strokeStyle = 'rgba(240,74,15,.55)';
-                ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx + (hp.x - sx) * p, sy + (hp.y - sy) * p); ctx.stroke();
-            });
             nodes.forEach((n) => {
                 const p = ease((t - n.delay) / 0.45);
                 if (p <= 0) return;
@@ -10366,22 +10341,79 @@
         function loop(now) {
             const t = (now - t0) / 1000;
             draw(t);
-            if (t > 1.9) hub.classList.add('is-in');
             if (t > 2.2) hero.classList.add('is-text');
             raf = requestAnimationFrame(loop);
         }
 
         function start() {
             cancelAnimationFrame(raf);
-            hub.classList.remove('is-in'); hero.classList.remove('is-text');
+            hero.classList.remove('is-text');
             build();
-            if (still) { draw(10); hub.classList.add('is-in'); hero.classList.add('is-text'); return; }
+            if (still) { draw(10); hero.classList.add('is-text'); return; }
             requestAnimationFrame((now) => { t0 = now; raf = requestAnimationFrame(loop); });
         }
         const stop = () => { cancelAnimationFrame(raf); raf = 0; };
         const active = () => section.classList.contains('active');
         // Ayrı dünya: bu sayfadayken sitenin üst menüsü ve footer'ı gizlenir.
-        const setMode = () => document.documentElement.classList.toggle('sp-mode', active());
+        // Footer'daki iletişim e-postası bu sayfada sponsorluk adresi olur.
+        const contactMail = document.querySelector('.site-footer .footer-col-contact a[href^="mailto:"]');
+        const setMail = (sp) => {
+            if (!contactMail) return;
+            const addr = sp ? 'sponsorluk@unipakt.com' : 'iletisim@unipakt.com';
+            contactMail.href = `mailto:${addr}`;
+            contactMail.textContent = addr;
+        };
+        const setMode = () => {
+            const on = active();
+            document.documentElement.classList.toggle('sp-mode', on);
+            setMail(on);
+        };
+        // Menü yazıları karışık harf/rakam/işaretlerden çözülerek gelir; "Sponsorlar" baştan düzgün durur.
+        const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#%&=()<>/+*?!';
+        let scrambleRaf = 0;
+        const scrambleNav = () => {
+            cancelAnimationFrame(scrambleRaf);
+            document.querySelectorAll('.nav-scramble-layer').forEach((l) => l.remove());
+            document.querySelectorAll('.nav-scramble').forEach((el) => el.classList.remove('nav-scramble'));
+            if (still) return;
+            const links = [...document.querySelectorAll('#navLinks a')].filter((a) => a.dataset.route !== 'sponsorlar' && a.textContent.trim());
+            const items = links.map((a, i) => {
+                const target = a.textContent.trim();
+                const span = document.createElement('span');
+                span.className = 'nav-scramble-text';
+                while (a.firstChild) span.appendChild(a.firstChild);
+                a.appendChild(span);
+                const layer = document.createElement('span');
+                layer.className = 'nav-scramble-layer';
+                layer.setAttribute('data-no-i18n', '');
+                layer.setAttribute('aria-hidden', 'true');
+                a.appendChild(layer);
+                a.classList.add('nav-scramble');
+                return { a, span, layer, target, start: 0.25 + i * 0.07 };
+            });
+            const t0 = performance.now(), DUR = 1.9;
+            const frame = (now) => {
+                const t = (now - t0) / 1000;
+                let busy = false;
+                items.forEach((it) => {
+                    const p = Math.min(1, Math.max(0, (t - it.start) / (DUR - it.start)));
+                    const fixed = Math.floor(p * it.target.length);
+                    if (p < 1) busy = true;
+                    let out = '';
+                    for (let k = 0; k < it.target.length; k++)
+                        out += k < fixed || it.target[k] === ' ' ? it.target[k] : CHARS[(Math.random() * CHARS.length) | 0];
+                    it.layer.textContent = out;
+                });
+                if (busy) { scrambleRaf = requestAnimationFrame(frame); return; }
+                items.forEach((it) => {
+                    it.layer.remove();
+                    while (it.span.firstChild) it.a.insertBefore(it.span.firstChild, it.span);
+                    it.span.remove();
+                    it.a.classList.remove('nav-scramble');
+                });
+            };
+            scrambleRaf = requestAnimationFrame(frame);
+        };
         const items = [...section.querySelectorAll('.sp-item')];
         const io = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => entries.forEach((e) => {
             if (!e.isIntersecting) return;
@@ -10390,14 +10422,13 @@
             io.unobserve(e.target);
         }), { threshold: 0.2 }) : null;
         const revealList = () => items.forEach((it) => { it.classList.remove('is-in'); if (io) io.observe(it); else it.classList.add('is-in'); });
-        section.querySelectorAll('[data-sp-go]').forEach((b) => b.addEventListener('click', () => document.getElementById(b.dataset.spGo)?.scrollIntoView({ behavior: 'smooth', block: 'start' })));
-        window.addEventListener('unipakt:route', () => { setMode(); if (active()) { start(); revealList(); } else stop(); });
+        window.addEventListener('unipakt:route', () => { setMode(); if (active()) { start(); revealList(); scrambleNav(); } else stop(); });
         let rt;
         window.addEventListener('resize', () => { if (!active()) return; clearTimeout(rt); rt = setTimeout(() => { build(); if (still || !raf) draw(10); }, 150); });
         document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else if (active() && !still && !raf) requestAnimationFrame((now) => { t0 = now - 3000; raf = requestAnimationFrame(loop); }); });
         section.querySelector('[data-sp-down]')?.addEventListener('click', () => document.getElementById('spJoin')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
         setMode();
-        if (active()) { start(); revealList(); }
+        if (active()) { start(); revealList(); scrambleNav(); }
     })();
 
     /* ---------- Footer wordmark: reuse the header logo image ---------- */
