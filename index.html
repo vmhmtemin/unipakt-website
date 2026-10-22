@@ -6200,6 +6200,62 @@
         .ev-ticket { padding: 14px 16px; }
         .ev-act { flex: 1 1 calc(50% - 10px); justify-content: center; }
     }
+
+    /* ============================================================
+       TAKVİM (yeni düzen): solda yaklaşan etkinlikler listesi, sağda küçük ay takvimi.
+       Telefonda liste önde; takvim "Takvimi göster" ile açılan bir şerit.
+       ============================================================ */
+    .cal3 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 320px); grid-template-areas: "head side" "filter side" "list side" ". side"; column-gap: clamp(20px, 3vw, 40px); align-items: start; }
+    .cal3-head { grid-area: head; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+    .cal3-head h2 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(24px, 3vw, 34px); letter-spacing: -0.03em; }
+    .cal3-search { flex: 1 1 240px; max-width: 360px; }
+    .cal3-search .site-cal-v2-search-input { padding: 10px 16px; font-size: 14.5px; }
+    .cal3-filter { grid-area: filter; }
+    .cal3-list { grid-area: list; min-width: 0; }
+    .cal3-items { display: grid; }
+    .cal3-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto auto; gap: 14px; align-items: center; padding: 14px 4px; border-top: 1px solid var(--border); color: inherit; text-decoration: none; transition: background .2s ease; }
+    .cal3-items .cal3-row:last-child { border-bottom: 1px solid var(--border); }
+    .cal3-row:hover { background: var(--paper-soft); }
+    .cal3-row:hover h3, .cal3-row:hover .cal3-arrow { color: var(--accent); }
+    .cal3-thumb { width: 56px; height: 56px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-strong); display: grid; place-items: center; background: var(--paper-soft); }
+    .cal3-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .cal3-date { display: grid; justify-items: center; line-height: 1; }
+    .cal3-date b { font-family: 'Archivo', sans-serif; font-size: 22px; }
+    .cal3-date small { font-size: 11px; opacity: .6; margin-top: 3px; text-transform: uppercase; }
+    .cal3-text { min-width: 0; }
+    .cal3-text h3 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(16px, 1.7vw, 19px); letter-spacing: -0.01em; overflow-wrap: anywhere; transition: color .2s ease; }
+    .cal3-meta { margin: 4px 0 0; font-size: 13.5px; opacity: .65; overflow-wrap: anywhere; }
+    .cal3-chip { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--accent); color: var(--accent); white-space: nowrap; }
+    .cal3-arrow { opacity: .6; transition: color .2s ease; }
+    .cal3-toggle { display: none; }
+    .cal3-side { grid-area: side; position: sticky; top: calc(var(--nav-h, 86px) + 16px); border: 1px solid var(--border-strong); border-radius: 18px; padding: 14px; background: var(--paper-soft); }
+    .cal3-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .cal3-nav b { font-size: 15px; text-transform: capitalize; }
+    .cal3-nav button { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-strong); background: transparent; color: inherit; font-size: 18px; line-height: 1; cursor: pointer; }
+    .cal3-nav button:hover { border-color: var(--accent); color: var(--accent); }
+    .cal3-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; text-align: center; }
+    .cal3-dow { font-size: 11px; opacity: .5; padding: 4px 0; }
+    .cal3-day { position: relative; aspect-ratio: 1; border: 0; border-radius: 9px; background: transparent; color: inherit; font: inherit; font-size: 13px; cursor: pointer; }
+    .cal3-day:hover { background: var(--paper); }
+    .cal3-day.out { opacity: .3; }
+    .cal3-day.today { box-shadow: inset 0 0 0 1.5px var(--accent); }
+    .cal3-day.selected { background: var(--accent); color: var(--on-accent, #000); }
+    .cal3-day.has::after { content: ''; position: absolute; left: 50%; bottom: 4px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--accent); }
+    .cal3-day.selected.has::after { background: var(--on-accent, #000); }
+    .cal3-hint { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: var(--paper); font-size: 13px; opacity: .9; }
+    .cal3-hint button { border: 0; background: none; padding: 0; color: var(--accent); font: inherit; cursor: pointer; }
+    @media (max-width: 860px) {
+        .cal3 { grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "filter" "toggle" "side" "list"; }
+        .cal3-search { max-width: none; }
+        .cal3-toggle { grid-area: toggle; display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 10px; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--border-strong); background: transparent; color: inherit; font: inherit; font-size: 14px; cursor: pointer; }
+        .cal3-toggle > span:first-child { display: inline-flex; align-items: center; gap: 8px; }
+        .cal3-toggle svg { width: 18px; height: 18px; color: var(--accent); }
+        .cal3-side { display: none; position: static; margin-bottom: 12px; }
+        .cal3.is-open .cal3-side { display: block; }
+        .cal3-row { grid-template-columns: 52px minmax(0, 1fr) auto; }
+        .cal3-thumb { width: 52px; height: 52px; }
+        .cal3-chip { display: none; }
+    }
     </style>
 </head>
 <body>
@@ -7626,7 +7682,11 @@
             open: () => document.documentElement.lang === 'en' ? 'Open event details' : 'Etkinlik detaylarını aç',
             selectedDay: d => document.documentElement.lang === 'en' ? `Events on ${longDate(d)}` : `${longDate(d)} etkinlikleri`,
             clear: () => document.documentElement.lang === 'en' ? 'Clear filter' : 'Filtreyi kaldır',
-            noSearch: () => document.documentElement.lang === 'en' ? 'No matching events.' : 'Aramana uyan etkinlik yok.'
+            noSearch: () => document.documentElement.lang === 'en' ? 'No matching events.' : 'Aramana uyan etkinlik yok.',
+            showCal: () => document.documentElement.lang === 'en' ? 'Show calendar' : 'Takvimi göster',
+            hideCal: () => document.documentElement.lang === 'en' ? 'Hide calendar' : 'Takvimi gizle',
+            noMonth: () => document.documentElement.lang === 'en' ? 'No events this month' : 'Bu ay etkinlik yok',
+            nextOn: d => document.documentElement.lang === 'en' ? `Next: ${longDate(d)} →` : `Sıradaki: ${longDate(d)} →`
         };
         function normalizeRows(rows) {
             if (!Array.isArray(rows))
@@ -7660,6 +7720,7 @@
                     organizer_id: r.organizer_id || '',
                     by: txt(r.organizer, 180) || 'UniPakt',
                     university: txt(r.university, 180),
+                    category: txt(r.category, 60),
                     occurrences
                 };
             }).sort((a, b) => ((a.occurrences[0]?.date || '9999-99-99') + (a.occurrences[0]?.time || '99:99')).localeCompare((b.occurrences[0]?.date || '9999-99-99') + (b.occurrences[0]?.time || '99:99')));
@@ -7700,9 +7761,16 @@
         function posterThumb(e) {
             return e.poster_url ? `<img src="${esc(e.poster_url)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<div class="site-cal-v2-trend-placeholder" aria-hidden="true"><img src="data:image/webp;base64,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" alt="UniPakt"></div>`;
         }
+        // Liste satırı: solda küçük görsel (yoksa tarih), başlık, tarih · yer · ücret, sağda kategori.
+        // Üniversite adı mekânın içinde zaten geçiyorsa bir daha yazılmaz.
         function eventRow(e) {
             const o = occurrenceFor(e);
-            return `<a class="site-cal-v2-item" href="/etkinlik/?id=${encodeURIComponent(e.id)}" data-event-id="${esc(e.id)}" aria-label="${esc(ui.open())}" data-no-i18n><span class="site-cal-v2-date" aria-hidden="true"><b>${o.date ? parse(o.date).getDate() : '–'}</b><span>${o.date ? esc(shortMonth(o.date)) : ''}</span></span><span class="site-cal-v2-main"><h3 data-no-i18n>${esc(e.title)}</h3><p class="site-cal-v2-meta" data-no-i18n>${esc([dateTime(o.date, o.time), e.place, e.by, feeFor(e)].filter(Boolean).join(' · '))}</p></span><span class="site-cal-v2-arrow" aria-hidden="true">→</span></a>`;
+            const thumb = e.poster_url
+                ? `<img src="${esc(e.poster_url)}" alt="" loading="lazy" referrerpolicy="no-referrer">`
+                : `<span class="cal3-date" aria-hidden="true"><b>${o.date ? parse(o.date).getDate() : '–'}</b><small>${o.date ? esc(shortMonth(o.date)) : ''}</small></span>`;
+            const by = e.by && !(e.place || '').toLocaleLowerCase('tr-TR').includes(e.by.toLocaleLowerCase('tr-TR')) ? e.by : '';
+            const meta = [dateTime(o.date, o.time), e.place, by, feeFor(e)].filter(Boolean).join(' · ');
+            return `<a class="cal3-row" href="/etkinlik/?id=${encodeURIComponent(e.id)}" data-event-id="${esc(e.id)}" aria-label="${esc(ui.open())}"><span class="cal3-thumb">${thumb}</span><span class="cal3-text"><h3 data-no-i18n>${esc(e.title)}</h3><p class="cal3-meta" data-no-i18n>${esc(meta)}</p></span>${e.category ? `<span class="cal3-chip">${esc(e.category)}</span>` : ''}<span class="cal3-arrow" aria-hidden="true">→</span></a>`;
         }
         function matches(e, q) {
             if (!q)
@@ -7718,43 +7786,71 @@
             return list;
         }
         function searchHtml() {
-            return `<div class="site-cal-v2-search" ${searchOpen ? '' : 'hidden'}><input class="site-cal-v2-search-input" id="siteCalSearch" data-no-i18n type="search" value="${esc(searchQuery)}" placeholder="${esc(ui.searchPlaceholder())}" autocomplete="off"></div>`;
+            return `<div class="cal3-search"><input class="site-cal-v2-search-input" id="siteCalSearch" data-no-i18n type="search" value="${esc(searchQuery)}" placeholder="${esc(ui.searchPlaceholder())}" aria-label="${esc(ui.search())}" autocomplete="off"></div>`;
         }
         function resultsHtml() {
             const list = filteredEvents();
-            return list.length ? `<div class="site-cal-v2-items">${list.map(eventRow).join('')}</div>` : `<p class="site-cal-v2-empty">${esc(dayFilter ? ui.noDay() : (searchQuery ? ui.noSearch() : loaded ? ui.empty() : failed ? ui.failed() : ui.load()))}</p>`;
+            return list.length ? `<div class="cal3-items">${list.map(eventRow).join('')}</div>` : `<p class="site-cal-v2-empty">${esc(dayFilter ? ui.noDay() : (searchQuery ? ui.noSearch() : loaded ? ui.empty() : failed ? ui.failed() : ui.load()))}</p>`;
         }
+        const monthKey = (y, m) => `${y}-${pad(m + 1)}-`;
+        const monthHasEvents = (y, m) => events.some(e => e.occurrences.some(o => o.date.startsWith(monthKey(y, m))));
+        // Bugünden sonraki ilk etkinlik günü (gösterilen ay dışında).
+        function nextEventDay(y, m) {
+            const t = ymd(new Date());
+            let best = '';
+            events.forEach(e => e.occurrences.forEach(o => {
+                if (o.date >= t && !o.date.startsWith(monthKey(y, m)) && (!best || o.date < best))
+                    best = o.date;
+            }));
+            return best;
+        }
+        let calOpen = false;
+        let autoMonth = false;
         function renderCalendar() {
+            // İlk açılışta bu ay boşsa takvim en yakın etkinliğin ayında açılır.
+            if (!autoMonth && loaded && events.length) {
+                autoMonth = true;
+                if (!monthHasEvents(view.y, view.m)) {
+                    const n = nextEventDay(view.y, view.m);
+                    if (n) { const d = parse(n); view.y = d.getFullYear(); view.m = d.getMonth(); }
+                }
+            }
             const today = ymd(new Date()),
                 {y, m, sel} = view,
                 offset = (new Date(y, m, 1).getDay() + 6) % 7,
                 days = new Date(y, m + 1, 0).getDate(),
                 cells = Math.ceil((offset + days) / 7) * 7,
                 byDay = {};
-            events.forEach(e => e.occurrences.forEach(o => (byDay[o.date] ??= []).push(e)));
+            events.forEach(e => e.occurrences.forEach(o => { byDay[o.date] = true; }));
             let grid = '';
             for (let i = 0; i < cells; i++) {
-                const d = new Date(y, m, i - offset + 1),
-                    key = ymd(d),
-                    list = [...(new Map((byDay[key] || []).map(e => [e.id, e])).values())];
-                const cls = ['site-cal-day', d.getMonth() !== m ? 'out' : '', key === today ? 'today' : '', key === sel ? 'selected' : '', list.length ? 'has-events' : '', i >= cells - 7 ? 'last-row' : ''].filter(Boolean).join(' ');
-                grid += `<button type="button" class="${cls}" data-cal="${key}" aria-label="${esc(longDate(key))}" data-no-i18n><span class="num">${d.getDate()}</span><span class="chips">${list.slice(0, 3).map(e => `<span class="chip" data-no-i18n>${esc(e.title)}</span>`).join('')}</span></button>`;
+                const d = new Date(y, m, i - offset + 1), key = ymd(d);
+                const cls = ['cal3-day', d.getMonth() !== m ? 'out' : '', key === today ? 'today' : '', key === dayFilter ? 'selected' : '', byDay[key] ? 'has' : ''].filter(Boolean).join(' ');
+                grid += `<button type="button" class="${cls}" data-cal="${key}" aria-label="${esc(longDate(key))}" data-no-i18n>${d.getDate()}</button>`;
             }
-            const listHtml = `<div class="site-cal-v2-results">${resultsHtml()}</div>`;
-            host.innerHTML = `<div class="site-cal-head"><h2>${esc(ui.month(new Date(y, m, 1)))}</h2><div class="site-cal-nav"><button type="button" class="site-cal-btn" data-cal="prev">${esc(ui.prev())}</button><button type="button" class="site-cal-btn" data-cal="today">${esc(ui.today())}</button><button type="button" class="site-cal-btn" data-cal="next">${esc(ui.next())}</button></div></div><div class="site-cal-grid">${['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map((_, i) => `<div class="site-cal-dow" data-no-i18n>${esc(ui.dow(i))}</div>`).join('')}${grid}</div><div class="site-cal-v2-list"><div class="site-cal-v2-head"><div><h2 class="site-cal-sub">${esc(ui.upcoming())}</h2><p class="site-cal-v2-note">${esc(document.documentElement.lang === 'en' ? 'You can follow the event details here' : 'Etkinlik detaylarını buradan takip edebilirsin')}</p></div></div>${dayFilter ? `<div class="site-cal-v2-filter"><span class="site-cal-v2-filter-chip">${esc(ui.selectedDay(dayFilter))}</span><button type="button" class="site-cal-v2-clear" data-clear-day>${esc(ui.clear())}</button></div>` : ''}${searchHtml()}${listHtml}</div>`;
-            if (searchOpen) {
-                const input = host.querySelector('#siteCalSearch');
-                if (input) {
-                    // Typing only redraws the result list, so the field keeps its caret,
-                    // selection and any IME composition in progress.
-                    input.addEventListener('input', e => {
-                        searchQuery = e.target.value;
-                        const results = host.querySelector('.site-cal-v2-results');
-                        if (results)
-                            results.innerHTML = resultsHtml();
-                    });
-                }
-            }
+            const next = monthHasEvents(y, m) ? '' : nextEventDay(y, m);
+            const hint = loaded && !monthHasEvents(y, m)
+                ? `<div class="cal3-hint"><span>${esc(ui.noMonth())}</span>${next ? ` · <button type="button" data-cal-jump="${esc(next)}" data-no-i18n>${esc(ui.nextOn(next))}</button>` : ''}</div>` : '';
+            const monthLabel = ui.month(new Date(y, m, 1));
+            host.innerHTML = `<div class="cal3${calOpen ? ' is-open' : ''}">
+                <div class="cal3-head"><h2 class="site-cal-sub">${esc(ui.upcoming())}</h2>${searchHtml()}</div>
+                ${dayFilter ? `<div class="site-cal-v2-filter cal3-filter"><span class="site-cal-v2-filter-chip">${esc(ui.selectedDay(dayFilter))}</span><button type="button" class="site-cal-v2-clear" data-clear-day>${esc(ui.clear())}</button></div>` : ''}
+                <button type="button" class="cal3-toggle" data-cal-toggle aria-expanded="${calOpen}"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 5h18v16H3zM3 10h18M8 3v4M16 3v4"/></svg>${esc(calOpen ? ui.hideCal() : ui.showCal())} · <span data-no-i18n>${esc(monthLabel)}</span></span><span aria-hidden="true">${calOpen ? '▴' : '▾'}</span></button>
+                <aside class="cal3-side">
+                    <div class="cal3-nav"><button type="button" data-cal="prev" aria-label="${esc(ui.prev())}">‹</button><b data-no-i18n>${esc(monthLabel)}</b><button type="button" data-cal="next" aria-label="${esc(ui.next())}">›</button></div>
+                    <div class="cal3-grid">${[0, 1, 2, 3, 4, 5, 6].map(i => `<span class="cal3-dow" data-no-i18n>${esc(ui.dow(i))}</span>`).join('')}${grid}</div>
+                    ${hint}
+                </aside>
+                <div class="cal3-list site-cal-v2-results">${resultsHtml()}</div>
+            </div>`;
+            const input = host.querySelector('#siteCalSearch');
+            // Yazarken yalnızca liste yeniden çizilir; imleç ve seçim korunur.
+            input?.addEventListener('input', e => {
+                searchQuery = e.target.value;
+                const results = host.querySelector('.site-cal-v2-results');
+                if (results)
+                    results.innerHTML = resultsHtml();
+            });
         }
         host.addEventListener('click', event => {
             const tagBtn = event.target.closest('[data-search-tag]');
@@ -7767,6 +7863,19 @@
             }
             if (event.target.closest('[data-clear-day]')) {
                 dayFilter = null;
+                renderCalendar();
+                return;
+            }
+            if (event.target.closest('[data-cal-toggle]')) {
+                calOpen = !calOpen;
+                renderCalendar();
+                return;
+            }
+            const jump = event.target.closest('[data-cal-jump]');
+            if (jump) {
+                const d = parse(jump.dataset.calJump);
+                view.y = d.getFullYear();
+                view.m = d.getMonth();
                 renderCalendar();
                 return;
             }
@@ -7787,8 +7896,9 @@
                     dayFilter = v;
             }
             renderCalendar();
-            if (v !== 'prev' && v !== 'next')
-                setTimeout(() => host.querySelector('.site-cal-v2-list')?.scrollIntoView({
+            // Telefonda takvim listenin üstünde: gün seçilince listeye kaydır.
+            if (v !== 'prev' && v !== 'next' && window.matchMedia('(max-width: 860px)').matches)
+                setTimeout(() => host.querySelector('.cal3-list')?.scrollIntoView({
                     behavior: 'smooth',
                     block: 'start'
                 }), 60);
