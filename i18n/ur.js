@@ -11,6 +11,8 @@
 "card": "ٹیم ممبر کارڈ {n}"
 },
 "t": {
+"Sponsorlarımız": "ہمارے اسپانسرز",
+"Bu ağı birlikte büyütüyoruz.": "ہم مل کر اس نیٹ ورک کو بڑھا رہے ہیں۔",
 "Ana Sayfa": "ہوم",
 "Ortak Kulüpler": "شراکت دار کلب",
 "Hakkımızda": "ہمارے بارے میں",

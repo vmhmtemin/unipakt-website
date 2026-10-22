@@ -3841,7 +3841,94 @@
         border-top: 1px solid var(--border);
         font-size: 14px;
         color: color-mix(in srgb, var(--ink) 60%, transparent);
-    }/* Full-width logo as the final flourish. */
+    }
+
+    /* ---- Sponsors: white logos on the dark footer, inverted in light mode ---- */
+    .site-footer .footer-sponsors {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        gap: 18px clamp(24px, 5vw, 64px);
+        margin-top: clamp(36px, 5vw, 64px);
+        padding-top: clamp(28px, 4vw, 40px);
+        border-top: 1px solid var(--border);
+    }
+    .footer-sponsors .sponsor-label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .footer-sponsors .sponsor-label span {
+        font: 600 12px/1 'Inter', sans-serif;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        color: color-mix(in srgb, var(--ink) 55%, transparent);
+    }
+    .footer-sponsors .sponsor-label .script {
+        margin: 0;
+        font-size: clamp(22px, 2.4vw, 28px);
+        color: var(--accent);
+        line-height: 1;
+    }
+    .footer-sponsors .sponsor-list {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 22px clamp(32px, 6vw, 72px);
+        min-width: 0;
+    }
+    .footer-sponsors .sponsor {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        padding: 14px 4px;
+    }
+    .footer-sponsors .sponsor img {
+        display: block;
+        height: clamp(30px, 3.6vw, 44px);
+        width: auto;
+        max-width: 100%;
+        opacity: .72;
+        transition: opacity .35s ease, transform .35s ease;
+    }
+    .footer-sponsors .sponsor::after {
+        content: '';
+        position: absolute;
+        left: 4px;
+        right: 4px;
+        bottom: 4px;
+        height: 2px;
+        background: var(--accent);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform .4s ease;
+    }
+    .footer-sponsors .sponsor:hover img,
+    .footer-sponsors .sponsor:focus-visible img {
+        opacity: 1;
+        transform: translateY(-2px);
+    }
+    .footer-sponsors .sponsor:hover::after,
+    .footer-sponsors .sponsor:focus-visible::after {
+        transform: scaleX(1);
+    }
+    :root[data-theme="light"] .footer-sponsors .sponsor img {
+        filter: invert(1);
+    }
+    @media (prefers-color-scheme: light) {
+        :root:not([data-theme="dark"]) .footer-sponsors .sponsor img {
+            filter: invert(1);
+        }
+    }
+    @media (max-width: 640px) {
+        .site-footer .footer-sponsors {
+            grid-template-columns: 1fr;
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .footer-sponsors .sponsor img, .footer-sponsors .sponsor::after { transition: none; }
+    }
+/* Full-width logo as the final flourish. */
 
     .site-footer .footer-wordmark {
         display: block;
@@ -7039,6 +7126,17 @@
                 <span lang="en">Digitally crafted by Flower Studios.</span>
             </span>
         </div>
+        <section class="footer-sponsors" aria-label="Sponsorlarımız">
+            <div class="sponsor-label">
+                <span>Sponsorlarımız</span>
+                <p class="script">Bu ağı birlikte büyütüyoruz.</p>
+            </div>
+            <div class="sponsor-list">
+                <a class="sponsor" href="https://www.biletimgo.com" target="_blank" rel="noopener noreferrer sponsored">
+                    <img src="/sponsors/biletimgo.png" alt="biletimGO" width="754" height="120" loading="lazy" decoding="async">
+                </a>
+            </div>
+        </section>
         <img class="footer-wordmark" id="footerWordmark" alt="" aria-hidden="true">
     </footer>
 
@@ -9974,7 +10072,7 @@
                 return Promise.resolve(window.UNIPAKT_I18N[code]);
             return loaded[code] = loaded[code] || new Promise((resolve, reject) => {
                 const s = document.createElement('script');
-                s.src = `/i18n/${code}.js?v=5`;
+                s.src = `/i18n/${code}.js?v=6`;
                 s.onload = () => (window.UNIPAKT_I18N[code] ? resolve(window.UNIPAKT_I18N[code]) : reject(new Error(code)));
                 s.onerror = () => {
                     delete loaded[code];
