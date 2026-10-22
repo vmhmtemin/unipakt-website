@@ -6308,14 +6308,15 @@
     .sp-hub img { display: block; height: clamp(22px, 2.6vw, 34px); width: auto; }
     .sp-hub.is-in { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     .sp-hub:hover { box-shadow: 0 0 0 8px #ffffff, 0 0 0 10px var(--sp-accent); }
-    .sp-hero-text { position: relative; z-index: 3; padding-top: clamp(40px, 9vh, 100px); padding-bottom: 48px; pointer-events: none; }
+    .sp-hero-text { position: relative; z-index: 3; padding-top: clamp(28px, 5vh, 56px); padding-bottom: 48px; pointer-events: none; }
     .sp-hero-text > * { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .8s cubic-bezier(.2, .8, .2, 1); }
     .sp-hero.is-text .sp-hero-text > * { opacity: 1; transform: none; }
     .sp-hero.is-text .sp-hero-text > :nth-child(2) { transition-delay: .08s; }
     .sp-hero.is-text .sp-hero-text > :nth-child(3) { transition-delay: .16s; }
     .sp-hero.is-text .sp-hero-text > :nth-child(4) { transition-delay: .24s; }
-    .sp-kicker { margin: 0 0 6px; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 20px; letter-spacing: -0.03em; }
-    .sp-kicker span { color: var(--sp-accent); }
+    .sp-kicker { margin: 0 0 14px; line-height: 0; }
+    .sp-kicker .sp-logo-img { display: block; height: clamp(40px, 4.6vw, 64px); width: auto; }
+    .sp-brand-logo { display: block; height: 26px; width: auto; }
     .sp-hero h1 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(54px, 10vw, 150px); line-height: .92; letter-spacing: -0.05em; }
     .sp-lead { margin: 14px 0 0; max-width: 34ch; font-size: clamp(16px, 1.6vw, 20px); color: #0a0a0aa6; }
     .sp-down { pointer-events: auto; margin-top: 26px; padding: 13px 24px; border-radius: 999px; border: 1.5px solid #0a0a0a; background: #0a0a0a; color: #fff; font: inherit; font-weight: 600; cursor: pointer; transition: background .2s ease, color .2s ease, border-color .2s ease; }
@@ -6343,7 +6344,7 @@
     html.sp-mode .scroll-progress { background: #F04A0F; }
     .sp-nav { position: sticky; top: 0; z-index: 40; background: #ffffffe6; backdrop-filter: blur(10px); border-bottom: 1px solid #0a0a0a14; }
     .sp-nav-in { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 64px; }
-    .sp-brand { display: inline-flex; align-items: baseline; gap: 10px; color: #0a0a0a; text-decoration: none; }
+    .sp-brand { display: inline-flex; align-items: center; gap: 12px; color: #0a0a0a; text-decoration: none; }
     .sp-brand b { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 22px; letter-spacing: -0.04em; }
     .sp-brand b span { color: var(--sp-accent); }
     .sp-brand em { font-style: normal; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: #0a0a0a8c; }
@@ -6923,7 +6924,7 @@
         <section class="page sp-page" id="page-sponsorlar" data-page="sponsorlar">
             <header class="sp-nav">
                 <div class="wrap sp-nav-in">
-                    <a class="sp-brand" href="/" aria-label="UniPakt"><b data-no-i18n>UniPakt<span>.</span></b><em>Sponsorlar</em></a>
+                    <a class="sp-brand" href="/" aria-label="UniPakt"><img class="sp-logo-img sp-brand-logo" src="/unipakt-logo-black.png" alt="UniPakt"><em>Sponsorlar</em></a>
                     <nav class="sp-menu" aria-label="Sponsorlar">
                         <button type="button" data-sp-go="spList">Sponsorlar</button>
                         <button type="button" data-sp-go="spJoin">Sponsor ol</button>
@@ -6937,7 +6938,7 @@
                     <img src="/sponsors/biletimgo.png" alt="biletimGO" width="754" height="120" decoding="async">
                 </a>
                 <div class="wrap sp-hero-text">
-                    <p class="sp-kicker" data-no-i18n>UniPakt<span>.</span></p>
+                    <p class="sp-kicker"><img class="sp-logo-img" src="/unipakt-logo-black.png" alt="UniPakt"></p>
                     <h1>Sponsorlar</h1>
                     <p class="sp-lead">UniPakt ağındaki etkinlikleri destekleyen kurumlar.</p>
                     <button type="button" class="sp-down" data-sp-down>Sponsor ol ↓</button>
@@ -10394,6 +10395,7 @@
         const brand = document.getElementById('footerBrandLogo');
         if (brand && logo)
             brand.src = logo.src;
+
     })();
 
     /* ---------- Small UI details ---------- */
