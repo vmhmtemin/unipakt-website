@@ -33,6 +33,7 @@ ROUTES = {
     "kampus": ("Kampüsünde UniPakt", "Her üniversiteden bir temsilci kulüp, kampüsler arası ortak etkinlikler ve tüm ağa ulaşan duyurular."),
     "iletisim": ("İletişim", "UniPakt'a soru, öneri ve iş birliği teklifleriniz için iletişim formu ve e-posta adresi."),
     "katil": ("Bize Katıl", "Üniversite kulübünü UniPakt ağına dahil etmek ya da şehrine geldiğimizde öncelikli olmak için başvur."),
+    "etkinlik": ("Etkinlik", "UniPakt ağındaki bir üniversite kulübü etkinliğinin tarih, yer, kayıt ve bilet bilgileri."),
     "kvkk": ("KVKK Aydınlatma Metni", "UniPakt'ın kişisel verileri hangi amaçla, hangi hukuki sebeple işlediği, kimlere aktardığı ve haklarınız."),
 }
 
