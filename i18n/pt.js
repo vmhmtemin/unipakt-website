@@ -241,6 +241,9 @@
 "UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "As organizações que apoiam os eventos da rede UniPakt.",
 "Sponsorluk ve iş birliği teklifleri için bize yaz.": "Escreva para nós com propostas de patrocínio e parceria.",
 "Sponsor ol ↓": "Seja patrocinador ↓",
-"Sponsor olmak için": "Para ser patrocinador"
+"Sponsor olmak için": "Para ser patrocinador",
+"← Siteye dön": "← Voltar ao site",
+"Sponsor ol": "Seja patrocinador",
+"Dijital Biletleme Sponsoru": "Patrocinador de bilhetagem digital"
 }
 };

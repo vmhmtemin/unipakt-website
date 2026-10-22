@@ -241,6 +241,9 @@
 "UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "الجهات التي تدعم فعاليات شبكة UniPakt.",
 "Sponsorluk ve iş birliği teklifleri için bize yaz.": "راسلنا بعروض الرعاية والشراكة.",
 "Sponsor ol ↓": "كن راعيًا ↓",
-"Sponsor olmak için": "لتصبح راعيًا"
+"Sponsor olmak için": "لتصبح راعيًا",
+"← Siteye dön": "→ العودة إلى الموقع",
+"Sponsor ol": "كن راعيًا",
+"Dijital Biletleme Sponsoru": "راعي التذاكر الرقمية"
 }
 };
