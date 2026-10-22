@@ -345,6 +345,9 @@
 "UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "The organizations supporting events across the UniPakt network.",
 "Sponsorluk ve iş birliği teklifleri için bize yaz.": "Write to us for sponsorship and partnership offers.",
 "Sponsor ol ↓": "Become a sponsor ↓",
-"Sponsor olmak için": "To become a sponsor"
+"Sponsor olmak için": "To become a sponsor",
+"← Siteye dön": "← Back to site",
+"Sponsor ol": "Become a sponsor",
+"Dijital Biletleme Sponsoru": "Digital Ticketing Sponsor"
 }
 };

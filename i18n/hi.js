@@ -241,6 +241,9 @@
 "UniPakt ağındaki etkinlikleri destekleyen kurumlar.": "वे संस्थाएँ जो UniPakt नेटवर्क के इवेंट्स का समर्थन करती हैं।",
 "Sponsorluk ve iş birliği teklifleri için bize yaz.": "प्रायोजन और साझेदारी के प्रस्तावों के लिए हमें लिखें।",
 "Sponsor ol ↓": "प्रायोजक बनें ↓",
-"Sponsor olmak için": "प्रायोजक बनने के लिए"
+"Sponsor olmak için": "प्रायोजक बनने के लिए",
+"← Siteye dön": "← साइट पर वापस",
+"Sponsor ol": "प्रायोजक बनें",
+"Dijital Biletleme Sponsoru": "डिजिटल टिकटिंग प्रायोजक"
 }
 };
