@@ -6107,6 +6107,98 @@
     html[dir="rtl"] .lang-menu button {
         text-align: right;
     }
+
+    /* ============================================================
+       ETKİNLİK SAYFASI (/etkinlik/?id=…) — UniPakt dili: koyu üst alan,
+       turuncu vurgu, noktalı motif. Kulüp içeriği yalnızca metin/görsel.
+       ============================================================ */
+    a.site-cal-v2-item { color: inherit; text-decoration: none; }
+    .ev-page { min-height: 40vh; }
+    .ev-hero {
+        position: relative; isolation: isolate; color: #fff; background: #000;
+        padding: calc(var(--nav-h, 86px) + clamp(40px, 7vw, 90px)) 0 clamp(36px, 6vw, 70px); text-align: center; overflow: hidden;
+    }
+    .ev-hero::before { content: ''; position: absolute; inset: -20px; z-index: -2; background: var(--ev-hero, none) center / cover no-repeat; filter: blur(2px); transform: scale(1.04); }
+    .ev-hero::after {
+        content: ''; position: absolute; inset: 0; z-index: -1;
+        background: radial-gradient(#ffffff38 1px, transparent 1.3px) 0 0 / 18px 18px, linear-gradient(rgba(0,0,0,.62), rgba(0,0,0,.86));
+    }
+    .ev-hero-in { display: grid; justify-items: center; gap: 12px; }
+    .ev-hero h1 { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(34px, 6.4vw, 78px); line-height: 1; letter-spacing: -0.035em; max-width: 18ch; overflow-wrap: anywhere; margin: 0; }
+    .ev-bar { display: block; width: 56px; height: 4px; border-radius: 2px; background: var(--accent); margin: 6px 0 2px; }
+    .ev-hero-meta { opacity: .85; font-size: clamp(14px, 1.6vw, 17px); margin: 0; }
+    .ev-back { justify-self: start; background: none; border: 1px solid #ffffff40; color: #fff; padding: 8px 16px; border-radius: 999px; font: inherit; font-size: 14px; cursor: pointer; margin-bottom: clamp(10px, 3vw, 30px); }
+    .ev-back:hover { border-color: var(--accent); color: var(--accent); }
+    .ev-count { display: flex; gap: clamp(10px, 2.4vw, 22px); margin-top: clamp(12px, 2.5vw, 26px); }
+    .ev-count div { display: grid; justify-items: center; min-width: clamp(58px, 9vw, 86px); padding: 12px 8px; border: 1px solid #ffffff2a; border-radius: 14px; background: #00000066; }
+    .ev-count b { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(24px, 4vw, 40px); line-height: 1; font-variant-numeric: tabular-nums; }
+    .ev-count span { font-size: 12px; opacity: .7; margin-top: 6px; }
+    .ev-ended { margin: clamp(12px, 2.5vw, 24px) 0 0; padding: 10px 18px; border: 1px solid var(--accent); border-radius: 999px; color: var(--accent); font-weight: 600; }
+    .ev-body { padding-top: clamp(22px, 4vw, 40px); padding-bottom: clamp(22px, 4vw, 40px); display: grid; gap: clamp(18px, 3vw, 28px); }
+    .ev-ticket { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: 16px 20px; border: 1px solid var(--border-strong); border-radius: 18px; }
+    .ev-fee { font-family: 'Archivo', sans-serif; font-size: clamp(20px, 2.6vw, 26px); color: var(--accent); }
+    .ev-ticket-act { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+    .ev-cta { text-decoration: none; }
+    .ev-biletimgo { display: inline-flex; align-items: center; padding: 8px 4px; }
+    .ev-biletimgo img { display: block; height: 26px; width: auto; transition: opacity .2s ease; }
+    .ev-biletimgo:hover img { opacity: .75; }
+    :root[data-theme="light"] .ev-biletimgo img { filter: invert(1); }
+    @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .ev-biletimgo img { filter: invert(1); } }
+    .ev-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: clamp(18px, 3vw, 32px); align-items: start; }
+    .ev-main { display: grid; gap: clamp(18px, 3vw, 26px); min-width: 0; }
+    .ev-poster { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 20px; border: 1px solid var(--border); background: var(--paper-soft); }
+    .ev-detail h2, .ev-card h2 { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(20px, 2.2vw, 24px); letter-spacing: -0.02em; margin: 0 0 14px; display: flex; align-items: center; gap: 10px; }
+    .ev-detail h2::before, .ev-card h2::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; }
+    .ev-md { line-height: 1.7; overflow-wrap: anywhere; }
+    .ev-md p { margin: 0 0 12px; }
+    .ev-md ul { margin: 0 0 12px; padding-left: 20px; }
+    .ev-md a { color: var(--accent); }
+    .ev-card { border: 1px solid var(--border-strong); border-radius: 20px; padding: clamp(18px, 2.6vw, 26px); background: var(--paper-soft); }
+    .ev-info { position: sticky; top: calc(var(--nav-h, 86px) + 16px); display: grid; gap: 14px; }
+    .ev-info h2 { margin-bottom: 2px; }
+    .ev-info-row { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; align-items: start; }
+    .ev-info-row > svg { width: 20px; height: 20px; color: var(--accent); margin-top: 2px; }
+    .ev-info-row small { display: block; font-size: 12px; opacity: .55; margin-bottom: 2px; }
+    .ev-info-val { overflow-wrap: anywhere; }
+    .ev-info-val a { color: inherit; }
+    .ev-org { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+    .ev-org:hover, .ev-map:hover { color: var(--accent); }
+    .ev-map { display: table; margin-top: 6px; font-size: 14px; color: var(--accent) !important; }
+    .ev-sub { font-size: 14px; opacity: .75; margin-top: 4px; }
+    .ev-social { display: flex; gap: 10px; }
+    .ev-social a { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border-strong); }
+    .ev-social a:hover { border-color: var(--accent); color: var(--accent); }
+    .ev-social svg { width: 18px; height: 18px; }
+    .ev-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .ev-act { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; border: 1px solid var(--border-strong); background: transparent; color: inherit; font: inherit; font-size: 14.5px; text-decoration: none; cursor: pointer; }
+    .ev-act:hover { border-color: var(--accent); color: var(--accent); }
+    .ev-act svg { width: 18px; height: 18px; }
+    .ev-copied { font-size: 14px; color: var(--accent); }
+    .ev-rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .ev-rules li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; align-items: start; overflow-wrap: anywhere; }
+    .ev-rules svg { width: 18px; height: 18px; color: var(--accent); margin-top: 3px; }
+    .ev-feedback { margin-top: 18px; }
+    .ev-msg { text-align: center; justify-items: center; padding-top: calc(var(--nav-h, 86px) + 70px); min-height: 50vh; align-content: start; }
+    .ev-msg h1 { font-family: 'Archivo', sans-serif; font-size: clamp(30px, 5vw, 52px); margin: 0; }
+    .ev-msg p { opacity: .7; margin: 0 0 8px; }
+    .ev-comments { display: grid; gap: 14px; }
+    .ev-comments[hidden] { display: none; }
+    .ev-comment-list { display: grid; gap: 12px; }
+    .ev-comment { padding: 14px 16px; border-left: 3px solid var(--accent); background: var(--paper); border-radius: 0 12px 12px 0; }
+    .ev-comment b { display: block; margin-bottom: 4px; }
+    .ev-comment p { margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
+    .ev-empty, .ev-comment-note { opacity: .6; font-size: 14px; margin: 0; }
+    .ev-comment-form { max-width: 560px; }
+    .ev-comment-note { padding-top: 14px; }
+    @media (max-width: 860px) {
+        .ev-grid { grid-template-columns: minmax(0, 1fr); }
+        .ev-info { position: static; }
+    }
+    @media (max-width: 520px) {
+        .ev-count div { min-width: 0; flex: 1; padding: 10px 4px; }
+        .ev-ticket { padding: 14px 16px; }
+        .ev-act { flex: 1 1 calc(50% - 10px); justify-content: center; }
+    }
     </style>
 </head>
 <body>
@@ -6548,6 +6640,39 @@
                     </div>
                     <div class="site-cal" id="siteCal"></div>
                 </div>
+            </div>
+        </section>
+
+        <!-- ================= ETKİNLİK (/etkinlik/?id=…) ================= -->
+        <section class="page" id="page-etkinlik" data-page="etkinlik">
+            <div class="ev-page" id="evPage"></div>
+            <div class="wrap ev-body">
+                <section class="ev-card ev-comments" id="evComments" hidden>
+                    <h2>Yorumlar</h2>
+                    <div class="ev-comment-list" id="evCommentList"></div>
+                    <form class="minimal-form ev-comment-form" id="evCommentForm" novalidate>
+                        <input class="hp-field" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+                        <div class="f">
+                            <label for="ev-c-ad">Ad Soyad</label>
+                            <input id="ev-c-ad" type="text" maxlength="120" placeholder="Adın soyadın" required>
+                        </div>
+                        <div class="f">
+                            <label for="ev-c-mail">E-posta</label>
+                            <input id="ev-c-mail" type="email" maxlength="200" placeholder="ornek@mail.com" required>
+                        </div>
+                        <div class="f">
+                            <label for="ev-c-msg">Yorum</label>
+                            <textarea id="ev-c-msg" maxlength="2000" placeholder="Yorumunu buraya yaz..." required></textarea>
+                        </div>
+                        <p class="ev-comment-note">E-posta adresin sitede gösterilmez. Yorumun UniPakt onayladıktan sonra yayınlanır.</p>
+                        <label class="kvkk-consent">
+                            <input type="checkbox" class="kvkk-check" name="kvkk" required>
+                            <span><a href="/kvkk/" class="kvkk-open">KVKK Aydınlatma Metni</a>'ni okudum.</span>
+                        </label>
+                        <button type="submit" class="btn-pill">Gönder</button>
+                        <p class="form-status" role="status" aria-live="polite"></p>
+                    </form>
+                </section>
             </div>
         </section>
 
@@ -7544,7 +7669,6 @@
         let events = [];
         let loaded = false;
         let failed = false;
-        let selectedId = null;
         let searchOpen = true;
         let searchQuery = '';
         let dayFilter = null;
@@ -7577,7 +7701,7 @@
         }
         function eventRow(e) {
             const o = occurrenceFor(e);
-            return `<button type="button" class="site-cal-v2-item" data-event-id="${esc(e.id)}" aria-label="${esc(ui.open())}" data-no-i18n><span class="site-cal-v2-date" aria-hidden="true"><b>${o.date ? parse(o.date).getDate() : '–'}</b><span>${o.date ? esc(shortMonth(o.date)) : ''}</span></span><span class="site-cal-v2-main"><h3 data-no-i18n>${esc(e.title)}</h3><p class="site-cal-v2-meta" data-no-i18n>${esc([dateTime(o.date, o.time), e.place, e.by, feeFor(e)].filter(Boolean).join(' · '))}</p></span><span class="site-cal-v2-arrow" aria-hidden="true">→</span></button>`;
+            return `<a class="site-cal-v2-item" href="/etkinlik/?id=${encodeURIComponent(e.id)}" data-event-id="${esc(e.id)}" aria-label="${esc(ui.open())}" data-no-i18n><span class="site-cal-v2-date" aria-hidden="true"><b>${o.date ? parse(o.date).getDate() : '–'}</b><span>${o.date ? esc(shortMonth(o.date)) : ''}</span></span><span class="site-cal-v2-main"><h3 data-no-i18n>${esc(e.title)}</h3><p class="site-cal-v2-meta" data-no-i18n>${esc([dateTime(o.date, o.time), e.place, e.by, feeFor(e)].filter(Boolean).join(' · '))}</p></span><span class="site-cal-v2-arrow" aria-hidden="true">→</span></a>`;
         }
         function matches(e, q) {
             if (!q)
@@ -7591,41 +7715,6 @@
             if (searchQuery.trim())
                 list = list.filter(e => matches(e, searchQuery.trim()));
             return list;
-        }
-        function detailHtml(e) {
-            const map = e.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(e.address)}` : '';
-            const poster = e.poster_url ? `<img class="site-cal-v2-poster" src="${esc(e.poster_url)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<div class="site-cal-v2-poster-placeholder" aria-hidden="true"><img src="data:image/webp;base64,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" alt="UniPakt"></div>`;
-            const occurrences = e.occurrences.map(x => `<div class="site-cal-v2-occurrence" data-no-i18n>${esc(dateTime(x.date, x.time))}</div>`).join('');
-            const relatedOrg = events.filter(x => x.id !== e.id && e.organizer_id && x.organizer_id === e.organizer_id).slice(0, 4);
-            const relatedUni = events.filter(x => x.id !== e.id && e.university && x.university === e.university).slice(0, 4);
-            const relatedVenue = events.filter(x => x.id !== e.id && e.place && x.place === e.place).slice(0, 4);
-            const relatedBlock = (title, list) => list.length ? `<section class="site-cal-v2-card"><h3>${esc(title)}</h3><div class="site-cal-v2-related">${list.map(x => `<button type="button" data-related-id="${esc(x.id)}" data-no-i18n>${esc(x.title)}</button>`).join('')}</div></section>` : '';
-            return `<div class="site-cal-v2-detail-top"><span>${esc(ui.detail())}</span><button type="button" class="site-cal-v2-back" data-event-close>${esc(ui.close())} ×</button></div><div class="site-cal-v2-detail-grid" data-no-i18n><div><p class="site-cal-v2-kicker">UniPakt</p>${poster}<div class="site-cal-v2-body"><div><h2 class="site-cal-v2-title" data-no-i18n>${esc(e.title)}</h2><div class="site-cal-v2-info"><div class="site-cal-v2-info-row"><strong>${esc(ui.dates())}</strong><span class="site-cal-v2-occurrences">${occurrences}</span></div>${e.place ? `<div class="site-cal-v2-info-row"><strong>${esc(ui.venue())}</strong><span data-no-i18n>${esc(e.place)}</span></div>` : ''}${e.address ? `<div class="site-cal-v2-info-row"><strong>${esc(ui.address())}</strong><a href="${esc(map)}" target="_blank" rel="noopener noreferrer" data-no-i18n>${esc(e.address)} ↗</a></div>` : ''}${e.by ? `<div class="site-cal-v2-info-row"><strong>${esc(ui.organizer())}</strong><span data-no-i18n>${esc(e.by)}</span></div>` : ''}${e.university ? `<div class="site-cal-v2-info-row"><strong>${esc(ui.university())}</strong><span data-no-i18n>${esc(e.university)}</span></div>` : ''}<div class="site-cal-v2-info-row"><strong>${esc(ui.fee())}</strong><span data-no-i18n>${esc(feeFor(e))}</span></div></div></div>${e.registration_url ? `<a class="site-cal-v2-cta" href="${esc(e.registration_url)}" target="_blank" rel="noopener noreferrer">${esc(ui.register())} ↗</a>` : ''}${e.desc ? `<section class="site-cal-v2-section"><h3>${esc(ui.description())}</h3><p data-no-i18n>${esc(e.desc)}</p></section>` : ''}${e.rules ? `<section class="site-cal-v2-section"><h3>${esc(ui.rules())}</h3><p data-no-i18n>${esc(e.rules)}</p></section>` : ''}${e.tags.length ? `<section class="site-cal-v2-section"><h3>${esc(ui.tagsDetail())}</h3><div class="site-cal-v2-tags">${e.tags.map(t => `<span class="site-cal-v2-tag" data-no-i18n>${esc(t)}</span>`).join('')}</div></section>` : ''}</div></div><aside class="site-cal-v2-side">${relatedBlock(ui.otherOrg(), relatedOrg)}${relatedBlock(ui.sameUni(), relatedUni)}${relatedBlock(ui.sameVenue(), relatedVenue)}</aside></div>`;
-        }
-        function renderDetail(scroll=false) {
-            const detail = host.querySelector('.site-cal-v2-detail'),
-                list = host.querySelector('.site-cal-v2-list');
-            if (!detail || !list)
-                return;
-            const e = events.find(x => x.id === selectedId);
-            if (!e) {
-                detail.classList.remove('is-open');
-                setTimeout(() => {
-                    if (!selectedId) {
-                        detail.hidden = true;
-                        detail.innerHTML = '';
-                    }
-                }, 500);
-                return;
-            }
-            detail.hidden = false;
-            detail.innerHTML = detailHtml(e);
-            requestAnimationFrame(() => detail.classList.add('is-open'));
-            if (scroll)
-                setTimeout(() => detail.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                }), 80);
         }
         function searchHtml() {
             return `<div class="site-cal-v2-search" ${searchOpen ? '' : 'hidden'}><input class="site-cal-v2-search-input" id="siteCalSearch" data-no-i18n type="search" value="${esc(searchQuery)}" placeholder="${esc(ui.searchPlaceholder())}" autocomplete="off"></div>`;
@@ -7651,8 +7740,7 @@
                 grid += `<button type="button" class="${cls}" data-cal="${key}" aria-label="${esc(longDate(key))}" data-no-i18n><span class="num">${d.getDate()}</span><span class="chips">${list.slice(0, 3).map(e => `<span class="chip" data-no-i18n>${esc(e.title)}</span>`).join('')}</span></button>`;
             }
             const listHtml = `<div class="site-cal-v2-results">${resultsHtml()}</div>`;
-            host.innerHTML = `<div class="site-cal-head"><h2>${esc(ui.month(new Date(y, m, 1)))}</h2><div class="site-cal-nav"><button type="button" class="site-cal-btn" data-cal="prev">${esc(ui.prev())}</button><button type="button" class="site-cal-btn" data-cal="today">${esc(ui.today())}</button><button type="button" class="site-cal-btn" data-cal="next">${esc(ui.next())}</button></div></div><div class="site-cal-grid">${['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map((_, i) => `<div class="site-cal-dow" data-no-i18n>${esc(ui.dow(i))}</div>`).join('')}${grid}</div><div class="site-cal-v2-list"><div class="site-cal-v2-head"><div><h2 class="site-cal-sub">${esc(ui.upcoming())}</h2><p class="site-cal-v2-note">${esc(document.documentElement.lang === 'en' ? 'You can follow the event details here' : 'Etkinlik detaylarını buradan takip edebilirsin')}</p></div></div>${dayFilter ? `<div class="site-cal-v2-filter"><span class="site-cal-v2-filter-chip">${esc(ui.selectedDay(dayFilter))}</span><button type="button" class="site-cal-v2-clear" data-clear-day>${esc(ui.clear())}</button></div>` : ''}${searchHtml()}${listHtml}</div><div class="site-cal-v2-detail" hidden></div>`;
-            renderDetail(false);
+            host.innerHTML = `<div class="site-cal-head"><h2>${esc(ui.month(new Date(y, m, 1)))}</h2><div class="site-cal-nav"><button type="button" class="site-cal-btn" data-cal="prev">${esc(ui.prev())}</button><button type="button" class="site-cal-btn" data-cal="today">${esc(ui.today())}</button><button type="button" class="site-cal-btn" data-cal="next">${esc(ui.next())}</button></div></div><div class="site-cal-grid">${['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map((_, i) => `<div class="site-cal-dow" data-no-i18n>${esc(ui.dow(i))}</div>`).join('')}${grid}</div><div class="site-cal-v2-list"><div class="site-cal-v2-head"><div><h2 class="site-cal-sub">${esc(ui.upcoming())}</h2><p class="site-cal-v2-note">${esc(document.documentElement.lang === 'en' ? 'You can follow the event details here' : 'Etkinlik detaylarını buradan takip edebilirsin')}</p></div></div>${dayFilter ? `<div class="site-cal-v2-filter"><span class="site-cal-v2-filter-chip">${esc(ui.selectedDay(dayFilter))}</span><button type="button" class="site-cal-v2-clear" data-clear-day>${esc(ui.clear())}</button></div>` : ''}${searchHtml()}${listHtml}</div>`;
             if (searchOpen) {
                 const input = host.querySelector('#siteCalSearch');
                 if (input) {
@@ -7668,28 +7756,6 @@
             }
         }
         host.addEventListener('click', event => {
-            const close = event.target.closest('[data-event-close]');
-            if (close) {
-                selectedId = null;
-                renderCalendar();
-                host.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-                return;
-            }
-            const related = event.target.closest('[data-related-id]');
-            if (related) {
-                selectedId = related.dataset.relatedId;
-                renderDetail(true);
-                return;
-            }
-            const eventBtn = event.target.closest('[data-event-id]');
-            if (eventBtn) {
-                selectedId = eventBtn.dataset.eventId;
-                renderDetail(true);
-                return;
-            }
             const tagBtn = event.target.closest('[data-search-tag]');
             if (tagBtn) {
                 searchOpen = true;
@@ -7749,6 +7815,373 @@
                 renderCalendar();
             }
         });
+    })();
+
+    /* ---------- Etkinlik sayfası: /etkinlik/?id=<uuid> ----------
+                 Veri public_event(p_id) fonksiyonundan gelir: yalnızca yayındaki etkinlik,
+                 gizli (takvimde görünmeyen) olsa da linkle açılır. Onay bekleyen ya da
+                 reddedilen etkinlik hiç dönmez. Kulübün yazdığı her şey kaçırılarak basılır;
+                 sabit metinler Türkçe yazılır ve dil paketi çevirir (data-no-i18n olmayanlar). */
+    const openSiteEvent = (function initEventPage() {
+        const host = document.getElementById('evPage');
+        const section = document.getElementById('page-etkinlik');
+        if (!host || !section)
+            return () => {};
+        const RPC = 'https://hcgotmcbwmleeklbvawb.supabase.co/rest/v1/rpc/';
+        const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        const safeUrl = (v) => {
+            const raw = typeof v === 'string' ? v.trim() : '';
+            return /^https?:\/\/[^\s"'<>]+$/i.test(raw) ? raw : '';
+        };
+        const httpsUrl = (v) => (/^https:\/\//i.test(safeUrl(v)) ? safeUrl(v) : '');
+        const biletimgoUrl = (v) => (/^https:\/\/(www\.)?biletimgo\.com\/[^\s"'<>]*$/i.test(safeUrl(v)) ? safeUrl(v) : '');
+        const txt = (v, max = 5000) => clubText(v || '', max);
+        const pad = (n) => String(n).padStart(2, '0');
+        const timeOnly = (s) => (/^\d{2}:\d{2}/.test(String(s || '')) ? String(s).slice(0, 5) : '');
+        const MONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+        // "10 Ocak 2027" biçimi: dil paketi bu kalıbı seçili dile kendisi çevirir.
+        const dayText = (d) => { const [y, m, dd] = d.split('-').map(Number); return `${dd} ${MONTHS[m - 1]} ${y}`; };
+        // İstanbul saati: 2016'dan beri yaz/kış uygulaması yok, sabit UTC+03:00.
+        const at = (date, time) => new Date(`${date}T${time || '00:00'}:00+03:00`);
+
+        // Detay metni: **kalın**, *italik*, [metin](https://adres), "- " madde. Önce her şey kaçırılır.
+        const mdInline = (t) => esc(t)
+            .replace(/\[([^\]\n]{1,200})\]\((https?:\/\/[^\s)]+)\)/g, (m, label, url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`)
+            .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+            .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+        const mdLite = (src) => {
+            const out = []; let list = null; let para = [];
+            const flush = () => { if (para.length) { out.push(`<p>${para.join('<br>')}</p>`); para = []; } };
+            const endList = () => { if (list) { out.push(`<ul>${list.join('')}</ul>`); list = null; } };
+            String(src || '').split(/\r?\n/).forEach((line) => {
+                const m = line.match(/^\s*[-•]\s+(.*)$/);
+                if (m) { flush(); (list ||= []).push(`<li>${mdInline(m[1])}</li>`); return; }
+                endList();
+                if (!line.trim()) { flush(); return; }
+                para.push(mdInline(line));
+            });
+            flush(); endList();
+            return out.join('');
+        };
+
+        const ICON = {
+            start: '<path d="M3 5h18v16H3zM3 10h18M8 3v4M16 3v4"/>',
+            end: '<path d="M5 21V4h11l-2 4 2 4H5"/>',
+            dates: '<path d="M3 5h18v16H3zM3 10h18M8 3v4M16 3v4M8 14h2M14 14h2M8 17h2"/>',
+            org: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',
+            cat: '<path d="M3 12V3h9l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+            place: '<path d="M12 22s7-7.2 7-12a7 7 0 0 0-14 0c0 4.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
+            link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+            cap: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5.5 6.5-5.5s5.5 2 6.5 5.5M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c1.8.8 3 2.6 3.5 5.2"/>',
+            arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+            cal: '<path d="M3 5h18v16H3zM3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/>',
+            share: '<path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/>',
+            copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+            instagram: '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".8" fill="currentColor"/>',
+            facebook: '<path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z"/>',
+            x: '<path d="M4 4l16 16M20 4L4 20"/>',
+            youtube: '<rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10 9.3v5.4l4.6-2.7z" fill="currentColor"/>'
+        };
+        const icon = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
+        const SOCIAL = [['instagram', 'Instagram'], ['facebook', 'Facebook'], ['x', 'X'], ['youtube', 'YouTube']];
+
+        let current = null;
+        let timer = null;
+        let loadingId = '';
+
+        function normalize(r) {
+            let occ = [];
+            try { occ = Array.isArray(r.occurrences) ? r.occurrences : JSON.parse(r.occurrences || '[]'); } catch (_) {}
+            occ = occ.filter((o) => /^\d{4}-\d{2}-\d{2}$/.test(o?.date || '')).map((o) => ({ date: o.date, time: timeOnly(o.time) }))
+                .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+            if (!occ.length && /^\d{4}-\d{2}-\d{2}$/.test(r.event_date || '')) occ = [{ date: r.event_date, time: timeOnly(r.event_time) }];
+            let partners = [];
+            try { partners = Array.isArray(r.partners) ? r.partners : JSON.parse(r.partners || '[]'); } catch (_) {}
+            const cap = Number(r.capacity);
+            return {
+                id: r.id, title: txt(r.title, 120), desc: txt(r.description, 5000), rules: txt(r.rules, 5000),
+                place: txt(r.place, 180), address: txt(r.address, 300), city: txt(r.city, 60), category: txt(r.category, 60),
+                poster: safeUrl(r.poster_url), banner: safeUrl(r.banner_url), registration: safeUrl(r.registration_url),
+                biletimgo: biletimgoUrl(r.biletimgo_url),
+                social: SOCIAL.map(([k, label]) => [k, label, httpsUrl(r[`${k}_url`])]).filter((x) => x[2]),
+                feeType: r.fee_type === 'paid' ? 'paid' : 'free', feeAmount: r.fee_amount,
+                capacity: Number.isInteger(cap) && cap > 0 ? cap : null,
+                organizerId: r.organizer_id || '', organizerName: txt(r.organizer_name, 180) || 'UniPakt',
+                partners: partners.map((p) => txt(p && p.name, 180)).filter(Boolean),
+                endDate: /^\d{4}-\d{2}-\d{2}$/.test(r.end_date || '') ? r.end_date : '', endTime: timeOnly(r.end_time),
+                occurrences: occ
+            };
+        }
+
+        // Etkinliğin bitişi: tek tarihte bitiş tarihi/saati; çok tarihte son günün bitiş saati. Saat yoksa gün sonu.
+        function endOf(e) {
+            const last = e.occurrences[e.occurrences.length - 1];
+            if (!last) return null;
+            const day = e.occurrences.length === 1 && e.endDate ? e.endDate : last.date;
+            return at(day, e.endTime || '23:59');
+        }
+        const nextStart = (e) => e.occurrences.find((o) => at(o.date, o.time) > new Date()) || null;
+        const feeText = (e) => (e.feeType === 'paid' && e.feeAmount != null ? `${Number(e.feeAmount).toLocaleString('tr-TR', { maximumFractionDigits: 2 })} TL` : 'Ücretsiz');
+        const when = (date, time) => `<span>${esc(dayText(date))}</span>${time ? ` · ${esc(time)}` : ''}`;
+        const pageUrl = (e) => `https://unipakt.com/etkinlik/?id=${encodeURIComponent(e.id)}`;
+        const mapUrl = (e) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([e.place, e.address, e.city].filter(Boolean).join(', '))}`;
+
+        function countdownHtml(e) {
+            const next = nextStart(e);
+            if (next) return `<div class="ev-count" data-ev-count="${esc(at(next.date, next.time).toISOString())}">${['gün', 'saat', 'dakika', 'saniye'].map((u) => `<div><b data-u="${u}">00</b><span>${u}</span></div>`).join('')}</div>`;
+            const end = endOf(e);
+            return end && end > new Date() ? '<p class="ev-ended">Etkinlik devam ediyor</p>' : '<p class="ev-ended">Etkinlik sona erdi</p>';
+        }
+        function tick() {
+            const box = host.querySelector('[data-ev-count]');
+            if (!box) { clearInterval(timer); timer = null; return; }
+            let ms = new Date(box.dataset.evCount) - new Date();
+            if (ms <= 0) { render(current); return; }
+            const s = Math.floor(ms / 1000);
+            const parts = { gün: Math.floor(s / 86400), saat: Math.floor((s % 86400) / 3600), dakika: Math.floor((s % 3600) / 60), saniye: s % 60 };
+            box.querySelectorAll('b[data-u]').forEach((b) => { b.textContent = pad(parts[b.dataset.u]); });
+        }
+
+        function row(ic, label, value) {
+            return value ? `<div class="ev-info-row">${icon(ic)}<div><small>${esc(label)}</small><div class="ev-info-val">${value}</div></div></div>` : '';
+        }
+
+        function render(e) {
+            clearInterval(timer); timer = null;
+            if (!e) return;
+            const first = nextStart(e) || e.occurrences[0];
+            const hero = e.banner || e.poster;
+            const placeLine = [e.place, e.city].filter(Boolean).join(', ');
+            const endDay = e.endDate || (e.endTime && first ? (e.occurrences.length === 1 ? e.occurrences[0].date : first.date) : '');
+            const others = e.occurrences.length > 1 ? e.occurrences.map((o) => `<div>${when(o.date, o.time)}</div>`).join('') : '';
+            const org = e.organizerId
+                ? `<a href="/kulupler/" class="ev-org" data-ev-club="${esc(e.organizerName)}" data-no-i18n>${esc(e.organizerName)}</a>`
+                : '<span data-no-i18n>UniPakt</span>';
+            const partners = e.partners.length ? `<div class="ev-sub"><span>Ortak kulüpler:</span> <span data-no-i18n>${e.partners.map(esc).join(', ')}</span></div>` : '';
+            const placeVal = (e.place || e.address || e.city)
+                ? `<span data-no-i18n>${[e.place, e.address, e.city].filter(Boolean).map(esc).join('<br>')}</span>${e.address || e.place ? `<a class="ev-map" href="${esc(mapUrl(e))}" target="_blank" rel="noopener noreferrer">Haritada aç ↗</a>` : ''}`
+                : '';
+            const social = e.social.length ? `<div class="ev-social">${e.social.map(([k, label, url]) => `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(label)}" title="${esc(label)}">${icon(k)}</a>`).join('')}</div>` : '';
+            const rules = String(e.rules || '').split(/\r?\n/).map((l) => l.replace(/^\s*[-•]\s*/, '').trim()).filter(Boolean);
+            host.innerHTML = `
+                <header class="ev-hero"${hero ? ` style="--ev-hero:url('${esc(hero).replace(/'/g, '%27')}')"` : ''}>
+                    <div class="wrap ev-hero-in">
+                        <button type="button" class="ev-back" data-ev-back>← Takvime dön</button>
+                        <h1 data-no-i18n>${esc(e.title)}</h1><i class="ev-bar" aria-hidden="true"></i>
+                        <p class="ev-hero-meta">${[placeLine ? `<span data-no-i18n>${esc(placeLine)}</span>` : '', first ? when(first.date, first.time) : ''].filter(Boolean).join(' · ')}</p>
+                        ${countdownHtml(e)}
+                    </div>
+                </header>
+                <div class="wrap ev-body">
+                    <div class="ev-ticket">
+                        <b class="ev-fee">${e.feeType === 'paid' && e.feeAmount != null ? `<span data-no-i18n>${esc(feeText(e))}</span>` : 'Ücretsiz'}</b>
+                        <div class="ev-ticket-act">
+                            ${e.registration ? `<a class="btn-pill ev-cta" href="${esc(e.registration)}" target="_blank" rel="noopener noreferrer">Kayıt ol ↗</a>` : ''}
+                            ${e.biletimgo ? `<a class="ev-biletimgo" href="${esc(e.biletimgo)}" target="_blank" rel="noopener noreferrer sponsored" aria-label="biletimGO'da aç"><img src="/sponsors/biletimgo.png" alt="biletimGO" width="754" height="120"></a>` : ''}
+                        </div>
+                    </div>
+                    <div class="ev-grid">
+                        <div class="ev-main">
+                            ${e.poster ? `<img class="ev-poster" src="${esc(e.poster)}" alt="" referrerpolicy="no-referrer">` : ''}
+                            ${e.desc ? `<section class="ev-detail"><h2>Etkinlik Detay</h2><div class="ev-md" data-no-i18n>${mdLite(e.desc)}</div></section>` : ''}
+                        </div>
+                        <aside class="ev-card ev-info">
+                            <h2>Etkinlik Bilgileri</h2>
+                            ${first ? row('start', 'Başlangıç', when(first.date, first.time)) : ''}
+                            ${endDay || e.endTime ? row('end', 'Bitiş', when(endDay || first.date, e.endTime)) : ''}
+                            ${others ? row('dates', 'Tüm tarihler', others) : ''}
+                            ${row('org', 'Organizatör', org + partners)}
+                            ${e.category ? row('cat', 'Kategori', esc(e.category)) : ''}
+                            ${row('place', 'Yer', placeVal)}
+                            ${row('link', 'Etkinlik sayfaları', social)}
+                            ${e.capacity ? row('cap', 'Kontenjan', `<span data-no-i18n>${e.capacity}</span> kişi`) : ''}
+                        </aside>
+                    </div>
+                    <div class="ev-actions">
+                        <button type="button" class="ev-act" data-ev-ics>${icon('cal')}<span>Takvime ekle (.ics)</span></button>
+                        <a class="ev-act" href="${esc(googleUrl(e))}" target="_blank" rel="noopener noreferrer">${icon('cal')}<span>Google Takvim</span></a>
+                        <a class="ev-act" href="https://wa.me/?text=${encodeURIComponent(`${e.title} — ${pageUrl(e)}`)}" target="_blank" rel="noopener noreferrer">${icon('share')}<span>WhatsApp'ta paylaş</span></a>
+                        <button type="button" class="ev-act" data-ev-copy>${icon('copy')}<span>Linki kopyala</span></button>
+                        <span class="ev-copied" data-ev-copied role="status" aria-live="polite"></span>
+                    </div>
+                    ${rules.length ? `<section class="ev-card"><h2>Etkinlik Kuralları</h2><ul class="ev-rules" data-no-i18n>${rules.map((r) => `<li>${icon('arrow')}<span>${esc(r)}</span></li>`).join('')}</ul></section>` : ''}
+                    <section class="ev-card">
+                        <h2>Etkinlik Koşulları ve Sorumluluk Bilgisi</h2>
+                        <ul class="ev-rules">
+                            <li>${icon('arrow')}<span>Etkinlikle ilgili görseller, metinler ve bilgiler düzenleyen kulüp tarafından sağlanır.</span></li>
+                            <li>${icon('arrow')}<span>Tarih, saat, yer değişiklikleri ve iptaller düzenleyen kulübün sorumluluğundadır.</span></li>
+                            <li>${icon('arrow')}<span>UniPakt, etkinliği duyuran bir kulüpler ağıdır; etkinliğin gerçekleşmesi ve içeriğinden sorumlu değildir.</span></li>
+                            <li>${icon('arrow')}<span>Bilet veya kayıt işlemleri ilgili kayıt bağlantısı ya da biletimGO üzerinden yürütülür.</span></li>
+                            <li>${icon('arrow')}<span>Sorun ve geri bildirimler için “Geri Bildirim Ver” kullanılabilir.</span></li>
+                        </ul>
+                        <button type="button" class="btn-pill ev-feedback" data-ev-feedback>Geri Bildirim Ver</button>
+                    </section>
+                </div>`;
+            if (host.querySelector('[data-ev-count]')) { tick(); timer = setInterval(tick, 1000); }
+        }
+
+        function messageHtml(text) {
+            return `<div class="wrap ev-body ev-msg"><h1>${esc(text)}</h1><p>Etkinlik kaldırılmış, henüz yayınlanmamış ya da link hatalı olabilir.</p><button type="button" class="btn-pill" data-ev-back>Takvime dön</button></div>`;
+        }
+
+        // Takvim dosyası (.ics) ve Google Takvim linki: İstanbul saatinden UTC'ye çevrilir.
+        const utc = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+        const plusDay = (date) => { const d = new Date(`${date}T12:00:00Z`); d.setUTCDate(d.getUTCDate() + 1); return d.toISOString().slice(0, 10); };
+        function spans(e) {
+            return e.occurrences.map((o, i) => {
+                const single = e.occurrences.length === 1;
+                const endDay = single && e.endDate ? e.endDate : o.date;
+                if (!o.time) return { allDay: true, start: o.date.replace(/-/g, ''), end: plusDay(endDay).replace(/-/g, ''), i };
+                const start = at(o.date, o.time);
+                const end = e.endTime || endDay !== o.date ? at(endDay, e.endTime || '23:59') : start;
+                return { allDay: false, start: utc(start), end: utc(end > start ? end : start), i };
+            });
+        }
+        function googleUrl(e) {
+            const s = spans(e).find((x) => x) || null;
+            const p = new URLSearchParams({ action: 'TEMPLATE', text: e.title, details: `${pageUrl(e)}`, location: [e.place, e.address, e.city].filter(Boolean).join(', ') });
+            if (s) p.set('dates', `${s.start}/${s.end}`);
+            return `https://calendar.google.com/calendar/render?${p}`;
+        }
+        const icsText = (v) => String(v || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/[,;]/g, (c) => `\\${c}`);
+        function downloadIcs(e) {
+            const stamp = utc(new Date());
+            const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//UniPakt//Etkinlik//TR', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH'];
+            spans(e).forEach((s) => {
+                lines.push('BEGIN:VEVENT', `UID:${e.id}-${s.i}@unipakt.com`, `DTSTAMP:${stamp}`,
+                    s.allDay ? `DTSTART;VALUE=DATE:${s.start}` : `DTSTART:${s.start}`,
+                    s.allDay ? `DTEND;VALUE=DATE:${s.end}` : `DTEND:${s.end}`,
+                    `SUMMARY:${icsText(e.title)}`, `LOCATION:${icsText([e.place, e.address, e.city].filter(Boolean).join(', '))}`,
+                    `DESCRIPTION:${icsText(pageUrl(e))}`, `URL:${pageUrl(e)}`, 'END:VEVENT');
+            });
+            lines.push('END:VCALENDAR');
+            const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${(e.title || 'etkinlik').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '').slice(0, 60) || 'etkinlik'}.ics`;
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+        }
+
+        /* ---- Yorumlar ---- */
+        const commentList = document.getElementById('evCommentList');
+        const commentForm = document.getElementById('evCommentForm');
+        const commentWrap = document.getElementById('evComments');
+        async function loadComments(id) {
+            if (!commentList) return;
+            commentList.innerHTML = '';
+            try {
+                const res = await fetch(RPC + 'public_event_comments', { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_event: id }) });
+                const rows = res.ok ? await res.json() : [];
+                if (!current || current.id !== id) return;
+                commentList.innerHTML = Array.isArray(rows) && rows.length
+                    ? rows.slice(0, 200).map((c) => `<article class="ev-comment"><b data-no-i18n>${esc(txt(c.name, 120))}</b><p data-no-i18n>${esc(txt(c.body, 2000))}</p></article>`).join('')
+                    : '<p class="ev-empty">Henüz yorum yok. İlk yorumu sen yaz.</p>';
+            } catch (_) {
+                commentList.innerHTML = '';
+            }
+        }
+        commentForm?.addEventListener('submit', async (ev) => {
+            ev.preventDefault();
+            const status = commentForm.querySelector('.form-status');
+            const button = commentForm.querySelector('button[type="submit"]');
+            const kvkk = commentForm.querySelector('.kvkk-check');
+            status.classList.remove('is-ok', 'is-error');
+            if (!current) return;
+            if (kvkk && !kvkk.checked) { status.classList.add('is-error'); status.textContent = "KVKK Aydınlatma Metni'ni okuduğunu işaretle."; return; }
+            const val = (id) => (document.getElementById(id)?.value || '').trim();
+            if (!val('ev-c-ad') || !val('ev-c-mail') || !val('ev-c-msg')) { status.classList.add('is-error'); status.textContent = 'Adını, e-postanı ve yorumunu yaz.'; return; }
+            button.disabled = true; button.classList.add('is-loading'); button.setAttribute('aria-busy', 'true');
+            try {
+                const res = await fetch(RPC + 'submit_event_comment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json', apikey: CLUBS_KEY },
+                    body: JSON.stringify({ p_event: current.id, p_name: val('ev-c-ad'), p_email: val('ev-c-mail'), p_body: val('ev-c-msg'), p_honey: commentForm.querySelector('.hp-field')?.value || '', p_kvkk_version: KVKK_VERSION })
+                });
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    const err = new Error(data.message || `HTTP ${res.status}`); err.userFacing = data.code === 'P0001'; throw err;
+                }
+                status.classList.add('is-ok');
+                status.textContent = 'Teşekkürler! Yorumun onaylandıktan sonra burada görünecek.';
+                commentForm.reset();
+            } catch (err) {
+                console.warn('[UniPakt yorum]', err && err.message);
+                status.classList.add('is-error');
+                status.textContent = err && err.userFacing ? err.message : 'Yorumun şu an gönderilemedi. Biraz sonra tekrar dene.';
+            } finally {
+                button.disabled = false; button.classList.remove('is-loading'); button.removeAttribute('aria-busy');
+            }
+        });
+
+        /* ---- Yükleme ---- */
+        async function load() {
+            const id = new URLSearchParams(location.search).get('id') || '';
+            if (current && current.id === id) { render(current); return; }
+            if (loadingId === id) return;
+            current = null;
+            commentWrap && (commentWrap.hidden = true);
+            if (!UUID.test(id)) { host.innerHTML = messageHtml('Etkinlik bulunamadı'); return; }
+            loadingId = id;
+            host.innerHTML = '<div class="wrap ev-body ev-msg"><p>Etkinlik yükleniyor…</p></div>';
+            try {
+                const res = await fetch(RPC + 'public_event', { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_id: id }) });
+                const rows = res.ok ? await res.json() : null;
+                if (loadingId !== id) return;
+                if (!res.ok) throw new Error(String(res.status));
+                const r = Array.isArray(rows) ? rows[0] : null;
+                if (!r || !txt(r.title, 120)) { host.innerHTML = messageHtml('Etkinlik bulunamadı'); return; }
+                current = normalize(r);
+                render(current);
+                document.title = `${current.title} — UniPakt`;
+                if (commentWrap) commentWrap.hidden = false;
+                loadComments(current.id);
+            } catch (_) {
+                if (loadingId === id) host.innerHTML = messageHtml('Etkinlik şu an yüklenemedi');
+            } finally {
+                if (loadingId === id) loadingId = '';
+            }
+        }
+
+        host.addEventListener('click', (ev) => {
+            if (ev.target.closest('[data-ev-back]')) {
+                // Siteden gelindiyse tarayıcı geçmişinde geri git; linkle doğrudan açıldıysa takvime geç.
+                if (history.state && history.state.fromSite) history.back(); else navigateTo('takvim');
+                return;
+            }
+            const club = ev.target.closest('[data-ev-club]');
+            if (club) {
+                ev.preventDefault();
+                sessionStorage.setItem('unipakt-pending-club-search', club.dataset.evClub);
+                navigateTo('kulupler');
+                return;
+            }
+            if (!current) return;
+            if (ev.target.closest('[data-ev-ics]')) { downloadIcs(current); return; }
+            if (ev.target.closest('[data-ev-copy]')) {
+                const out = host.querySelector('[data-ev-copied]');
+                const done = () => { out.textContent = 'Link kopyalandı.'; setTimeout(() => { out.textContent = ''; }, 2500); };
+                (navigator.clipboard ? navigator.clipboard.writeText(pageUrl(current)) : Promise.reject()).then(done, () => { prompt('Linki kopyala:', pageUrl(current)); });
+                return;
+            }
+            if (ev.target.closest('[data-ev-feedback]')) {
+                const title = current.title;
+                navigateTo('iletisim');
+                const msg = document.getElementById('c-msg');
+                if (msg) { msg.value = `Etkinlik: ${title}\n\n`; setTimeout(() => msg.focus({ preventScroll: true }), 50); }
+            }
+        });
+
+        const isActive = () => section.classList.contains('active');
+        window.addEventListener('unipakt:route', () => { if (isActive()) load(); else { clearInterval(timer); timer = null; } });
+        if (isActive()) load();
+
+        // Sitedeki bir linkten açılış: adres /etkinlik/?id=… olur, geri tuşu önceki sayfaya döner.
+        return (id) => {
+            try { history.pushState({ route: 'etkinlik', fromSite: true }, '', `/etkinlik/?id=${encodeURIComponent(id)}`); } catch (_) {}
+            showRoute('etkinlik');
+            syncRouteMeta('etkinlik');
+        };
     })();
 
     // Ortak Kulüpler listesindeki satırları sadece bu liste içinde aç/kapat.
@@ -8528,7 +8961,7 @@
     const routeLinks = document.querySelectorAll('[data-route]');
     const menuToggle = document.getElementById('menuToggle');
     const navLinks = document.getElementById('navLinks');
-    const validRoutes = ['ana-sayfa', 'kulupler', 'hakkimizda', 'kampus', 'story', 'takvim', 'iletisim', 'katil', 'kvkk'];
+    const validRoutes = ['ana-sayfa', 'kulupler', 'hakkimizda', 'kampus', 'story', 'takvim', 'iletisim', 'katil', 'kvkk', 'etkinlik'];
 
     function showRoute(route) {
         if (!validRoutes.includes(route))
@@ -8586,10 +9019,12 @@
         kampus: 'Kampüsünde UniPakt',
         iletisim: 'İletişim',
         katil: 'Bize Katıl',
-        kvkk: 'KVKK Aydınlatma Metni'
+        kvkk: 'KVKK Aydınlatma Metni',
+        etkinlik: 'Etkinlik'
     };
     function syncRouteMeta(route) {
-        const url = SITE_ORIGIN + routePath(route);
+        const eventId = route === 'etkinlik' ? new URLSearchParams(location.search).get('id') : '';
+        const url = SITE_ORIGIN + routePath(route) + (eventId ? `?id=${encodeURIComponent(eventId)}` : '');
         document.querySelector('link[rel="canonical"]')?.setAttribute('href', url);
         document.querySelector('meta[property="og:url"]')?.setAttribute('content', url);
         // The language switcher reads syncRouteMeta.title and translates it (see initLanguages).
@@ -8599,7 +9034,12 @@
     function navigateTo(route, options = {}) {
         if (!validRoutes.includes(route))
             route = 'ana-sayfa';
-        const url = routePath(route) + location.search;
+        // Etkinlik sayfasının ?id= parametresi başka sayfalara taşınmaz.
+        const params = new URLSearchParams(location.search);
+        if (route !== 'etkinlik')
+            params.delete('id');
+        const query = params.toString();
+        const url = routePath(route) + (query ? `?${query}` : '');
         const current = location.pathname + location.search + location.hash;
         try {
             if (options.replace)
@@ -8630,6 +9070,10 @@
         if (!validRoutes.includes(segment))
             return;
         event.preventDefault();
+        if (segment === 'etkinlik') {
+            openSiteEvent(url.searchParams.get('id') || '');
+            return;
+        }
         navigateTo(segment);
     });
     window.addEventListener('popstate', () => {
