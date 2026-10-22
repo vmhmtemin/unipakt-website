@@ -6328,13 +6328,12 @@
     .sp-hero.is-text .sp-hero-text > :nth-child(4) { transition-delay: .24s; }
     .sp-hero.is-text .sp-hero-text > :nth-child(5) { transition-delay: .4s; }
     .sp-kicker { margin: 0 0 14px; line-height: 0; }
-    /* Önce normal logo gelir, sonra belirgin bir glitch ile arka plan işlerinde kullanılan yazı logoya (UniPakt + turuncu nokta) dönüşür. */
+    /* Önce normal logo gelir, sonra belirgin bir glitch ile arka plan işlerinde kullanılan turuncu kare noktalı logoya dönüşür. */
     .sp-kicker { display: inline-grid; align-items: end; justify-items: start; }
     .sp-kicker > * { grid-area: 1 / 1; }
     .sp-kicker .sp-logo-img { display: block; height: clamp(40px, 4.6vw, 64px); width: auto; }
-    .sp-wordmark { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(52px, 6vw, 84px); letter-spacing: -0.045em; line-height: .8; color: #0a0a0a; white-space: nowrap; opacity: 0; }
-    .sp-wordmark span { color: var(--sp-accent); }
-    .sp-kicker.is-word .sp-logo-img { opacity: 0; }
+    .sp-kicker .sp-wordmark { opacity: 0; }
+    .sp-kicker.is-word .sp-logo-img:not(.sp-wordmark) { opacity: 0; }
     .sp-kicker.is-word .sp-wordmark { opacity: 1; }
     .sp-brand-logo { display: block; height: 26px; width: auto; }
     .sp-hero h1 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(54px, 10vw, 150px); line-height: .92; letter-spacing: -0.05em; }
@@ -6970,7 +6969,7 @@
             <div class="sp-hero" id="spHero">
                 <canvas class="sp-canvas" id="spCanvas" aria-hidden="true"></canvas>
                 <div class="wrap sp-hero-text">
-                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><span class="sp-wordmark" aria-hidden="true" data-no-i18n>UniPakt<span>.</span></span></p>
+                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><img class="sp-logo-img sp-wordmark" src="/unipakt-logo-bg.png" alt="" aria-hidden="true"></p>
                     <h1>Sponsorlar</h1>
                     <p class="sp-lead">UniPakt ağındaki etkinlikleri destekleyen kurumlar.</p>
                     <button type="button" class="sp-down" data-sp-down>Sponsor ol ↓</button>
@@ -10163,7 +10162,7 @@
             };
             glitchTimer = setTimeout(tick, toSp ? 200 : 60);
         };
-        // Başlıktaki logo: normal logo → sert glitch (dilim kaymaları, turuncu/camgöbeği renk ayrışması, titreme) → yazı logo.
+        // Başlıktaki logo: normal logo → sert glitch (dilim kaymaları, turuncu/camgöbeği renk ayrışması, titreme) → arka plan logosu.
         const kicker = document.getElementById('spKicker');
         const kickImg = document.getElementById('spKickLogo');
         const kickWord = kicker?.querySelector('.sp-wordmark');
