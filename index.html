@@ -6550,8 +6550,7 @@
     .hf-photo { margin: 0; }
     .hf-photo img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 14px; background: #ffffff10; }
     .hf-photo figcaption { margin-top: 12px; font-weight: 700; font-size: 15px; }
-    /* KVKK: katılımcı fotoğrafları (açık rıza alınmadığı için) kullanılmıyor; geçmiş organizasyon yalnızca rakamla anlatılır. */
-    .hf-past { display: grid; grid-template-columns: minmax(0, 520px); gap: 18px; margin-top: clamp(28px, 4vw, 48px); }
+    .hf-past { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 18px; margin-top: clamp(28px, 4vw, 48px); }
     .hf-photo-wide img { aspect-ratio: 1218 / 462; height: 100%; }
     .hf-stat hr { border: 0; border-top: 1px solid #ffffff1f; margin: 18px 0 0; }
     .hf-stat h3 { text-transform: none; margin-top: 16px; }
@@ -7230,6 +7229,7 @@
                     <h2 class="hf-h hf-caps" data-reveal>HACKFEST 2026</h2>
                     <p class="hf-lead" data-reveal>İstinye Üniversitesi · GDG on Campus İstinye liderliğinde</p>
                     <div class="hf-past" data-reveal>
+                        <figure class="hf-photo hf-photo-wide"><img src="/hackfest-media/hf26-sahne.webp" alt="HACKFEST 2026 katılımcıları sahnede" width="1218" height="462" loading="lazy" decoding="async"></figure>
                         <div class="hf-card hf-stat">
                             <p class="hf-big">200</p>
                             <p class="hf-label">Gerçekleşen katılım</p>
@@ -7239,6 +7239,18 @@
                         </div>
                     </div>
                     <p class="hf-past-sp" data-reveal><span>Geçmiş sponsorlar</span><b data-no-i18n>İşler Teknoloji</b><i aria-hidden="true">·</i><b data-no-i18n>Claw’s</b></p>
+                </div>
+            </section>
+            <section class="hf-sec hf-light">
+                <div class="hf-wrap">
+                    <p class="hf-kick" data-reveal>2026 HACKFEST’ten gerçek kareler</p>
+                    <h2 class="hf-h" data-reveal>Deneyimden gelen güven.</h2>
+                    <div class="hf-grid hf-g3 hf-photos" data-reveal-stagger>
+                        <figure class="hf-photo"><img src="/hackfest-media/hf26-calisma.webp" alt="Hackathon çalışma ortamı" width="546" height="432" loading="lazy" decoding="async"><figcaption>Hackathon çalışma ortamı</figcaption></figure>
+                        <figure class="hf-photo"><img src="/hackfest-media/hf26-konusma.webp" alt="Etkinlik konuşması" width="632" height="432" loading="lazy" decoding="async"><figcaption>Etkinlik konuşması</figcaption></figure>
+                        <figure class="hf-photo"><img src="/hackfest-media/hf26-katilim.webp" alt="Öğrenci katılımı" width="577" height="432" loading="lazy" decoding="async"><figcaption>Öğrenci katılımı</figcaption></figure>
+                    </div>
+                    <p class="hf-note" data-reveal>Bu fotoğraflar 2026 HACKFEST’e aittir; 2027 MIXIT’in gerçekleşmiş görüntüleri değildir.</p>
                 </div>
             </section>
 
