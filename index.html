@@ -6300,37 +6300,38 @@
        Girişte noktalar düşer, çizgilerle ağa bağlanır, sponsor logosu ağın merkezinde belirir.
        ============================================================ */
     .sp-page { background: #fff; color: #0a0a0a; --sp-accent: #F04A0F; }
-    .sp-hero { position: relative; min-height: calc(100svh - 64px); overflow: hidden; display: flex; align-items: flex-end; }
+    .sp-hero { position: relative; min-height: calc(100svh - 64px); overflow: hidden; display: flex; align-items: flex-start; }
     .sp-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
     /* Yazının arkasındaki ağı yumuşatan beyaz geçiş. */
     .sp-hero::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to right, #fff 0%, #ffffffd9 34%, #ffffff00 62%); }
-    .sp-hub { position: absolute; left: 64%; top: 44%; transform: translate(-50%, -50%) scale(.6); opacity: 0; z-index: 2; display: grid; place-items: center; padding: 22px 30px; border-radius: 22px; background: #0a0a0a; box-shadow: 0 0 0 8px #ffffff, 0 0 0 9px #0a0a0a1a; transition: opacity .7s ease, transform .9s cubic-bezier(.2, .8, .2, 1); }
+    .sp-hub { position: absolute; left: 72%; top: 58%; transform: translate(-50%, -50%) scale(.6); opacity: 0; z-index: 2; display: grid; place-items: center; padding: 22px 30px; border-radius: 22px; background: #0a0a0a; box-shadow: 0 0 0 8px #ffffff, 0 0 0 9px #0a0a0a1a; transition: opacity .7s ease, transform .9s cubic-bezier(.2, .8, .2, 1); }
     .sp-hub img { display: block; height: clamp(22px, 2.6vw, 34px); width: auto; }
     .sp-hub.is-in { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     .sp-hub:hover { box-shadow: 0 0 0 8px #ffffff, 0 0 0 10px var(--sp-accent); }
-    .sp-hero-text { position: relative; z-index: 3; padding-bottom: clamp(48px, 8vh, 96px); pointer-events: none; }
+    .sp-hero-text { position: relative; z-index: 3; padding-top: clamp(28px, 5vh, 56px); padding-bottom: 48px; pointer-events: none; }
     .sp-hero-text > * { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .8s cubic-bezier(.2, .8, .2, 1); }
     .sp-hero.is-text .sp-hero-text > * { opacity: 1; transform: none; }
     .sp-hero.is-text .sp-hero-text > :nth-child(2) { transition-delay: .08s; }
     .sp-hero.is-text .sp-hero-text > :nth-child(3) { transition-delay: .16s; }
     .sp-hero.is-text .sp-hero-text > :nth-child(4) { transition-delay: .24s; }
-    .sp-kicker { margin: 0 0 6px; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 20px; letter-spacing: -0.03em; }
-    .sp-kicker span { color: var(--sp-accent); }
+    .sp-kicker { margin: 0 0 14px; line-height: 0; }
+    .sp-kicker .sp-logo-img { display: block; height: clamp(40px, 4.6vw, 64px); width: auto; }
+    .sp-brand-logo { display: block; height: 26px; width: auto; }
     .sp-hero h1 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(54px, 10vw, 150px); line-height: .92; letter-spacing: -0.05em; }
     .sp-lead { margin: 14px 0 0; max-width: 34ch; font-size: clamp(16px, 1.6vw, 20px); color: #0a0a0aa6; }
     .sp-down { pointer-events: auto; margin-top: 26px; padding: 13px 24px; border-radius: 999px; border: 1.5px solid #0a0a0a; background: #0a0a0a; color: #fff; font: inherit; font-weight: 600; cursor: pointer; transition: background .2s ease, color .2s ease, border-color .2s ease; }
     .sp-down:hover { background: var(--sp-accent); border-color: var(--sp-accent); color: #0a0a0a; }
     .sp-body { padding-top: clamp(56px, 8vw, 110px); padding-bottom: clamp(56px, 8vw, 110px); border-top: 1px solid #0a0a0a14; }
     .sp-h2 { margin: 0 0 clamp(22px, 3vw, 36px); font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(28px, 3.6vw, 46px); letter-spacing: -0.03em; }
-    .sp-join { background: #0a0a0a; color: #fff; }
+    .sp-join { background: #fff; color: #0a0a0a; border-top: 1px solid #0a0a0a14; }
     .sp-join-in { display: grid; justify-items: start; gap: 12px; padding-top: clamp(56px, 8vw, 110px); padding-bottom: clamp(56px, 8vw, 110px); }
     .sp-join h2 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(32px, 5vw, 64px); letter-spacing: -0.04em; line-height: 1; }
-    .sp-join p { margin: 0 0 10px; color: #ffffffb3; font-size: 17px; }
+    .sp-join p { margin: 0 0 10px; color: #0a0a0aa6; font-size: 17px; }
     .sp-mail { display: inline-block; padding: 15px 28px; border-radius: 999px; background: var(--sp-accent); color: #0a0a0a; font-weight: 700; text-decoration: none; transition: transform .2s ease; }
     .sp-mail:hover { transform: translateY(-2px); }
     @media (max-width: 720px) {
-        .sp-hub { left: 50%; top: 32%; }
-        .sp-hero::after { background: linear-gradient(to top, #fff 0%, #ffffffe0 42%, #ffffff00 62%); }
+        .sp-hub { left: 50%; top: 74%; }
+        .sp-hero::after { background: linear-gradient(to bottom, #fff 0%, #ffffffe0 48%, #ffffff00 66%); }
         .sp-hero { min-height: calc(92svh - 58px); }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -6343,7 +6344,7 @@
     html.sp-mode .scroll-progress { background: #F04A0F; }
     .sp-nav { position: sticky; top: 0; z-index: 40; background: #ffffffe6; backdrop-filter: blur(10px); border-bottom: 1px solid #0a0a0a14; }
     .sp-nav-in { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 64px; }
-    .sp-brand { display: inline-flex; align-items: baseline; gap: 10px; color: #0a0a0a; text-decoration: none; }
+    .sp-brand { display: inline-flex; align-items: center; gap: 12px; color: #0a0a0a; text-decoration: none; }
     .sp-brand b { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 22px; letter-spacing: -0.04em; }
     .sp-brand b span { color: var(--sp-accent); }
     .sp-brand em { font-style: normal; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: #0a0a0a8c; }
@@ -6361,20 +6362,21 @@
     .sp-item { border-bottom: 1px solid #0a0a0a1f; opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .7s cubic-bezier(.2, .8, .2, 1); }
     .sp-item.is-in { opacity: 1; transform: none; }
     .sp-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto 40px; align-items: center; gap: clamp(12px, 2.5vw, 32px); padding: clamp(22px, 3vw, 34px) 12px; color: #0a0a0a; text-decoration: none; position: relative; isolation: isolate; transition: color .35s ease; }
-    .sp-row::before { content: ''; position: absolute; inset: 0; z-index: -1; background: #0a0a0a; transform: scaleY(0); transform-origin: bottom; transition: transform .45s cubic-bezier(.2, .8, .2, 1); }
-    .sp-row:hover, .sp-row:focus-visible { color: #fff; }
+    .sp-row::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; z-index: -1; background: var(--sp-accent); transform: scaleY(0); transform-origin: bottom; transition: transform .4s cubic-bezier(.2, .8, .2, 1); }
+    .sp-row::after { content: ''; position: absolute; inset: 0; z-index: -2; background: #f6f6f4; opacity: 0; transition: opacity .3s ease; }
+    .sp-row:hover::after, .sp-row:focus-visible::after { opacity: 1; }
     .sp-row:hover::before, .sp-row:focus-visible::before { transform: scaleY(1); }
     .sp-idx { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 15px; color: #0a0a0a66; transition: color .35s ease; }
     .sp-row:hover .sp-idx { color: var(--sp-accent); }
     .sp-logo img { display: block; height: clamp(30px, 3.6vw, 46px); width: auto; max-width: 100%; filter: invert(1); transition: filter .35s ease; }
-    .sp-row:hover .sp-logo img { filter: none; }
     .sp-name { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(24px, 3.4vw, 44px); letter-spacing: -0.035em; line-height: 1; }
-    .sp-role { justify-self: end; font-size: 14px; padding: 7px 14px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+    .sp-role { justify-self: end; font-size: 14px; padding: 7px 14px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; transition: color .3s ease, border-color .3s ease; }
     .sp-arrow { justify-self: end; font-size: 26px; transition: transform .35s ease, color .35s ease; }
     .sp-row:hover .sp-arrow { transform: translate(4px, -4px); color: var(--sp-accent); }
-    .sp-foot { border-top: 1px solid #ffffff1f; background: #0a0a0a; color: #ffffffb3; }
+    .sp-row:hover .sp-role { border-color: var(--sp-accent); color: var(--sp-accent); }
+    .sp-foot { border-top: 1px solid #0a0a0a14; background: #fff; color: #0a0a0aa6; }
     .sp-foot-in { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding-top: 24px; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); font-size: 14px; }
-    .sp-foot a { color: #fff; text-decoration: none; }
+    .sp-foot a { color: #0a0a0a; text-decoration: none; }
     .sp-foot a:hover { color: var(--sp-accent); }
     @media (max-width: 760px) {
         .sp-brand em { display: none; }
@@ -6922,7 +6924,7 @@
         <section class="page sp-page" id="page-sponsorlar" data-page="sponsorlar">
             <header class="sp-nav">
                 <div class="wrap sp-nav-in">
-                    <a class="sp-brand" href="/" aria-label="UniPakt"><b data-no-i18n>UniPakt<span>.</span></b><em>Sponsorlar</em></a>
+                    <a class="sp-brand" href="/" aria-label="UniPakt"><img class="sp-logo-img sp-brand-logo" src="/unipakt-logo-black.png" alt="UniPakt"><em>Sponsorlar</em></a>
                     <nav class="sp-menu" aria-label="Sponsorlar">
                         <button type="button" data-sp-go="spList">Sponsorlar</button>
                         <button type="button" data-sp-go="spJoin">Sponsor ol</button>
@@ -6936,7 +6938,7 @@
                     <img src="/sponsors/biletimgo.png" alt="biletimGO" width="754" height="120" decoding="async">
                 </a>
                 <div class="wrap sp-hero-text">
-                    <p class="sp-kicker" data-no-i18n>UniPakt<span>.</span></p>
+                    <p class="sp-kicker"><img class="sp-logo-img" src="/unipakt-logo-black.png" alt="UniPakt"></p>
                     <h1>Sponsorlar</h1>
                     <p class="sp-lead">UniPakt ağındaki etkinlikleri destekleyen kurumlar.</p>
                     <button type="button" class="sp-down" data-sp-down>Sponsor ol ↓</button>
@@ -10283,10 +10285,10 @@
             return;
         const ctx = canvas.getContext('2d');
         const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        let nodes = [], links = [], hubLinks = [], raf = 0, t0 = 0, w = 0, h = 0, dpr = 1;
+        let nodes = [], links = [], hubLinks = [], raf = 0, t0 = 0, w = 0, h = 0, dpr = 1, maxDraw = 120;
         const ACCENT = '#F04A0F';
         const ease = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
-        const hubPoint = () => (w <= 720 ? { x: w * 0.5, y: h * 0.32 } : { x: w * 0.72, y: h * 0.38 });
+        const hubPoint = () => (w <= 720 ? { x: w * 0.5, y: h * 0.74 } : { x: w * 0.72, y: h * 0.58 });
 
         function build() {
             const r = hero.getBoundingClientRect();
@@ -10294,24 +10296,37 @@
             w = r.width; h = r.height;
             canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            const count = Math.round(Math.min(90, Math.max(28, (w * h) / 16000)));
             const hp = hubPoint();
-            // Basit, tekrarlanabilir dağılım: noktalar merkez çevresinde yoğun, kenarlara seyrek.
+            // Düzenli ağ: petek (altıgen) ızgara, hafif kaydırma. Masaüstünde sağ tarafta, telefonda altta;
+            // yazıya doğru seyrelerek kaybolur. Kenara yığılma yok.
             let seed = 7;
             const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-            nodes = Array.from({ length: count }, (_, i) => {
-                const a = rnd() * Math.PI * 2, d = Math.pow(rnd(), 0.75);
-                const x = hp.x + Math.cos(a) * d * w * 0.62, y = hp.y + Math.sin(a) * d * h * 0.7;
-                return { x: Math.max(8, Math.min(w - 8, x)), y: Math.max(8, Math.min(h - 8, y)), r: 2 + rnd() * 2.6, orange: rnd() < 0.12, delay: rnd() * 0.85, ph: rnd() * 6.28 };
-            });
-            const maxD = Math.max(110, Math.min(170, w / 9));
+            const mobile = w <= 720;
+            const sp = mobile ? 64 : Math.max(78, Math.min(112, w / 15));
+            const ax0 = mobile ? 24 : w * 0.36, ax1 = w - 28, ay0 = mobile ? h * 0.42 : 34, ay1 = h - 30;
+            const fadeW = mobile ? (ay1 - ay0) * 0.35 : (ax1 - ax0) * 0.35;
+            nodes = [];
+            for (let row = 0, y = ay0; y <= ay1; row++, y += sp * 0.866) {
+                for (let x = ax0 + (row % 2 ? sp / 2 : 0); x <= ax1; x += sp) {
+                    const edge = mobile ? (y - ay0) / fadeW : (x - ax0) / fadeW;
+                    if (rnd() > Math.min(1, edge + 0.08)) { rnd(); rnd(); continue; }
+                    const jx = (rnd() - 0.5) * sp * 0.18, jy = (rnd() - 0.5) * sp * 0.18;
+                    const nx = x + jx, ny = y + jy;
+                    if (Math.hypot(nx - hp.x, ny - hp.y) < sp * 0.7) continue;
+                    nodes.push({ x: nx, y: ny, r: 2.2 + rnd() * 1.6, orange: rnd() < 0.1, ph: rnd() * 6.28 });
+                }
+            }
+            const far = Math.max(1, ...nodes.map((n) => Math.hypot(n.x - hp.x, n.y - hp.y)));
+            nodes.forEach((n) => { n.delay = (Math.hypot(n.x - hp.x, n.y - hp.y) / far) * 0.9; });
+            const maxD = sp * 1.2;
+            maxDraw = maxD;
             links = [];
             nodes.forEach((a, i) => nodes.forEach((b, j) => {
                 if (j <= i) return;
                 const d = Math.hypot(a.x - b.x, a.y - b.y);
-                if (d < maxD) links.push({ a, b, d, delay: 0.55 + Math.max(a.delay, b.delay) * 0.9 });
+                if (d < maxD) links.push({ a, b, d, delay: 0.45 + Math.max(a.delay, b.delay) });
             }));
-            hubLinks = nodes.map((n) => ({ n, d: Math.hypot(n.x - hp.x, n.y - hp.y) })).sort((p, q) => p.d - q.d).slice(0, 7).map((x, i) => ({ n: x.n, delay: 1.7 + i * 0.07 }));
+            hubLinks = nodes.map((n) => ({ n, d: Math.hypot(n.x - hp.x, n.y - hp.y) })).sort((p, q) => p.d - q.d).slice(0, 6).map((x, i) => ({ n: x.n, delay: 1.5 + i * 0.07 }));
             hub.style.left = `${hp.x}px`; hub.style.top = `${hp.y}px`;
         }
 
@@ -10327,7 +10342,7 @@
                 const ax = l.a.x + drift(l.a), ay = l.a.y + drift(l.a);
                 const ex = l.b.x + drift(l.b), ey = l.b.y + drift(l.b);
                 const bx = ax + (ex - ax) * p, by = ay + (ey - ay) * p;
-                ctx.strokeStyle = `rgba(10,10,10,${0.13 * (1 - l.d / 190)})`;
+                ctx.strokeStyle = `rgba(10,10,10,${0.06 + 0.1 * (1 - l.d / maxDraw)})`;
                 ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
             });
             ctx.lineWidth = 1.4;
@@ -10393,6 +10408,7 @@
         const brand = document.getElementById('footerBrandLogo');
         if (brand && logo)
             brand.src = logo.src;
+
     })();
 
     /* ---------- Small UI details ---------- */
