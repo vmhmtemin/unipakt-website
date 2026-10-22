@@ -237,6 +237,10 @@
         background: color-mix(in srgb, var(--paper) 86%, transparent);
         backdrop-filter: blur(8px);
         border-bottom: 1px solid var(--border);
+        /* Safari'de hızlı kaydırırken yapışkan menünün geride kalıp yukarı kaçmasını önler (ayrı katman). */
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+        will-change: transform;
     }
 
     .nav-row {
