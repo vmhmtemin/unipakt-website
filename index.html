@@ -6332,7 +6332,8 @@
     .sp-kicker { display: inline-grid; align-items: end; justify-items: start; }
     .sp-kicker > * { grid-area: 1 / 1; }
     .sp-kicker .sp-logo-img { display: block; height: clamp(40px, 4.6vw, 64px); width: auto; }
-    .sp-kicker .sp-wordmark { opacity: 0; }
+    /* Arka plan logosu normal logoyla aynı genişlikte (aynı kutu), taban çizgisi hizalı. */
+    .sp-kicker .sp-logo-img.sp-wordmark { opacity: 0; height: calc(clamp(40px, 4.6vw, 64px) * 0.781); margin-bottom: calc(clamp(40px, 4.6vw, 64px) * 0.05); }
     .sp-kicker.is-word .sp-logo-img:not(.sp-wordmark) { opacity: 0; }
     .sp-kicker.is-word .sp-wordmark { opacity: 1; }
     .sp-brand-logo { display: block; height: 26px; width: auto; }
@@ -6375,7 +6376,7 @@
     /* Menü yazıları açılışta karışık karakterlerden çözülür; asıl metin altta durur, üstte geçici bir katman oynar. */
     .nav-scramble { position: relative; }
     .nav .logo { position: relative; }
-    .nav .logo .logo-alt { position: absolute; left: 0; top: 0; height: 100%; width: auto !important; max-height: none !important; opacity: 0; pointer-events: none; filter: none; }
+    .nav .logo .logo-alt { position: absolute; left: 0; top: auto; bottom: 5%; width: 100% !important; height: auto !important; max-height: none !important; opacity: 0; pointer-events: none; filter: none; }
     /* Koyu temada (Sponsorlar'dan çıkarken glitch sırasında) turuncu noktalı logo beyaz yazılı görünür, nokta turuncu kalır. */
     :root[data-theme="dark"] .nav .logo .logo-alt { filter: invert(1) hue-rotate(180deg); }
     @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .nav .logo .logo-alt { filter: invert(1) hue-rotate(180deg); } }
@@ -10170,7 +10171,7 @@
         let kickTimer = 0;
         const kickReset = () => {
             clearTimeout(kickTimer);
-            [kickImg, kickWord].forEach((el) => { if (el) { el.style.clipPath = ''; el.style.transform = ''; el.style.opacity = ''; el.style.filter = ''; } });
+            [kickImg, kickWord].forEach((el) => { if (el) { el.style.clipPath = 'none'; el.style.transform = 'none'; el.style.opacity = ''; el.style.filter = 'none'; } });
         };
         const glitchKicker = () => {
             if (!kicker || !kickImg || !kickWord) return;
