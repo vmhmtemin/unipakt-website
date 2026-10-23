@@ -379,6 +379,7 @@
 "İki günlük toplam ziyaretçi hedefi. MIXIT’in ziyaretçi kitlesi üniversite öğrencilerinden oluşacaktır; İstanbul’daki tüm üniversitelere ulaşmak hedeflenmektedir.": "Two-day total visitor target. MIXIT’s visitors will be university students; the aim is to reach every university in Istanbul.",
 "İlk gün beş konuşmacı; güçlü CV ve kariyer deneyimi önceliği.": "Five speakers on day one; strong CVs and career experience come first.",
 "İçerik döngüsü:": "Content cycle:",
+"Geçen yılın iş birlikleri:": "Last year’s collaborations:",
 "Made in UniPakt": "Made in UniPakt",
 "01 / Konsept": "01 / Concept",
 "Bir festival. Birçok dünya.": "One festival. Many worlds.",

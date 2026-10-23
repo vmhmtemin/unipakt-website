@@ -7266,7 +7266,7 @@
                     <p class="hf-caption" data-reveal>İstinye Üniversitesi · GDG on Campus İstinye liderliğinde</p>
                     <p class="hf-caption" data-reveal>2026 organizasyonu, MIXIT’in çıkış noktasını oluşturan ilk deneyimdi.</p>
                 </div>
-                <figure class="hf-pano" data-reveal><img src="/hackfest-media/hf26-sahne.webp" alt="HACKFEST 2026 katılımcıları sahnede" width="1218" height="462" loading="lazy" decoding="async"></figure>
+                <figure class="hf-pano" data-reveal><img src="/hackfest-media/hf26-sahne.webp?v=2" alt="HACKFEST 2026 katılımcıları sahnede" width="2000" height="759" loading="lazy" decoding="async"></figure>
                 <div class="hf-wrap hf-past-body">
                     <p class="hf-figure-line" data-reveal><span class="hf-figure">200</span><span>Gerçekleşen katılım. Yalnızca hackathon.</span></p>
                     <div class="hf-photos" data-reveal-stagger>
@@ -7274,7 +7274,7 @@
                         <figure class="hf-photo"><img src="/hackfest-media/hf26-konusma.webp" alt="Etkinlik konuşması" width="632" height="432" loading="lazy" decoding="async"><figcaption>Etkinlik konuşması</figcaption></figure>
                         <figure class="hf-photo"><img src="/hackfest-media/hf26-katilim.webp" alt="Öğrenci katılımı" width="577" height="432" loading="lazy" decoding="async"><figcaption>Öğrenci katılımı</figcaption></figure>
                     </div>
-                    <p class="hf-names" data-reveal>2026’yı destekleyenler: <b data-no-i18n>İşler Teknoloji</b> ve <b data-no-i18n>Claw’s</b>.</p>
+                    <p class="hf-names" data-reveal>Geçen yılın iş birlikleri: <b data-no-i18n>İşler Teknoloji</b>, <b data-no-i18n>Claw’s</b>, <b data-no-i18n>Huawei</b>, <b data-no-i18n>Ajans Kurdu</b>, <b data-no-i18n>Çorba Express</b>, <b data-no-i18n>Throne</b>, <b data-no-i18n>British Time</b>, <b data-no-i18n>Indomine</b>, <b data-no-i18n>Anxcure</b> ve <b data-no-i18n>Porty</b>.</p>
                 </div>
             </section>
 
@@ -11283,7 +11283,7 @@
                 return Promise.resolve(window.UNIPAKT_I18N[code]);
             return loaded[code] = loaded[code] || new Promise((resolve, reject) => {
                 const s = document.createElement('script');
-                s.src = `/i18n/${code}.js?v=15`;
+                s.src = `/i18n/${code}.js?v=16`;
                 s.onload = () => (window.UNIPAKT_I18N[code] ? resolve(window.UNIPAKT_I18N[code]) : reject(new Error(code)));
                 s.onerror = () => {
                     delete loaded[code];
