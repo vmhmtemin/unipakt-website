@@ -6452,19 +6452,29 @@
     html.hf-mode .logo-img:not(.logo-alt), html.hf-mode .site-footer .footer-brand-logo { filter: invert(1) !important; }
     html.hf-mode .site-footer .footer-wordmark { filter: invert(1) hue-rotate(180deg) !important; }
     html.hf-mode .scroll-progress { background: #FF5A1F; }
-    .hf-page { --hf-acc: #FF5A1F; --hf-dark: #0A0A0B; --hf-card: #17181B; --hf-cream: #F5F3EE; background: var(--hf-dark); color: #fff; }
-    .hf-wrap { max-width: 1240px; margin: 0 auto; padding-left: clamp(20px, 5vw, 64px); padding-right: clamp(20px, 5vw, 64px); }
+    /* ================= HACKFEST27: MIXIT =================
+       Kurumsal tanıtım düzeni (Taste Skill "name as a monument" yönü, marka renkleri ve yazı tipleri korunarak):
+       ad (jenerik logo) anıt gibi büyük, sonrası sakin; etiket/numara/çizgi/gradyan/gölge yok,
+       bölümler zemin tonuyla ayrılır, her bölüm kendi başlığıyla açılır ve komşusundan farklı dizilir. */
+    .hf-page {
+        --hf-acc: #FF5A1F; --hf-dark: #0A0A0B; --hf-dark-2: #141416; --hf-light: #F4F4F2; --hf-ink: #0A0A0B;
+        --hf-soft-d: #FFFFFFB8; --hf-soft-l: #0A0A0BB3;
+        --hf-m: clamp(20px, 5vw, 64px);
+        --hf-gap: clamp(28px, 5vw, 96px);
+        --hf-huge: clamp(88px, 12vw, 200px);
+        --hf-h2: clamp(34px, 4.4vw, 62px);
+        --hf-lead: clamp(19px, 1.55vw, 22px);
+        --hf-body: 17px;
+        --hf-small: 15px;
+        background: var(--hf-dark); color: #fff;
+    }
+    .hf-wrap { max-width: 1760px; margin: 0 auto; padding-left: var(--hf-m); padding-right: var(--hf-m); }
 
-    /* ---- Açılış ---- */
+    /* ---- Açılış: logo anıt, altında tarih/yer başlığı ve tek eylem ---- */
     .hf-hero { position: relative; min-height: calc(100svh - var(--nav-h, 86px)); display: flex; flex-direction: column; background: #050505; overflow: hidden; isolation: isolate; }
-    .hf-hero::before, .hf-hero::after { content: ''; position: absolute; z-index: -1; pointer-events: none; background-image: radial-gradient(circle, #ffffff2e 1.2px, transparent 1.6px); background-size: 26px 26px; }
-    .hf-hero::before { left: 0; top: 30%; width: 34%; height: 60%; -webkit-mask-image: linear-gradient(to right, #000 0%, transparent 85%); mask-image: linear-gradient(to right, #000 0%, transparent 85%); }
-    .hf-hero::after { right: 0; top: 36%; width: 26%; height: 52%; -webkit-mask-image: linear-gradient(to left, #000 0%, transparent 90%); mask-image: linear-gradient(to left, #000 0%, transparent 90%); }
-    .hf-back { position: absolute; z-index: 3; top: clamp(16px, 3vw, 28px); left: clamp(20px, 5vw, 64px); padding: 9px 16px; border: 1px solid #ffffff2e; border-radius: 999px; color: #ffffffcc; font-size: 14px; text-decoration: none; background: #0a0a0b99; backdrop-filter: blur(6px); transition: color .2s ease, border-color .2s ease; }
-    .hf-back:hover { color: #fff; border-color: var(--hf-acc); }
+    .hf-back { position: absolute; z-index: 3; top: clamp(16px, 2.4vw, 28px); left: var(--hf-m); padding: 10px 0; color: var(--hf-soft-d); font-size: var(--hf-small); font-weight: 600; text-decoration: none; transition: color .2s ease, transform .2s ease; }
+    .hf-back:hover, .hf-back:focus-visible { color: #fff; transform: translateX(-3px); }
     .hf-stage { position: relative; width: min(1040px, 92vw); aspect-ratio: 1375 / 505; margin: auto; }
-    .hf-stage::before { content: ''; position: absolute; inset: -20% -10%; z-index: -1; background: radial-gradient(ellipse at 55% 55%, #ff5a1f24 0%, transparent 60%); opacity: 0; transition: opacity 1.2s ease .8s; }
-    .hf-stage.hf-play::before, .hf-stage.hf-done::before { opacity: 1; }
     .hf-l { position: absolute; inset: 0; width: 100%; height: 100%; display: block; user-select: none; -webkit-user-drag: none; pointer-events: none; }
     .hf-stage .hf-l-full { opacity: 0; }
     .hf-stage .hf-l-hack, .hf-stage .hf-l-uni, .hf-stage .hf-l-mix, .hf-stage .hf-l-star { opacity: 0; }
@@ -6478,11 +6488,11 @@
     .hf-stage.hf-done .hf-l-hack, .hf-stage.hf-done .hf-l-uni, .hf-stage.hf-done .hf-l-mix, .hf-stage.hf-done .hf-l-star { opacity: 0; animation: hfPartsOut .7s ease-out both; }
     /* Yıldız 27'nin arkasından, görünmezden görünüre süzülerek çıkar (katman olarak 27'nin altında). */
     @keyframes hfStar {
-        0% { opacity: 0; transform: translateX(-7%) scale(.7); filter: drop-shadow(0 0 0 #ff5a1f00); }
-        60% { opacity: 1; filter: drop-shadow(0 0 14px #ff5a1f99); }
-        100% { opacity: 1; transform: none; filter: drop-shadow(0 0 4px #ff5a1f55); }
+        0% { opacity: 0; transform: translateX(-7%) scale(.7); filter: drop-shadow(0 0 0 #ff5a1f00); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+        60% { opacity: 1; filter: drop-shadow(0 0 14px #ff5a1f99); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+        100% { opacity: 1; transform: none; filter: drop-shadow(0 0 4px #ff5a1f55); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
     }
-    @keyframes hfFullIn { 0% { opacity: 0; filter: drop-shadow(0 0 0 #ff5a1f00) brightness(1.12); } 45% { opacity: 1; filter: drop-shadow(0 0 22px #ff5a1f55) brightness(1.06); } 100% { opacity: 1; filter: drop-shadow(0 0 0 #ff5a1f00) brightness(1); } }
+    @keyframes hfFullIn { 0% { opacity: 0; filter: drop-shadow(0 0 0 #ff5a1f00) brightness(1.12); } 45% { opacity: 1; filter: drop-shadow(0 0 22px #ff5a1f55) brightness(1.06); } 100% { opacity: 1; filter: drop-shadow(0 0 0 #ff5a1f00) brightness(1); } } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
     @keyframes hfPartsOut { from { opacity: 1; } to { opacity: 0; } }
     @media (prefers-reduced-motion: reduce) { .hf-stage.hf-done .hf-l { animation: none; } }
     @keyframes hfHack {
@@ -6495,134 +6505,144 @@
         0% { opacity: 1; clip-path: polygon(0 0, 0 0, -14% 100%, -14% 100%); }
         100% { opacity: 1; clip-path: polygon(0 0, 114% 0, 100% 100%, -14% 100%); }
     }
-    @keyframes hfGlow { 0% { filter: drop-shadow(0 0 0 #ff5a1f00) brightness(1.15); } 40% { filter: drop-shadow(0 0 22px #ff5a1f55) brightness(1.08); } 100% { filter: drop-shadow(0 0 0 #ff5a1f00) brightness(1); } }
-    .hf-strip { background: #18191C; opacity: 0; transform: translateY(12px); transition: opacity .7s ease, transform .7s ease; }
-    .hf-hero.is-ready .hf-strip { opacity: 1; transform: none; }
-    .hf-strip-in { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 18px 28px; flex-wrap: wrap; padding-top: 26px; padding-bottom: 28px; }
-    .hf-strip-in::before { content: ''; position: absolute; top: 0; left: clamp(20px, 5vw, 64px); right: clamp(20px, 5vw, 64px); height: 2px; background: var(--hf-acc); }
-    .hf-date { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(22px, 2.4vw, 30px); letter-spacing: -0.01em; text-transform: uppercase; }
-    .hf-place { margin: 4px 0 0; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #ffffffb3; }
-    .hf-strip-r { display: flex; align-items: center; gap: 18px; }
-    .hf-made { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--hf-acc); }
-    .hf-btn { display: inline-flex; align-items: center; padding: 13px 24px; border-radius: 999px; background: var(--hf-acc); color: #0a0a0a; font-weight: 700; text-decoration: none; border: 1.5px solid var(--hf-acc); transition: background .2s ease, color .2s ease, transform .2s ease; }
-    .hf-btn:hover { background: transparent; color: var(--hf-acc); }
+    .hf-strip { background: var(--hf-dark-2); transform: translateY(12px); transition: transform .7s cubic-bezier(.2, .8, .2, 1); }
+    .hf-hero.is-ready .hf-strip { transform: none; }
+    .hf-strip-in { display: flex; align-items: center; justify-content: space-between; gap: 18px 40px; flex-wrap: wrap; padding-top: clamp(24px, 3vw, 40px); padding-bottom: clamp(26px, 3vw, 42px); }
+    .hf-date { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: var(--hf-h2); line-height: 1.02; letter-spacing: -0.035em; text-wrap: balance; }
+    .hf-place { margin: 10px 0 0; max-width: 60ch; font-size: var(--hf-body); line-height: 1.5; color: var(--hf-soft-d); }
+    .hf-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 28px; border-radius: 999px; background: var(--hf-acc); color: var(--hf-ink); font-weight: 700; font-size: var(--hf-body); text-decoration: none; transition: background .2s ease, color .2s ease, transform .2s ease; }
+    .hf-btn:hover, .hf-btn:focus-visible { background: #fff; color: var(--hf-ink); transform: translateY(-2px); }
+    .hf-btn:active { transform: translateY(0) scale(.98); }
 
-    /* ---- Bölümler ---- */
-    .hf-sec { padding: clamp(64px, 9vw, 120px) 0; }
+    /* ---- Bölüm iskeleti ---- */
+    .hf-sec { padding: clamp(88px, 11vw, 184px) 0; }
     .hf-dark { background: var(--hf-dark); color: #fff; }
-    .hf-light { background: var(--hf-cream); color: #111; }
-    .hf-sec + .hf-sec.hf-dark { border-top: 1px solid #ffffff12; }
-    .hf-kick { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--hf-acc); }
-    .hf-h { margin: 12px 0 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(36px, 5.4vw, 66px); line-height: 1.02; letter-spacing: -0.03em; }
-    .hf-caps { text-transform: uppercase; }
-    .hf-lead { margin: 18px 0 0; max-width: 64ch; font-size: clamp(17px, 1.6vw, 21px); line-height: 1.5; }
-    .hf-dark .hf-lead { color: #ffffffb8; }
-    .hf-light .hf-lead { color: #0a0a0aa6; }
-    .hf-grid { display: grid; gap: 18px; margin-top: clamp(28px, 4vw, 48px); }
-    .hf-g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .hf-g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .hf-g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .hf-g-wide { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
-    .hf-card { position: relative; padding: clamp(22px, 2.6vw, 32px); border-radius: 18px; }
-    .hf-dark .hf-card { background: var(--hf-card); }
-    .hf-light .hf-card { background: #fff; }
-    .hf-card h3 { margin: 10px 0 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(19px, 1.8vw, 23px); letter-spacing: -0.01em; text-transform: uppercase; }
-    .hf-card h3.hf-h3s { text-transform: none; }
-    .hf-card p { margin: 10px 0 0; font-size: 15.5px; line-height: 1.55; }
-    .hf-dark .hf-card p { color: #ffffffa6; }
-    .hf-light .hf-card p { color: #0a0a0a99; }
-    .hf-bar::before { content: ''; position: absolute; top: 0; left: 0; width: 70px; height: 4px; background: var(--hf-acc); }
-    .hf-no { display: block; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 17px; color: var(--hf-acc); }
-    .hf-no-lg { font-size: clamp(30px, 3vw, 40px); line-height: 1; }
-    .hf-big, .hf-card .hf-big { margin: 0 !important; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(44px, 5.6vw, 76px); line-height: 1; letter-spacing: -0.03em; color: var(--hf-acc) !important; }
-    .hf-big.hf-white { color: #fff !important; }
-    .hf-big.hf-ink { color: #111 !important; text-transform: uppercase; }
-    .hf-label { margin: 14px 0 0 !important; font-size: 12.5px !important; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
-    .hf-dark .hf-label { color: #ffffffb3; }
-    .hf-light .hf-label { color: #111; }
-    .hf-label.hf-acc, .hf-acc { color: var(--hf-acc) !important; }
-    .hf-label.hf-white, .hf-white { color: #fff !important; }
-    .hf-label-lg { font-size: 15px !important; }
-    .hf-card .hf-label:first-child { margin-top: 0 !important; }
-    .hf-inline { display: flex; align-items: center; gap: 16px 22px; flex-wrap: wrap; margin: 0 !important; }
-    .hf-inline b { font-size: 18px; font-weight: 700; color: #ffffffd9; }
-    .hf-inline .hf-label { margin: 0 !important; }
-    .hf-card .hf-p-strong { font-size: 17px; color: inherit; }
-    .hf-dark .hf-card .hf-p-strong { color: #ffffffd9; }
-    .hf-light .hf-card .hf-p-strong { color: #0a0a0acc; }
-    .hf-card .hf-small { font-size: 13.5px; }
-    .hf-note { margin: 22px 0 0; font-size: 14px; }
-    .hf-dark .hf-note { color: #ffffff80; }
-    .hf-light .hf-note { color: #0a0a0a8c; }
-    .hf-note b { margin-right: 10px; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; }
-    .hf-note-tight { margin-top: 6px; }
-    .hf-mt { margin-top: 30px !important; }
+    .hf-dark + .hf-dark { background: var(--hf-dark-2); }
+    .hf-light { background: var(--hf-light); color: var(--hf-ink); }
+    .hf-accent { background: var(--hf-acc); color: var(--hf-ink); }
+    .hf-h { margin: 0; max-width: 18ch; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: var(--hf-h2); line-height: 1.02; letter-spacing: -0.035em; text-wrap: balance; }
+    .hf-lead { margin: 24px 0 0; max-width: 56ch; font-size: var(--hf-lead); line-height: 1.5; }
+    .hf-text { margin: 24px 0 0; max-width: 62ch; font-size: var(--hf-body); line-height: 1.6; }
+    .hf-text b { font-weight: 700; }
+    .hf-note { margin: 28px 0 0; max-width: 70ch; font-size: var(--hf-small); line-height: 1.55; }
+    .hf-dark .hf-note, .hf-dark .hf-place { color: var(--hf-soft-d); }
+    .hf-light .hf-note, .hf-accent .hf-note { color: var(--hf-soft-l); }
+    .hf-caption { margin: 0; font-size: var(--hf-small); line-height: 1.5; max-width: 34ch; }
+
+    /* Başlık solda, içerik sağda: sayfanın tek iç çizgisi (~%42) */
+    .hf-split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--hf-gap); align-items: start; }
+    .hf-split-even { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; }
+    .hf-split-head .hf-h { max-width: 14ch; }
+    .hf-h-wide { max-width: 24ch; }
+
+    /* Tanım satırları: kalın ad, altında cümle; çizgi yok, boşlukla ayrılır */
+    .hf-rows { margin: 0; display: grid; gap: clamp(28px, 3vw, 44px); }
+    .hf-rows > div { display: grid; gap: 8px; }
+    .hf-rows dt { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: var(--hf-lead); letter-spacing: -0.01em; }
+    .hf-rows dd { margin: 0; max-width: 52ch; font-size: var(--hf-body); line-height: 1.55; }
+    .hf-rows-wide { margin-top: clamp(48px, 6vw, 88px); grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px var(--hf-gap); }
+
+    /* Rakam satırları */
+    .hf-figs { margin: clamp(36px, 4vw, 56px) 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px clamp(24px, 3vw, 48px); align-items: start; }
+    .hf-figs > div { display: grid; gap: 12px; align-content: start; }
+    .hf-figs dt { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: var(--hf-h2); line-height: 1; letter-spacing: -0.035em; font-variant-numeric: tabular-nums; }
+    .hf-figs dd { margin: 0; max-width: 46ch; font-size: var(--hf-body); line-height: 1.55; }
+
+    /* Dev rakam + metin */
+    .hf-statfig { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--hf-gap); align-items: end; }
+    .hf-statfig-r { grid-template-columns: minmax(0, 1fr) max-content; }
+    .hf-huge { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: var(--hf-huge); line-height: .82; letter-spacing: -0.06em; font-variant-numeric: tabular-nums; }
+    .hf-fig-cap { margin: 24px 0 0; max-width: 30ch; font-size: var(--hf-body); line-height: 1.55; }
+
+    /* Geçmiş organizasyon: başlık panoramayı yazı gibi karşılar */
+    .hf-past-head { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 3.5fr) minmax(0, 3.5fr); gap: 20px var(--hf-gap); align-items: end; }
+    .hf-pano { margin: clamp(36px, 4vw, 56px) 0 0; overflow: hidden; }
+    .hf-pano img { display: block; width: 100%; height: auto; aspect-ratio: 1218 / 462; object-fit: cover; transform: scale(1.06); transition: transform 1.6s cubic-bezier(.2, .8, .2, 1); }
+    .hf-pano.in-view img { transform: scale(1); }
+    .hf-past-body { padding-top: clamp(48px, 5vw, 80px); }
+    .hf-figure-line { margin: 0; display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 28px; font-size: var(--hf-lead); }
+    .hf-figure { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: var(--hf-h2); line-height: 1; letter-spacing: -0.035em; }
+    .hf-photos { margin-top: clamp(40px, 5vw, 72px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 1.6vw, 24px); }
     .hf-photo { margin: 0; }
-    .hf-photo img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 14px; background: #ffffff10; }
-    .hf-photo figcaption { margin-top: 12px; font-weight: 700; font-size: 15px; }
-    .hf-past { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 18px; margin-top: clamp(28px, 4vw, 48px); }
-    .hf-photo-wide img { aspect-ratio: 1218 / 462; height: 100%; }
-    .hf-stat hr { border: 0; border-top: 1px solid #ffffff1f; margin: 18px 0 0; }
-    .hf-stat h3 { text-transform: none; margin-top: 16px; }
-    .hf-past-sp { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; margin: 20px 0 0; }
-    .hf-past-sp span { font-size: 13px; font-weight: 700; color: #ffffff80; margin-right: 18px; }
-    .hf-past-sp b { font-size: 19px; }
-    .hf-past-sp i { font-style: normal; color: #ffffff80; }
-    .hf-white-card { background: #fff !important; color: #111; display: flex; flex-direction: column; }
-    .hf-gdg { display: block; width: min(100%, 360px); height: auto; margin: auto; padding-top: 10px; }
-    .hf-flow { margin: 22px 0 0; font-weight: 700; color: #ffffffcc; }
-    .hf-comp { display: flex; align-items: flex-start; gap: 22px; min-height: 150px; }
-    .hf-comp h3 { margin-top: 6px; }
-    .hf-dot { flex: none; display: grid; place-items: center; width: 74px; height: 74px; border-radius: 50%; background: var(--hf-acc); color: #fff; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 24px; }
-    .hf-chain > * { position: relative; }
-    .hf-chain > * + *::before { content: ''; position: absolute; top: 50%; left: -18px; width: 18px; height: 3px; background: var(--hf-acc); }
-    .hf-day { padding-top: 0; overflow: hidden; }
-    .hf-day::before { content: ''; display: block; height: 24px; margin: 0 calc(-1 * clamp(22px, 2.6vw, 32px)) clamp(22px, 2.6vw, 32px); }
-    .hf-day-1::before { background: var(--hf-acc); }
-    .hf-day-2::before { background: #111; }
-    .hf-day h3 { margin-top: 0; }
-    .hf-day h3 i { font-style: normal; margin: 0 4px; }
-    .hf-facts { margin: clamp(30px, 4vw, 44px) 0 0; padding-top: clamp(22px, 3vw, 30px); border-top: 1px solid #ffffff1f; display: grid; gap: 18px; }
-    .hf-facts div { display: grid; grid-template-columns: 160px 1fr; gap: 6px 20px; }
-    .hf-facts dt { font-size: 14px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--hf-acc); }
-    .hf-facts dd { margin: 0; color: #ffffffcc; }
-    .hf-black-card { background: #111214 !important; color: #fff; }
-    .hf-black-card p { color: #ffffffb3 !important; }
-    .hf-timeline { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 16px; margin: 18px 0 0; padding: 16px 24px; border-radius: 14px; background: #2B1B16; font-weight: 800; font-size: 15px; letter-spacing: .03em; text-transform: uppercase; }
-    .hf-timeline i { font-style: normal; color: var(--hf-acc); }
-    .hf-contact { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 28px 48px; margin-top: clamp(28px, 4vw, 48px); }
-    .hf-contact a { color: #111; font-weight: 700; font-size: 19px; text-decoration: none; }
-    .hf-contact a:hover { color: var(--hf-acc); }
-    .hf-contact-main { display: grid; justify-items: start; gap: 8px; }
-    .hf-contact-main .hf-mail { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(24px, 3vw, 36px); letter-spacing: -0.02em; }
-    .hf-contact-main .hf-btn { margin-top: 12px; font-size: 15px; color: #0a0a0a; }
-    .hf-contact-main .hf-btn:hover { color: var(--hf-acc); }
-    .hf-contact-list { display: grid; gap: 18px; align-content: start; }
-    .hf-contact-list > div { padding-bottom: 14px; border-bottom: 1px solid #0a0a0a1a; }
-    .hf-contact-list .hf-label { margin: 0 0 4px !important; }
-    .hf-sign { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-top: clamp(30px, 4vw, 44px); }
-    .hf-sign img { display: block; width: clamp(150px, 18vw, 220px); height: auto; }
-    .hf-sign p { margin: 0; text-align: right; display: grid; gap: 4px; }
-    .hf-sign b { font-size: 17px; letter-spacing: .04em; text-transform: uppercase; }
-    .hf-sign span { font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #0a0a0a8c; }
+    .hf-photo img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; transition: transform .5s cubic-bezier(.2, .8, .2, 1); }
+    .hf-photo:hover img { transform: scale(1.02); }
+    .hf-photo figcaption { margin-top: 12px; font-size: var(--hf-small); }
+    .hf-names { margin: clamp(40px, 5vw, 72px) 0 0; font-size: var(--hf-lead); line-height: 1.5; }
+    .hf-names b { font-family: 'Archivo', sans-serif; font-weight: 800; }
+
+    /* Organizasyon: koordinatör logosu düz beyaz alanda */
+    .hf-partner { margin: 0; display: grid; justify-items: center; gap: 16px; padding: clamp(36px, 5vw, 80px); background: #fff; color: var(--hf-ink); }
+    .hf-partner img { display: block; width: min(100%, 420px); height: auto; }
+    .hf-partner figcaption { font-size: var(--hf-small); font-weight: 600; }
+
+    /* Yarışmalar: tek boyutta dizelge */
+    .hf-lineup { margin: clamp(40px, 5vw, 72px) 0 0; display: grid; gap: clamp(14px, 1.6vw, 24px); }
+    .hf-lineup > div { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 4px var(--hf-gap); align-items: baseline; }
+    .hf-lineup dt { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: var(--hf-h2); line-height: 1.05; letter-spacing: -0.035em; transition: color .25s ease; }
+    .hf-lineup dd { margin: 0; font-size: var(--hf-lead); line-height: 1.45; }
+    .hf-lineup > div:hover dt { color: var(--hf-acc); }
+
+    /* Katılımcı deneyimi: turuncu alan, seçenekler büyük */
+    .hf-choice { margin: clamp(40px, 5vw, 72px) 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px var(--hf-gap); }
+    .hf-choice { padding: 0; list-style: none; }
+    .hf-choice b { display: block; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: var(--hf-h2); line-height: 1.02; letter-spacing: -0.035em; }
+    .hf-choice span { display: block; margin-top: 12px; font-size: var(--hf-body); font-weight: 500; }
+
+    /* Program: iki gün yan yana, saatler tablo düzeninde */
+    .hf-days { margin-top: clamp(40px, 5vw, 72px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(36px, 4vw, 64px) var(--hf-gap); }
+    .hf-day h3 { margin: 0 0 24px; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: var(--hf-lead); color: var(--hf-acc); }
+    .hf-sched { margin: 0; display: grid; gap: 22px; }
+    .hf-sched > div { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 4px 24px; align-items: baseline; }
+    .hf-sched dt { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: var(--hf-lead); font-variant-numeric: tabular-nums; }
+    .hf-sched dd { margin: 0; font-size: var(--hf-body); line-height: 1.55; }
+
+    /* Pazarlama: aylar büyük, kanallar üç sütun */
+    .hf-months { margin: clamp(40px, 5vw, 72px) 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px var(--hf-gap); }
+    .hf-months li { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: var(--hf-h2); line-height: 1; letter-spacing: -0.035em; }
+    .hf-months li:last-child { color: var(--hf-acc); }
+
+    /* Kayıt: dört adım tek satırda */
+    .hf-steps { margin: clamp(40px, 5vw, 72px) 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px clamp(20px, 3vw, 48px); }
+    .hf-steps b { display: block; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: var(--hf-h2); line-height: 1; letter-spacing: -0.035em; }
+    .hf-steps span { display: block; margin-top: 12px; font-size: var(--hf-body); color: var(--hf-soft-d); }
+    .hf-steps + .hf-text, .hf-lineup + .hf-note, .hf-choice + .hf-note { margin-top: clamp(40px, 4vw, 64px); }
+
+    /* İletişim: adresler görüntü boyunda satırlar */
+    .hf-contact-rows { margin-top: clamp(40px, 5vw, 72px); display: grid; }
+    .hf-crow { display: grid; gap: 6px; padding: clamp(16px, 1.8vw, 26px) 0; color: #fff; text-decoration: none; justify-items: start; }
+    .hf-crow-k { font-size: var(--hf-body); color: var(--hf-soft-d); }
+    .hf-crow-v { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: var(--hf-h2); line-height: 1.02; letter-spacing: -0.035em; white-space: nowrap; transition: color .2s ease, transform .2s ease; }
+    .hf-crow:hover .hf-crow-v, .hf-crow:focus-visible .hf-crow-v { transform: translateX(6px); }
+    .hf-crow:hover .hf-crow-v, .hf-crow:focus-visible .hf-crow-v { color: var(--hf-acc); }
+    .hf-close { margin-top: clamp(48px, 6vw, 96px); display: flex; align-items: center; justify-content: space-between; gap: 24px 40px; flex-wrap: wrap; }
+    .hf-close p { margin: 0; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; font-size: var(--hf-small); color: var(--hf-soft-d); }
+    .hf-close img { display: block; width: clamp(140px, 14vw, 200px); height: auto; }
+
     @media (max-width: 900px) {
-        .hf-g3, .hf-g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .hf-past, .hf-g-wide, .hf-contact { grid-template-columns: minmax(0, 1fr); }
-        .hf-chain > * + *::before { display: none; }
+        .hf-page { --hf-m: 20px; }
+        .hf-split, .hf-split-even, .hf-statfig, .hf-statfig-r, .hf-past-head { grid-template-columns: minmax(0, 1fr); }
         .hf-hero { min-height: calc(86svh - var(--nav-h, 70px)); }
+        .hf-rows-wide, .hf-choice, .hf-months { grid-template-columns: minmax(0, 1fr); }
+        .hf-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .hf-days { grid-template-columns: minmax(0, 1fr); }
+        .hf-lineup > div, .hf-crow { grid-template-columns: minmax(0, 1fr); }
     }
+    @media (max-width: 560px) { .hf-page { --hf-m: 16px; } }
     @media (max-width: 620px) {
-        .hf-g2, .hf-g3, .hf-g4 { grid-template-columns: minmax(0, 1fr); }
-        .hf-facts div { grid-template-columns: minmax(0, 1fr); }
-        .hf-comp { min-height: 0; }
-        .hf-dot { width: 58px; height: 58px; font-size: 20px; }
-        .hf-sign p { text-align: left; }
-        .hf-past-sp span { flex-basis: 100%; margin: 0; }
+        .hf-page { --hf-h2: clamp(30px, 8.6vw, 40px); --hf-huge: 24vw; }
+        .hf-figs { grid-template-columns: minmax(0, 1fr); }
+        .hf-sec { padding: 80px 0; }
+        .hf-photos { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+        .hf-photos .hf-photo:first-child { grid-column: 1 / -1; }
+        .hf-figs > div { grid-template-columns: minmax(0, 1fr); }
+        .hf-sched > div { grid-template-columns: minmax(0, 1fr); }
         .hf-stage { width: 96vw; }
-        .hf-hero::before, .hf-hero::after { width: 50%; }
+        .hf-strip-in .hf-btn { width: 100%; }
+        .hf-crow-v { font-size: clamp(22px, 6.4vw, 28px); white-space: normal; overflow-wrap: anywhere; }
     }
     @media (prefers-reduced-motion: reduce) {
-        .hf-strip { transition: none; }
+        .hf-strip, .hf-pano img, .hf-photo img, .hf-btn, .hf-back { transition: none; }
+        .hf-pano img { transform: none; }
     }
     </style>
 </head>
@@ -7218,248 +7238,228 @@
                 <div class="hf-strip">
                     <div class="hf-wrap hf-strip-in">
                         <div>
-                            <p class="hf-date">6–7 Mart 2027</p>
-                            <p class="hf-place">İstanbul Kongre Merkezi · İstanbul</p>
+                            <h1 class="hf-date">6–7 Mart 2027, İstanbul Kongre Merkezi</h1>
+                            <p class="hf-place">UniPakt’ın çok disiplinli üniversite festivali: hackathon, e-spor, gastronomi ve dans.</p>
                         </div>
-                        <div class="hf-strip-r">
-                            <a class="hf-btn" href="#hfIletisim" data-hf-go="hfIletisim">Sponsor ol</a>
-                            <p class="hf-made" lang="en">Made in UniPakt</p>
-                        </div>
+                        <a class="hf-btn" href="#hfIletisim" data-hf-go="hfIletisim">Sponsor ol</a>
                     </div>
                 </div>
             </div>
 
-            <section class="hf-sec hf-dark">
-                <div class="hf-wrap">
-                    <p class="hf-kick" data-reveal>01 / Konsept</p>
-                    <h2 class="hf-h" data-reveal>Bir festival. Birçok dünya.</h2>
-                    <p class="hf-lead" data-reveal>MIXIT; üniversite öğrencilerini kariyer, rekabet, kültür ve marka deneyimi etrafında buluşturmayı hedefleyen disiplinler arası bir festivaldir.</p>
-                    <div class="hf-grid hf-g3" data-reveal-stagger>
-                        <article class="hf-card hf-bar"><span class="hf-no">01</span><h3>Kariyer</h3><p>Sektör profesyonelleriyle temas ve deneyim paylaşımı.</p></article>
-                        <article class="hf-card hf-bar"><span class="hf-no">02</span><h3>Rekabet</h3><p>Farklı alanlarda eş zamanlı yarışmalar ve Büyük Final.</p></article>
-                        <article class="hf-card hf-bar"><span class="hf-no">03</span><h3>Deneyim</h3><p>Markalar, öğrenciler ve kültürel aktiviteler aynı alanda.</p></article>
+            <section class="hf-sec hf-dark hf-concept" aria-labelledby="hfKonsept">
+                <div class="hf-wrap hf-split">
+                    <div class="hf-split-head">
+                        <h2 class="hf-h" id="hfKonsept" data-reveal>Bir festival. Birçok dünya.</h2>
+                        <p class="hf-lead" data-reveal>MIXIT; üniversite öğrencilerini kariyer, rekabet, kültür ve marka deneyimi etrafında buluşturmayı hedefleyen disiplinler arası bir festivaldir.</p>
                     </div>
+                    <dl class="hf-rows" data-reveal-stagger>
+                        <div><dt>Kariyer</dt><dd>Sektör profesyonelleriyle temas ve deneyim paylaşımı.</dd></div>
+                        <div><dt>Rekabet</dt><dd>Farklı alanlarda eş zamanlı yarışmalar ve Büyük Final.</dd></div>
+                        <div><dt>Deneyim</dt><dd>Markalar, öğrenciler ve kültürel aktiviteler aynı alanda.</dd></div>
+                    </dl>
                 </div>
             </section>
 
-            <section class="hf-sec hf-dark">
-                <div class="hf-wrap">
-                    <p class="hf-kick" data-reveal>02 / Geçmiş organizasyon</p>
-                    <h2 class="hf-h hf-caps" data-reveal>HACKFEST 2026</h2>
-                    <p class="hf-lead" data-reveal>İstinye Üniversitesi · GDG on Campus İstinye liderliğinde</p>
-                    <div class="hf-past" data-reveal>
-                        <figure class="hf-photo hf-photo-wide"><img src="/hackfest-media/hf26-sahne.webp" alt="HACKFEST 2026 katılımcıları sahnede" width="1218" height="462" loading="lazy" decoding="async"></figure>
-                        <div class="hf-card hf-stat">
-                            <p class="hf-big">200</p>
-                            <p class="hf-label">Gerçekleşen katılım</p>
-                            <hr>
-                            <h3>Yalnızca hackathon</h3>
-                            <p>2026 organizasyonu, MIXIT’in çıkış noktasını oluşturan ilk deneyimdi.</p>
-                        </div>
-                    </div>
-                    <p class="hf-past-sp" data-reveal><span>Geçmiş sponsorlar</span><b data-no-i18n>İşler Teknoloji</b><i aria-hidden="true">·</i><b data-no-i18n>Claw’s</b></p>
+            <section class="hf-sec hf-light hf-past-sec" aria-labelledby="hfGecmis">
+                <div class="hf-wrap hf-past-head">
+                    <h2 class="hf-h" id="hfGecmis" data-reveal>HACKFEST 2026</h2>
+                    <p class="hf-caption" data-reveal>İstinye Üniversitesi · GDG on Campus İstinye liderliğinde</p>
+                    <p class="hf-caption" data-reveal>2026 organizasyonu, MIXIT’in çıkış noktasını oluşturan ilk deneyimdi.</p>
                 </div>
-            </section>
-            <section class="hf-sec hf-light">
-                <div class="hf-wrap">
-                    <p class="hf-kick" data-reveal>2026 HACKFEST’ten gerçek kareler</p>
-                    <h2 class="hf-h" data-reveal>Deneyimden gelen güven.</h2>
-                    <div class="hf-grid hf-g3 hf-photos" data-reveal-stagger>
+                <figure class="hf-pano" data-reveal><img src="/hackfest-media/hf26-sahne.webp" alt="HACKFEST 2026 katılımcıları sahnede" width="1218" height="462" loading="lazy" decoding="async"></figure>
+                <div class="hf-wrap hf-past-body">
+                    <p class="hf-figure-line" data-reveal><span class="hf-figure">200</span><span>Gerçekleşen katılım. Yalnızca hackathon.</span></p>
+                    <div class="hf-photos" data-reveal-stagger>
                         <figure class="hf-photo"><img src="/hackfest-media/hf26-calisma.webp" alt="Hackathon çalışma ortamı" width="546" height="432" loading="lazy" decoding="async"><figcaption>Hackathon çalışma ortamı</figcaption></figure>
                         <figure class="hf-photo"><img src="/hackfest-media/hf26-konusma.webp" alt="Etkinlik konuşması" width="632" height="432" loading="lazy" decoding="async"><figcaption>Etkinlik konuşması</figcaption></figure>
                         <figure class="hf-photo"><img src="/hackfest-media/hf26-katilim.webp" alt="Öğrenci katılımı" width="577" height="432" loading="lazy" decoding="async"><figcaption>Öğrenci katılımı</figcaption></figure>
                     </div>
-                    <p class="hf-note" data-reveal>Bu fotoğraflar 2026 HACKFEST’e aittir; 2027 MIXIT’in gerçekleşmiş görüntüleri değildir.</p>
+                    <p class="hf-names" data-reveal>2026’yı destekleyenler: <b data-no-i18n>İşler Teknoloji</b> ve <b data-no-i18n>Claw’s</b>.</p>
                 </div>
             </section>
 
-
-            <section class="hf-sec hf-dark">
-                <div class="hf-wrap">
-                    <p class="hf-kick" data-reveal>03 / Organizasyon</p>
-                    <h2 class="hf-h" data-reveal>Made in UniPakt.</h2>
-                    <p class="hf-lead" data-reveal>2027 MIXIT’in ana organizasyon yapısı UniPakt’a aittir. 2026 HACKFEST’i başlatan GDG on Campus İstinye ise proje koordinasyonunu yürütür.</p>
-                    <div class="hf-grid hf-g2" data-reveal-stagger>
-                        <div class="hf-card">
-                            <p class="hf-label hf-acc">UniPakt ağı</p>
-                            <p class="hf-inline"><span class="hf-big hf-white">12</span><b>aktif öğrenci kulübü</b></p>
-                            <p>Yaklaşık 6.000–7.000 kişilik öğrenci ağı</p>
-                        </div>
-                        <div class="hf-card hf-white-card">
-                            <p class="hf-label hf-acc">Proje koordinatörü</p>
-                            <img class="hf-gdg" src="/hackfest-media/gdg-istinye.webp" alt="Google Developer Groups On Campus İstinye University" width="1080" height="498" loading="lazy" decoding="async">
-                        </div>
+            <section class="hf-sec hf-dark" aria-labelledby="hfOrg">
+                <div class="hf-wrap hf-split hf-split-even">
+                    <div>
+                        <h2 class="hf-h" id="hfOrg" data-reveal>Made in UniPakt.</h2>
+                        <p class="hf-lead" data-reveal>2027 MIXIT’in ana organizasyon yapısı UniPakt’a aittir. 2026 HACKFEST’i başlatan GDG on Campus İstinye ise proje koordinasyonunu yürütür.</p>
+                        <dl class="hf-figs" data-reveal-stagger>
+                            <div><dt>12</dt><dd>Aktif öğrenci kulübüyle UniPakt ağı.</dd></div>
+                            <div><dt>6–7 bin</dt><dd>Yaklaşık 6.000–7.000 kişilik öğrenci ağı.</dd></div>
+                        </dl>
+                        <p class="hf-text" data-reveal>2026 deneyimi, 2027’de çok disiplinli festival ölçeğine taşınıyor.</p>
                     </div>
-                    <p class="hf-flow" data-reveal>2026 deneyimi <span aria-hidden="true">→</span> 2027’de çok disiplinli festival ölçeği</p>
+                    <figure class="hf-partner" data-reveal>
+                        <img src="/hackfest-media/gdg-istinye.webp" alt="Google Developer Groups On Campus İstinye University" width="1080" height="498" loading="lazy" decoding="async">
+                        <figcaption>Proje koordinatörü</figcaption>
+                    </figure>
                 </div>
             </section>
 
-            <section class="hf-sec hf-light">
-                <div class="hf-wrap">
-                    <p class="hf-kick" data-reveal>04 / Hedef kitle</p>
-                    <h2 class="hf-h" data-reveal>Üniversiteliler için tasarlandı.</h2>
-                    <p class="hf-lead" data-reveal>MIXIT’in ziyaretçi kitlesi üniversite öğrencilerinden oluşacaktır. İstanbul’daki tüm üniversitelere ulaşmak hedeflenmektedir.</p>
-                    <div class="hf-grid hf-g2" data-reveal-stagger>
-                        <div class="hf-card"><p class="hf-big">5.000+</p><p class="hf-label">İki günlük toplam ziyaretçi hedefi</p></div>
-                        <div class="hf-card"><p class="hf-big hf-ink">İstanbul</p><p class="hf-label hf-acc">Tüm üniversitelere erişim hedefi</p></div>
-                    </div>
-                    <p class="hf-note" data-reveal>Başvuru döneminde bölüm bazlı dağılım ölçülebilir; bugün kesin bölüm yüzdeleri veya katılımcı profili öngörülmemektedir.</p>
-                </div>
-            </section>
-
-            <section class="hf-sec hf-dark">
-                <div class="hf-wrap">
-                    <p class="hf-kick" data-reveal>05 / Marka deneyimi</p>
-                    <h2 class="hf-h" data-reveal>Markalarla aynı zeminde.</h2>
-                    <p class="hf-lead" data-reveal>Öğrenciler festival alanında markaları keşfeder, ürün ve hizmetleri deneyimler, kendi ilgilerine göre yeni bağlantılar kurar.</p>
-                    <div class="hf-grid hf-g2" data-reveal-stagger>
-                        <div class="hf-card"><p class="hf-big">2.532 m²</p><p class="hf-label hf-white">Fuaye ve marka etkileşim alanı</p><p>Stantların yanı sıra ziyaretçi dolaşımını da içeren brüt alan; salonlar hariçtir.</p></div>
-                        <div class="hf-card"><p class="hf-inline"><span class="hf-big hf-white">30+</span><b class="hf-label hf-acc">Stant kapasitesi hedefi</b></p><p class="hf-p-strong">Kesin yerleşim marka taleplerine ve teknik alan planına göre düzenlenecektir.</p><p class="hf-small">Dileyen firmalar İK ekipleriyle genç yeteneklerle görüşebilir; işe alım veya staj zorunluluğu bulunmaz.</p></div>
+            <section class="hf-sec hf-light" aria-labelledby="hfKitle">
+                <div class="hf-wrap hf-statfig">
+                    <p class="hf-huge" data-reveal data-no-i18n>5.000+</p>
+                    <div>
+                        <h2 class="hf-h" id="hfKitle" data-reveal>Üniversiteliler için tasarlandı.</h2>
+                        <p class="hf-lead" data-reveal>İki günlük toplam ziyaretçi hedefi. MIXIT’in ziyaretçi kitlesi üniversite öğrencilerinden oluşacaktır; İstanbul’daki tüm üniversitelere ulaşmak hedeflenmektedir.</p>
+                        <p class="hf-note" data-reveal>Başvuru döneminde bölüm bazlı dağılım ölçülebilir; bugün kesin bölüm yüzdeleri veya katılımcı profili öngörülmemektedir.</p>
                     </div>
                 </div>
             </section>
 
-            <section class="hf-sec hf-light">
-                <div class="hf-wrap">
-                    <p class="hf-kick" data-reveal>06 / Eş zamanlı yarışmalar</p>
-                    <h2 class="hf-h" data-reveal>Farklı disiplinler. Tek festival.</h2>
-                    <div class="hf-grid hf-g2" data-reveal-stagger>
-                        <article class="hf-card hf-comp"><span class="hf-dot">01</span><div><h3>Hackathon</h3><p>Teknoloji, üretim ve problem çözme.</p></div></article>
-                        <article class="hf-card hf-comp"><span class="hf-dot">02</span><div><h3>E-spor</h3><p>Canlı rekabet ve oyuncu deneyimi.</p></div></article>
-                        <article class="hf-card hf-comp"><span class="hf-dot">03</span><div><h3>Gastronomi</h3><p>Yaratıcılık ve mutfak becerileri.</p></div></article>
-                        <article class="hf-card hf-comp"><span class="hf-dot">04</span><div><h3>Dans</h3><p>Sahne, ritim ve performans.</p></div></article>
+            <section class="hf-sec hf-dark" aria-labelledby="hfMarka">
+                <div class="hf-wrap hf-split">
+                    <div class="hf-split-head">
+                        <h2 class="hf-h" id="hfMarka" data-reveal>Markalarla aynı zeminde.</h2>
+                        <p class="hf-lead" data-reveal>Öğrenciler festival alanında markaları keşfeder, ürün ve hizmetleri deneyimler, kendi ilgilerine göre yeni bağlantılar kurar.</p>
                     </div>
+                    <div>
+                        <dl class="hf-figs" data-reveal-stagger>
+                            <div><dt>2.532 m²</dt><dd>Fuaye ve marka etkileşim alanı: stantların yanı sıra ziyaretçi dolaşımını da içeren brüt alan; salonlar hariçtir.</dd></div>
+                            <div><dt>30+</dt><dd>Stant kapasitesi hedefi. Kesin yerleşim marka taleplerine ve teknik alan planına göre düzenlenecektir.</dd></div>
+                        </dl>
+                        <p class="hf-note" data-reveal>Dileyen firmalar İK ekipleriyle genç yeteneklerle görüşebilir; işe alım veya staj zorunluluğu bulunmaz.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="hf-sec hf-light" aria-labelledby="hfYarisma">
+                <div class="hf-wrap">
+                    <h2 class="hf-h" id="hfYarisma" data-reveal>Farklı disiplinler. Tek festival.</h2>
+                    <dl class="hf-lineup" data-reveal-stagger>
+                        <div><dt>Hackathon</dt><dd>Teknoloji, üretim ve problem çözme.</dd></div>
+                        <div><dt>E-spor</dt><dd>Canlı rekabet ve oyuncu deneyimi.</dd></div>
+                        <div><dt>Gastronomi</dt><dd>Yaratıcılık ve mutfak becerileri.</dd></div>
+                        <div><dt>Dans</dt><dd>Sahne, ritim ve performans.</dd></div>
+                    </dl>
                     <p class="hf-note" data-reveal>Bu dört kategori temel planı oluşturur. Festival programı yeni yarışma ve yan etkinliklerin eklenmesine açıktır.</p>
                 </div>
             </section>
 
-            <section class="hf-sec hf-dark">
+            <section class="hf-sec hf-accent" aria-labelledby="hfKatilim">
                 <div class="hf-wrap">
-                    <p class="hf-kick" data-reveal>07 / Katılımcı deneyimi</p>
-                    <h2 class="hf-h" data-reveal>Programını öğrenci seçer.</h2>
+                    <h2 class="hf-h" id="hfKatilim" data-reveal>Programını öğrenci seçer.</h2>
                     <p class="hf-lead" data-reveal>Festival girişinden sonra öğrenciler, kapasite ve güvenlik sınırları içinde, ilgi duydukları etkinlikler arasında özgürce hareket edebilir.</p>
-                    <div class="hf-grid hf-g3 hf-chain" data-reveal-stagger>
-                        <article class="hf-card"><span class="hf-no hf-no-lg">01</span><h3>Konuşmalar</h3><p>Deneyim paylaşımı</p></article>
-                        <article class="hf-card"><span class="hf-no hf-no-lg">02</span><h3>Yarışmalar</h3><p>Canlı karşılaşmalar</p></article>
-                        <article class="hf-card"><span class="hf-no hf-no-lg">03</span><h3>Marka alanları</h3><p>Ürün, hizmet ve temas</p></article>
-                    </div>
+                    <ul class="hf-choice" data-reveal-stagger>
+                        <li><b>Konuşmalar</b><span>Deneyim paylaşımı</span></li>
+                        <li><b>Yarışmalar</b><span>Canlı karşılaşmalar</span></li>
+                        <li><b>Marka alanları</b><span>Ürün, hizmet ve temas</span></li>
+                    </ul>
                     <p class="hf-note" data-reveal>Ziyaretçiler için ayrı yarışma izleyici rezervasyonu öngörülmüyor; yarışmacı başvuruları ayrı süreçtir.</p>
                 </div>
             </section>
 
-            <section class="hf-sec hf-light">
+            <section class="hf-sec hf-dark" aria-labelledby="hfProgram">
                 <div class="hf-wrap">
-                    <p class="hf-kick" data-reveal>08 / Festival programı</p>
-                    <h2 class="hf-h" data-reveal>İki gün. İki ritim.</h2>
-                    <div class="hf-grid hf-g2" data-reveal-stagger>
-                        <article class="hf-card hf-day hf-day-1">
-                            <h3>06 Mart <i aria-hidden="true">·</i> Cumartesi</h3>
-                            <p class="hf-label hf-acc">10.00 | Resmî ziyaretçi açılışı</p>
-                            <p class="hf-p-strong">5 konuşmacı için birer saatlik oturum ve aralarda molalar planlanıyor.</p>
-                            <p>Diğer alanlarda yarışmalar ve festival deneyimi eş zamanlı ilerler.</p>
-                        </article>
-                        <article class="hf-card hf-day hf-day-2">
-                            <h3>07 Mart <i aria-hidden="true">·</i> Pazar</h3>
-                            <p class="hf-label hf-acc">Büyük Final / Ödül töreni</p>
-                            <p class="hf-p-strong">Konuşmacı oturumu yok. Final karşılaşmaları, ödüller ve kapanış eğlencesi.</p>
-                            <p>Festivalin eğlence programıyla birlikte 19.00 civarında tamamlanması hedefleniyor.</p>
-                        </article>
+                    <h2 class="hf-h" id="hfProgram" data-reveal>İki gün. İki ritim.</h2>
+                    <div class="hf-days">
+                        <div class="hf-day" data-reveal>
+                            <h3>06 Mart, Cumartesi</h3>
+                            <dl class="hf-sched">
+                                <div><dt>10.00</dt><dd>Resmî ziyaretçi açılışı</dd></div>
+                                <div><dt>Gün boyu</dt><dd>5 konuşmacı için birer saatlik oturum ve aralarda molalar planlanıyor.</dd></div>
+                                <div><dt>Eş zamanlı</dt><dd>Diğer alanlarda yarışmalar ve festival deneyimi eş zamanlı ilerler.</dd></div>
+                            </dl>
+                        </div>
+                        <div class="hf-day" data-reveal>
+                            <h3>07 Mart, Pazar</h3>
+                            <dl class="hf-sched">
+                                <div><dt>Final</dt><dd>Büyük Final / Ödül töreni. Konuşmacı oturumu yok. Final karşılaşmaları, ödüller ve kapanış eğlencesi.</dd></div>
+                                <div><dt>19.00</dt><dd>Festivalin eğlence programıyla birlikte 19.00 civarında tamamlanması hedefleniyor.</dd></div>
+                            </dl>
+                        </div>
                     </div>
-                    <p class="hf-note" data-reveal><b class="hf-acc">Not</b> Gece devam eden programın uygulanması tesis, güvenlik ve izin koşullarına tabidir.</p>
+                    <p class="hf-note" data-reveal>Gece devam eden programın uygulanması tesis, güvenlik ve izin koşullarına tabidir.</p>
                 </div>
             </section>
 
-            <section class="hf-sec hf-dark">
+            <section class="hf-sec hf-light" aria-labelledby="hfSahne">
                 <div class="hf-wrap">
-                    <p class="hf-kick" data-reveal>09 / Ana sahne</p>
-                    <h2 class="hf-h" data-reveal>Deneyim sahnede. Rekabet finalde.</h2>
-                    <div class="hf-grid hf-g3" data-reveal-stagger>
-                        <article class="hf-card"><span class="hf-no hf-no-lg">05</span><h3 class="hf-h3s">Konuşmacı</h3><p>İlk gün, güçlü CV ve kariyer deneyimi önceliği.</p></article>
-                        <article class="hf-card"><span class="hf-no hf-no-lg">07</span><h3 class="hf-h3s">Mart finalleri</h3><p>Yarışmaların Büyük Finali ana sahnede.</p></article>
-                        <article class="hf-card"><span class="hf-no hf-no-lg">03</span><h3 class="hf-h3s">Derece</h3><p>Her yarışmada ilk üçe kupa.</p></article>
-                    </div>
-                    <dl class="hf-facts" data-reveal>
+                    <h2 class="hf-h hf-h-wide" id="hfSahne" data-reveal>Deneyim sahnede. Rekabet finalde.</h2>
+                    <dl class="hf-rows hf-rows-wide" data-reveal-stagger>
+                        <div><dt>Konuşmacılar</dt><dd>İlk gün beş konuşmacı; güçlü CV ve kariyer deneyimi önceliği.</dd></div>
+                        <div><dt>Mart finalleri</dt><dd>7 Mart’ta yarışmaların Büyük Finali ana sahnede.</dd></div>
+                        <div><dt>Derece</dt><dd>Her yarışmada ilk üçe kupa.</dd></div>
                         <div><dt>Jüriler</dt><dd>Alanına özel ve yetkin isimler; tanınırlık öncelikli. E-spor finali ana sahnede canlı oynanır ve jüri kullanılmaz.</dd></div>
                         <div><dt>Nakit ödül</dt><dd>Yalnız birincilere; kesin ödül tutarları henüz belirlenmedi.</dd></div>
                     </dl>
                 </div>
             </section>
 
-            <section class="hf-sec hf-light">
-                <div class="hf-wrap">
-                    <p class="hf-kick" data-reveal>10 / Dijital yansıma</p>
-                    <h2 class="hf-h" data-reveal>Festival alanından dijitale.</h2>
-                    <p class="hf-lead" data-reveal>MIXIT’te içerik üretimi yalnız duyuruya değil, fiziksel deneyimin paylaşılmasına dayanır.</p>
-                    <div class="hf-grid hf-g-wide" data-reveal-stagger>
-                        <div class="hf-card hf-black-card"><p class="hf-inline"><span class="hf-big">20</span><b class="hf-label hf-white">Hedeflenen influencer daveti</b></p><p>Etkinlik alanında fiziksel katılıma dayalı anlaşmalar.</p></div>
-                        <div class="hf-card"><p class="hf-label hf-acc hf-label-lg">İçerik döngüsü</p><p class="hf-p-strong">Festival öncesi katılım duyuruları; yarışmalar, konuşmacılar, atmosfer ve Büyük Final’den post / Story çalışmaları.</p></div>
+            <section class="hf-sec hf-dark" aria-labelledby="hfDijital">
+                <div class="hf-wrap hf-statfig hf-statfig-r">
+                    <div>
+                        <h2 class="hf-h" id="hfDijital" data-reveal>Festival alanından dijitale.</h2>
+                        <p class="hf-lead" data-reveal>MIXIT’te içerik üretimi yalnız duyuruya değil, fiziksel deneyimin paylaşılmasına dayanır.</p>
+                        <p class="hf-text" data-reveal><b>İçerik döngüsü:</b> Festival öncesi katılım duyuruları; yarışmalar, konuşmacılar, atmosfer ve Büyük Final’den post / Story çalışmaları.</p>
+                        <p class="hf-note" data-reveal>Katılım, paylaşım ve dijital erişim sonuçları yalnızca anlaşmalar ve gerçekleşen veriler doğrultusunda raporlanabilir.</p>
                     </div>
-                    <p class="hf-note" data-reveal>Katılım, paylaşım ve dijital erişim sonuçları yalnızca anlaşmalar ve gerçekleşen veriler doğrultusunda raporlanabilir.</p>
+                    <div class="hf-fig-block" data-reveal>
+                        <p class="hf-huge" data-no-i18n>20</p>
+                        <p class="hf-fig-cap">Hedeflenen influencer daveti; etkinlik alanında fiziksel katılıma dayalı anlaşmalar.</p>
+                    </div>
                 </div>
             </section>
 
-            <section class="hf-sec hf-dark">
+            <section class="hf-sec hf-light" aria-labelledby="hfPazarlama">
                 <div class="hf-wrap">
-                    <p class="hf-kick" data-reveal>11 / Pazarlama dağıtımı</p>
-                    <h2 class="hf-h" data-reveal>Kampüs merkezli iletişim.</h2>
+                    <h2 class="hf-h" id="hfPazarlama" data-reveal>Kampüs merkezli iletişim.</h2>
                     <p class="hf-lead" data-reveal>Tanıtımın Ocak 2027’de, ziyaretçi kayıtları ve yarışmacı başvurularıyla eş zamanlı başlaması planlanıyor.</p>
-                    <div class="hf-grid hf-g3" data-reveal-stagger>
-                        <article class="hf-card"><span class="hf-no">01</span><h3>Kulüp ağı</h3><p>Her UniPakt kulübü kendi üniversitesinde duyurudan sorumludur.</p></article>
-                        <article class="hf-card"><span class="hf-no">02</span><h3>Öğrenci mecraları</h3><p>Ağ dışındaki kampüslerde UniPakt çalışmaları ve uygun öğrenci duyuru sayfaları.</p></article>
-                        <article class="hf-card"><span class="hf-no">03</span><h3>Sahada içerik</h3><p>Davetli influencerlar, festival hesapları ve değerlendirilen basın davetleri.</p></article>
-                    </div>
-                    <p class="hf-timeline" data-reveal><span>Ocak 2027</span><i aria-hidden="true">→</i><span>Şubat 2027</span><i aria-hidden="true">→</i><span>6–7 Mart 2027</span></p>
+                    <ol class="hf-months" data-reveal-stagger>
+                        <li>Ocak 2027</li>
+                        <li>Şubat 2027</li>
+                        <li>6–7 Mart 2027</li>
+                    </ol>
+                    <dl class="hf-rows hf-rows-wide" data-reveal-stagger>
+                        <div><dt>Kulüp ağı</dt><dd>Her UniPakt kulübü kendi üniversitesinde duyurudan sorumludur.</dd></div>
+                        <div><dt>Öğrenci mecraları</dt><dd>Ağ dışındaki kampüslerde UniPakt çalışmaları ve uygun öğrenci duyuru sayfaları.</dd></div>
+                        <div><dt>Sahada içerik</dt><dd>Davetli influencerlar, festival hesapları ve değerlendirilen basın davetleri.</dd></div>
+                    </dl>
                 </div>
             </section>
 
-            <section class="hf-sec hf-light">
+            <section class="hf-sec hf-dark" aria-labelledby="hfKayit">
                 <div class="hf-wrap">
-                    <p class="hf-kick" data-reveal>12 / Kayıt &amp; giriş</p>
-                    <h2 class="hf-h" data-reveal>Kayıttan karşılaşmaya.</h2>
+                    <h2 class="hf-h" id="hfKayit" data-reveal>Kayıttan karşılaşmaya.</h2>
                     <p class="hf-lead" data-reveal>Öğrenci kayıtlarının biletimGO üzerinden alınması; oluşturulan QR kodların girişte öğrenci kimliği ile birlikte doğrulanması planlanıyor.</p>
-                    <div class="hf-grid hf-g4 hf-chain" data-reveal-stagger>
-                        <article class="hf-card"><span class="hf-no hf-no-lg">01</span><h3>Kayıt</h3><p>biletimGO üzerinden</p></article>
-                        <article class="hf-card"><span class="hf-no hf-no-lg">02</span><h3>QR kod</h3><p>Kayıt sonrası kod</p></article>
-                        <article class="hf-card"><span class="hf-no hf-no-lg">03</span><h3>Kontrol</h3><p>Öğrenci kimliği + QR</p></article>
-                        <article class="hf-card"><span class="hf-no hf-no-lg">04</span><h3>Giriş</h3><p>Doğrulama sonrası</p></article>
-                    </div>
-                    <p class="hf-label hf-acc hf-mt" data-reveal>Erişilebilirlik hedefi</p>
-                    <p class="hf-note hf-note-tight" data-reveal>Yeterli finansman sağlanırsa ücretsiz katılım hedefleniyor; aksi halde biletli giriş değerlendirilebilir.</p>
+                    <ol class="hf-steps" data-reveal-stagger>
+                        <li><b>Kayıt</b><span>biletimGO üzerinden</span></li>
+                        <li><b>QR kod</b><span>Kayıt sonrası kod</span></li>
+                        <li><b>Kontrol</b><span>Öğrenci kimliği + QR</span></li>
+                        <li><b>Giriş</b><span>Doğrulama sonrası</span></li>
+                    </ol>
+                    <p class="hf-text" data-reveal><b>Erişilebilirlik hedefi:</b> Yeterli finansman sağlanırsa ücretsiz katılım hedefleniyor; aksi halde biletli giriş değerlendirilebilir.</p>
                 </div>
             </section>
 
-            <section class="hf-sec hf-dark">
-                <div class="hf-wrap">
-                    <p class="hf-kick" data-reveal>13 / Sponsor perspektifi</p>
-                    <h2 class="hf-h" data-reveal>Bir görünürlük alanından fazlası.</h2>
-                    <p class="hf-lead" data-reveal>MIXIT markalara yalnızca bir logo konumu değil, üniversite öğrencileriyle farklı temas biçimlerinin doğabileceği bir festival ortamı sunmayı hedefler.</p>
-                    <div class="hf-grid hf-g3" data-reveal-stagger>
-                        <article class="hf-card"><h3 class="hf-acc">Doğrudan temas</h3><p class="hf-white">Öğrencilerle aynı fiziksel ortamda ürün ve hizmet deneyimi.</p></article>
-                        <article class="hf-card"><h3 class="hf-acc">Çok disiplinli kitle</h3><p class="hf-white">Yalnız yazılım ve mühendislikle sınırlı olmayan festival yapısı.</p></article>
-                        <article class="hf-card"><h3 class="hf-acc">Dijital potansiyel</h3><p class="hf-white">Sahadaki deneyimlerden doğan paylaşılabilir içerikler.</p></article>
+            <section class="hf-sec hf-light" aria-labelledby="hfSponsor">
+                <div class="hf-wrap hf-split">
+                    <div class="hf-split-head">
+                        <h2 class="hf-h" id="hfSponsor" data-reveal>Bir görünürlük alanından fazlası.</h2>
+                        <p class="hf-lead" data-reveal>MIXIT markalara yalnızca bir logo konumu değil, üniversite öğrencileriyle farklı temas biçimlerinin doğabileceği bir festival ortamı sunmayı hedefler.</p>
                     </div>
-                    <p class="hf-note" data-reveal>Sponsorluk seviyeleri, sözleşmesel haklar ve ücretler ayrı dosyalarda sunulacaktır.</p>
+                    <div>
+                        <dl class="hf-rows" data-reveal-stagger>
+                            <div><dt>Doğrudan temas</dt><dd>Öğrencilerle aynı fiziksel ortamda ürün ve hizmet deneyimi.</dd></div>
+                            <div><dt>Çok disiplinli kitle</dt><dd>Yalnız yazılım ve mühendislikle sınırlı olmayan festival yapısı.</dd></div>
+                            <div><dt>Dijital potansiyel</dt><dd>Sahadaki deneyimlerden doğan paylaşılabilir içerikler.</dd></div>
+                        </dl>
+                        <p class="hf-note" data-reveal>Sponsorluk seviyeleri, sözleşmesel haklar ve ücretler ayrı dosyalarda sunulacaktır.</p>
+                    </div>
                 </div>
             </section>
 
-            <section class="hf-sec hf-light" id="hfIletisim">
+            <section class="hf-sec hf-dark hf-contact-sec" id="hfIletisim" aria-labelledby="hfIletisimH">
                 <div class="hf-wrap">
-                    <p class="hf-kick" data-reveal>14 / İletişim</p>
-                    <h2 class="hf-h" data-reveal>Bir sonraki adımda buluşalım.</h2>
-                    <div class="hf-card hf-contact" data-reveal>
-                        <div class="hf-contact-main">
-                            <p class="hf-label hf-acc">Sponsorluk</p>
-                            <a class="hf-mail" href="mailto:sponsorluk@unipakt.com?subject=HACKFEST27%3A%20MIXIT%20Sponsorlu%C4%9Fu" data-no-i18n>sponsorluk@unipakt.com</a>
-                            <a class="hf-btn" href="mailto:sponsorluk@unipakt.com?subject=HACKFEST27%3A%20MIXIT%20Sponsorlu%C4%9Fu">Sponsor olmak için yaz</a>
-                        </div>
-                        <div class="hf-contact-list">
-                            <div><p class="hf-label hf-acc">UniPakt resmî</p><a href="mailto:iletisim@unipakt.com" data-no-i18n>iletisim@unipakt.com</a></div>
-                            <div><p class="hf-label hf-acc">Web</p><a href="/" data-route="ana-sayfa" data-no-i18n>unipakt.com</a></div>
-                        </div>
+                    <h2 class="hf-h" id="hfIletisimH" data-reveal>Bir sonraki adımda buluşalım.</h2>
+                    <div class="hf-contact-rows" data-reveal-stagger>
+                        <a class="hf-crow hf-crow-main" href="mailto:sponsorluk@unipakt.com?subject=HACKFEST27%3A%20MIXIT%20Sponsorlu%C4%9Fu"><span class="hf-crow-v" data-no-i18n>sponsorluk@unipakt.com</span><span class="hf-crow-k">Sponsorluk</span></a>
+                        <a class="hf-crow" href="mailto:iletisim@unipakt.com"><span class="hf-crow-v" data-no-i18n>iletisim@unipakt.com</span><span class="hf-crow-k">UniPakt resmî</span></a>
+                        <a class="hf-crow" href="/" data-route="ana-sayfa"><span class="hf-crow-v" data-no-i18n>unipakt.com</span><span class="hf-crow-k">Web</span></a>
                     </div>
-                    <div class="hf-sign" data-reveal>
-                        <img src="/unipakt-logo-bg.png?v=3" alt="UniPakt" width="885" height="208" loading="lazy">
-                        <p><b lang="en">Made in UniPakt</b><span>6–7 Mart 2027 · İstanbul Kongre Merkezi</span></p>
+                    <div class="hf-close" data-reveal>
+                        <a class="hf-btn" href="mailto:sponsorluk@unipakt.com?subject=HACKFEST27%3A%20MIXIT%20Sponsorlu%C4%9Fu">Sponsor olmak için yaz</a>
+                        <p><img src="/unipakt-logo-bg-white.png?v=3" alt="UniPakt" width="885" height="208" loading="lazy"><span>6–7 Mart 2027 · İstanbul Kongre Merkezi</span></p>
                     </div>
                 </div>
             </section>
@@ -11283,7 +11283,7 @@
                 return Promise.resolve(window.UNIPAKT_I18N[code]);
             return loaded[code] = loaded[code] || new Promise((resolve, reject) => {
                 const s = document.createElement('script');
-                s.src = `/i18n/${code}.js?v=14`;
+                s.src = `/i18n/${code}.js?v=15`;
                 s.onload = () => (window.UNIPAKT_I18N[code] ? resolve(window.UNIPAKT_I18N[code]) : reject(new Error(code)));
                 s.onerror = () => {
                     delete loaded[code];
