@@ -6503,6 +6503,13 @@
     footer, footer.site-footer { border-top: 0; }
     .footer-links { border-top: 0; }
     .site-footer .footer-top { border-bottom: 0; }
+    /* Alt bilgideki çağrı bandı ters zeminde (açık): çizgiler kalktığı için alt bilgiden zeminle ayrılır. Sponsorlar kendi renginde kalır. */
+    html:not(.sp-mode) .site-footer .footer-top {
+        --ink: var(--alt-ink); --paper: var(--alt-paper); --border: var(--alt-border);
+        position: relative; isolation: isolate; color: var(--ink);
+    }
+    html:not(.sp-mode) .site-footer .footer-top::before { content: ""; position: absolute; z-index: -1; top: -100vmax; bottom: 0; left: -100vmax; right: -100vmax; background: var(--paper); pointer-events: none; }
+    html:not(.sp-mode) .site-footer .footer-cols { padding-top: clamp(64px, 8vw, 110px); }
     .site-footer .footer-bottom { border-top: 0; }
     /* Listeler: satırlar çizgisiz, boşlukla ayrılır */
     .club-list, .qa-list { border-top: 0; }
