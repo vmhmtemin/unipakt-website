@@ -8515,9 +8515,10 @@
                 };
             }).sort((a, b) => ((a.occurrences[0]?.date || '9999-99-99') + (a.occurrences[0]?.time || '99:99')).localeCompare((b.occurrences[0]?.date || '9999-99-99') + (b.occurrences[0]?.time || '99:99')));
         }
-        // UniPakt'ın kendi büyük etkinlikleri: panelden gelmez, her zaman takvimde görünür ve kendi sayfasına gider.
+        // UniPakt'ın kendi büyük etkinlikleri: panelden gelmez; yalnız takvim ızgarasında işaretlenir (listede yok),
+        // o gün seçilince satırı çıkar ve kendi sayfasına gider. Liste boşken altta 'Sıradaki büyük etkinlik' kartı görünür.
         const FEATURED = [{
-            id: 'mixit', href: '/mixit/', title: 'HACKFEST27: MIXIT', desc: '', place: 'İstanbul Kongre Merkezi', address: 'Harbiye, Şişli', rules: '',
+            id: 'mixit', href: '/mixit/', gridOnly: true, title: 'HACKFEST27: MIXIT', desc: '', place: 'İstanbul Kongre Merkezi', address: 'Harbiye, Şişli', rules: '',
             poster_url: '', tags: ['hackathon', 'e-spor', 'gastronomi', 'dans'], registration_url: '', fee_type: 'none', fee_amount: null,
             organizer_id: '', by: 'UniPakt', university: '', category: 'Festival',
             occurrences: [{ date: '2027-03-06', time: '10:00' }, { date: '2027-03-07', time: '' }]
@@ -8581,7 +8582,7 @@
         }
         function filteredEvents() {
             // A picked day shows that day's events, past ones included.
-            let list = dayFilter ? events.filter(e => e.occurrences.some(o => o.date === dayFilter)) : upcomingEvents();
+            let list = dayFilter ? events.filter(e => e.occurrences.some(o => o.date === dayFilter)) : upcomingEvents().filter(e => !e.gridOnly);
             if (searchQuery.trim())
                 list = list.filter(e => matches(e, searchQuery.trim()));
             return list;
@@ -8595,7 +8596,7 @@
                 return `<div class="cal3-items">${list.map(eventRow).join('')}</div>`;
             const msg = `<p class="site-cal-v2-empty">${esc(dayFilter ? ui.noDay() : (searchQuery ? ui.noSearch() : loaded ? ui.empty() : failed ? ui.failed() : ui.load()))}</p>`;
             // Hiç etkinlik yokken (ya da yüklenemediğinde) boş liste yerine sıradaki büyük etkinlik gösterilir.
-            const bare = !dayFilter && !searchQuery && (loaded || failed) && !events.length;
+            const bare = !dayFilter && !searchQuery && (loaded || failed) && !events.some(e => !e.gridOnly);
             return bare ? msg + `<a class="cal-next" href="/mixit/" data-route="mixit">
                     <span class="cal-next-kick">Sıradaki büyük etkinlik</span>
                     <strong class="cal-next-title" data-no-i18n>HACKFEST27: MIXIT</strong>
@@ -8619,7 +8620,7 @@
         let autoMonth = false;
         function renderCalendar() {
             // İlk açılışta bu ay boşsa takvim en yakın etkinliğin ayında açılır.
-            if (!autoMonth && loaded && events.length) {
+            if (!autoMonth && loaded && events.some(e => !e.gridOnly)) {
                 autoMonth = true;
                 if (!monthHasEvents(view.y, view.m)) {
                     const n = nextEventDay(view.y, view.m);
