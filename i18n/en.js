@@ -383,7 +383,7 @@
 "Geçen yılın iş birlikleri:": "Last year’s collaborations:",
 "Ağa katıl": "Join the network",
 "Etkinliğin de bu takvimde olsun": "Put your event on this calendar",
-"UniPakt ağındaki kulüplerin etkinlikleri burada, binlerce öğrencinin önünde yer alır. Kulübünle ağa katıl, etkinliklerin bu takvime girsin.": "Events from clubs in the UniPakt network appear here, in front of thousands of students. Join the network with your club and your events land on this calendar.",
+"UniPakt ağındaki kulüplerin etkinlikleri burada, binlerce öğrencinin önünde yer alır. Kulübünüzü ağa dahil edin.": "Events from clubs in the UniPakt network appear here, in front of thousands of students. Bring your club into the network.",
 "Sıradaki büyük etkinlik": "Next big event",
 "Festivali incele": "Explore the festival",
 "Made in UniPakt": "Made in UniPakt",
