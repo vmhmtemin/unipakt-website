@@ -1,0 +1,16 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//UniPakt//MIXIT//TR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:hackfest27-mixit@unipakt.com
+DTSTAMP:20261025T000000Z
+DTSTART;VALUE=DATE:20270306
+DTEND;VALUE=DATE:20270308
+SUMMARY:HACKFEST27: MIXIT
+LOCATION:İstanbul Kongre Merkezi\, Harbiye\, Şişli\, İstanbul
+DESCRIPTION:UniPakt'ın üniversite festivali: hackathon\, e-spor\, gastronomi ve dans. https://unipakt.com/mixit/
+URL:https://unipakt.com/mixit/
+END:VEVENT
+END:VCALENDAR

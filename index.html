@@ -6503,6 +6503,13 @@
     footer, footer.site-footer { border-top: 0; }
     .footer-links { border-top: 0; }
     .site-footer .footer-top { border-bottom: 0; }
+    /* Alt bilgideki çağrı bandı ters zeminde (açık): çizgiler kalktığı için alt bilgiden zeminle ayrılır. Sponsorlar kendi renginde kalır. */
+    html:not(.sp-mode) .site-footer .footer-top {
+        --ink: var(--alt-ink); --paper: var(--alt-paper); --border: var(--alt-border);
+        position: relative; isolation: isolate; color: var(--ink);
+    }
+    html:not(.sp-mode) .site-footer .footer-top::before { content: ""; position: absolute; z-index: -1; top: -100vmax; bottom: 0; left: -100vmax; right: -100vmax; background: var(--paper); pointer-events: none; }
+    html:not(.sp-mode) .site-footer .footer-cols { padding-top: clamp(64px, 8vw, 110px); }
     .site-footer .footer-bottom { border-top: 0; }
     /* Listeler: satırlar çizgisiz, boşlukla ayrılır */
     .club-list, .qa-list { border-top: 0; }
@@ -6741,6 +6748,26 @@
         .hf-strip-in .hf-btn { width: 100%; }
         .hf-crow-v { font-size: clamp(22px, 6.4vw, 28px); white-space: normal; overflow-wrap: anywhere; }
     }
+    /* ---- MIXIT katılımcı sayfası: geri sayım ve etkinlik künyesi (bilet sayfası düzeni) ---- */
+    .mx-count { margin-top: clamp(32px, 4vw, 56px); display: grid; grid-template-columns: repeat(3, max-content); gap: 8px clamp(32px, 6vw, 120px); }
+    .mx-count b { display: block; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: var(--hf-huge); line-height: .82; letter-spacing: -0.06em; font-variant-numeric: tabular-nums; }
+    .mx-count span { display: block; margin-top: 14px; font-size: var(--hf-lead); font-weight: 600; }
+    .mx-facts { margin: clamp(64px, 8vw, 120px) 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px clamp(24px, 3vw, 48px); }
+    .mx-facts > div { display: grid; gap: 8px; align-content: start; }
+    .mx-facts dt { font-size: var(--hf-body); color: var(--hf-soft-l); }
+    .mx-facts dd { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: var(--hf-lead); line-height: 1.3; letter-spacing: -0.01em; }
+    .mx-lead-top { margin-top: 0; }
+    .mx-figure { margin-top: clamp(40px, 5vw, 72px); }
+    .mx-map { display: inline-flex; align-items: center; gap: 8px; margin-top: 28px; color: #fff; font-weight: 700; font-size: var(--hf-body); text-decoration: underline; text-underline-offset: 4px; transition: color .2s ease; }
+    .mx-map:hover, .mx-map:focus-visible { color: var(--hf-acc); }
+    .mx-sponsor { color: #fff; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+    .mx-sponsor:hover, .mx-sponsor:focus-visible { color: var(--hf-acc); }
+    @media (max-width: 620px) {
+        .mx-count { grid-template-columns: repeat(3, max-content); column-gap: 28px; }
+        .mx-count b { font-size: clamp(52px, 15vw, 80px); }
+        .mx-facts { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (min-width: 621px) and (max-width: 1100px) { .mx-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (prefers-reduced-motion: reduce) {
         .hf-strip, .hf-pano img, .hf-photo img, .hf-btn, .hf-back { transition: none; }
         .hf-pano img { transform: none; }
@@ -7237,7 +7264,7 @@
                     <div class="cal-add" data-reveal>
                         <div>
                             <h2 class="cal-add-title">Etkinliğin de bu takvimde olsun</h2>
-                            <p>UniPakt ağındaki kulüplerin etkinlikleri burada, binlerce öğrencinin önünde yer alır. Kulübünle ağa katıl, etkinliklerin bu takvime girsin.</p>
+                            <p>UniPakt ağındaki kulüplerin etkinlikleri burada, binlerce öğrencinin önünde yer alır. Kulübünüzü ağa dahil edin.</p>
                         </div>
                         <div class="cal-add-actions">
                             <a class="btn-pill" href="/katil/" data-route="katil">Ağa katıl</a>
@@ -7571,6 +7598,156 @@
             </section>
         </section>
 
+
+        <!-- ================= MIXIT: katılımcı (etkinlik) sayfası =================
+             Sponsor dosyası /hackfest27/'de kalır; burası öğrencilere tanıtım ve etkinlik bilgisi. -->
+        <section class="page hf-page mx-page" id="page-mixit" data-page="mixit">
+            <div class="hf-hero">
+                <div class="hf-stage" role="img" aria-label="UniPakt HACKFEST27 MIXIT">
+                    <img class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp" alt="" width="1375" height="505" decoding="async">
+                </div>
+                <div class="hf-strip">
+                    <div class="hf-wrap hf-strip-in">
+                        <div>
+                            <h1 class="hf-date">6–7 Mart 2027, İstanbul Kongre Merkezi</h1>
+                            <p class="hf-place">İki gün boyunca hackathon, e-spor, gastronomi ve dans. İstanbul’un üniversiteleri tek festivalde.</p>
+                        </div>
+                        <a class="hf-btn" href="/hackfest-media/mixit.ics" download="MIXIT.ics">Takvimime ekle</a>
+                    </div>
+                </div>
+            </div>
+
+            <section class="hf-sec hf-light" aria-labelledby="mxBilgi">
+                <div class="hf-wrap">
+                    <div class="mx-count-head">
+                        <h2 class="hf-h" id="mxBilgi" data-reveal>Festivale kalan</h2>
+                        <div class="mx-count" id="mxCount" data-reveal aria-live="off">
+                            <div><b data-mx="d">–</b><span>gün</span></div>
+                            <div><b data-mx="h">–</b><span>saat</span></div>
+                            <div><b data-mx="m">–</b><span>dakika</span></div>
+                        </div>
+                    </div>
+                    <dl class="mx-facts" data-reveal-stagger>
+                        <div><dt>Tarih</dt><dd>6–7 Mart 2027, Cumartesi ve Pazar</dd></div>
+                        <div><dt>Açılış</dt><dd>Cumartesi 10.00</dd></div>
+                        <div><dt>Mekân</dt><dd>İstanbul Kongre Merkezi, Harbiye / Şişli</dd></div>
+                        <div><dt>Kimler için</dt><dd>İstanbul’daki tüm üniversitelerin öğrencileri</dd></div>
+                    </dl>
+                </div>
+            </section>
+
+            <section class="hf-sec hf-dark" aria-labelledby="mxHakkinda">
+                <div class="hf-wrap hf-split">
+                    <div class="hf-split-head">
+                        <h2 class="hf-h" id="mxHakkinda" data-reveal>Bir festival. Birçok dünya.</h2>
+                    </div>
+                    <div>
+                        <p class="hf-lead mx-lead-top" data-reveal>MIXIT, UniPakt’ın üniversite öğrencileri için düzenlediği çok disiplinli festival. Yarışmalar, konuşmalar ve marka alanları iki gün boyunca aynı çatı altında.</p>
+                        <p class="hf-text" data-reveal>Kodla, oyna, pişir, dans et ya da sadece gel ve izle. Sahne, salonlar ve fuaye aynı anda canlı; programını sen kurarsın.</p>
+                        <p class="hf-figure-line mx-figure" data-reveal><span class="hf-figure" data-no-i18n>5.000+</span><span>üniversiteli bekleniyor.</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="hf-sec hf-light" aria-labelledby="mxYarisma">
+                <div class="hf-wrap">
+                    <h2 class="hf-h" id="mxYarisma" data-reveal>Dört yarışma. Tek Büyük Final.</h2>
+                    <dl class="hf-lineup" data-reveal-stagger>
+                        <div><dt>Hackathon</dt><dd>Teknoloji, üretim ve problem çözme.</dd></div>
+                        <div><dt>E-spor</dt><dd>Canlı rekabet; final ana sahnede oynanır.</dd></div>
+                        <div><dt>Gastronomi</dt><dd>Yaratıcılık ve mutfak becerileri.</dd></div>
+                        <div><dt>Dans</dt><dd>Sahne, ritim ve performans.</dd></div>
+                    </dl>
+                    <p class="hf-note" data-reveal>Her yarışmada ilk üçe kupa verilir. Programa yeni yarışma ve yan etkinlikler eklenebilir.</p>
+                </div>
+            </section>
+
+            <section class="hf-sec hf-accent" aria-labelledby="mxSecim">
+                <div class="hf-wrap">
+                    <h2 class="hf-h" id="mxSecim" data-reveal>Programını sen seç.</h2>
+                    <p class="hf-lead" data-reveal>İçeri girdikten sonra festival alanında özgürce dolaşırsın; ilgini çeken salona, sahneye ya da standa geçersin.</p>
+                    <ul class="hf-choice" data-reveal-stagger>
+                        <li><b>Konuşmalar</b><span>Sektörden deneyim paylaşımı</span></li>
+                        <li><b>Yarışmalar</b><span>Canlı karşılaşmalar</span></li>
+                        <li><b>Marka alanları</b><span>Ürün dene, tanış, keşfet</span></li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="hf-sec hf-dark" aria-labelledby="mxProgram">
+                <div class="hf-wrap">
+                    <h2 class="hf-h" id="mxProgram" data-reveal>İki gün. İki ritim.</h2>
+                    <div class="hf-days">
+                        <div class="hf-day" data-reveal>
+                            <h3>6 Mart, Cumartesi</h3>
+                            <dl class="hf-sched">
+                                <div><dt>10.00</dt><dd>Kapılar açılıyor, festival başlıyor.</dd></div>
+                                <div><dt>Gün boyu</dt><dd>Beş konuşmacı, ana sahnede birer saatlik oturumlarla.</dd></div>
+                                <div><dt>Eş zamanlı</dt><dd>Diğer alanlarda yarışmalar ve marka deneyimleri.</dd></div>
+                            </dl>
+                        </div>
+                        <div class="hf-day" data-reveal>
+                            <h3>7 Mart, Pazar</h3>
+                            <dl class="hf-sched">
+                                <div><dt>Final</dt><dd>Yarışmaların Büyük Finali ve ödül töreni ana sahnede.</dd></div>
+                                <div><dt>19.00</dt><dd>Kapanış eğlencesiyle festival sona eriyor.</dd></div>
+                            </dl>
+                        </div>
+                    </div>
+                    <p class="hf-note" data-reveal>Konuşmacılar ve saat saat program yaklaştıkça duyurulacak.</p>
+                </div>
+            </section>
+
+            <section class="hf-sec hf-light hf-past-sec" aria-labelledby="mxGecmis">
+                <div class="hf-wrap hf-past-head">
+                    <h2 class="hf-h" id="mxGecmis" data-reveal>Geçen yıl böyleydi.</h2>
+                    <p class="hf-caption" data-reveal>HACKFEST 2026 · İstinye Üniversitesi</p>
+                    <p class="hf-caption" data-reveal>MIXIT, bu ilk deneyimin büyüyen hâli.</p>
+                </div>
+                <figure class="hf-pano" data-reveal><img src="/hackfest-media/hf26-sahne.webp?v=2" alt="HACKFEST 2026 katılımcıları sahnede" width="2000" height="759" loading="lazy" decoding="async"></figure>
+                <div class="hf-wrap hf-past-body">
+                    <p class="hf-figure-line" data-reveal><span class="hf-figure">200</span><span>katılımcı. Yalnızca hackathon’la.</span></p>
+                    <div class="hf-photos" data-reveal-stagger>
+                        <figure class="hf-photo"><img src="/hackfest-media/hf26-calisma.webp" alt="Hackathon çalışma ortamı" width="546" height="432" loading="lazy" decoding="async"><figcaption>Hackathon çalışma ortamı</figcaption></figure>
+                        <figure class="hf-photo"><img src="/hackfest-media/hf26-konusma.webp" alt="Etkinlik konuşması" width="632" height="432" loading="lazy" decoding="async"><figcaption>Etkinlik konuşması</figcaption></figure>
+                        <figure class="hf-photo"><img src="/hackfest-media/hf26-katilim.webp" alt="Öğrenci katılımı" width="577" height="432" loading="lazy" decoding="async"><figcaption>Öğrenci katılımı</figcaption></figure>
+                    </div>
+                </div>
+            </section>
+
+            <section class="hf-sec hf-dark" aria-labelledby="mxMekan">
+                <div class="hf-wrap hf-split">
+                    <div class="hf-split-head">
+                        <h2 class="hf-h" id="mxMekan" data-reveal>İstanbul Kongre Merkezi</h2>
+                        <p class="hf-lead" data-reveal>Harbiye Mahallesi, Darülbedai Caddesi No: 3, Şişli / İstanbul</p>
+                        <a class="mx-map" href="https://www.google.com/maps/search/?api=1&amp;query=%C4%B0stanbul+Kongre+Merkezi" target="_blank" rel="noopener" data-reveal>Haritada aç <b aria-hidden="true">↗</b></a>
+                    </div>
+                    <dl class="hf-rows" data-reveal-stagger>
+                        <div><dt>Metro</dt><dd>M2 hattında Osmanbey ya da Taksim durağında in; mekân yürüme mesafesinde.</dd></div>
+                        <div><dt>Füniküler</dt><dd>Kabataş’tan F1 ile Taksim’e çık, oradan yürü.</dd></div>
+                    </dl>
+                </div>
+            </section>
+
+            <section class="hf-sec hf-dark hf-contact-sec" aria-labelledby="mxTakip">
+                <div class="hf-wrap">
+                    <h2 class="hf-h" id="mxTakip" data-reveal>Duyuruları kaçırma.</h2>
+                    <p class="hf-lead" data-reveal>Konuşmacılar, yarışma detayları ve program önce burada ve Instagram’da paylaşılacak.</p>
+                    <div class="hf-contact-rows" data-reveal-stagger>
+                        <a class="hf-crow hf-crow-main" href="https://www.instagram.com/unipakt/" target="_blank" rel="noopener"><span class="hf-crow-v" data-no-i18n>@unipakt</span><span class="hf-crow-k">Instagram</span></a>
+                        <a class="hf-crow" href="/takvim/" data-route="takvim"><span class="hf-crow-v">Takvim</span><span class="hf-crow-k">Ağdaki diğer etkinlikler</span></a>
+                    </div>
+                    <div class="hf-close" data-reveal>
+                        <a class="hf-btn" href="/hackfest-media/mixit.ics" download="MIXIT.ics">Takvimime ekle</a>
+                        <p><img src="/unipakt-logo-bg-white.png?v=3" alt="UniPakt" width="885" height="208" loading="lazy"><span>Markan da MIXIT’te olsun mu? <a class="mx-sponsor" href="/hackfest27/" data-route="hackfest27">Sponsorluk</a></span></p>
+                    </div>
+                </div>
+            </section>
+        </section>
 
         <section class="page" id="page-iletisim" data-page="iletisim">
             <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
@@ -8414,10 +8591,19 @@
                 };
             }).sort((a, b) => ((a.occurrences[0]?.date || '9999-99-99') + (a.occurrences[0]?.time || '99:99')).localeCompare((b.occurrences[0]?.date || '9999-99-99') + (b.occurrences[0]?.time || '99:99')));
         }
+        // UniPakt'ın kendi büyük etkinlikleri: panelden gelmez, her zaman takvimde görünür ve kendi sayfasına gider.
+        const FEATURED = [{
+            id: 'mixit', href: '/mixit/', title: 'HACKFEST27: MIXIT', desc: '', place: 'İstanbul Kongre Merkezi', address: 'Harbiye, Şişli', rules: '',
+            poster_url: '', tags: ['hackathon', 'e-spor', 'gastronomi', 'dans'], registration_url: '', fee_type: 'none', fee_amount: null,
+            organizer_id: '', by: 'UniPakt', university: '', category: 'Festival',
+            occurrences: [{ date: '2027-03-06', time: '10:00' }, { date: '2027-03-07', time: '' }]
+        }];
+        const withFeatured = list => list.concat(FEATURED.filter(f => !list.some(e => e.id === f.id || e.title === f.title)))
+            .sort((a, b) => ((a.occurrences[0]?.date || '9999') + (a.occurrences[0]?.time || '99:99')).localeCompare((b.occurrences[0]?.date || '9999') + (b.occurrences[0]?.time || '99:99')));
         const occurrenceKey = o => `${o.date}T${o.time || '23:59'}`;
         const firstUpcoming = e => e.occurrences.find(o => occurrenceKey(o) >= ymd(new Date()) + 'T' + pad(new Date().getHours()) + ':' + pad(new Date().getMinutes())) || e.occurrences[0];
         const upcomingEvents = () => events.filter(e => e.occurrences.some(o => o.date >= ymd(new Date()))).sort((a, b) => occurrenceKey(firstUpcoming(a)).localeCompare(occurrenceKey(firstUpcoming(b))));
-        let events = [];
+        let events = withFeatured([]);
         let loaded = false;
         let failed = false;
         let searchOpen = true;
@@ -8432,7 +8618,7 @@
         try {
             const c = JSON.parse(localStorage.getItem(CACHE));
             if (Array.isArray(c)) {
-                events = normalizeRows(c);
+                events = withFeatured(normalizeRows(c));
                 loaded = true;
             }
         } catch (_) {}
@@ -8443,6 +8629,8 @@
                 };
         }
         function feeFor(e) {
+            if (e.fee_type === 'none')
+                return '';
             return e.fee_type === 'paid' && e.fee_amount != null ? ui.paid(Number(e.fee_amount).toLocaleString(lang(), {
                 maximumFractionDigits: 2
             })) : ui.free();
@@ -8459,7 +8647,7 @@
                 : `<span class="cal3-date" aria-hidden="true"><b>${o.date ? parse(o.date).getDate() : '–'}</b><small>${o.date ? esc(shortMonth(o.date)) : ''}</small></span>`;
             const by = e.by && !(e.place || '').toLocaleLowerCase('tr-TR').includes(e.by.toLocaleLowerCase('tr-TR')) ? e.by : '';
             const meta = [dateTime(o.date, o.time), e.place, by, feeFor(e)].filter(Boolean).join(' · ');
-            return `<a class="cal3-row" href="/etkinlik/?id=${encodeURIComponent(e.id)}" data-event-id="${esc(e.id)}" aria-label="${esc(ui.open())}"><span class="cal3-thumb">${thumb}</span><span class="cal3-text"><h3 data-no-i18n>${esc(e.title)}</h3><p class="cal3-meta" data-no-i18n>${esc(meta)}</p></span>${e.category ? `<span class="cal3-chip">${esc(e.category)}</span>` : ''}<span class="cal3-arrow" aria-hidden="true">→</span></a>`;
+            return `<a class="cal3-row" href="${e.href ? esc(e.href) : `/etkinlik/?id=${encodeURIComponent(e.id)}`}" data-event-id="${esc(e.id)}" aria-label="${esc(ui.open())}"><span class="cal3-thumb">${thumb}</span><span class="cal3-text"><h3 data-no-i18n>${esc(e.title)}</h3><p class="cal3-meta" data-no-i18n>${esc(meta)}</p></span>${e.category ? `<span class="cal3-chip">${esc(e.category)}</span>` : ''}<span class="cal3-arrow" aria-hidden="true">→</span></a>`;
         }
         function matches(e, q) {
             if (!q)
@@ -8484,7 +8672,7 @@
             const msg = `<p class="site-cal-v2-empty">${esc(dayFilter ? ui.noDay() : (searchQuery ? ui.noSearch() : loaded ? ui.empty() : failed ? ui.failed() : ui.load()))}</p>`;
             // Hiç etkinlik yokken (ya da yüklenemediğinde) boş liste yerine sıradaki büyük etkinlik gösterilir.
             const bare = !dayFilter && !searchQuery && (loaded || failed) && !events.length;
-            return bare ? msg + `<a class="cal-next" href="/hackfest27/" data-route="hackfest27">
+            return bare ? msg + `<a class="cal-next" href="/mixit/" data-route="mixit">
                     <span class="cal-next-kick">Sıradaki büyük etkinlik</span>
                     <strong class="cal-next-title" data-no-i18n>HACKFEST27: MIXIT</strong>
                     <span class="cal-next-meta">6–7 Mart 2027 · İstanbul Kongre Merkezi</span>
@@ -8612,7 +8800,7 @@
             },
             body: '{}'
         }).then(r => r.ok ? r.json() : Promise.reject(new Error(r.status))).then(rows => {
-            events = normalizeRows(rows);
+            events = withFeatured(normalizeRows(rows));
             loaded = true;
             try {
                 localStorage.setItem(CACHE, JSON.stringify(rows));
@@ -8620,7 +8808,7 @@
             renderCalendar();
         }).catch(() => {
             if (!loaded) {
-                events = [];
+                events = withFeatured([]);
                 failed = true;
                 renderCalendar();
             }
@@ -9765,7 +9953,7 @@
     const routeLinks = document.querySelectorAll('[data-route]');
     const menuToggle = document.getElementById('menuToggle');
     const navLinks = document.getElementById('navLinks');
-    const validRoutes = ['ana-sayfa', 'kulupler', 'hakkimizda', 'story', 'takvim', 'iletisim', 'katil', 'kvkk', 'etkinlik', 'sponsorlar', 'hackfest27'];
+    const validRoutes = ['ana-sayfa', 'kulupler', 'hakkimizda', 'story', 'takvim', 'iletisim', 'katil', 'kvkk', 'etkinlik', 'sponsorlar', 'hackfest27', 'mixit'];
 
     function showRoute(route) {
         if (!validRoutes.includes(route))
@@ -9806,8 +9994,8 @@
     const SITE_ORIGIN = 'https://unipakt.com';
     // GitHub Pages redirects /takvim to /takvim/, so the trailing slash is the real address.
     const routePath = (route) => (route === 'ana-sayfa' ? '/' : `/${route}/`);
-    // Eski adres: /hackfest/ artık /hackfest27/.
-    const ROUTE_ALIASES = { hackfest: 'hackfest27' };
+    // Eski adres: /hackfest/ artık katılımcı sayfası /mixit/ (sponsor dosyası /hackfest27/).
+    const ROUTE_ALIASES = { hackfest: 'mixit' };
     function routeFromLocation() {
         let legacy = (location.hash || '').slice(1);
         legacy = ROUTE_ALIASES[legacy] || legacy;
@@ -9832,7 +10020,8 @@
         kvkk: 'KVKK Aydınlatma Metni',
         etkinlik: 'Etkinlik',
         sponsorlar: 'Sponsorlar',
-        hackfest27: 'HACKFEST27: MIXIT'
+        hackfest27: 'HACKFEST27: MIXIT · Sponsorluk',
+        mixit: 'HACKFEST27: MIXIT'
     };
     function syncRouteMeta(route) {
         const eventId = route === 'etkinlik' ? new URLSearchParams(location.search).get('id') : '';
@@ -10804,44 +10993,79 @@
     /* ---------- HACKFEST27: MIXIT sayfası ----------
        Kendi koyu dünyası (html.hf-mode). Sayfaya her girişte logo jenerik gibi kurulur:
        Hackfest27 → UniPakt (saydamdan opağa) → el yazısı Mixit → 27'nin arkasından süzülen yıldız, toplam ~2,6 sn; sonra tam logoya geçilir. */
-    (function initHackfestPage() {
-        const section = document.getElementById('page-hackfest27');
-        const hero = document.getElementById('hfHero');
-        const stage = document.getElementById('hfStage');
-        if (!section || !hero || !stage)
-            return;
+    (function initHackfestPages() {
         const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const active = () => section.classList.contains('active');
-        let readyTimer = 0, doneTimer = 0, run = 0;
-        const reset = () => {
-            clearTimeout(readyTimer);
-            clearTimeout(doneTimer);
-            stage.classList.remove('hf-play', 'hf-done');
-            hero.classList.remove('is-ready');
-        };
-        const play = () => {
-            reset();
-            if (still) { stage.classList.add('hf-done'); hero.classList.add('is-ready'); return; }
-            const me = ++run;
-            // Katmanlar çözülmeden başlamasın (yoksa jenerik takılır); en fazla 1,5 sn bekle.
-            const decoded = Promise.all([...stage.querySelectorAll('img')].map((img) => (img.decode ? img.decode().catch(() => {}) : null)));
-            Promise.race([decoded, new Promise((r) => setTimeout(r, 1500))]).then(() => {
-                if (me !== run || !active())
-                    return;
-                void stage.offsetWidth;
-                stage.classList.add('hf-play');
-                readyTimer = setTimeout(() => hero.classList.add('is-ready'), 1500);
-                doneTimer = setTimeout(() => { stage.classList.remove('hf-play'); stage.classList.add('hf-done'); }, 2650);
-            });
-        };
-        const setMode = () => document.documentElement.classList.toggle('hf-mode', active());
-        section.querySelectorAll('[data-hf-go]').forEach((a) => a.addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById(a.dataset.hfGo)?.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' });
-        }));
-        window.addEventListener('unipakt:route', () => { setMode(); if (active()) play(); else { run++; reset(); } });
+        const pages = ['page-hackfest27', 'page-mixit'].map((id) => document.getElementById(id)).filter(Boolean);
+        const setMode = () => document.documentElement.classList.toggle('hf-mode', pages.some((p) => p.classList.contains('active')));
+        pages.forEach((section) => {
+            const hero = section.querySelector('.hf-hero');
+            const stage = section.querySelector('.hf-stage');
+            if (!hero || !stage)
+                return;
+            const active = () => section.classList.contains('active');
+            let readyTimer = 0, doneTimer = 0, run = 0;
+            const reset = () => {
+                clearTimeout(readyTimer);
+                clearTimeout(doneTimer);
+                stage.classList.remove('hf-play', 'hf-done');
+                hero.classList.remove('is-ready');
+            };
+            const play = () => {
+                reset();
+                if (still) { stage.classList.add('hf-done'); hero.classList.add('is-ready'); return; }
+                const me = ++run;
+                // Katmanlar çözülmeden başlamasın (yoksa jenerik takılır); en fazla 1,5 sn bekle.
+                const decoded = Promise.all([...stage.querySelectorAll('img')].map((img) => (img.decode ? img.decode().catch(() => {}) : null)));
+                Promise.race([decoded, new Promise((r) => setTimeout(r, 1500))]).then(() => {
+                    if (me !== run || !active())
+                        return;
+                    void stage.offsetWidth;
+                    stage.classList.add('hf-play');
+                    readyTimer = setTimeout(() => hero.classList.add('is-ready'), 1500);
+                    doneTimer = setTimeout(() => { stage.classList.remove('hf-play'); stage.classList.add('hf-done'); }, 2650);
+                });
+            };
+            section.querySelectorAll('[data-hf-go]').forEach((a) => a.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById(a.dataset.hfGo)?.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' });
+            }));
+            window.addEventListener('unipakt:route', () => { if (active()) play(); else { run++; reset(); } });
+            if (active()) play();
+        });
+        window.addEventListener('unipakt:route', setMode);
         setMode();
-        if (active()) play();
+
+        // MIXIT geri sayımı: açılış 6 Mart 2027 10.00 (İstanbul). Sayfa açıkken dakikada bir güncellenir.
+        const count = document.getElementById('mxCount');
+        const mixit = document.getElementById('page-mixit');
+        if (count && mixit) {
+            const START = Date.parse('2027-03-06T10:00:00+03:00');
+            const END = Date.parse('2027-03-07T19:00:00+03:00');
+            const cells = { d: count.querySelector('[data-mx="d"]'), h: count.querySelector('[data-mx="h"]'), m: count.querySelector('[data-mx="m"]') };
+            const title = document.getElementById('mxBilgi');
+            let timer = 0;
+            const tick = () => {
+                const now = Date.now();
+                if (now >= START) {
+                    count.hidden = true;
+                    if (title) title.textContent = now < END ? 'Festival şu an devam ediyor.' : 'MIXIT 2027 tamamlandı.';
+                    return;
+                }
+                const left = Math.floor((START - now) / 60000);
+                cells.d.textContent = Math.floor(left / 1440);
+                cells.h.textContent = Math.floor((left % 1440) / 60);
+                cells.m.textContent = left % 60;
+            };
+            const sync = () => {
+                clearInterval(timer);
+                if (!mixit.classList.contains('active'))
+                    return;
+                tick();
+                timer = setInterval(tick, 30000);
+            };
+            window.addEventListener('unipakt:route', sync);
+            sync();
+        }
     })();
 
     /* ---------- Footer wordmark: reuse the header logo image ---------- */
@@ -11399,7 +11623,7 @@
                 return Promise.resolve(window.UNIPAKT_I18N[code]);
             return loaded[code] = loaded[code] || new Promise((resolve, reject) => {
                 const s = document.createElement('script');
-                s.src = `/i18n/${code}.js?v=18`;
+                s.src = `/i18n/${code}.js?v=19`;
                 s.onload = () => (window.UNIPAKT_I18N[code] ? resolve(window.UNIPAKT_I18N[code]) : reject(new Error(code)));
                 s.onerror = () => {
                     delete loaded[code];

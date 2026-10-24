@@ -34,7 +34,8 @@ ROUTES = {
     "katil": ("Bize Katıl", "Üniversite kulübünü UniPakt ağına dahil etmek ya da şehrine geldiğimizde öncelikli olmak için başvur."),
     "etkinlik": ("Etkinlik", "UniPakt ağındaki bir üniversite kulübü etkinliğinin tarih, yer, kayıt ve bilet bilgileri."),
     "sponsorlar": ("Sponsorlar", "UniPakt ağındaki üniversite kulübü etkinliklerini destekleyen sponsorlar ve sponsorluk için iletişim adresi."),
-    "hackfest27": ("HACKFEST27: MIXIT", "UniPakt'ın 6–7 Mart 2027'de İstanbul Kongre Merkezi'nde düzenlediği üniversite festivali: hackathon, e-spor, gastronomi ve dans yarışmaları, konuşmalar ve marka alanları."),
+    "hackfest27": ("HACKFEST27: MIXIT · Sponsorluk", "MIXIT sponsorluk dosyası: UniPakt'ın 6–7 Mart 2027'de İstanbul Kongre Merkezi'nde düzenlediği üniversite festivalinde markalar için kitle, alanlar ve iş birliği."),
+    "mixit": ("HACKFEST27: MIXIT", "6–7 Mart 2027, İstanbul Kongre Merkezi: UniPakt'ın üniversite festivali MIXIT. Hackathon, e-spor, gastronomi ve dans yarışmaları, konuşmalar ve Büyük Final."),
     "kvkk": ("KVKK Aydınlatma Metni", "UniPakt'ın kişisel verileri hangi amaçla, hangi hukuki sebeple işlediği, kimlere aktardığı ve haklarınız."),
 }
 
