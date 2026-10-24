@@ -6380,7 +6380,7 @@
     .sp-kicker.is-word .sp-logo-img:not(.sp-wordmark) { opacity: 0; }
     .sp-kicker.is-word .sp-wordmark { opacity: 1; }
     /* Glitch bitince logonun hemen ardında "Sponsor" bir anda belirir: UniPakt.Sponsor (geçiş yok, efektin sonunu bekler). */
-    .sp-kicker .sp-kick-word { grid-area: 1 / 2; align-self: end; margin: 0 0 calc(clamp(40px, 4.6vw, 64px) * .072) calc(clamp(40px, 4.6vw, 64px) * .02); font-family: 'UniPakt Logo', 'Archivo', sans-serif; font-weight: 800; font-size: calc(clamp(40px, 4.6vw, 64px) * 1.12); line-height: .74; letter-spacing: -0.005em; color: #0a0a0a; white-space: nowrap; visibility: hidden; }
+    .sp-kicker .sp-kick-word { grid-area: 1 / 2; align-self: end; margin: 0 0 calc(clamp(40px, 4.6vw, 64px) * .072) calc(clamp(40px, 4.6vw, 64px) * .02); font-family: 'UniPakt Logo', 'Archivo', sans-serif; font-weight: 800; font-size: calc(clamp(40px, 4.6vw, 64px) * 1.0); line-height: .74; letter-spacing: -0.005em; color: #0a0a0a; white-space: nowrap; visibility: hidden; }
     .sp-kicker.is-word .sp-kick-word { visibility: visible; }
     .sp-brand-logo { display: block; height: 26px; width: auto; }
     .sp-hero h1 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(54px, 10vw, 150px); line-height: .92; letter-spacing: -0.05em; }
@@ -10775,9 +10775,9 @@
     (function initFooterWordmark() {
         const mark = document.getElementById('footerWordmark');
         const logo = document.querySelector('.logo-img');
-        // Alttaki büyük silik logo bir arka plan işi: arka plan logosu (noktası turuncu kare).
-        if (mark)
-            mark.src = '/unipakt-logo-bg.png?v=3';
+        // Alttaki büyük silik logo da her sayfada ana logo (yuvarlak noktalı).
+        if (mark && logo)
+            mark.src = logo.src;
         // Alt kısımdaki marka da menüdeki asıl logo görselini kullanır.
         const brand = document.getElementById('footerBrandLogo');
         if (brand && logo)
