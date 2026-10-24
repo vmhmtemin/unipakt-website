@@ -6492,6 +6492,71 @@
     html.hf-mode .logo-img:not(.logo-alt), html.hf-mode .site-footer .footer-brand-logo { filter: invert(1) !important; }
     html.hf-mode .site-footer .footer-wordmark { filter: invert(1) hue-rotate(180deg) !important; }
     html.hf-mode .scroll-progress { background: #FF5A1F; }
+    /* ================= Tutarlılık (Ekim 2026) =================
+       Taste Skill renk/çizgi kuralları: turuncu yalnız eylemde (buton, aktif menü noktası, el yazısı notlar,
+       seçili/üzerine gelinen kontroller); süs amaçlı turuncu mürekkebe döner. Bölücü 1px çizgiler kalkar,
+       ayrım boşluk ve zemin tonuyla yapılır. Form alanları, gerçek tablolar ve dokunulabilir kontrol çerçeveleri korunur.
+       Sponsorlar ve MIXIT sayfaları kendi kurallarıyla, bu bloktan etkilenmez. */
+    header.nav { border-bottom: 0; }
+    nav.links.open { border-bottom: 0; }
+    .hero, .section { border-bottom: 0; }
+    footer, footer.site-footer { border-top: 0; }
+    .footer-links { border-top: 0; }
+    .site-footer .footer-top { border-bottom: 0; }
+    .site-footer .footer-bottom { border-top: 0; }
+    /* Listeler: satırlar çizgisiz, boşlukla ayrılır */
+    .club-list, .qa-list { border-top: 0; }
+    .club-item, .qa-row { border-bottom: 0; }
+    .club-list { display: grid; gap: 6px; }
+    .club-item { background: var(--paper-soft); border-radius: 14px; }
+    .contact-rows a { border-bottom: 0; }
+    .cal3-row, .cal3-items .cal3-row:last-child { border-top: 0; border-bottom: 0; }
+    .cal3-items { display: grid; gap: 6px; }
+    .cal3-row { background: var(--paper-soft); border-radius: 14px; }
+    .site-cal-v2-items, .site-cal-v2-item, .site-cal-v2-empty, .site-cal-v2-detail, .site-cal-v2-detail-top,
+    .site-cal-v2-info-row, .site-cal-v2-section, .site-cal-v2-card, .site-cal-v2-related, .site-cal-v2-related button { border-top: 0; border-bottom: 0; }
+    /* Kartlar ve paneller: çerçeve yerine bir ton açık yüzey */
+    .ev-card, .cal3-side { border: 0; }
+    .ev-poster, .cal3-thumb, .site-cal-v2-poster, .site-cal-v2-item-poster, .site-cal-v2-poster-placeholder, .site-cal-v2-trend img, .site-cal-v2-trend-placeholder { border: 0; }
+    .join-ways { gap: 8px; background: transparent; border: 0; }
+    .join-way { background: var(--paper-soft); border-radius: 16px; }
+    .ev-comment { border-left: 0; background: var(--paper-soft); border-radius: 12px; }
+    .story-after-copy p:has( > strong:only-child) { border-left-color: var(--ink); }
+    /* Süs amaçlı turuncu → mürekkep */
+    .pakt-diagram .route-line { stroke: color-mix(in srgb, var(--ink) 55%, transparent); }
+    .grow-row:first-child .dots i { background: var(--ink); }
+    .ev-bar, .ev-detail h2::before, .ev-card h2::before { background: var(--ink); }
+    .ev-hero-meta svg, .ev-info-row > svg, .ev-rules svg, .cal3-toggle svg { color: currentColor; opacity: .7; }
+    .ev-count div { border-color: color-mix(in srgb, #fff 35%, transparent); }
+    .ev-ended { border-color: currentColor; color: inherit; }
+    .ev-fee { color: inherit; font-weight: 700; }
+    .ev-md a, .ev-map, .club-details-empty a, .kampus-selected-card .club-contact a, .club-contact-go,
+    .outside-istanbul-back, .minimal-form .outside-istanbul-back, .minimal-form .university-results .university-city-action, .cal3-hint button { color: var(--ink) !important; text-decoration: underline; text-underline-offset: 3px; }
+    .cal3-chip, .site-cal-v2-filter-chip { border-color: var(--border-strong); color: var(--ink); }
+    /* Kulüp listesi: sıra numarası yok, satır yüzeyi içinde iç boşluk */
+    .club-row { grid-template-columns: minmax(0, 1fr) auto auto auto; padding-left: clamp(16px, 2vw, 24px); padding-right: clamp(16px, 2vw, 24px); }
+    /* Ana sayfa yörüngesi: daha büyük yörünge, kulüp balonları okunur (kısaltmalı); üzerine gelince tam ad açılır. */
+    @media (min-width: 901px) { .hero .hero-orbit { width: clamp(300px, 29vw, 420px); } }
+    .orbit-club-ini { position: absolute; inset: 0; display: grid; place-items: center; font-style: normal; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: calc(var(--s, 28px) * .36); letter-spacing: -0.02em; line-height: 1; color: var(--paper); transition: opacity .2s ease; pointer-events: none; }
+    .orbit-club.open .orbit-club-ini { opacity: 0; }
+    /* Telefon menü düğmesi: simge yerine "Menü" yazısı */
+    .menu-toggle { font-family: 'Inter', sans-serif; font-size: 14px !important; font-weight: 600; letter-spacing: 0; padding: 8px 14px; border-radius: 999px; }
+
+    /* Takvim: etkinlik ekleme çağrısı ve boşken sıradaki büyük etkinlik */
+    .cal-add { margin-top: clamp(40px, 5vw, 64px); padding: clamp(24px, 3vw, 36px); border-radius: 20px; background: var(--paper-soft); display: flex; align-items: center; justify-content: space-between; gap: 20px 40px; flex-wrap: wrap; }
+    .cal-add-title { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(22px, 2.4vw, 30px); letter-spacing: -0.02em; }
+    .cal-add p { margin: 8px 0 0; max-width: 56ch; opacity: .8; }
+    .cal-add-actions { display: flex; align-items: center; gap: 14px 22px; flex-wrap: wrap; }
+    .cal-add-link { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; font-weight: 600; }
+    .cal-next { display: grid; gap: 6px; margin-top: 14px; padding: clamp(20px, 2.6vw, 28px); border-radius: 16px; background: var(--paper-soft); color: var(--ink); text-decoration: none; transition: transform .2s ease; }
+    .cal-next:hover, .cal-next:focus-visible { transform: translateY(-2px); }
+    .cal-next-kick { font-size: 14px; opacity: .75; }
+    .cal-next-title { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(26px, 3vw, 38px); letter-spacing: -0.03em; line-height: 1.05; }
+    .cal-next-meta { font-size: 15px; opacity: .8; }
+    .cal-next-go { margin-top: 6px; font-weight: 700; }
+    .cal-next-go b { color: var(--accent); display: inline-block; transition: transform .2s ease; }
+    .cal-next:hover .cal-next-go b { transform: translateX(4px); }
+
     /* ================= HACKFEST27: MIXIT =================
        Kurumsal tanıtım düzeni (Taste Skill "name as a monument" yönü, marka renkleri ve yazı tipleri korunarak):
        ad (jenerik logo) anıt gibi büyük, sonrası sakin; etiket/numara/çizgi/gradyan/gölge yok,
@@ -6738,7 +6803,7 @@
                 <a href="/iletisim/" data-route="iletisim">İletişim</a>
                 <a href="/katil/" data-route="katil">Bize Katıl</a>
             </nav>
-            <button class="menu-toggle" id="menuToggle" aria-label="Menüyü aç" aria-expanded="false">☰</button>
+            <button class="menu-toggle" id="menuToggle" aria-label="Menüyü aç" aria-expanded="false">Menü</button>
         </div>
     </header>
 
@@ -6779,13 +6844,9 @@
                 </div>
             </div>
 
-            <!-- What? the pakt. -->
+            <!-- Nedir bu pakt? -->
             <div class="section field-alt">
                 <div class="wrap">
-                    <div class="eyebrow-split" data-reveal>
-                        <span class="a">What?</span>
-                        <span class="b">the pakt.</span>
-                    </div>
                     <h2 class="what-title" data-reveal>Nedir bu pakt?</h2>
                     <div class="what-split">
                         <div class="fragment-stack" data-reveal-stagger>
@@ -7177,6 +7238,16 @@
                         <p data-reveal>UniPakt ağındaki kulüplerin ortak etkinlikleri, tek takvimde.</p>
                     </div>
                     <div class="site-cal" id="siteCal"></div>
+                    <div class="cal-add" data-reveal>
+                        <div>
+                            <h2 class="cal-add-title">Etkinliğini takvime ekle</h2>
+                            <p>Ağdaki kulüpler etkinliklerini UniPakt Panel’den ekler; onaylanan etkinlik burada ve etkinlik sayfasında yayınlanır.</p>
+                        </div>
+                        <div class="cal-add-actions">
+                            <a class="btn-pill" href="/panel.html">Etkinliğini ekle</a>
+                            <a class="cal-add-link" href="/katil/" data-route="katil">Kulübün ağda değil mi? Bize katıl</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -8085,7 +8156,6 @@
         container.innerHTML = list.map((c, i) => `
                               <div class="club-item" data-club-index="${CLUBS.indexOf(c)}">
                                 <div class="club-row" ${expandable ? 'role="button" tabindex="0" aria-expanded="false"' : ''}>
-                                  <div class="idx">${String(i + 1).padStart(2, '0')}.</div>
                                   <div class="name-uni"><div class="name">${esc(c.name)}</div><div class="uni">${esc(c.uni)}</div></div>
                                   <div class="cat">${esc(c.cat)}</div>
                                   <div class="dotmark"></div>
@@ -8096,7 +8166,6 @@
                             `).join('') + (placeholder ? `
                               <div class="club-item">
                                 <div class="club-row placeholder" data-route="katil" role="link" tabindex="0">
-                                  <div class="idx">${String(list.length + 1).padStart(2, '0')}.</div>
                                   <div class="name-uni"><div class="name club-add-button">Sen de üniversiteni ekle <span>→</span></div><div class="uni">Kampüsündeki topluluğu UniPakt'a katmak için ulaş</div></div>
                                   <div class="cat"></div>
                                   <div class="dotmark"></div>
@@ -8415,7 +8484,17 @@
         }
         function resultsHtml() {
             const list = filteredEvents();
-            return list.length ? `<div class="cal3-items">${list.map(eventRow).join('')}</div>` : `<p class="site-cal-v2-empty">${esc(dayFilter ? ui.noDay() : (searchQuery ? ui.noSearch() : loaded ? ui.empty() : failed ? ui.failed() : ui.load()))}</p>`;
+            if (list.length)
+                return `<div class="cal3-items">${list.map(eventRow).join('')}</div>`;
+            const msg = `<p class="site-cal-v2-empty">${esc(dayFilter ? ui.noDay() : (searchQuery ? ui.noSearch() : loaded ? ui.empty() : failed ? ui.failed() : ui.load()))}</p>`;
+            // Hiç etkinlik yokken (ya da yüklenemediğinde) boş liste yerine sıradaki büyük etkinlik gösterilir.
+            const bare = !dayFilter && !searchQuery && (loaded || failed) && !events.length;
+            return bare ? msg + `<a class="cal-next" href="/hackfest27/" data-route="hackfest27">
+                    <span class="cal-next-kick">Sıradaki büyük etkinlik</span>
+                    <strong class="cal-next-title" data-no-i18n>HACKFEST27: MIXIT</strong>
+                    <span class="cal-next-meta">6–7 Mart 2027 · İstanbul Kongre Merkezi</span>
+                    <span class="cal-next-go">Festivali incele <b aria-hidden="true">→</b></span>
+                </a>` : msg;
         }
         const monthKey = (y, m) => `${y}-${pad(m + 1)}-`;
         const monthHasEvents = (y, m) => events.some(e => e.occurrences.some(o => o.date.startsWith(monthKey(y, m))));
@@ -9712,6 +9791,7 @@
         window.dispatchEvent(new Event('unipakt:route'));
         navLinks.classList.remove('open');
         menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.textContent = 'Menü';
         requestAnimationFrame(observeReveals);
         if (route === 'kulupler') {
             const pendingUniversitySearch = sessionStorage.getItem('unipakt-pending-club-search');
@@ -9827,6 +9907,7 @@
     menuToggle.addEventListener('click', () => {
         const open = navLinks.classList.toggle('open');
         menuToggle.setAttribute('aria-expanded', String(open));
+        menuToggle.textContent = open ? 'Kapat' : 'Menü';
     });
 
     /* ---------- AnimatedText / reveal-on-scroll ---------- */
@@ -9932,6 +10013,18 @@
             it?.btn.classList.add('open');
         }
 
+        // Balonun üstündeki kısaltma: büyük harfli kısaltma varsa o (GDG), yoksa anlamlı ilk iki kelimenin baş harfleri.
+        function clubInitials(name) {
+            const stop = new Set(['ve', 'on', 'kulübü', 'kulubu', 'topluluğu', 'the', 'of', 'and']);
+            const words = String(name || '').split(/\s+/).filter(Boolean);
+            const acr = words.find((w) => w.length >= 2 && w.length <= 4 && w === w.toLocaleUpperCase('tr-TR') && /[A-ZÇĞİÖŞÜ]/.test(w));
+            if (acr) return acr;
+            const sig = words.filter((w) => !stop.has(w.toLocaleLowerCase('tr-TR')));
+            if (sig.length >= 2) return (sig[0][0] + sig[1][0]).toLocaleUpperCase('tr-TR');
+            const w = sig[0] || words[0] || '';
+            return w.slice(0, 2).toLocaleUpperCase('tr-TR');
+        }
+
         // Draws one dot per club. Runs again when the club list changes, so a club
         // added from the panel shows up on the orbit without a reload.
         function build() {
@@ -9945,8 +10038,9 @@
                 btn.type = 'button';
                 btn.tabIndex = -1; // decorative: the same clubs are in the list below
                 btn.className = `orbit-club ${RINGS[ring].cls}`;
-                btn.style.setProperty('--s', `${[11, 9, 10][slot % 3]}px`);
-                btn.innerHTML = `<span class="orbit-club-label"><b></b><small></small></span>`;
+                btn.style.setProperty('--s', `${[30, 26, 28][slot % 3]}px`);
+                btn.innerHTML = `<i class="orbit-club-ini" aria-hidden="true" data-no-i18n></i><span class="orbit-club-label"><b></b><small></small></span>`;
+                btn.querySelector('.orbit-club-ini').textContent = clubInitials(club.name);
                 btn.querySelector('b').textContent = club.name;
                 btn.querySelector('small').textContent = club.uni;
                 layer.appendChild(btn);
@@ -11323,7 +11417,7 @@
                 return Promise.resolve(window.UNIPAKT_I18N[code]);
             return loaded[code] = loaded[code] || new Promise((resolve, reject) => {
                 const s = document.createElement('script');
-                s.src = `/i18n/${code}.js?v=16`;
+                s.src = `/i18n/${code}.js?v=17`;
                 s.onload = () => (window.UNIPAKT_I18N[code] ? resolve(window.UNIPAKT_I18N[code]) : reject(new Error(code)));
                 s.onerror = () => {
                     delete loaded[code];
