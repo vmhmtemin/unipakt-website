@@ -6773,11 +6773,18 @@
     .mx-p-big { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 1.6em; letter-spacing: -0.03em; color: #fff; }
     .mx-p-link { justify-self: start; color: #fff; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; transition: color .2s ease; }
     .mx-p-link:hover, .mx-p-link:focus-visible { color: var(--hf-acc); }
-    .mx-facts { margin: 8px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 28px; }
+    .mx-facts { margin: 8px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px 28px; }
     .mx-facts > div { display: grid; gap: 6px; align-content: start; }
     .mx-facts dt { font-size: var(--hf-small); color: var(--hf-soft-d); }
     .mx-facts dd { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 19px; line-height: 1.3; }
     .mx-list { margin: 0; display: grid; gap: 18px; }
+    .mx-picks { margin: 8px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+    @media (max-width: 1100px) { .mx-picks { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .mx-picks li { display: grid; gap: 14px; align-content: start; padding: clamp(18px, 2vw, 26px); border-radius: 18px; background: #222225; }
+    .mx-picks svg { width: clamp(40px, 4vw, 54px); height: auto; color: var(--hf-acc); fill: none; stroke: currentColor; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+    .mx-picks svg .f { fill: currentColor; stroke: none; }
+    .mx-picks span { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(18px, 1.6vw, 22px); line-height: 1.2; letter-spacing: -0.01em; }
+    @media (max-width: 720px) { .mx-picks { grid-template-columns: minmax(0, 1fr); } .mx-picks li { grid-template-columns: auto 1fr; align-items: center; } }
     .mx-names { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 28px; }
     .mx-names li { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(28px, 3.2vw, 44px); letter-spacing: -0.03em; line-height: 1.05; }
     .mx-list > div { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 4px 24px; align-items: baseline; }
@@ -7754,7 +7761,6 @@
                             <p class="mx-p-lead">MIXIT, UniPakt’ın üniversite öğrencileri için düzenlediği iki günlük bir festival. Yarışmalar, konuşmalar ve markaların alanları aynı çatı altında buluşuyor.</p>
                             <dl class="mx-facts">
                                 <div><dt>Tarih</dt><dd>6–7 Mart 2027, Cumartesi ve Pazar</dd></div>
-                                <div><dt>Açılış</dt><dd>Cumartesi saat 10.00</dd></div>
                                 <div><dt>Mekân</dt><dd>İstanbul Kongre Merkezi, Harbiye / Şişli</dd></div>
                                 <div><dt>Kimler için</dt><dd>İstanbul’daki tüm üniversite öğrencileri</dd></div>
                             </dl>
@@ -7772,13 +7778,19 @@
                         <section class="mx-p-sec">
                             <h2 class="mx-p-h">Programını sen seç.</h2>
                             <p class="mx-p-lead">İçeri girdikten sonra istediğin yere gidebilirsin. Bir salonda konuşma dinle, sahnede yarışmaları izle, stantlarda yeni ürünler dene ve yeni insanlarla tanış.</p>
+                            <ul class="mx-picks">
+                                <li><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="20" r="10"/><path d="M12 56c0-12 9-20 20-20s20 8 20 20"/></svg><span>İstersen konuşmacılar</span></li>
+                                <li><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M14 58V8"/><path d="M14 10h38v26H14"/><path class="f" d="M14 10h9.5v8.7H14zM33 10h9.5v8.7H33zM23.5 18.7H33v8.6h-9.5zM42.5 18.7H52v8.6h-9.5zM14 27.3h9.5V36H14zM33 27.3h9.5V36H33z"/></svg><span>İstersen yarışmalar</span></li>
+                                <li><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M6 24h52"/><path d="M10 24l4-10h36l4 10"/><path d="M12 24v32M52 24v32M12 40h40"/><path d="M26 14v-4h12v4"/></svg><span>İstersen stantlar</span></li>
+                                <li><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6l22 12v26L32 58 10 44V18z"/><path d="M10 18l22 12 22-12M32 30v28"/><path d="M17.3 22l22 12M24.7 26l22-12M10 26.7l22 12M10 35.3l22 12M39.3 34l14.7-8M39.3 43.3l14.7-8M17.3 22v26M24.7 26v26M39.3 34v20M46.7 30v20M17.3 14l22 12M24.7 10l22 12"/></svg><span>Ya da ne istersen!</span></li>
+                            </ul>
                         </section>
                         <section class="mx-p-sec">
                             <h2 class="mx-p-h">İki gün, iki ritim.</h2>
                             <div class="mx-days">
                                 <div>
                                     <h3>6 Mart, Cumartesi</h3>
-                                    <p class="mx-p-lead">Festival kapılarını açıyor. Konuşmalar, yarışmalar ve marka alanları gün boyu aynı anda devam ediyor.</p>
+                                    <p class="mx-p-lead">Festival kapılarını açıyor. Konuşmalar, yarışmalar ve marka alanları gün boyu devam ediyor.</p>
                                 </div>
                                 <div>
                                     <h3>7 Mart, Pazar</h3>
