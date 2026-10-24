@@ -457,6 +457,7 @@
 "Festivali kapanış eğlencesiyle birlikte bitiriyoruz.": "We wrap up the festival together with a closing party.",
 "katılımcı. Üstelik o gün yalnızca hackathon vardı. HACKFEST 2026, İstinye Üniversitesi’nde yapılmıştı; MIXIT, o ilk adımın büyümüş hâli.": "participants, and that day there was only a hackathon. HACKFEST 2026 took place at İstinye University; MIXIT is that first step, grown up.",
 "Metroyla geliyorsan M2 hattında Osmanbey ya da Taksim durağında inebilirsin; mekân yürüme mesafesinde. Kabataş’tan geliyorsan F1 füniküleriyle Taksim’e çıkıp oradan yürüyebilirsin.": "Coming by metro? Get off the M2 line at Osmanbey or Taksim; the venue is within walking distance. Coming from Kabataş? Take the F1 funicular up to Taksim and walk from there.",
+"Bütün detaylar organizasyon aşamasında değişime tabi olabilir, kesin bilgi içermez.": "All details may change while the event is being organised and should not be taken as final.",
 "Etkinliğin de bu takvimde olsun": "Put your event on this calendar",
 "UniPakt ağındaki kulüplerin etkinlikleri burada, binlerce öğrencinin önünde yer alır. Kulübünüzü ağa dahil edin.": "Events from clubs in the UniPakt network appear here, in front of thousands of students. Bring your club into the network.",
 "Sıradaki büyük etkinlik": "Next big event",

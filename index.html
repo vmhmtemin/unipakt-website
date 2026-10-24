@@ -6778,6 +6778,8 @@
     .mx-facts dt { font-size: var(--hf-small); color: var(--hf-soft-d); }
     .mx-facts dd { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 19px; line-height: 1.3; }
     .mx-list { margin: 0; display: grid; gap: 18px; }
+    .mx-names { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 28px; }
+    .mx-names li { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(28px, 3.2vw, 44px); letter-spacing: -0.03em; line-height: 1.05; }
     .mx-list > div { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 4px 24px; align-items: baseline; }
     .mx-list dt { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(24px, 2.6vw, 34px); letter-spacing: -0.03em; line-height: 1.05; }
     .mx-list dd { margin: 0; font-size: var(--hf-body); line-height: 1.5; color: #FFFFFFD0; }
@@ -7759,13 +7761,13 @@
                         </section>
                         <section class="mx-p-sec">
                             <h2 class="mx-p-h">Dört yarışma, tek büyük final.</h2>
-                            <dl class="mx-list">
-                                <div><dt>Hackathon</dt><dd>Kod yaz, fikrini ürüne dönüştür, problemi çöz.</dd></div>
-                                <div><dt>E-spor</dt><dd>Canlı maçlar; final ana sahnede oynanıyor.</dd></div>
-                                <div><dt>Gastronomi</dt><dd>Mutfakta yaratıcılığını göster.</dd></div>
-                                <div><dt>Dans</dt><dd>Sahne senin: ritim ve performans.</dd></div>
-                            </dl>
-                            <p class="mx-p-note">Her yarışmada ilk üçe kupa var. Programa yeni yarışmalar ve yan etkinlikler de eklenebilir.</p>
+                            <ul class="mx-names">
+                                <li>Hackathon</li>
+                                <li>E-spor</li>
+                                <li>Gastronomi</li>
+                                <li>Dans</li>
+                            </ul>
+                            <p class="mx-p-note">Bütün detaylar organizasyon aşamasında değişime tabi olabilir, kesin bilgi içermez.</p>
                         </section>
                         <section class="mx-p-sec">
                             <h2 class="mx-p-h">Programını sen seç.</h2>
