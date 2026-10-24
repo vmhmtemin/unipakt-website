@@ -9,7 +9,7 @@
     <meta name="description" content="UniPakt, İstanbul'daki üniversite kulüplerini ortak etkinliklerde buluşturan ve etkinliklerini tüm İstanbul'a ulaştıran kulüpler ağı. Hiçbir kulüp yalnız değil.">
     <link rel="canonical" href="https://unipakt.com/">
     <meta name="robots" content="index, follow">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#0C0C0D">
     <!-- Link previews (WhatsApp, Instagram, LinkedIn, X) -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="UniPakt">
@@ -47,35 +47,71 @@
         box-sizing: border-box;
         padding-top: env(safe-area-inset-top, 0px);
         padding-bottom: env(safe-area-inset-bottom, 0px);
-        --ink: #000000;
-        --paper: #FFFFFF;
-        --paper-soft: #F6F6F4;
-        --border: #00000018;
-        --border-strong: #00000030;
-        --dot: #00000070;
-        --dot-soft: #00000030;
+        /* Renk rolleri (Taste Skill colour.md + Figma "one color leads"): saf siyah/beyaz yerine
+           kömür zemin ve kırık beyaz yazı; bölümler zemin tonuyla (.field-alt) ayrılır. */
+        --ink: #0C0C0D;
+        --paper: #F2F1EE;
+        --paper-soft: #E7E6E2;
+        --border: #0C0C0D1A;
+        --border-strong: #0C0C0D2E;
+        --dot: #0C0C0D70;
+        --dot-soft: #0C0C0D33;
+        --alt-ink: #F2F1EE;
+        --alt-paper: #0C0C0D;
+        --alt-paper-soft: #161618;
+        --alt-border: #F2F1EE1C;
+        --alt-border-strong: #F2F1EE30;
+        --alt-dot: #F2F1EE70;
+        --alt-dot-soft: #F2F1EE33;
     }
 
     :root:not([data-theme="light"]) {
         @media (prefers-color-scheme: dark) {
-            --ink: #FFFFFF;
-            --paper: #000000;
-            --paper-soft: #0A0A0A;
-            --border: #FFFFFF20;
-            --border-strong: #FFFFFF35;
-            --dot: #FFFFFF80;
-            --dot-soft: #FFFFFF40;
+            --ink: #F2F1EE;
+            --paper: #0C0C0D;
+            --paper-soft: #161618;
+            --border: #F2F1EE1C;
+            --border-strong: #F2F1EE30;
+            --dot: #F2F1EE70;
+            --dot-soft: #F2F1EE33;
+            --alt-ink: #0C0C0D;
+            --alt-paper: #F2F1EE;
+            --alt-paper-soft: #E7E6E2;
+            --alt-border: #0C0C0D1A;
+            --alt-border-strong: #0C0C0D2E;
+            --alt-dot: #0C0C0D70;
+            --alt-dot-soft: #0C0C0D33;
         }
     }
 
     :root[data-theme="dark"] {
-        --ink: #FFFFFF;
-        --paper: #000000;
-        --paper-soft: #0A0A0A;
-        --border: #FFFFFF20;
-        --border-strong: #FFFFFF35;
-        --dot: #FFFFFF80;
-        --dot-soft: #FFFFFF40;
+        --ink: #F2F1EE;
+        --paper: #0C0C0D;
+        --paper-soft: #161618;
+        --border: #F2F1EE1C;
+        --border-strong: #F2F1EE30;
+        --dot: #F2F1EE70;
+        --dot-soft: #F2F1EE33;
+        --alt-ink: #0C0C0D;
+        --alt-paper: #F2F1EE;
+        --alt-paper-soft: #E7E6E2;
+        --alt-border: #0C0C0D1A;
+        --alt-border-strong: #0C0C0D2E;
+        --alt-dot: #0C0C0D70;
+        --alt-dot-soft: #0C0C0D33;
+    }
+
+    /* Bölüm alanı: temanın tersi zemin/yazı; kenardan kenara düz renk, çizgi yok. */
+    .field-alt {
+        --ink: var(--alt-ink);
+        --paper: var(--alt-paper);
+        --paper-soft: var(--alt-paper-soft);
+        --border: var(--alt-border);
+        --border-strong: var(--alt-border-strong);
+        --dot: var(--alt-dot);
+        --dot-soft: var(--alt-dot-soft);
+        background: var(--paper);
+        color: var(--ink);
     }
 
     * {
@@ -1261,7 +1297,7 @@
     }/* ---------- Kampüsünde UniPakt ---------- */
 
     .kampus-section {
-        background: #000;
+        background: #0C0C0D;
         color: #fff;
         overflow: hidden;
         border-bottom-color: rgba(255, 255, 255, .16);
@@ -1380,7 +1416,7 @@
         position: relative;
         min-height: calc(100vh - 70px);
         overflow: visible;
-        background: #000;
+        background: #0C0C0D;
         color: #fff;
     }
 
@@ -1532,7 +1568,7 @@
         }
 
         100% {
-            background: #000;
+            background: #0C0C0D;
             opacity: 1;
         }
     }
@@ -1613,11 +1649,11 @@
     }
 
     .story-card-front {
-        background: #000;
+        background: #0C0C0D;
     }
 
     .story-card-back {
-        background: #000;
+        background: #0C0C0D;
         color: #fff;
         transform: rotateY(180deg);
     }
@@ -1630,7 +1666,7 @@
         margin-bottom: 30px;
         overflow: hidden;
         display: block;
-        background: #000;
+        background: #0C0C0D;
     }
 
     .story-person img {
@@ -2725,7 +2761,7 @@
         position: fixed;
         inset: 0;
         z-index: 100000;
-        background: #000;
+        background: #0C0C0D;
         color: #fff;
         display: grid;
         place-items: center;
@@ -6447,8 +6483,8 @@
        Açılışta logo jenerik gibi kurulur: önce Hackfest27, sonra UniPakt (saydamdan opağa),
        sonra el yazısı Mixit (~2,1 sn). Katmanlar aynı kareden kesildi; sonunda tam logoya geçilir.
        ============================================================ */
-    html.hf-mode[data-theme] { --ink: #FFFFFF; --paper: #0A0A0B; --paper-soft: #121214; --border: #FFFFFF1F; --border-strong: #FFFFFF33; --dot: #FFFFFF80; --dot-soft: #FFFFFF40; --accent: #FF5A1F; color-scheme: dark; }
-    html.hf-mode, html.hf-mode body { background: #0A0A0B; }
+    html.hf-mode[data-theme] { --ink: #F2F1EE; --paper: #0C0C0D; --paper-soft: #161618; --border: #FFFFFF1F; --border-strong: #FFFFFF33; --dot: #FFFFFF80; --dot-soft: #FFFFFF40; --accent: #FF5A1F; color-scheme: dark; }
+    html.hf-mode, html.hf-mode body { background: #0C0C0D; }
     html.hf-mode .logo-img:not(.logo-alt), html.hf-mode .site-footer .footer-brand-logo { filter: invert(1) !important; }
     html.hf-mode .site-footer .footer-wordmark { filter: invert(1) hue-rotate(180deg) !important; }
     html.hf-mode .scroll-progress { background: #FF5A1F; }
@@ -6457,7 +6493,7 @@
        ad (jenerik logo) anıt gibi büyük, sonrası sakin; etiket/numara/çizgi/gradyan/gölge yok,
        bölümler zemin tonuyla ayrılır, her bölüm kendi başlığıyla açılır ve komşusundan farklı dizilir. */
     .hf-page {
-        --hf-acc: #FF5A1F; --hf-dark: #0A0A0B; --hf-dark-2: #141416; --hf-light: #F4F4F2; --hf-ink: #0A0A0B;
+        --hf-acc: #FF5A1F; --hf-dark: #0C0C0D; --hf-dark-2: #161618; --hf-light: #F2F1EE; --hf-ink: #0C0C0D;
         --hf-soft-d: #FFFFFFB8; --hf-soft-l: #0A0A0BB3;
         --hf-m: clamp(20px, 5vw, 64px);
         --hf-gap: clamp(28px, 5vw, 96px);
@@ -6740,7 +6776,7 @@
             </div>
 
             <!-- What? the pakt. -->
-            <div class="section">
+            <div class="section field-alt">
                 <div class="wrap">
                     <div class="eyebrow-split" data-reveal>
                         <span class="a">What?</span>
@@ -6827,7 +6863,7 @@
             </div>
 
             <!-- club preview -->
-            <div class="section">
+            <div class="section field-alt">
                 <div class="wrap">
                     <div class="section-title">
                         <h2 data-reveal>Ağa katılan kulüpler</h2>
@@ -7580,7 +7616,7 @@
                 </div>
             </div>
 
-            <div class="section" style="border-bottom:none;">
+            <div class="section field-alt" style="border-bottom:none;">
                 <div class="wrap">
                     <form class="minimal-form join-form" onsubmit="handleJoin(event, 'joinStatus')">
                         <input class="hp-field" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
