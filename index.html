@@ -6812,12 +6812,17 @@
     .mx-s-ink { background: #1D1D20; color: #fff; }
     /* Son şerit: ortaya gelip dikilir; yazısı yukarı akar */
     /* Son şerit yukarıdan sarkar: üst ucu hep ekranın dışında, kaydırdıkça uzar; yazı alt ucundadır. */
-    .mx-last { position: absolute; left: 50%; top: -40px; height: 0; padding: 0 0 22px; background: var(--hf-acc); color: var(--hf-ink); opacity: 0; will-change: transform, height; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; transform: translateX(-50%); transform-origin: 50% 100%; }
+    .mx-last { position: absolute; left: 50%; top: -40px; height: 0; padding: 0 0 22px; background: var(--hf-acc); color: var(--hf-ink); opacity: 0; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; transform: translateX(-50%); transform-origin: 50% 100%; }
     .mx-last span { writing-mode: vertical-rl; padding: 0 .12em; }
-    .mx-burst { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    /* Şeritteki siyah nokta: kamera buna yakınlaşır, ekranı kaplayınca geri sayım açılır. */
+    .mx-dot { display: inline-block; width: .3em; height: .3em; margin: .32em 0; border-radius: 50%; background: currentColor; vertical-align: middle; }
+    /* Geri sayım ekranındaki turuncu çizgiler (arka plan) */
+    .mx-zoomdot { position: absolute; left: 0; top: 0; z-index: 2; display: none; border-radius: 50%; background: #050505; pointer-events: none; }
+    .mx-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    .mx-end > :not(canvas) { position: relative; z-index: 1; }
     /* Bitiş ekranı (Taste: ad anıt gibi; sola hizalı, eşit kenar boşlukları, çizgi/etiket yok).
        Üstte logo ve künye, ortada tek başlık, altta saniyesiyle akan geri sayım. */
-    .mx-end { position: absolute; inset: 0; display: grid; grid-template-rows: auto 1fr auto; padding: clamp(24px, 5svh, 56px) var(--hf-m) clamp(28px, 7svh, 72px); background: #050505; color: #fff; opacity: 0; visibility: hidden; transition: opacity .45s steps(5), visibility 0s linear .45s; }
+    .mx-end { position: absolute; inset: 0; z-index: 3; display: grid; grid-template-rows: auto 1fr auto; padding: clamp(24px, 5svh, 56px) var(--hf-m) clamp(28px, 7svh, 72px); background: #050505; color: #fff; opacity: 0; visibility: hidden; transition: opacity .45s steps(5), visibility 0s linear .45s; }
     .mx-view.is-end .mx-end { opacity: 1; visibility: visible; transition: opacity .45s steps(5), visibility 0s; }
     .mx-end-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
     .mx-end-logo { display: block; width: clamp(200px, 30vw, 460px); height: auto; }
@@ -6846,7 +6851,7 @@
         .mx-flow { margin-top: 0; padding: 0 0 clamp(48px, 8vw, 96px); }
         .mx-drop { display: none; }
         .mx-ride { display: flex; flex-direction: column-reverse; }
-        .mx-strips, .mx-last, .mx-burst { display: none; }
+        .mx-strips, .mx-last, .mx-lines { display: none; }
         .mx-end { opacity: 1; visibility: visible; transition: none; }
         .mx-end-top, .mx-end-title, .mx-count { transform: none; transition: none; }
         .mx-cue b { animation: none; }
@@ -7710,9 +7715,10 @@
                         <div class="mx-strip mx-s-ink" data-side="1"><span lang="en" data-no-i18n>Hackfest27 · Mixit · Hackfest27 · Mixit · Hackfest27 · Mixit · Hackfest27 · Mixit ·</span></div>
                         <div class="mx-strip mx-s-acc" data-side="-1"><span lang="en" data-no-i18n>Hackfest27 · Mixit · Hackfest27 · Mixit · Hackfest27 · Mixit · Hackfest27 · Mixit ·</span></div>
                     </div>
-                    <div class="mx-last" id="mxLast" aria-hidden="true"><span id="mxLastText" lang="en" data-no-i18n>Hackfest27 · Mixit</span></div>
-                    <canvas class="mx-burst" id="mxBurst" aria-hidden="true"></canvas>
+                    <i class="mx-zoomdot" id="mxZoomDot" aria-hidden="true"></i>
+                    <div class="mx-last" id="mxLast" aria-hidden="true"><span id="mxLastText" lang="en" data-no-i18n>Hackfest27<i class="mx-dot"></i>Mixit</span></div>
                     <div class="mx-end" id="mxEnd">
+                        <canvas class="mx-lines" id="mxLines" aria-hidden="true"></canvas>
                         <div class="mx-end-top">
                             <img class="mx-end-logo" src="/hackfest-media/logo-full.webp" alt="HACKFEST27 MIXIT" width="1375" height="505" decoding="async">
                             <p class="mx-end-meta">6–7 Mart 2027<br>İstanbul Kongre Merkezi</p>
@@ -11177,9 +11183,8 @@
 
         // MIXIT şerit gösterisi.
         // Önde düz bilgi paneli kayar; arkada yedi şerit sırayla sağdan/soldan, yavaşça iner.
-        // Panel bitince dik duran son şerit ekranın üstünden girer, kaydırdıkça iner; zemine değdiği an
-        // düşük fps'li (24 kare/sn) jenerik başlar: ezilme → kara kalem karalamaları → siyah perde → bitiş ekranı.
-        // Yukarı dönülünce sıfırlanır.
+        // Panel bitince son şerit yukarıdan sarkarak iner; kaydırdıkça kamera şeritteki siyah noktaya
+        // yaklaşır, nokta ekranı kaplayınca geri sayım ekranı açılır. Hepsi kaydırmaya bağlı, geri de oynar.
         const ride = document.getElementById('mxRide');
         const view = document.getElementById('mxView');
         const panel = document.getElementById('mxPanelWrap');
@@ -11187,201 +11192,179 @@
             const strips = [...view.querySelectorAll('.mx-strip')];
             const last = document.getElementById('mxLast');
             const lastText = document.getElementById('mxLastText');
-            const canvas = document.getElementById('mxBurst');
-            const ctx = canvas.getContext('2d');
+            const dot = last.querySelector('.mx-dot');
+            const zoomDot = document.getElementById('mxZoomDot');
+            let baseFont = 100, dotY0 = 0;
             const clamp01 = (v) => Math.max(0, Math.min(1, v));
             const lerp = (a, b, t) => a + (b - a) * t;
             const ease = (t) => (t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
-            const FPS = 24, FRAME = 1000 / FPS;
-            const LOOPS = 1;
-            const PENCIL = 'rgba(242, 241, 238, .92)';
-            let W = 0, H = 0, raf = 0, seq = null;
+            let W = 0, H = 0, raf = 0;
 
-            // Son şeridin boyu yazıya göre: tamamı görünsün, ekranın %72'sini geçmesin.
+            // Son şeridin boyu yazıya göre: tamamı sığsın, ekranın %72'sini geçmesin.
             const fitLast = () => {
                 lastText.style.fontSize = '';
                 const max = H * .72 - 22;
                 const len = lastText.offsetHeight;
-                if (len > max) lastText.style.fontSize = `${parseFloat(getComputedStyle(lastText).fontSize) * max / len}px`;
+                baseFont = parseFloat(getComputedStyle(lastText).fontSize);
+                if (len > max) baseFont = baseFont * max / len;
+                lastText.style.fontSize = `${baseFont}px`;
             };
             const size = () => {
                 const r = view.getBoundingClientRect();
-                const dpr = Math.min(2, window.devicePixelRatio || 1);
                 W = r.width; H = r.height;
-                canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
                 fitLast();
             };
             const scrolled = () => (parseFloat(getComputedStyle(view).top) || 0) - ride.getBoundingClientRect().top;
-            // bottom: şeridin alt ucunun ekrandaki yeri (üst ucu hep ekranın üstünde kalır).
-            const placeLast = (bottom, sx = 1, sy = 1) => {
-                last.style.height = `${Math.max(0, bottom + 40)}px`;
-                last.style.transform = `translateX(-50%) scale(${sx}, ${sy})`;
-            };
 
             const render = () => {
                 raf = 0;
                 const s = scrolled();
-                const panelEnd = panel.offsetTop + panel.offsetHeight; // panel ekrandan tamamen çıktığı an
+                const panelEnd = panel.offsetTop + panel.offsetHeight;
                 const total = ride.offsetHeight - view.offsetHeight;
-                const touch = total - H * .35; // son şeridin zemine değdiği kaydırma
                 // Arka şeritler: panel boyunca tek tur, yavaş (önü okunur kalsın).
-                const sp = clamp01(s / panelEnd) * LOOPS;
+                const sp = clamp01(s / panelEnd);
                 const n = strips.length, span = .36, gap = (1 - span) / (n - 1);
                 strips.forEach((el, i) => {
                     const side = Number(el.dataset.side) || 1;
-                    let t = -1;
-                    for (let loop = 0; loop < LOOPS; loop++) {
-                        const lt = (sp - loop - i * gap) / span;
-                        if (lt > 0 && lt < 1) t = lt;
-                    }
+                    const t = (sp - i * gap) / span;
                     el.style.visibility = t <= 0 || t >= 1 ? 'hidden' : 'visible';
-                    if (t <= 0) return;
+                    if (t <= 0 || t >= 1) return;
                     const y = lerp(-.3 * H, 1.3 * H, t);
                     const rot = side * lerp(12, -3, t);
                     const x = side * lerp(.35 * W, -.1 * W, t);
                     el.style.transform = `translate3d(${x}px, ${y - el.offsetHeight / 2}px, 0) rotate(${rot}deg)`;
                     el.firstElementChild.style.transform = `translateX(${side * lerp(-8, 3, t)}%)`;
                 });
-                if (seq) {
-                    if (s < touch - H * .2) stop();
-                    return;
-                }
-                // Son şerit: yukarıdan sarkarak iner; alt ucu zemine değince patlar.
-                const dt = clamp01((s - panelEnd + H * .2) / (touch - panelEnd + H * .2));
+                // Son şerit: önce sarkarak iner (0–.45), sonra siyah noktaya yakınlaşılır (.45–1).
+                // Bulanıklaşmasın diye büyütme transform ile değil yazı boyutuyla yapılır; nokta ekranın yarısını
+                // kaplayınca yerine aynı yerde keskin kenarlı bir siyah daire büyür ve ekranı kaplar.
+                const dt = clamp01((s - panelEnd + H * .2) / (total - H * .1 - panelEnd + H * .2));
                 last.style.opacity = dt > 0 ? '1' : '0';
-                placeLast(lerp(0, H, dt));
-                if (dt >= 1) start();
+                const bottom = lerp(0, H * .66, ease(clamp01(dt / .45)));
+                const z = clamp01((dt - .45) / .55);
+                const k = Math.pow(z, 2.2);
+                const dot0 = baseFont * .3;
+                const maxScale = (Math.hypot(W, H) * 1.1) / dot0;
+                const scale = Math.exp(Math.log(maxScale) * k);
+                const S1 = Math.max(1, (Math.min(W, H) * .45) / dot0);
+                const fs = Math.min(scale, S1);
+                lastText.style.fontSize = `${baseFont * fs}px`;
+                last.style.paddingBottom = `${22 * fs}px`;
+                const natural = lastText.offsetHeight + 22 * fs;
+                last.style.height = `${Math.max(bottom + 40, z > 0 ? natural : 0)}px`;
+                const oy = dot.offsetTop + dot.offsetHeight / 2 + lastText.offsetTop;
+                if (z === 0) dotY0 = -40 + oy; // yaklaşma başlarken noktanın ekrandaki yeri
+                const cy = z > 0 ? lerp(dotY0, H / 2, ease(Math.min(1, z * 1.6))) : 0;
+                const dy = z > 0 ? cy - (-40 + oy) : 0;
+                last.style.transform = `translate(-50%, ${dy}px)`;
+                if (z > 0) {
+                    // Noktayı ölçüp tam ekranın ortasına (yatay) ve cy'ye (dikey) hizala; büyüyen daire de buraya oturur.
+                    const r = dot.getBoundingClientRect(), vr = view.getBoundingClientRect();
+                    const ex = W / 2 - (r.left - vr.left + r.width / 2);
+                    const ey = cy - (r.top - vr.top + r.height / 2);
+                    last.style.transform = `translate(calc(-50% + ${ex}px), ${dy + ey}px)`;
+                }
+                const big = scale > S1 ? dot0 * scale : 0;
+                zoomDot.style.display = big ? 'block' : 'none';
+                if (big) {
+                    zoomDot.style.width = zoomDot.style.height = `${big}px`;
+                    zoomDot.style.transform = `translate(${W / 2 - big / 2}px, ${cy - big / 2}px)`;
+                }
+                const end = z >= .985;
+                if (end !== view.classList.contains('is-end')) {
+                    view.classList.toggle('is-end', end);
+                    window.dispatchEvent(new CustomEvent('mixit:end', { detail: end }));
+                }
             };
             const onScroll = () => { if (!raf) raf = requestAnimationFrame(render); };
-
-            // ---- Kara kalem çizimleri: her karede titreyen (boil) çift çizgi ----
-            const jit = (a) => (Math.random() - .5) * a;
-            const pencil = (pts, color = PENCIL) => {
-                for (let pass = 0; pass < 2; pass++) {
-                    ctx.beginPath();
-                    pts.forEach(([x, y], k) => { const px = x + jit(2.2), py = y + jit(2.2); k ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
-                    ctx.strokeStyle = color;
-                    ctx.globalAlpha = pass ? .45 : .95;
-                    ctx.lineWidth = pass ? 1.2 : 2.4;
-                    ctx.stroke();
-                }
-                ctx.globalAlpha = 1;
-            };
-            const SHAPES = {
-                hash: (s) => [[[-.5 * s, -.18 * s], [.5 * s, -.22 * s]], [[-.5 * s, .2 * s], [.5 * s, .16 * s]], [[-.18 * s, -.5 * s], [-.22 * s, .5 * s]], [[.2 * s, -.5 * s], [.16 * s, .5 * s]]],
-                spiral: (s, g) => { const pts = []; const end = 3.6 * Math.PI * g; for (let a = 0; a <= end; a += .25) pts.push([Math.cos(a) * s * (.06 + .13 * a / Math.PI), Math.sin(a) * s * (.06 + .13 * a / Math.PI)]); return [pts]; },
-                loops: (s, g) => { const pts = []; const end = 6 * Math.PI * g; for (let u = 0; u <= end; u += .3) pts.push([(u / (6 * Math.PI) - .5) * 1.5 * s + .3 * s * Math.cos(u), .3 * s * Math.sin(u)]); return [pts]; },
-                circle: (s, g) => { const a = [], b = []; const end = 2.15 * Math.PI * g; for (let t = 0; t <= end; t += .3) { a.push([Math.cos(t) * .42 * s, Math.sin(t) * .42 * s]); b.push([Math.cos(t + .4) * .34 * s + .05 * s, Math.sin(t + .4) * .36 * s]); } return [a, b]; },
-                puff: (s) => { const out = []; [[-.3, 0, .26], [0, -.14, .3], [.3, 0, .24], [0, .14, .22]].forEach(([cx, cy, r]) => { const arc = []; for (let t = Math.PI; t <= 2.2 * Math.PI; t += .3) arc.push([(cx + Math.cos(t) * r) * s, (cy + Math.sin(t) * r) * s]); out.push(arc); }); return out; },
-                star: (s) => [[[-.45 * s, 0], [.45 * s, 0]], [[-.25 * s, -.4 * s], [.25 * s, .4 * s]], [[.25 * s, -.4 * s], [-.25 * s, .4 * s]]],
-                zig: (s) => [[[-.5 * s, 0], [-.3 * s, -.2 * s], [-.1 * s, .2 * s], [.1 * s, -.2 * s], [.3 * s, .2 * s], [.5 * s, 0]]]
-            };
-            const TYPES = Object.keys(SHAPES);
-            const spawn = () => {
-                const k = H / 800, list = [];
-                for (let i = 0; i < 52; i++) {
-                    const ang = -Math.PI / 2 + (Math.random() - .5) * 2.7;
-                    const sp = (520 + Math.random() * 680) * k;
-                    list.push({
-                        type: TYPES[i % TYPES.length], x: W / 2 + jit(60), y: H - 6,
-                        vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
-                        rot: Math.random() * 6.28, vr: (Math.random() - .5) * 9,
-                        s: (40 + Math.random() * 60) * Math.max(.75, k), delay: Math.floor(Math.random() * 5), age: 0
-                    });
-                }
-                return list;
-            };
-            const drawDoodles = (list, dt) => {
-                list.forEach((d) => {
-                    if (d.delay > 0) { d.delay--; return; }
-                    d.age += dt;
-                    const drag = Math.pow(.25, dt);
-                    d.vy += 520 * dt * (H / 800); d.vx *= drag; d.vy *= drag;
-                    d.x += d.vx * dt; d.y += d.vy * dt; d.rot += d.vr * dt;
-                    const g = Math.min(1, d.age / .5);
-                    ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(d.rot);
-                    SHAPES[d.type](d.s, g).forEach((pts) => pencil(pts));
-                    ctx.restore();
-                });
-            };
-            const drawImpact = (n) => {
-                const cx = W / 2, cy = H - 4;
-                for (let i = 0; i < 11; i++) {
-                    const a = Math.PI + (i / 10) * Math.PI;
-                    const r0 = 30 + n * 34, r1 = r0 + 60 + Math.random() * 70;
-                    pencil([[cx + Math.cos(a) * r0, cy + Math.sin(a) * r0], [cx + Math.cos(a) * r1, cy + Math.sin(a) * r1]]);
-                }
-            };
-            // Siyah perde aşağıdan yükselir, karalamaları örter; kenarı kurşun kalem gibi titrer.
-            const drawCurtain = (e) => {
-                const level = lerp(H + 20, -40, e);
-                const edge = (x) => level + Math.sin(x * .018 + e * 9) * 14;
-                ctx.beginPath(); ctx.moveTo(0, H);
-                for (let x = 0; x <= W + 24; x += 24) ctx.lineTo(x, edge(x) + jit(8));
-                ctx.lineTo(W, H); ctx.closePath();
-                ctx.fillStyle = '#050505'; ctx.fill();
-                const pts = [];
-                for (let x = 0; x <= W + 24; x += 24) pts.push([x, edge(x)]);
-                pencil(pts);
-                for (let x = 0; x < W; x += 18) pencil([[x, edge(x) + 4], [x + 12, edge(x) + 18 + Math.random() * 14]], 'rgba(242, 241, 238, .35)');
-            };
-
-            // Jenerik oynarken kaydırma kilitli (fare tekerleği, dokunma, klavye).
-            const SCROLL_KEYS = new Set([' ', 'PageDown', 'PageUp', 'ArrowDown', 'ArrowUp', 'Home', 'End']);
-            const block = (e) => { if (e.type !== 'keydown' || SCROLL_KEYS.has(e.key)) e.preventDefault(); };
-            let locked = false;
-            const lock = (on) => {
-                if (on === locked) return;
-                locked = on;
-                const fn = on ? 'addEventListener' : 'removeEventListener';
-                ['wheel', 'touchmove', 'keydown'].forEach((t) => window[fn](t, block, { passive: false }));
-            };
-
-            // ---- Zamana bağlı jenerik (24 kare/sn) ----
-            function start() {
-                if (seq) return;
-                lock(true);
-                seq = { frame: 0, doodles: null, timer: 0 };
-                const BURST_END = 61, CURTAIN_START = 32, CURTAIN_LEN = 24, END = CURTAIN_START + CURTAIN_LEN;
-                seq.timer = setInterval(() => {
-                    const f = seq.frame++;
-                    ctx.clearRect(0, 0, W, H);
-                    if (f < 5) {
-                        // Çarpma: üç kare ezilir, sonra dağılır.
-                        if (f < 3) placeLast(H - [6, 14, 22][f], [1.12, 1.26, 1.38][f]);
-                        else last.style.opacity = '0';
-                        if (!seq.doodles) seq.doodles = spawn();
-                        drawImpact(f * .75);
-                    }
-                    if (seq.doodles && f < BURST_END) drawDoodles(seq.doodles, 1 / FPS);
-                    if (f >= CURTAIN_START) drawCurtain(ease(clamp01((f - CURTAIN_START) / CURTAIN_LEN)));
-                    if (f >= END) {
-                        view.classList.add('is-end');
-                        clearInterval(seq.timer);
-                        lock(false);
-                        setTimeout(() => { if (seq) ctx.clearRect(0, 0, W, H); }, 480);
-                    }
-                }, FRAME);
-            }
-            function stop() {
-                lock(false);
-                if (!seq) return;
-                clearInterval(seq.timer);
-                seq = null;
-                ctx.clearRect(0, 0, W, H);
-                view.classList.remove('is-end');
-                onScroll();
-            }
-
             const syncRide = () => {
                 if (mixit.classList.contains('active')) { size(); onScroll(); }
-                else stop();
+                else if (view.classList.contains('is-end')) { view.classList.remove('is-end'); window.dispatchEvent(new CustomEvent('mixit:end', { detail: false })); }
             };
             window.addEventListener('scroll', onScroll, { passive: true });
             window.addEventListener('resize', () => { size(); onScroll(); });
             window.addEventListener('unipakt:route', syncRide);
             syncRide();
+        }
+
+        // Geri sayım ekranında turuncu çizgiler: ekranın bir kenarından girip başka bir kenarından çıkar,
+        // bazıları yolda havada halka çizer. Ekran açıkken çalışır.
+        const lines = document.getElementById('mxLines');
+        if (lines && view && !still) {
+            const lc = lines.getContext('2d');
+            let LW = 0, LH = 0, run = 0, list = [], last = 0, spawnAt = 0;
+            const resize = () => {
+                const r = lines.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+                LW = r.width; LH = r.height;
+                lines.width = Math.round(LW * dpr); lines.height = Math.round(LH * dpr);
+                lc.setTransform(dpr, 0, 0, dpr, 0, 0);
+            };
+            const edgePoint = (side) => {
+                const m = 60;
+                if (side === 0) return [Math.random() * LW, -m];
+                if (side === 1) return [LW + m, Math.random() * LH];
+                if (side === 2) return [Math.random() * LW, LH + m];
+                return [-m, Math.random() * LH];
+            };
+            const spawn = () => {
+                const a = Math.floor(Math.random() * 4);
+                // Çoğu başka kenardan çıkar; bazıları girdiği kenardan geri döner (içeride kavis çizerek).
+                const b = Math.random() < .3 ? a : (a + 1 + Math.floor(Math.random() * 3)) % 4;
+                const p0 = edgePoint(a), p3 = edgePoint(b);
+                const c1 = [Math.random() * LW, Math.random() * LH], c2 = [Math.random() * LW, Math.random() * LH];
+                const loops = Math.random() < .55 ? 1 + (Math.random() < .3 ? 1 : 0) : 0;
+                const len = Math.hypot(p3[0] - p0[0], p3[1] - p0[1]);
+                list.push({
+                    p0, c1, c2, p3, loops, u: 0,
+                    dur: (len / (260 + Math.random() * 220)) * (1 + loops * .35),
+                    r: 26 + Math.random() * 46, la: .38 + Math.random() * .24, dir: Math.random() < .5 ? 1 : -1,
+                    w: 2 + Math.random() * 2.5, trail: []
+                });
+            };
+            const bez = (o, t) => {
+                const mt = 1 - t;
+                return [0, 1].map((i) => mt * mt * mt * o.p0[i] + 3 * mt * mt * t * o.c1[i] + 3 * mt * t * t * o.c2[i] + t * t * t * o.p3[i]);
+            };
+            const pos = (o, u) => {
+                // Halka penceresinde yol yavaşlar, üstüne çember eklenir (havada tur atar).
+                const win = .22 * o.loops, a = o.la, b = a + win;
+                let t = u, off = [0, 0];
+                if (o.loops && u > a && u < b) {
+                    const q = (u - a) / win;
+                    t = a + (u - a) * .15;
+                    const ph = q * Math.PI * 2 * o.loops;
+                    off = [o.r * Math.sin(ph) * o.dir, o.r * (1 - Math.cos(ph))];
+                } else if (o.loops && u >= b) t = u - win * .85;
+                const p = bez(o, Math.min(1, t / (1 - win * .85)));
+                return [p[0] + off[0], p[1] + off[1]];
+            };
+            const tick = (now) => {
+                if (!run) return;
+                const dt = Math.min(.05, (now - (last || now)) / 1000); last = now;
+                if (now > spawnAt && list.length < 7) { spawn(); spawnAt = now + 650 + Math.random() * 900; }
+                lc.clearRect(0, 0, LW, LH);
+                lc.lineCap = 'round'; lc.lineJoin = 'round';
+                list.forEach((o) => {
+                    o.u += dt / o.dur;
+                    if (o.u <= 1) o.trail.push(pos(o, o.u));
+                    if (o.trail.length > 70 || o.u > 1) o.trail.shift();
+                    for (let i = 1; i < o.trail.length; i++) {
+                        lc.beginPath();
+                        lc.moveTo(o.trail[i - 1][0], o.trail[i - 1][1]);
+                        lc.lineTo(o.trail[i][0], o.trail[i][1]);
+                        lc.strokeStyle = `rgba(255, 90, 31, ${(i / o.trail.length) * .9})`;
+                        lc.lineWidth = o.w;
+                        lc.stroke();
+                    }
+                });
+                list = list.filter((o) => o.u <= 1 || o.trail.length > 1);
+                requestAnimationFrame(tick);
+            };
+            window.addEventListener('mixit:end', (e) => {
+                if (e.detail && !run) { resize(); run = 1; last = 0; spawnAt = 0; list = []; for (let i = 0; i < 3; i++) spawn(); list.forEach((o, i) => { o.u = .15 + i * .2; }); requestAnimationFrame(tick); }
+                else if (!e.detail) { run = 0; lc.clearRect(0, 0, LW, LH); }
+            });
+            window.addEventListener('resize', () => { if (run) resize(); });
         }
     })();
 
