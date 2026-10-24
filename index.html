@@ -11312,47 +11312,62 @@
                 lc.setTransform(dpr, 0, 0, dpr, 0, 0);
                 let seed = 27;
                 const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
-                const edge = (side) => {
-                    const m = 20;
-                    if (side === 0) return [rnd() * LW, -m];
-                    if (side === 1) return [LW + m, rnd() * LH];
-                    if (side === 2) return [rnd() * LW, LH + m];
-                    return [-m, rnd() * LH];
-                };
-                const bez = (p0, c1, c2, p3, t) => {
-                    const mt = 1 - t;
-                    return [0, 1].map((i) => mt * mt * mt * p0[i] + 3 * mt * mt * t * c1[i] + 3 * mt * t * t * c2[i] + t * t * t * p3[i]);
-                };
                 lc.clearRect(0, 0, LW, LH);
                 lc.strokeStyle = '#FF5A1F';
                 lc.lineWidth = Math.max(2, Math.min(3.5, LW / 420));
                 lc.lineCap = 'round'; lc.lineJoin = 'round';
                 lc.globalAlpha = .9;
-                for (let n = 0; n < 6; n++) {
-                    const a = Math.floor(rnd() * 4);
-                    const b = rnd() < .3 ? a : (a + 1 + Math.floor(rnd() * 3)) % 4;
-                    const p0 = edge(a), p3 = edge(b);
-                    const c1 = [rnd() * LW, rnd() * LH], c2 = [rnd() * LW, rnd() * LH];
-                    const loops = rnd() < .55 ? 1 + (rnd() < .3 ? 1 : 0) : 0;
-                    const at = .35 + rnd() * .3, rad = 22 + rnd() * 40, dir = rnd() < .5 ? 1 : -1;
-                    lc.beginPath();
-                    const STEPS = 240;
-                    for (let i = 0; i <= STEPS; i++) {
-                        const u = i / STEPS;
-                        let p = bez(p0, c1, c2, p3, u);
-                        if (loops) {
-                            // Halka: yolun 'at' noktasında çember(ler) çizilip yola devam edilir.
-                            const w = .16 * loops;
-                            if (u > at && u < at + w) {
-                                const q = (u - at) / w, ph = q * Math.PI * 2 * loops;
-                                const base = bez(p0, c1, c2, p3, at + (u - at) * .1);
-                                p = [base[0] + rad * Math.sin(ph) * dir, base[1] + rad * (1 - Math.cos(ph))];
+                const BAND = 100; // çizgiler kenardan en fazla bu kadar içeri girer
+                // Kenar boyunca: (along, depth) → ekran. Yalnız üst, sağ ve alt kenar.
+                const toXY = {
+                    top: (a, d) => [a, d],
+                    bottom: (a, d) => [a, LH - d],
+                    right: (a, d) => [LW - d, a]
+                };
+                const stroke = (pts) => { lc.beginPath(); pts.forEach(([x, y], i) => (i ? lc.lineTo(x, y) : lc.moveTo(x, y))); lc.stroke(); };
+                // Kenardan girip aynı kenardan çıkan kavis; bazıları yolda halka çizer.
+                const edgeLine = (side, from, to, depth, loop) => {
+                    const pts = [], N = 220, r = 12 + rnd() * 10, at = .3 + rnd() * .4, dir = rnd() < .5 ? 1 : -1;
+                    for (let i = 0; i <= N; i++) {
+                        const t = i / N;
+                        let a = from + (to - from) * t;
+                        let d = -20 + (depth + 20) * Math.pow(Math.sin(Math.PI * t), .8);
+                        if (loop) {
+                            const w = .14;
+                            if (t > at && t < at + w) {
+                                const ph = ((t - at) / w) * Math.PI * 2;
+                                a = from + (to - from) * (at + (t - at) * .08) + r * Math.sin(ph) * dir;
+                                d = (-20 + (depth + 20) * Math.pow(Math.sin(Math.PI * at), .8)) + r * (1 - Math.cos(ph));
+                            } else if (t >= at + w) {
+                                const tt = at + (t - at - w) * ((1 - at) / (1 - at - w));
+                                a = from + (to - from) * tt;
+                                d = -20 + (depth + 20) * Math.pow(Math.sin(Math.PI * tt), .8);
                             }
                         }
-                        i ? lc.lineTo(p[0], p[1]) : lc.moveTo(p[0], p[1]);
+                        pts.push(toXY[side](a, Math.min(BAND, d)));
                     }
-                    lc.stroke();
-                }
+                    stroke(pts);
+                };
+                // Köşe: bir kenardan girip komşu kenardan çıkar, köşenin 100 px'lik karesinde kalır.
+                const cornerLine = (corner) => {
+                    const a = 30 + rnd() * 60, b = 30 + rnd() * 60, pts = [];
+                    const P0 = corner === 'tr' ? [LW - a, -20] : [LW - a, LH + 20];
+                    const P2 = corner === 'tr' ? [LW + 20, b] : [LW + 20, LH - b];
+                    const C = corner === 'tr' ? [LW - Math.min(BAND, a + 30), Math.min(BAND, b + 30)] : [LW - Math.min(BAND, a + 30), LH - Math.min(BAND, b + 30)];
+                    for (let i = 0; i <= 60; i++) {
+                        const t = i / 60, mt = 1 - t;
+                        pts.push([mt * mt * P0[0] + 2 * mt * t * C[0] + t * t * P2[0], mt * mt * P0[1] + 2 * mt * t * C[1] + t * t * P2[1]]);
+                    }
+                    stroke(pts);
+                };
+                const span = (len) => { const l = len * (.18 + rnd() * .22); const s0 = rnd() * (len - l); return [s0, s0 + l]; };
+                [['top', true], ['top', false], ['right', true], ['bottom', false], ['bottom', true]].forEach(([side, loop]) => {
+                    const len = side === 'right' ? LH : LW;
+                    const [f0, f1] = span(len);
+                    edgeLine(side, f0, f1, 24 + rnd() * 26, loop);
+                });
+                cornerLine('tr');
+                cornerLine('br');
             };
             window.addEventListener('mixit:end', (e) => { if (e.detail) draw(); });
             window.addEventListener('resize', () => { if (view && view.classList.contains('is-end')) draw(); });
