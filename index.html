@@ -6809,19 +6809,19 @@
     .mx-end-logo { display: block; width: clamp(200px, 30vw, 460px); height: auto; }
     .mx-end-meta { margin: 0; text-align: right; font-size: var(--hf-lead); font-weight: 600; line-height: 1.4; color: var(--hf-soft-d); }
     .mx-end-title { align-self: center; margin: 0; max-width: 12ch; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(56px, 10.5vw, 188px); line-height: .88; letter-spacing: -0.055em; text-wrap: balance; }
-    .mx-count { display: grid; grid-template-columns: repeat(4, max-content); gap: 8px clamp(28px, 5.4vw, 104px); }
-    .mx-count > div { display: grid; gap: 12px; }
-    .mx-count b { display: block; height: .86em; overflow: hidden; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(52px, 8vw, 136px); line-height: .86; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+    .mx-count { display: grid; grid-template-columns: repeat(4, max-content); gap: 8px clamp(16px, 2.4vw, 40px); }
+    .mx-count > div { display: grid; gap: clamp(16px, 2.2vw, 26px); justify-items: start; }
+    .mx-count b { display: block; box-sizing: content-box; height: .86em; padding: .16em .2em; border: 1px solid #FFFFFF47; border-radius: clamp(14px, 1.6vw, 24px); overflow: hidden; text-align: center; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(52px, 8vw, 136px); line-height: .86; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
     .mx-count b i { display: block; font-style: normal; }
     .mx-count b i.mx-roll { animation: mxRoll .42s cubic-bezier(.2, .8, .2, 1) both; }
     @keyframes mxRoll { from { transform: translateY(70%); opacity: 0; } to { transform: none; opacity: 1; } }
-    .mx-count span { font-size: var(--hf-body); font-weight: 600; color: var(--hf-soft-d); }
+    .mx-count span { padding-left: .2em; font-size: var(--hf-body); font-weight: 600; color: var(--hf-soft-d); }
     .mx-end-top, .mx-end-title, .mx-count { transform: translateY(18px); transition: transform .45s steps(5); }
     .mx-view.is-end .mx-end-top, .mx-view.is-end .mx-end-title, .mx-view.is-end .mx-count { transform: none; }
     @media (max-width: 620px) {
         .mx-end-top { flex-direction: column; }
         .mx-end-meta { text-align: left; font-size: var(--hf-body); }
-        .mx-count { grid-template-columns: repeat(2, max-content); row-gap: 22px; column-gap: 40px; }
+        .mx-count { grid-template-columns: repeat(2, max-content); row-gap: 22px; column-gap: 14px; }
         .mx-count b { font-size: clamp(52px, 17vw, 84px); }
     }
     /* Hareket istemeyenlere gösteri yok: doğrudan bitiş ekranı */
