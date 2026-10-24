@@ -6379,9 +6379,6 @@
     .sp-kicker .sp-logo-img.sp-wordmark { opacity: 0; }
     .sp-kicker.is-word .sp-logo-img:not(.sp-wordmark) { opacity: 0; }
     .sp-kicker.is-word .sp-wordmark { opacity: 1; }
-    /* Glitch bitince logonun hemen ardında "Sponsor" bir anda belirir: UniPakt.Sponsor (geçiş yok, efektin sonunu bekler). */
-    .sp-kicker .sp-kick-word { grid-area: 1 / 2; align-self: end; margin: 0 0 calc(clamp(40px, 4.6vw, 64px) * .072) calc(clamp(40px, 4.6vw, 64px) * .02); font-family: 'UniPakt Logo', 'Archivo', sans-serif; font-weight: 800; font-size: calc(clamp(40px, 4.6vw, 64px) * 1.0); line-height: .74; letter-spacing: -0.005em; color: #0a0a0a; white-space: nowrap; visibility: hidden; }
-    .sp-kicker.is-word .sp-kick-word { visibility: visible; }
     .sp-brand-logo { display: block; height: 26px; width: auto; }
     .sp-hero h1 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(54px, 10vw, 150px); line-height: .92; letter-spacing: -0.05em; }
     .sp-lead { margin: 14px 0 0; max-width: 34ch; font-size: clamp(16px, 1.6vw, 20px); color: #0a0a0aa6; }
@@ -6429,6 +6426,8 @@
     html.sp-mode .nav .logo .logo-alt { filter: none !important; }
     html.sp-mode .nav .logo.is-alt .logo-img:not(.logo-alt) { opacity: 0; }
     html.sp-mode .nav .logo.is-alt .logo-alt { opacity: 1; }
+    .nav .logo .logo-sponsor { position: absolute; left: 100%; bottom: 2px; margin-left: .03em; font-family: 'UniPakt Logo', 'Archivo', sans-serif; font-weight: 800; font-size: 34px; line-height: .74; letter-spacing: -0.005em; color: var(--ink); white-space: nowrap; pointer-events: none; visibility: hidden; }
+    html.sp-mode .nav .logo.is-alt .logo-sponsor { visibility: visible; }
     .nav-scramble > .nav-scramble-text { color: transparent; }
     .nav-scramble-layer { position: absolute; left: 0; top: 0; display: flex; align-items: center; justify-content: center; white-space: nowrap; pointer-events: none; font-variant-numeric: tabular-nums; }
     .nav-scramble > .nav-scramble-text { display: inline-block; }
@@ -7222,7 +7221,7 @@
             <div class="sp-hero" id="spHero">
                 <canvas class="sp-canvas" id="spCanvas" aria-hidden="true"></canvas>
                 <div class="wrap sp-hero-text">
-                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><img class="sp-logo-img sp-wordmark" src="/unipakt-logo-bg.png?v=3" alt="" aria-hidden="true"><span class="sp-kick-word" aria-hidden="true" data-no-i18n>sponsor</span></p>
+                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><img class="sp-logo-img sp-wordmark" src="/unipakt-logo-bg.png?v=3" alt="" aria-hidden="true"></p>
                     <h1>Sponsorlar</h1>
                     <p class="sp-lead">UniPakt ağındaki etkinlikleri destekleyen kurumlar.</p>
                     <button type="button" class="sp-down" data-sp-down>Sponsor ol ↓</button>
@@ -10623,7 +10622,7 @@
         // Üst menüdeki logo, kısa ve yumuşak bir glitch ile turuncu kare noktalı logoya dönüşür.
         const logoLink = document.querySelector('.nav .logo');
         const logoBase = logoLink?.querySelector('.logo-img');
-        let logoAlt = null, glitchTimer = 0;
+        let logoAlt = null, logoWord = null, glitchTimer = 0;
         if (logoLink && logoBase) {
             logoAlt = document.createElement('img');
             logoAlt.className = 'logo-img logo-alt';
@@ -10631,11 +10630,28 @@
             logoAlt.alt = '';
             logoAlt.setAttribute('aria-hidden', 'true');
             logoLink.appendChild(logoAlt);
+            // Sponsorlar'da logonun yanında "sponsor" (UniPakt.sponsor); başka sayfaya geçerken glitch ile kaybolur.
+            logoWord = document.createElement('span');
+            logoWord.className = 'logo-sponsor';
+            logoWord.textContent = 'sponsor';
+            logoWord.setAttribute('aria-hidden', 'true');
+            logoWord.setAttribute('data-no-i18n', '');
+            logoLink.appendChild(logoWord);
         }
+        // Yazı boyu logonun o anki yüksekliğine göre (logodaki harflerle aynı ölçek).
+        const sizeWord = () => {
+            if (!logoWord || !logoBase) return;
+            const h = logoBase.getBoundingClientRect().height || 34;
+            logoWord.style.fontSize = (h * 1.0).toFixed(1) + 'px';
+            logoWord.style.bottom = (h * 0.072).toFixed(1) + 'px';
+        };
+        window.addEventListener('resize', sizeWord);
         const resetGlitch = () => {
             clearTimeout(glitchTimer);
             [logoBase, logoAlt].forEach((el) => { if (el) { el.style.clipPath = ''; el.style.transform = ''; el.style.opacity = ''; } });
+            if (logoWord) { logoWord.style.visibility = ''; logoWord.style.opacity = ''; logoWord.style.clipPath = ''; logoWord.style.transform = ''; logoWord.style.filter = ''; }
         };
+        const wordSplit = (amt) => `drop-shadow(${-amt}px 0 rgba(240,74,15,.85)) drop-shadow(${amt}px 0 rgba(0,200,255,.75))`;
         // Glitch yalnızca Sponsorlar'a girerken (normal logo → turuncu noktalı) ve Sponsorlar'dan çıkarken
         // (turuncu noktalı → normal logo) oynar; diğer sayfalar arasında logo hiç oynamaz.
         let logoSp = false;
@@ -10645,6 +10661,7 @@
             if (toSp === logoSp) return;
             logoSp = toSp;
             resetGlitch();
+            sizeWord();
             logoLink.classList.toggle('is-alt', !toSp);
             if (still) { logoLink.classList.toggle('is-alt', toSp); return; }
             const incoming = toSp ? logoAlt : logoBase, outgoing = toSp ? logoBase : logoAlt;
@@ -10664,6 +10681,16 @@
                 incoming.style.transform = `translateX(${dx}px)`;
                 outgoing.style.clipPath = '';
                 outgoing.style.transform = showIn ? '' : `translateX(${(-dx).toFixed(1)}px)`;
+                // "sponsor" henüz yokken (girişte) ya da giderken yeri glitchlenir.
+                if (logoWord) {
+                    const q = toSp ? p : 1 - p;
+                    const sTop = Math.random() * 85, sH = 8 + Math.random() * (16 + q * 28);
+                    logoWord.style.visibility = 'visible';
+                    logoWord.style.opacity = Math.random() < 0.3 + q * 0.4 ? '1' : '0';
+                    logoWord.style.clipPath = `inset(${sTop.toFixed(0)}% 0 ${Math.max(0, 100 - sTop - sH).toFixed(0)}% 0)`;
+                    logoWord.style.transform = `translateX(${((Math.random() * 2 - 1) * (10 - q * 5)).toFixed(1)}px)`;
+                    logoWord.style.filter = wordSplit(1.5 + Math.random() * 2.5);
+                }
                 n++;
                 glitchTimer = setTimeout(tick, STEP);
             };
@@ -10675,11 +10702,9 @@
         const kickWord = kicker?.querySelector('.sp-wordmark');
         if (kickImg) kickImg.src = "/unipakt-logo-normal.png?v=3";
         let kickTimer = 0;
-        const kickSponsor = kicker?.querySelector('.sp-kick-word');
         const kickReset = () => {
             clearTimeout(kickTimer);
             [kickImg, kickWord].forEach((el) => { if (el) { el.style.clipPath = 'none'; el.style.transform = 'none'; el.style.opacity = ''; el.style.filter = 'none'; } });
-            if (kickSponsor) { kickSponsor.style.visibility = ''; kickSponsor.style.opacity = ''; kickSponsor.style.clipPath = 'none'; kickSponsor.style.transform = 'none'; kickSponsor.style.filter = 'none'; }
         };
         const glitchKicker = () => {
             if (!kicker || !kickImg || !kickWord) return;
@@ -10706,15 +10731,6 @@
                 off.style.clipPath = `inset(0 0 ${(30 + Math.random() * 50).toFixed(0)}% 0)`;
                 off.style.transform = `translateX(${(-dx * 0.6).toFixed(1)}px)`;
                 off.style.filter = split(2 + Math.random() * 3);
-                // "sponsor" henüz yokken yeri glitchlenir: kopuk, kaymış, renk ayrışmalı parçalar halinde yanıp söner.
-                if (kickSponsor) {
-                    const sTop = Math.random() * 85, sH = 6 + Math.random() * (14 + p * 26);
-                    kickSponsor.style.visibility = 'visible';
-                    kickSponsor.style.opacity = Math.random() < 0.3 + p * 0.4 ? '1' : '0';
-                    kickSponsor.style.clipPath = `inset(${sTop.toFixed(0)}% 0 ${Math.max(0, 100 - sTop - sH).toFixed(0)}% 0)`;
-                    kickSponsor.style.transform = `translateX(${((Math.random() * 2 - 1) * (22 - p * 12)).toFixed(1)}px)`;
-                    kickSponsor.style.filter = split(3 + Math.random() * 5);
-                }
                 n++;
                 kickTimer = setTimeout(tick, STEP + (Math.random() < 0.2 ? 90 : 0));
             };
