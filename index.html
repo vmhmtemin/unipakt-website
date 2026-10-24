@@ -6828,9 +6828,12 @@
     .mx-end-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
     .mx-end-logo { position: relative; display: block; width: clamp(200px, 30vw, 460px); aspect-ratio: 1375 / 505; }
     .mx-end-logo img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
-    /* Logodaki yıldız her saniye kendi etrafında bir tur atıp durur. */
-    .mx-end-star { transform-origin: 96.1% 41%; animation: mxStarTurn 1s cubic-bezier(.5, 0, .2, 1) infinite; }
-    @keyframes mxStarTurn { 0% { transform: rotate(0deg); } 55%, 100% { transform: rotate(360deg); } }
+    /* Logodaki yıldız her saniye yumuşakça çeyrek tur döner ve durur (4 köşeli yıldızda çeyrek tur, tam tur gibi görünür). */
+    .mx-end-star { transform-origin: 96.1% 41%; animation: mxStarTurn 4s infinite; }
+    @keyframes mxStarTurn {
+        0% { transform: rotate(0deg); animation-timing-function: cubic-bezier(.45, 0, .25, 1); } 22%, 25% { transform: rotate(90deg); animation-timing-function: cubic-bezier(.45, 0, .25, 1); }
+        47%, 50% { transform: rotate(180deg); animation-timing-function: cubic-bezier(.45, 0, .25, 1); } 72%, 75% { transform: rotate(270deg); animation-timing-function: cubic-bezier(.45, 0, .25, 1); } 97%, 100% { transform: rotate(360deg); }
+    }
     @media (prefers-reduced-motion: reduce) { .mx-end-star { animation: none; } }
     .mx-end-meta { margin: 0; text-align: right; font-size: var(--hf-lead); font-weight: 600; line-height: 1.4; color: var(--hf-soft-d); }
     .mx-end-title { align-self: center; margin: 0; max-width: 12ch; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(56px, 10.5vw, 188px); line-height: .88; letter-spacing: -0.055em; text-wrap: balance; }
