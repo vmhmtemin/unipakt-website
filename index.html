@@ -6813,10 +6813,12 @@
     .mx-count { display: grid; grid-template-columns: repeat(4, max-content); gap: 8px clamp(16px, 2.4vw, 40px); }
     .mx-count > div { display: grid; gap: clamp(16px, 2.2vw, 26px); justify-items: start; }
     .mx-count b { display: block; box-sizing: content-box; height: .86em; padding: .16em .2em; border: 1px solid #FFFFFF47; border-radius: clamp(14px, 1.6vw, 24px); overflow: hidden; text-align: center; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(52px, 8vw, 136px); line-height: .86; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
-    .mx-count b i { display: block; font-style: normal; }
-    .mx-count b i.mx-roll { animation: mxRoll .42s cubic-bezier(.2, .8, .2, 1) both; }
-    @keyframes mxRoll { from { transform: translateY(70%); opacity: 0; } to { transform: none; opacity: 1; } }
-    .mx-count span { padding-left: .2em; font-size: var(--hf-body); font-weight: 600; color: var(--hf-soft-d); }
+    /* Her rakam ayrı sütun: üstte sıradaki, altta şimdiki rakam; sütun aşağı kayarak değişir. */
+    .mx-count b { display: flex; justify-content: center; }
+    .mx-dg { display: block; height: .86em; overflow: hidden; }
+    .mx-dg-in { display: block; transform: translateY(-50%); will-change: transform; }
+    .mx-dg-in i { display: block; height: .86em; font-style: normal; text-align: center; }
+    .mx-count > div > span { padding-left: .2em; font-size: var(--hf-body); font-weight: 600; color: var(--hf-soft-d); }
     .mx-end-top, .mx-end-title, .mx-count { transform: translateY(18px); transition: transform .45s steps(5); }
     .mx-view.is-end .mx-end-top, .mx-view.is-end .mx-end-title, .mx-view.is-end .mx-count { transform: none; }
     @media (max-width: 620px) {
@@ -6834,7 +6836,6 @@
         .mx-strips, .mx-last, .mx-burst { display: none; }
         .mx-end { opacity: 1; visibility: visible; transition: none; }
         .mx-end-top, .mx-end-title, .mx-count { transform: none; transition: none; }
-        .mx-count b i.mx-roll { animation: none; }
         .mx-cue b { animation: none; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -11064,44 +11065,83 @@
         window.addEventListener('unipakt:route', setMode);
         setMode();
 
-        // MIXIT geri sayımı: açılış 6 Mart 2027 10.00 (İstanbul). Sayfa açıkken her saniye güncellenir;
-        // değişen rakam aşağıdan kayarak gelir.
+        // MIXIT geri sayımı: açılış 6 Mart 2027 10.00 (İstanbul). Mekanik sayaç gibi her rakam ayrı döner:
+        // değişen rakam aşağı iner, yenisi yukarıdan gelir. Bir üst basamak değişeceği ana son 10 saniyede
+        // yavaşça kaymaya başlar ve alttaki rakamla aynı anda yerine oturur (ör. 50 → 49'da 5 ile 0 birlikte).
         const count = document.getElementById('mxCount');
         const mixit = document.getElementById('page-mixit');
         if (count && mixit) {
             const START = Date.parse('2027-03-06T10:00:00+03:00');
             const END = Date.parse('2027-03-07T19:00:00+03:00');
-            const cells = ['d', 'h', 'm', 's'].map((k) => [k, count.querySelector(`[data-mx="${k}"]`)]);
             const title = mixit.querySelector('.mx-end-title');
             const two = (n) => String(n).padStart(2, '0');
-            let timer = 0;
-            const put = (el, v) => {
-                if (el.dataset.v === v) return;
-                el.dataset.v = v;
-                const i = document.createElement('i');
-                i.textContent = v;
-                if (!still && el.firstChild) i.className = 'mx-roll';
-                el.replaceChildren(i);
+            const SNAP = .35, DRIFT_WIN = 10, DRIFT = .35;
+            // Kalan süre (sn) → [gün, saat, dakika, saniye] metinleri
+            const fmt = (r) => {
+                const t = Math.max(0, Math.floor(r));
+                return [String(Math.floor(t / 86400)), two(Math.floor((t % 86400) / 3600)), two(Math.floor((t % 3600) / 60)), two(t % 60)];
             };
-            const tick = () => {
+            // Her basamağın değiştiği aralık (sn): saniye 1/10, dakika 60/600, saat 3600/36000, gün 86400·10^k
+            const placeOf = (unit, k) => [86400 * Math.pow(10, k), 3600 * Math.pow(10, k), 60 * Math.pow(10, k), Math.pow(10, k)][unit];
+            const units = [...count.querySelectorAll('b[data-mx]')];
+            const cols = units.map(() => []);
+            const ensure = (u, n) => {
+                if (cols[u].length === n) return;
+                units[u].replaceChildren();
+                cols[u] = [];
+                for (let i = 0; i < n; i++) {
+                    const col = document.createElement('span'); col.className = 'mx-dg';
+                    const inner = document.createElement('span'); inner.className = 'mx-dg-in';
+                    const nx = document.createElement('i'), cur = document.createElement('i');
+                    inner.append(nx, cur); col.append(inner); units[u].append(col);
+                    cols[u].push({ inner, nx, cur, c: '', n: '', y: NaN });
+                }
+            };
+            const easeIO = (t) => (t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+            let raf = 0, timer = 0;
+            const frame = () => {
+                raf = 0;
                 const now = Date.now();
                 if (now >= START) {
                     count.hidden = true;
                     if (title) title.textContent = now < END ? 'Festival şu an devam ediyor.' : 'MIXIT 2027 tamamlandı.';
                     return;
                 }
-                const left = Math.floor((START - now) / 1000);
-                const v = { d: String(Math.floor(left / 86400)), h: two(Math.floor((left % 86400) / 3600)), m: two(Math.floor((left % 3600) / 60)), s: two(left % 60) };
-                cells.forEach(([k, el]) => put(el, v[k]));
+                const r = (START - now) / 1000;
+                const cur = fmt(r);
+                cur.forEach((txt, u) => {
+                    ensure(u, txt.length);
+                    for (let i = 0; i < txt.length; i++) {
+                        const k = txt.length - 1 - i; // sağdan basamak sırası
+                        const place = placeOf(u, k);
+                        const left = r % place; // bu basamağın değişmesine kalan süre
+                        const nextTxt = fmt(r - left - .001)[u];
+                        const n = nextTxt.length === txt.length ? nextTxt[i] : '';
+                        const c = txt[i];
+                        let d = 0;
+                        if (!still && n && n !== c) {
+                            const snap = left < SNAP ? easeIO(1 - left / SNAP) : 0;
+                            const drift = place > 1 ? DRIFT * Math.pow(Math.max(0, 1 - left / DRIFT_WIN), 2) : 0;
+                            d = drift + (1 - drift) * snap;
+                        }
+                        const col = cols[u][i];
+                        if (col.c !== c) { col.cur.textContent = c; col.c = c; }
+                        if (col.n !== n) { col.nx.textContent = n; col.n = n; }
+                        const y = Math.round((d - 1) * 5000) / 100; // %: −50 = yalnız şimdiki rakam
+                        if (y !== col.y) { col.inner.style.transform = `translateY(${y / 1}%)`; col.y = y; }
+                    }
+                });
+                if (!still) raf = requestAnimationFrame(frame);
             };
             const sync = () => {
-                clearInterval(timer);
+                cancelAnimationFrame(raf); raf = 0; clearInterval(timer);
                 if (!mixit.classList.contains('active'))
                     return;
-                tick();
-                timer = setInterval(tick, 1000);
+                frame();
+                if (still) timer = setInterval(frame, 1000);
             };
             window.addEventListener('unipakt:route', sync);
+            document.addEventListener('visibilitychange', () => (document.hidden ? (cancelAnimationFrame(raf), raf = 0) : sync()));
             sync();
         }
 
