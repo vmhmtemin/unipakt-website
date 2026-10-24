@@ -6804,8 +6804,9 @@
         .mx-panel { border-radius: 20px; }
     }
     .mx-view { position: sticky; top: var(--nav-h, 86px); height: calc(100svh - var(--nav-h, 86px)); overflow: hidden; contain: layout paint; }
-    /* Arka şeritler: sabit, sayfaya dağılmış (kaymaz); panelin arkasında kalır. */
-    .mx-strips { position: absolute; left: 0; right: 0; top: 0; bottom: 260svh; overflow: hidden; z-index: 0; pointer-events: none; }
+    /* Arka şeritler: sayfaya dağılmış, kendi içinde hareketsiz; önden yavaş akan ayrı bir katman (derinlik). */
+    .mx-strips { position: absolute; left: 0; right: 0; top: 0; bottom: 260svh; overflow: hidden; z-index: 0; pointer-events: none; will-change: transform; }
+    .mx-strips[style*="height"] { bottom: auto; }
     .mx-strip { position: absolute; left: 50%; width: 190vmax; margin-left: -95vmax; height: clamp(76px, 13svh, 150px); display: flex; align-items: center; overflow: hidden; }
     .mx-strip span { display: block; white-space: nowrap; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(44px, 8.4svh, 104px); line-height: 1; letter-spacing: -0.04em; text-transform: uppercase; will-change: transform; }
     .mx-s-acc { background: var(--hf-acc); color: var(--hf-ink); }
@@ -11185,7 +11186,9 @@
         const view = document.getElementById('mxView');
         const panel = document.getElementById('mxPanelWrap');
         const lastC = document.getElementById('mxLastCanvas');
+        const backStrips = document.querySelector('#mxFlow .mx-strips');
         if (ride && view && panel && lastC && mixit && !still) {
+            const DEPTH = .5; // arka şeritler önün yarı hızında kayar (derinlik)
             const ctx = lastC.getContext('2d');
             const clamp01 = (v) => Math.max(0, Math.min(1, v));
             const lerp = (a, b, t) => a + (b - a) * t;
@@ -11245,6 +11248,12 @@
                 const s = scrolled();
                 const panelEnd = panel.offsetTop + panel.offsetHeight;
                 const total = ride.offsetHeight - view.offsetHeight;
+                // Arka katman: sayfayla birlikte ama daha yavaş akar.
+                if (backStrips) {
+                    const h = Math.round(panelEnd * (1 - DEPTH) + H * 1.3);
+                    if (backStrips.style.height !== `${h}px`) backStrips.style.height = `${h}px`;
+                    backStrips.style.transform = `translate3d(0, ${Math.max(0, Math.min(s, panelEnd + H)) * DEPTH}px, 0)`;
+                }
                 const dt = clamp01((s - panelEnd + H * .2) / (total - H * .1 - panelEnd + H * .2));
                 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
                 ctx.clearRect(0, 0, W, H);
