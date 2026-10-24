@@ -6500,17 +6500,7 @@
     header.nav { border-bottom: 0; }
     nav.links.open { border-bottom: 0; }
     .hero, .section { border-bottom: 0; }
-    footer, footer.site-footer { border-top: 0; }
-    .footer-links { border-top: 0; }
-    .site-footer .footer-top { border-bottom: 0; }
-    /* Alt bilgideki çağrı bandı ters zeminde (açık): çizgiler kalktığı için alt bilgiden zeminle ayrılır. Sponsorlar kendi renginde kalır. */
-    html:not(.sp-mode) .site-footer .footer-top {
-        --ink: var(--alt-ink); --paper: var(--alt-paper); --border: var(--alt-border);
-        position: relative; isolation: isolate; color: var(--ink);
-    }
-    html:not(.sp-mode) .site-footer .footer-top::before { content: ""; position: absolute; z-index: -1; top: -100vmax; bottom: 0; left: -100vmax; right: -100vmax; background: var(--paper); pointer-events: none; }
-    html:not(.sp-mode) .site-footer .footer-cols { padding-top: clamp(64px, 8vw, 110px); }
-    .site-footer .footer-bottom { border-top: 0; }
+    /* Alt bilgi kendi 1 px çizgilerini korur (üst sınır, çağrı bandı altı, alt satır). */
     /* Listeler: satırlar çizgisiz, boşlukla ayrılır */
     .club-list, .qa-list { border-top: 0; }
     .club-item, .qa-row { border-bottom: 0; }
@@ -6542,6 +6532,11 @@
     .cal3-chip, .site-cal-v2-filter-chip { border-color: var(--border-strong); color: var(--ink); }
     /* Kulüp listesi: sıra numarası yok, satır yüzeyi içinde iç boşluk */
     .club-row { grid-template-columns: minmax(0, 1fr) auto auto auto; padding-left: clamp(16px, 2vw, 24px); padding-right: clamp(16px, 2vw, 24px); }
+    /* Üzerine gelince satır sola kaymaz ve köşeli zemin almaz; yalnız kulüp adı çok hafif büyür. */
+    .club-row:hover { padding-left: clamp(16px, 2vw, 24px); background: none; }
+    .club-row .name { transform-origin: left center; transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
+    .club-row:hover .name, .club-item.expanded .club-row .name { transform: scale(1.025); }
+    @media (hover: none), (prefers-reduced-motion: reduce) { .club-row:hover .name { transform: none; } }
     /* Telefon menü düğmesi: simge yerine "Menü" yazısı */
     .menu-toggle { font-family: 'Inter', sans-serif; font-size: 14px !important; font-weight: 600; letter-spacing: 0; padding: 8px 14px; border-radius: 999px; }
 
