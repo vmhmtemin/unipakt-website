@@ -6537,6 +6537,15 @@
     .club-row .name { transform-origin: left center; transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
     .club-row:hover .name, .club-item.expanded .club-row .name { transform: scale(1.025); }
     @media (hover: none), (prefers-reduced-motion: reduce) { .club-row:hover .name { transform: none; } }
+    /* "Sen de üniversiteni ekle": yuvarlak düğme solda, açıklama sağında aynı satırda */
+    .club-row.placeholder { padding-top: clamp(18px, 2vw, 24px); padding-bottom: clamp(18px, 2vw, 24px); }
+    .club-row.placeholder .name-uni { display: flex; flex-direction: row; justify-content: flex-start; align-items: center; flex-wrap: wrap; text-align: left; gap: 10px clamp(16px, 2vw, 28px); }
+    .club-row.placeholder .club-add-button { margin: 0; padding: 13px 24px; border: 1px solid var(--border-strong); border-radius: 999px; background: transparent; color: var(--ink); font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 16px !important; letter-spacing: -0.01em; opacity: 1; transform: none; }
+    .club-row.placeholder:hover .club-add-button, .club-row.placeholder:focus-visible .club-add-button { background: var(--ink); border-color: var(--ink); color: var(--paper); transform: none; }
+    .club-row.placeholder:hover .name { transform: none; }
+    .club-row.placeholder .uni { margin: 0; flex: 1 1 260px; font-size: 15.5px; opacity: .7; }
+    .club-row.placeholder .cat, .club-row.placeholder .dotmark, .club-row.placeholder .club-open-arrow { display: none; }
+    @media (max-width: 620px) { .club-row.placeholder .club-add-button { padding: 11px 18px; font-size: 15px !important; } }
     /* Telefon menü düğmesi: simge yerine "Menü" yazısı */
     .menu-toggle { font-family: 'Inter', sans-serif; font-size: 14px !important; font-weight: 600; letter-spacing: 0; padding: 8px 14px; border-radius: 999px; }
 
