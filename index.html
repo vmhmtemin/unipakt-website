@@ -114,6 +114,9 @@
         color: var(--ink);
     }
 
+    /* Ortalanmış kap içindeki alanın zemini kenardan kenara uzar. */
+    .field-bleed { box-shadow: 0 0 0 100vmax var(--paper); clip-path: inset(0 -100vmax); }
+
     * {
         box-sizing: border-box;
     }
@@ -6164,7 +6167,7 @@
     .ev-page { min-height: 40vh; }
     /* Üst alan: görsel (banner, yoksa yer tutucu) tam genişlikte karartılmış arka plan; üstünde ortalı başlık,
        turuncu çizgi, ikonlu yer · tarih ve geri sayım. */
-    .ev-hero { position: relative; isolation: isolate; overflow: hidden; color: #fff; background: #000; text-align: center; padding: clamp(70px, 7vw, 104px) 0 clamp(44px, 6vw, 88px); }
+    .ev-hero { position: relative; isolation: isolate; overflow: hidden; color: #fff; background: #0C0C0D; text-align: center; padding: clamp(70px, 7vw, 104px) 0 clamp(44px, 6vw, 88px); }
     .ev-hero::before { content: ''; position: absolute; inset: 0; z-index: -2; background: var(--ev-hero, none) center / cover no-repeat; }
     .ev-hero.is-placeholder::before { filter: invert(1); }
     .ev-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(#ffffff30 1px, transparent 1.3px) 0 0 / 18px 18px, rgba(0, 0, 0, .66); }
@@ -7148,7 +7151,7 @@
 
         <!-- ================= İLETİŞİM ================= -->
         <section class="page" id="page-kulupler" data-page="kulupler">
-            <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
+            <div class="section field-alt" style="padding-top: clamp(90px, 12vw, 130px);">
                 <div class="wrap">
                     <div class="section-title">
                         <h1 data-reveal>Ortak Kulüpler</h1>
@@ -7166,7 +7169,7 @@
 
         <!-- ================= TAKVİM ================= -->
         <section class="page" id="page-takvim" data-page="takvim">
-            <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
+            <div class="section field-alt" style="padding-top: clamp(90px, 12vw, 130px);">
                 <div class="wrap">
                     <div class="section-title">
                         <h1 data-reveal>Takvim</h1>
@@ -7180,7 +7183,7 @@
         <!-- ================= ETKİNLİK (/etkinlik/?id=…) ================= -->
         <section class="page" id="page-etkinlik" data-page="etkinlik">
             <div class="ev-page" id="evPage"></div>
-            <div class="wrap ev-body">
+            <div class="wrap ev-body field-alt field-bleed">
                 <section class="ev-card ev-comments" id="evComments" hidden>
                     <h2>Yorumlar</h2>
                     <div class="ev-comment-list" id="evCommentList"></div>
@@ -7503,7 +7506,7 @@
 
 
         <section class="page" id="page-iletisim" data-page="iletisim">
-            <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
+            <div class="section field-alt" style="padding-top: clamp(90px, 12vw, 130px);">
                 <div class="wrap contact-layout">
                     <div>
                         <h1 data-reveal>
@@ -7710,7 +7713,7 @@
         </section>
 
         <section class="page" id="page-kvkk" data-page="kvkk">
-            <div class="section" style="padding-top: clamp(90px, 12vw, 130px);">
+            <div class="section field-alt" style="padding-top: clamp(90px, 12vw, 130px);">
                 <article class="wrap legal">
                     <h1>KVKK Aydınlatma Metni</h1>
                     <p class="legal-meta">Kişisel Verilerin İşlenmesine İlişkin Aydınlatma Metni · Son güncelleme: 13 Ekim 2026</p>
