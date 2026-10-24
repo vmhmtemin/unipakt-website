@@ -11107,7 +11107,7 @@
         // MIXIT şerit gösterisi.
         // Önde düz bilgi paneli kayar; arkada yedi şerit sırayla sağdan/soldan iner (iki tur).
         // Panel bitince dik duran son şerit ekranın üstünden girer, kaydırdıkça iner; zemine değdiği an
-        // düşük fps'li (18 kare/sn) jenerik başlar: ezilme → kara kalem karalamaları → siyah perde → bitiş ekranı.
+        // düşük fps'li (24 kare/sn) jenerik başlar: ezilme → kara kalem karalamaları → siyah perde → bitiş ekranı.
         // Yukarı dönülünce sıfırlanır.
         const ride = document.getElementById('mxRide');
         const view = document.getElementById('mxView');
@@ -11121,7 +11121,7 @@
             const clamp01 = (v) => Math.max(0, Math.min(1, v));
             const lerp = (a, b, t) => a + (b - a) * t;
             const ease = (t) => (t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
-            const FPS = 18, FRAME = 1000 / FPS;
+            const FPS = 24, FRAME = 1000 / FPS;
             const LOOPS = 2;
             const PENCIL = 'rgba(242, 241, 238, .92)';
             let W = 0, H = 0, raf = 0, seq = null;
@@ -11215,7 +11215,7 @@
                         type: TYPES[i % TYPES.length], x: W / 2 + jit(60), y: H - 6,
                         vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
                         rot: Math.random() * 6.28, vr: (Math.random() - .5) * 9,
-                        s: (40 + Math.random() * 60) * Math.max(.75, k), delay: Math.floor(Math.random() * 4), age: 0
+                        s: (40 + Math.random() * 60) * Math.max(.75, k), delay: Math.floor(Math.random() * 5), age: 0
                     });
                 }
                 return list;
@@ -11255,21 +11255,21 @@
                 for (let x = 0; x < W; x += 18) pencil([[x, edge(x) + 4], [x + 12, edge(x) + 18 + Math.random() * 14]], 'rgba(242, 241, 238, .35)');
             };
 
-            // ---- Zamana bağlı jenerik (18 kare/sn) ----
+            // ---- Zamana bağlı jenerik (24 kare/sn) ----
             function start() {
                 if (seq) return;
                 seq = { frame: 0, doodles: null, timer: 0 };
                 const h = last.offsetHeight;
-                const BURST_END = 46, CURTAIN_START = 24, CURTAIN_LEN = 18, END = CURTAIN_START + CURTAIN_LEN;
+                const BURST_END = 61, CURTAIN_START = 32, CURTAIN_LEN = 24, END = CURTAIN_START + CURTAIN_LEN;
                 seq.timer = setInterval(() => {
                     const f = seq.frame++;
                     ctx.clearRect(0, 0, W, H);
-                    if (f < 4) {
-                        // Çarpma: iki kare ezilir, sonra dağılır.
-                        if (f < 2) placeLast(H - h, f ? 1.32 : 1.14, f ? .74 : .86);
+                    if (f < 5) {
+                        // Çarpma: üç kare ezilir, sonra dağılır.
+                        if (f < 3) placeLast(H - h, [1.1, 1.22, 1.32][f], [.9, .8, .74][f]);
                         else last.style.opacity = '0';
                         if (!seq.doodles) seq.doodles = spawn();
-                        drawImpact(f);
+                        drawImpact(f * .75);
                     }
                     if (seq.doodles && f < BURST_END) drawDoodles(seq.doodles, 1 / FPS);
                     if (f >= CURTAIN_START) drawCurtain(ease(clamp01((f - CURTAIN_START) / CURTAIN_LEN)));
