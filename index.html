@@ -7222,7 +7222,7 @@
             <div class="sp-hero" id="spHero">
                 <canvas class="sp-canvas" id="spCanvas" aria-hidden="true"></canvas>
                 <div class="wrap sp-hero-text">
-                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><img class="sp-logo-img sp-wordmark" src="/unipakt-logo-bg.png?v=3" alt="" aria-hidden="true"><span class="sp-kick-word" aria-hidden="true" data-no-i18n>Sponsor</span></p>
+                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><img class="sp-logo-img sp-wordmark" src="/unipakt-logo-bg.png?v=3" alt="" aria-hidden="true"><span class="sp-kick-word" aria-hidden="true" data-no-i18n>sponsor</span></p>
                     <h1>Sponsorlar</h1>
                     <p class="sp-lead">UniPakt ağındaki etkinlikleri destekleyen kurumlar.</p>
                     <button type="button" class="sp-down" data-sp-down>Sponsor ol ↓</button>
@@ -10675,9 +10675,11 @@
         const kickWord = kicker?.querySelector('.sp-wordmark');
         if (kickImg) kickImg.src = "/unipakt-logo-normal.png?v=3";
         let kickTimer = 0;
+        const kickSponsor = kicker?.querySelector('.sp-kick-word');
         const kickReset = () => {
             clearTimeout(kickTimer);
             [kickImg, kickWord].forEach((el) => { if (el) { el.style.clipPath = 'none'; el.style.transform = 'none'; el.style.opacity = ''; el.style.filter = 'none'; } });
+            if (kickSponsor) { kickSponsor.style.visibility = ''; kickSponsor.style.opacity = ''; kickSponsor.style.clipPath = 'none'; kickSponsor.style.transform = 'none'; kickSponsor.style.filter = 'none'; }
         };
         const glitchKicker = () => {
             if (!kicker || !kickImg || !kickWord) return;
@@ -10704,6 +10706,15 @@
                 off.style.clipPath = `inset(0 0 ${(30 + Math.random() * 50).toFixed(0)}% 0)`;
                 off.style.transform = `translateX(${(-dx * 0.6).toFixed(1)}px)`;
                 off.style.filter = split(2 + Math.random() * 3);
+                // "sponsor" henüz yokken yeri glitchlenir: kopuk, kaymış, renk ayrışmalı parçalar halinde yanıp söner.
+                if (kickSponsor) {
+                    const sTop = Math.random() * 85, sH = 6 + Math.random() * (14 + p * 26);
+                    kickSponsor.style.visibility = 'visible';
+                    kickSponsor.style.opacity = Math.random() < 0.3 + p * 0.4 ? '1' : '0';
+                    kickSponsor.style.clipPath = `inset(${sTop.toFixed(0)}% 0 ${Math.max(0, 100 - sTop - sH).toFixed(0)}% 0)`;
+                    kickSponsor.style.transform = `translateX(${((Math.random() * 2 - 1) * (22 - p * 12)).toFixed(1)}px)`;
+                    kickSponsor.style.filter = split(3 + Math.random() * 5);
+                }
                 n++;
                 kickTimer = setTimeout(tick, STEP + (Math.random() < 0.2 ? 90 : 0));
             };
