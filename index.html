@@ -6535,10 +6535,6 @@
     .cal3-chip, .site-cal-v2-filter-chip { border-color: var(--border-strong); color: var(--ink); }
     /* Kulüp listesi: sıra numarası yok, satır yüzeyi içinde iç boşluk */
     .club-row { grid-template-columns: minmax(0, 1fr) auto auto auto; padding-left: clamp(16px, 2vw, 24px); padding-right: clamp(16px, 2vw, 24px); }
-    /* Ana sayfa yörüngesi: daha büyük yörünge, kulüp balonları okunur (kısaltmalı); üzerine gelince tam ad açılır. */
-    @media (min-width: 901px) { .hero .hero-orbit { width: clamp(300px, 29vw, 420px); } }
-    .orbit-club-ini { position: absolute; inset: 0; display: grid; place-items: center; font-style: normal; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: calc(var(--s, 28px) * .36); letter-spacing: -0.02em; line-height: 1; color: var(--paper); transition: opacity .2s ease; pointer-events: none; }
-    .orbit-club.open .orbit-club-ini { opacity: 0; }
     /* Telefon menü düğmesi: simge yerine "Menü" yazısı */
     .menu-toggle { font-family: 'Inter', sans-serif; font-size: 14px !important; font-weight: 600; letter-spacing: 0; padding: 8px 14px; border-radius: 999px; }
 
@@ -7240,12 +7236,11 @@
                     <div class="site-cal" id="siteCal"></div>
                     <div class="cal-add" data-reveal>
                         <div>
-                            <h2 class="cal-add-title">Etkinliğini takvime ekle</h2>
-                            <p>Ağdaki kulüpler etkinliklerini UniPakt Panel’den ekler; onaylanan etkinlik burada ve etkinlik sayfasında yayınlanır.</p>
+                            <h2 class="cal-add-title">Etkinliğin de bu takvimde olsun</h2>
+                            <p>UniPakt ağındaki kulüplerin etkinlikleri burada, binlerce öğrencinin önünde yer alır. Kulübünle ağa katıl, etkinliklerin bu takvime girsin.</p>
                         </div>
                         <div class="cal-add-actions">
-                            <a class="btn-pill" href="/panel.html">Etkinliğini ekle</a>
-                            <a class="cal-add-link" href="/katil/" data-route="katil">Kulübün ağda değil mi? Bize katıl</a>
+                            <a class="btn-pill" href="/katil/" data-route="katil">Ağa katıl</a>
                         </div>
                     </div>
                 </div>
@@ -10013,18 +10008,6 @@
             it?.btn.classList.add('open');
         }
 
-        // Balonun üstündeki kısaltma: büyük harfli kısaltma varsa o (GDG), yoksa anlamlı ilk iki kelimenin baş harfleri.
-        function clubInitials(name) {
-            const stop = new Set(['ve', 'on', 'kulübü', 'kulubu', 'topluluğu', 'the', 'of', 'and']);
-            const words = String(name || '').split(/\s+/).filter(Boolean);
-            const acr = words.find((w) => w.length >= 2 && w.length <= 4 && w === w.toLocaleUpperCase('tr-TR') && /[A-ZÇĞİÖŞÜ]/.test(w));
-            if (acr) return acr;
-            const sig = words.filter((w) => !stop.has(w.toLocaleLowerCase('tr-TR')));
-            if (sig.length >= 2) return (sig[0][0] + sig[1][0]).toLocaleUpperCase('tr-TR');
-            const w = sig[0] || words[0] || '';
-            return w.slice(0, 2).toLocaleUpperCase('tr-TR');
-        }
-
         // Draws one dot per club. Runs again when the club list changes, so a club
         // added from the panel shows up on the orbit without a reload.
         function build() {
@@ -10038,9 +10021,8 @@
                 btn.type = 'button';
                 btn.tabIndex = -1; // decorative: the same clubs are in the list below
                 btn.className = `orbit-club ${RINGS[ring].cls}`;
-                btn.style.setProperty('--s', `${[30, 26, 28][slot % 3]}px`);
-                btn.innerHTML = `<i class="orbit-club-ini" aria-hidden="true" data-no-i18n></i><span class="orbit-club-label"><b></b><small></small></span>`;
-                btn.querySelector('.orbit-club-ini').textContent = clubInitials(club.name);
+                btn.style.setProperty('--s', `${[11, 9, 10][slot % 3]}px`);
+                btn.innerHTML = `<span class="orbit-club-label"><b></b><small></small></span>`;
                 btn.querySelector('b').textContent = club.name;
                 btn.querySelector('small').textContent = club.uni;
                 layer.appendChild(btn);
@@ -11417,7 +11399,7 @@
                 return Promise.resolve(window.UNIPAKT_I18N[code]);
             return loaded[code] = loaded[code] || new Promise((resolve, reject) => {
                 const s = document.createElement('script');
-                s.src = `/i18n/${code}.js?v=17`;
+                s.src = `/i18n/${code}.js?v=18`;
                 s.onload = () => (window.UNIPAKT_I18N[code] ? resolve(window.UNIPAKT_I18N[code]) : reject(new Error(code)));
                 s.onerror = () => {
                     delete loaded[code];
