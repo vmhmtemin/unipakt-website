@@ -6785,7 +6785,7 @@
     .mx-list-sm dt { font-size: 17px; letter-spacing: 0; }
     .mx-days { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 40px; }
     .mx-days h3 { margin: 0 0 16px; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 18px; color: var(--hf-acc); }
-    .mx-drop { height: 260svh; }
+    .mx-drop { height: 140svh; }
     /* Panelin iki yanında kara kalem süsler: hafifçe titrer (elle çizilmiş gibi, adım adım). */
     .mx-doodles { position: absolute; inset: 0; pointer-events: none; }
     .mx-doodle { position: absolute; display: block; width: clamp(64px, 6.4vw, 112px); color: rgba(242, 241, 238, .82); transform: rotate(var(--r)); animation: mxBoil 1.2s steps(1) infinite; animation-delay: calc(var(--k) * -.3s); }
@@ -6805,7 +6805,7 @@
     }
     .mx-view { position: sticky; top: var(--nav-h, 86px); height: calc(100svh - var(--nav-h, 86px)); overflow: hidden; contain: layout paint; }
     /* Arka şeritler: sayfaya dağılmış, kendi içinde hareketsiz; önden yavaş akan ayrı bir katman (derinlik). */
-    .mx-strips { position: absolute; left: 0; right: 0; top: 0; bottom: 260svh; overflow: hidden; z-index: 0; pointer-events: none; will-change: transform; }
+    .mx-strips { position: absolute; left: 0; right: 0; top: 0; bottom: 140svh; overflow: hidden; z-index: 0; pointer-events: none; will-change: transform; }
     .mx-strips[style*="height"] { bottom: auto; }
     .mx-strip { position: absolute; left: 50%; width: 190vmax; margin-left: -95vmax; height: clamp(76px, 13svh, 150px); display: flex; align-items: center; overflow: hidden; }
     .mx-strip span { display: block; white-space: nowrap; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(44px, 8.4svh, 104px); line-height: 1; letter-spacing: -0.04em; text-transform: uppercase; will-change: transform; }
@@ -6814,13 +6814,11 @@
     .mx-s-ink { background: #1D1D20; color: #fff; }
     /* Son şerit: ortaya gelip dikilir; yazısı yukarı akar */
     /* Geri sayım ekranındaki turuncu çizgiler (arka plan) */
-    .mx-lastc { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
     .mx-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
     .mx-end > :not(canvas) { position: relative; z-index: 1; }
     /* Bitiş ekranı (Taste: ad anıt gibi; sola hizalı, eşit kenar boşlukları, çizgi/etiket yok).
        Üstte logo ve künye, ortada tek başlık, altta saniyesiyle akan geri sayım. */
-    .mx-end { position: absolute; inset: 0; z-index: 3; display: grid; grid-template-rows: auto 1fr auto; padding: clamp(24px, 5svh, 56px) var(--hf-m) clamp(28px, 7svh, 72px); background: #050505; color: #fff; opacity: 0; visibility: hidden; transition: opacity .45s steps(5), visibility 0s linear .45s; }
-    .mx-view.is-end .mx-end { opacity: 1; visibility: visible; transition: opacity .45s steps(5), visibility 0s; }
+    .mx-end { position: absolute; inset: 0; z-index: 3; display: grid; grid-template-rows: auto 1fr auto; padding: clamp(24px, 5svh, 56px) var(--hf-m) clamp(28px, 7svh, 72px); background: #050505; color: #fff; opacity: 0; visibility: hidden; }
     .mx-end-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
     .mx-end-logo { display: block; width: clamp(200px, 30vw, 460px); height: auto; }
     .mx-end-meta { margin: 0; text-align: right; font-size: var(--hf-lead); font-weight: 600; line-height: 1.4; color: var(--hf-soft-d); }
@@ -6834,8 +6832,6 @@
     .mx-dg-in { display: block; transform: translateY(-50%); will-change: transform; }
     .mx-dg-in i { display: block; height: .86em; font-style: normal; text-align: center; }
     .mx-count > div > span { padding-left: .2em; font-size: var(--hf-body); font-weight: 600; color: var(--hf-soft-d); }
-    .mx-end-top, .mx-end-title, .mx-count { transform: translateY(18px); transition: transform .45s steps(5); }
-    .mx-view.is-end .mx-end-top, .mx-view.is-end .mx-end-title, .mx-view.is-end .mx-count { transform: none; }
     @media (max-width: 620px) {
         .mx-end-top { flex-direction: column; }
         .mx-end-meta { text-align: left; font-size: var(--hf-body); }
@@ -6848,7 +6844,6 @@
         .mx-flow { margin-top: 0; padding: 0 0 clamp(48px, 8vw, 96px); }
         .mx-drop { display: none; }
         .mx-ride { display: flex; flex-direction: column-reverse; }
-        .mx-lastc { display: none; }
         .mx-end { opacity: 1; visibility: visible; transition: none; }
         .mx-end-top, .mx-end-title, .mx-count { transform: none; transition: none; }
         .mx-cue b { animation: none; }
@@ -7703,7 +7698,6 @@
 
             <section class="mx-ride" id="mxRide" aria-label="MIXIT">
                 <div class="mx-view" id="mxView">
-                    <canvas class="mx-lastc" id="mxLastCanvas" aria-hidden="true"></canvas>
                     <div class="mx-end" id="mxEnd">
                         <canvas class="mx-lines" id="mxLines" aria-hidden="true"></canvas>
                         <div class="mx-end-top">
@@ -11177,126 +11171,50 @@
             sync();
         }
 
-        // MIXIT son şerit ve yakınlaşma.
-        // Önde düz bilgi paneli kayar (arka şeritler sabit, sayfayla birlikte akar). Panel bitince son şerit
-        // yukarıdan sarkarak iner; kaydırdıkça kamera şeritteki siyah noktaya yaklaşır, nokta ekranı kaplayınca
-        // geri sayım açılır. Şerit canvas'a vektörel çizilir: her ölçekte keskin, sonuç yalnız kaydırma
-        // konumuna bağlı (ileri-geri kaydırınca aynı kare), yazı her karede yeniden dizilmez.
+        // MIXIT kaydırma: önde düz bilgi paneli, arkada önden yarı hızda akan şerit katmanı (derinlik).
+        // Panel ve şeritler bitince geri sayım ekranı kaydırdıkça görünmezden görünüre gelir; geri de oynar.
         const ride = document.getElementById('mxRide');
         const view = document.getElementById('mxView');
         const panel = document.getElementById('mxPanelWrap');
-        const lastC = document.getElementById('mxLastCanvas');
+        const endEl = document.getElementById('mxEnd');
         const backStrips = document.querySelector('#mxFlow .mx-strips');
-        if (ride && view && panel && lastC && mixit && !still) {
-            const DEPTH = .5; // arka şeritler önün yarı hızında kayar (derinlik)
-            const ctx = lastC.getContext('2d');
+        if (ride && view && panel && endEl && mixit && !still) {
+            const DEPTH = .5;
             const clamp01 = (v) => Math.max(0, Math.min(1, v));
-            const lerp = (a, b, t) => a + (b - a) * t;
-            const ease = (t) => (t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
-            const ACC = '#FF5A1F', INK = '#0C0C0D';
-            const T1 = 'HACKFEST27', T2 = 'MIXIT';
-            let W = 0, H = 0, dpr = 1, raf = 0;
-            let f = 100, L1 = 0, L2 = 0, pad = 22, gapA = 0, dotR = 0, sw = 0, textLen = 0;
-            const font = (px) => `900 ${px}px Archivo, sans-serif`;
-            // Ölçüler: yazının tamamı sığsın, şerit ekranın %72'sini geçmesin.
-            const measure = () => {
-                f = Math.max(40, Math.min(104, H * .084));
-                for (let i = 0; i < 2; i++) {
-                    ctx.font = font(f);
-                    if ('letterSpacing' in ctx) ctx.letterSpacing = `${-.04 * f}px`;
-                    L1 = ctx.measureText(T1).width; L2 = ctx.measureText(T2).width;
-                    gapA = .32 * f; dotR = .15 * f;
-                    textLen = L1 + gapA * 2 + dotR * 2 + L2;
-                    const max = H * .72 - pad;
-                    if (textLen > max) f *= max / textLen; else break;
-                }
-                sw = f * 1.24;
-            };
-            const size = () => {
-                const r = view.getBoundingClientRect();
-                dpr = Math.min(2, window.devicePixelRatio || 1);
-                W = r.width; H = r.height;
-                lastC.width = Math.round(W * dpr); lastC.height = Math.round(H * dpr);
-                measure();
-            };
+            let H = 0, raf = 0;
+            const size = () => { H = view.getBoundingClientRect().height; };
             const scrolled = () => (parseFloat(getComputedStyle(view).top) || 0) - ride.getBoundingClientRect().top;
-
-            // Şeridi dünya koordinatında çizer: alt ucu B'de, ortası x = W/2; yazı alt uçta, yukarıdan aşağı okunur.
-            const drawStrip = (B) => {
-                const x0 = W / 2 - sw / 2;
-                ctx.fillStyle = ACC;
-                ctx.fillRect(x0, -H * 4, sw, B + H * 4);
-                const end = B - pad, start = end - textLen;
-                ctx.fillStyle = INK;
-                ctx.save();
-                ctx.translate(W / 2, start);
-                ctx.rotate(Math.PI / 2);
-                ctx.font = font(f);
-                if ('letterSpacing' in ctx) ctx.letterSpacing = `${-.04 * f}px`;
-                ctx.textBaseline = 'middle';
-                ctx.fillText(T1, 0, f * .04);
-                ctx.fillText(T2, L1 + gapA * 2 + dotR * 2, f * .04);
-                ctx.restore();
-                ctx.beginPath();
-                ctx.arc(W / 2, start + L1 + gapA + dotR, dotR, 0, Math.PI * 2);
-                ctx.fill();
-                return start + L1 + gapA + dotR; // noktanın merkezi (y)
+            const setEnd = (end) => {
+                if (end === view.classList.contains('is-end')) return;
+                view.classList.toggle('is-end', end);
+                window.dispatchEvent(new CustomEvent('mixit:end', { detail: end }));
             };
-
             const render = () => {
                 raf = 0;
                 const s = scrolled();
                 const panelEnd = panel.offsetTop + panel.offsetHeight;
                 const total = ride.offsetHeight - view.offsetHeight;
-                // Arka katman: sayfayla birlikte ama daha yavaş akar.
                 if (backStrips) {
                     const h = Math.round(panelEnd * (1 - DEPTH) + H * 1.3);
                     if (backStrips.style.height !== `${h}px`) backStrips.style.height = `${h}px`;
                     backStrips.style.transform = `translate3d(0, ${Math.max(0, Math.min(s, panelEnd + H)) * DEPTH}px, 0)`;
                 }
-                const dt = clamp01((s - panelEnd + H * .2) / (total - H * .1 - panelEnd + H * .2));
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                ctx.clearRect(0, 0, W, H);
-                if (dt <= 0) { setEnd(false); return; }
-                const z = clamp01((dt - .45) / .55);
-                if (z === 0) {
-                    // Sarkarak iniş
-                    drawStrip(lerp(0, H * .66, ease(clamp01(dt / .45))));
-                    setEnd(false);
-                    return;
-                }
-                // Yakınlaşma: kamera noktaya kilitli, ölçek üstel büyür, nokta ekran ortasına süzülür.
-                const B = H * .66;
-                const dotY0 = B - pad - textLen + L1 + gapA + dotR;
-                const k = Math.pow(z, 2.2);
-                const maxScale = (Math.hypot(W, H) * 1.1) / (dotR * 2);
-                const scale = Math.exp(Math.log(maxScale) * k);
-                const cy = lerp(dotY0, H / 2, ease(Math.min(1, z * 1.6)));
-                ctx.setTransform(dpr * scale, 0, 0, dpr * scale, dpr * (W / 2 - (W / 2) * scale), dpr * (cy - dotY0 * scale));
-                drawStrip(B);
-                setEnd(z >= .985);
-            };
-            const setEnd = (end) => {
-                if (end === view.classList.contains('is-end')) return;
-                view.classList.toggle('is-end', end);
-                window.dispatchEvent(new CustomEvent('mixit:end', { detail: end }));
+                // Geri sayım: panel ekrandan çıkarken başlar, bölüm sonundan biraz önce tamamen görünür.
+                const fade = clamp01((s - (panelEnd - H * .35)) / Math.max(1, (total - H * .15) - (panelEnd - H * .35)));
+                endEl.style.opacity = String(fade);
+                if (backStrips) backStrips.style.opacity = String(1 - fade); // şeritler geri sayıma yer açar
+                endEl.style.visibility = fade > 0 ? 'visible' : 'hidden';
+                setEnd(fade > 0);
             };
             const onScroll = () => { if (!raf) raf = requestAnimationFrame(render); };
             const syncRide = () => {
                 if (mixit.classList.contains('active')) { size(); onScroll(); }
                 else setEnd(false);
             };
-            let lastW = 0, lastH = 0;
             window.addEventListener('scroll', onScroll, { passive: true });
-            window.addEventListener('resize', () => {
-                // Telefonda adres çubuğu açılıp kapanırken gelen boş yeniden boyutlamaları atla.
-                const r = view.getBoundingClientRect();
-                if (Math.abs(r.width - lastW) < 1 && Math.abs(r.height - lastH) < 1) return;
-                lastW = r.width; lastH = r.height;
-                size(); onScroll();
-            });
+            window.addEventListener('resize', () => { size(); onScroll(); });
             window.addEventListener('unipakt:route', syncRide);
-            (document.fonts && document.fonts.load ? document.fonts.load(font(100)) : Promise.resolve()).finally(syncRide);
+            syncRide();
         }
 
         // Geri sayım ekranında turuncu çizgiler: hareketsiz, sabit kalınlıkta. Her biri ekranın bir kenarından
@@ -11324,10 +11242,31 @@
                     bottom: (a, d) => [a, LH - d],
                     right: (a, d) => [LW - d, a]
                 };
-                const stroke = (pts) => { lc.beginPath(); pts.forEach(([x, y], i) => (i ? lc.lineTo(x, y) : lc.moveTo(x, y))); lc.stroke(); };
+                // Kalem izi: baskı uçlarda hafif, ortada güçlü; ikinci ince geçiş grafit dokusu verir.
+                const baseW = lc.lineWidth;
+                const stroke = (pts) => {
+                    const n = pts.length, ph = rnd() * 6;
+                    for (let pass = 0; pass < 2; pass++) {
+                        const ox = pass ? .9 : 0, oy = pass ? -.7 : 0;
+                        lc.globalAlpha = pass ? .35 : .9;
+                        for (let i = 1; i < n; i++) {
+                            const t = i / (n - 1);
+                            const press = .45 + .75 * Math.pow(Math.sin(Math.PI * t), .6) + .18 * Math.sin(t * 23 + ph);
+                            lc.lineWidth = baseW * (pass ? .5 : press);
+                            lc.beginPath();
+                            lc.moveTo(pts[i - 1][0] + ox, pts[i - 1][1] + oy);
+                            lc.lineTo(pts[i][0] + ox, pts[i][1] + oy);
+                            lc.stroke();
+                        }
+                    }
+                    lc.globalAlpha = .9;
+                };
+                // Elle çizim dalgalanması: yavaş, birkaç frekansın toplamı (her çizgide farklı).
+                const wob = () => { const p1 = rnd() * 6, p2 = rnd() * 6, k1 = 3 + rnd() * 4, k2 = 9 + rnd() * 8; return (t, amp) => amp * (Math.sin(t * k1 + p1) * .7 + Math.sin(t * k2 + p2) * .3); };
                 // Kenardan girip aynı kenardan çıkan kavis; bazıları yolda halka çizer.
                 const edgeLine = (side, from, to, depth, loop) => {
-                    const pts = [], N = 220, r = 12 + rnd() * 10, at = .3 + rnd() * .4, dir = rnd() < .5 ? 1 : -1;
+                    const pts = [], N = 260, r = 12 + rnd() * 10, at = .3 + rnd() * .4, dir = rnd() < .5 ? 1 : -1;
+                    const wd = wob(), wa = wob();
                     for (let i = 0; i <= N; i++) {
                         const t = i / N;
                         let a = from + (to - from) * t;
@@ -11336,27 +11275,33 @@
                             const w = .14;
                             if (t > at && t < at + w) {
                                 const ph = ((t - at) / w) * Math.PI * 2;
-                                a = from + (to - from) * (at + (t - at) * .08) + r * Math.sin(ph) * dir;
-                                d = (-20 + (depth + 20) * Math.pow(Math.sin(Math.PI * at), .8)) + r * (1 - Math.cos(ph));
+                                const q = (t - at) / w, rr = r * (1 + .3 * q);
+                                a = from + (to - from) * (at + (t - at) * .08) + rr * Math.sin(ph) * dir + q * 6;
+                                d = (-20 + (depth + 20) * Math.pow(Math.sin(Math.PI * at), .8)) + rr * (1 - Math.cos(ph)) * .9;
                             } else if (t >= at + w) {
                                 const tt = at + (t - at - w) * ((1 - at) / (1 - at - w));
                                 a = from + (to - from) * tt;
                                 d = -20 + (depth + 20) * Math.pow(Math.sin(Math.PI * tt), .8);
                             }
                         }
-                        pts.push(toXY[side](a, Math.min(BAND, d)));
+                        // halka mükemmel daire olmasın: çizerken hafifçe büyür ve kayar
+                        const fade = Math.sin(Math.PI * t);
+                        a += wa(t, 10) * fade;
+                        d += wd(t, 7) * fade;
+                        pts.push(toXY[side](a, Math.max(-24, Math.min(BAND - 2, d))));
                     }
                     stroke(pts);
                 };
                 // Köşe: bir kenardan girip komşu kenardan çıkar, köşenin 100 px'lik karesinde kalır.
                 const cornerLine = (corner) => {
-                    const a = 30 + rnd() * 60, b = 30 + rnd() * 60, pts = [];
+                    const a = 30 + rnd() * 55, b = 30 + rnd() * 55, pts = [], wx = wob(), wy = wob();
                     const P0 = corner === 'tr' ? [LW - a, -20] : [LW - a, LH + 20];
                     const P2 = corner === 'tr' ? [LW + 20, b] : [LW + 20, LH - b];
                     const C = corner === 'tr' ? [LW - Math.min(BAND, a + 30), Math.min(BAND, b + 30)] : [LW - Math.min(BAND, a + 30), LH - Math.min(BAND, b + 30)];
-                    for (let i = 0; i <= 60; i++) {
-                        const t = i / 60, mt = 1 - t;
-                        pts.push([mt * mt * P0[0] + 2 * mt * t * C[0] + t * t * P2[0], mt * mt * P0[1] + 2 * mt * t * C[1] + t * t * P2[1]]);
+                    for (let i = 0; i <= 90; i++) {
+                        const t = i / 90, mt = 1 - t;
+                        const f = Math.sin(Math.PI * t);
+                        pts.push([mt * mt * P0[0] + 2 * mt * t * C[0] + t * t * P2[0] + wx(t, 5) * f, mt * mt * P0[1] + 2 * mt * t * C[1] + t * t * P2[1] + wy(t, 5) * f]);
                     }
                     stroke(pts);
                 };
