@@ -6761,7 +6761,35 @@
     .mx-hero:has(.hf-done) .mx-cue { opacity: 1; }
     @keyframes mxCue { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
     /* Yolculuk: uzun bölüm, içinde ekrana yapışan sahne */
-    .mx-ride { position: relative; height: 900svh; background: #050505; }
+    .mx-ride { position: relative; background: #050505; }
+    /* Önde kayan içerik: yapışkan sahnenin üstüne çekilir (negatif üst boşluk) */
+    .mx-flow { position: relative; z-index: 2; margin-top: calc(-1 * (100svh - var(--nav-h, 86px))); padding-top: 70svh; }
+    .mx-panel { width: min(780px, calc(100% - 2 * var(--hf-m))); margin: 0 auto; padding: clamp(28px, 5vw, 64px); background: #161618; color: #fff; border-radius: 28px; display: grid; gap: clamp(56px, 7vw, 96px); }
+    .mx-p-sec { display: grid; gap: 20px; }
+    .mx-p-h { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(30px, 3.6vw, 48px); line-height: 1.02; letter-spacing: -0.035em; text-wrap: balance; }
+    .mx-p-lead { margin: 0; font-size: var(--hf-lead); line-height: 1.5; color: #FFFFFFE0; }
+    .mx-p-note { margin: 0; font-size: var(--hf-small); line-height: 1.55; color: var(--hf-soft-d); }
+    .mx-p-big { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 1.6em; letter-spacing: -0.03em; color: #fff; }
+    .mx-p-link { justify-self: start; color: #fff; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; transition: color .2s ease; }
+    .mx-p-link:hover, .mx-p-link:focus-visible { color: var(--hf-acc); }
+    .mx-facts { margin: 8px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 28px; }
+    .mx-facts > div { display: grid; gap: 6px; align-content: start; }
+    .mx-facts dt { font-size: var(--hf-small); color: var(--hf-soft-d); }
+    .mx-facts dd { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 19px; line-height: 1.3; }
+    .mx-list { margin: 0; display: grid; gap: 18px; }
+    .mx-list > div { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 4px 24px; align-items: baseline; }
+    .mx-list dt { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(24px, 2.6vw, 34px); letter-spacing: -0.03em; line-height: 1.05; }
+    .mx-list dd { margin: 0; font-size: var(--hf-body); line-height: 1.5; color: #FFFFFFD0; }
+    .mx-list-sm > div { grid-template-columns: 96px minmax(0, 1fr); }
+    .mx-list-sm dt { font-size: 17px; letter-spacing: 0; }
+    .mx-days { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 40px; }
+    .mx-days h3 { margin: 0 0 16px; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 18px; color: var(--hf-acc); }
+    .mx-drop { height: 260svh; }
+    @media (max-width: 720px) {
+        .mx-facts, .mx-days { grid-template-columns: minmax(0, 1fr); }
+        .mx-list > div { grid-template-columns: minmax(0, 1fr); }
+        .mx-panel { border-radius: 20px; }
+    }
     .mx-view { position: sticky; top: var(--nav-h, 86px); height: calc(100svh - var(--nav-h, 86px)); overflow: hidden; contain: layout paint; }
     .mx-strips { position: absolute; inset: 0; }
     .mx-strip { position: absolute; left: 50%; top: 0; width: 190vmax; margin-left: -95vmax; height: clamp(76px, 13svh, 150px); display: flex; align-items: center; overflow: hidden; will-change: transform; transform: translate3d(0, -200%, 0); }
@@ -6770,31 +6798,42 @@
     .mx-s-paper { background: var(--hf-light); color: var(--hf-ink); }
     .mx-s-ink { background: #1D1D20; color: #fff; }
     /* Son şerit: ortaya gelip dikilir; yazısı yukarı akar */
-    .mx-last { position: absolute; left: 50%; top: 50%; width: clamp(76px, 13svh, 150px); height: 74%; background: var(--hf-acc); color: var(--hf-ink); overflow: hidden; opacity: 0; will-change: transform; display: flex; align-items: flex-start; justify-content: center; }
-    .mx-last span { writing-mode: vertical-rl; transform-origin: center; }
+    .mx-last { position: absolute; left: 50%; top: 0; padding: 22px 0; background: var(--hf-acc); color: var(--hf-ink); opacity: 0; will-change: transform; display: flex; align-items: center; justify-content: center; transform-origin: 50% 100%; }
+    .mx-last span { writing-mode: vertical-rl; padding: 0 .12em; }
     .mx-burst { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-    /* Bitiş ekranı: tam turuncu, üstte logo, ortada çağrı ve geri sayım */
-    .mx-end { position: absolute; inset: 0; display: grid; grid-template-rows: auto 1fr; justify-items: center; align-content: start; gap: 0; padding: clamp(20px, 5svh, 56px) var(--hf-m) clamp(24px, 6svh, 64px); background: var(--hf-acc); color: var(--hf-ink); text-align: center; opacity: 0; visibility: hidden; transition: opacity .5s steps(4), visibility 0s linear .5s; }
-    .mx-view.is-end .mx-end { opacity: 1; visibility: visible; transition: opacity .5s steps(4), visibility 0s; }
-    .mx-end-logo { display: block; width: min(760px, 86vw, 62svh * 2.72); height: auto; }
-    .mx-end-mid { display: grid; align-content: center; justify-items: center; }
-    .mx-end-title { margin: clamp(8px, 3svh, 32px) 0 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(48px, 9vw, 150px); line-height: .9; letter-spacing: -0.05em; text-wrap: balance; }
-    .mx-count { margin-top: clamp(20px, 5svh, 56px); display: grid; grid-template-columns: repeat(3, max-content); justify-content: center; gap: 8px clamp(28px, 6vw, 110px); }
-    .mx-count b { display: block; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(56px, 9vw, 150px); line-height: .85; letter-spacing: -0.06em; font-variant-numeric: tabular-nums; }
-    .mx-count span { display: block; margin-top: 10px; font-size: var(--hf-lead); font-weight: 700; }
-    .mx-end-title, .mx-count { transform: translateY(14px); transition: transform .5s steps(4); }
-    .mx-view.is-end .mx-end-title, .mx-view.is-end .mx-count { transform: none; }
+    /* Bitiş ekranı (Taste: ad anıt gibi; sola hizalı, eşit kenar boşlukları, çizgi/etiket yok).
+       Üstte logo ve künye, ortada tek başlık, altta saniyesiyle akan geri sayım. */
+    .mx-end { position: absolute; inset: 0; display: grid; grid-template-rows: auto 1fr auto; padding: clamp(24px, 5svh, 56px) var(--hf-m) clamp(28px, 7svh, 72px); background: #050505; color: #fff; opacity: 0; visibility: hidden; transition: opacity .45s steps(5), visibility 0s linear .45s; }
+    .mx-view.is-end .mx-end { opacity: 1; visibility: visible; transition: opacity .45s steps(5), visibility 0s; }
+    .mx-end-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+    .mx-end-logo { display: block; width: clamp(200px, 30vw, 460px); height: auto; }
+    .mx-end-meta { margin: 0; text-align: right; font-size: var(--hf-lead); font-weight: 600; line-height: 1.4; color: var(--hf-soft-d); }
+    .mx-end-title { align-self: center; margin: 0; max-width: 12ch; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(56px, 10.5vw, 188px); line-height: .88; letter-spacing: -0.055em; text-wrap: balance; }
+    .mx-count { display: grid; grid-template-columns: repeat(4, max-content); gap: 8px clamp(28px, 5.4vw, 104px); }
+    .mx-count > div { display: grid; gap: 12px; }
+    .mx-count b { display: block; height: .86em; overflow: hidden; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(52px, 8vw, 136px); line-height: .86; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+    .mx-count b i { display: block; font-style: normal; }
+    .mx-count b i.mx-roll { animation: mxRoll .42s cubic-bezier(.2, .8, .2, 1) both; }
+    @keyframes mxRoll { from { transform: translateY(70%); opacity: 0; } to { transform: none; opacity: 1; } }
+    .mx-count span { font-size: var(--hf-body); font-weight: 600; color: var(--hf-soft-d); }
+    .mx-end-top, .mx-end-title, .mx-count { transform: translateY(18px); transition: transform .45s steps(5); }
+    .mx-view.is-end .mx-end-top, .mx-view.is-end .mx-end-title, .mx-view.is-end .mx-count { transform: none; }
     @media (max-width: 620px) {
-        .mx-count { column-gap: 26px; }
-        .mx-count b { font-size: clamp(52px, 16vw, 84px); }
+        .mx-end-top { flex-direction: column; }
+        .mx-end-meta { text-align: left; font-size: var(--hf-body); }
+        .mx-count { grid-template-columns: repeat(2, max-content); row-gap: 22px; column-gap: 40px; }
+        .mx-count b { font-size: clamp(52px, 17vw, 84px); }
     }
     /* Hareket istemeyenlere gösteri yok: doğrudan bitiş ekranı */
     @media (prefers-reduced-motion: reduce) {
-        .mx-ride { height: auto; }
         .mx-view { position: relative; top: 0; height: calc(100svh - var(--nav-h, 86px)); }
+        .mx-flow { margin-top: 0; padding: 0 0 clamp(48px, 8vw, 96px); }
+        .mx-drop { display: none; }
+        .mx-ride { display: flex; flex-direction: column-reverse; }
         .mx-strips, .mx-last, .mx-burst { display: none; }
         .mx-end { opacity: 1; visibility: visible; transition: none; }
-        .mx-end-title, .mx-count { transform: none; transition: none; }
+        .mx-end-top, .mx-end-title, .mx-count { transform: none; transition: none; }
+        .mx-count b i.mx-roll { animation: none; }
         .mx-cue b { animation: none; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -7656,19 +7695,83 @@
                         <div class="mx-strip mx-s-ink" data-side="1"><span>Dans · Dans · Dans · Dans · Dans · Dans · Dans · Dans · Dans · Dans ·</span></div>
                         <div class="mx-strip mx-s-acc" data-side="-1"><span>Konuşmalar · Büyük Final · Konuşmalar · Büyük Final · Konuşmalar ·</span></div>
                     </div>
-                    <div class="mx-last" id="mxLast" aria-hidden="true"><span id="mxLastText" lang="en" data-no-i18n>Hackfest27 · Mixit · Hackfest27 · Mixit · Hackfest27 · Mixit · Hackfest27 · Mixit ·</span></div>
+                    <div class="mx-last" id="mxLast" aria-hidden="true"><span id="mxLastText" lang="en" data-no-i18n>Hackfest27 · Mixit</span></div>
                     <canvas class="mx-burst" id="mxBurst" aria-hidden="true"></canvas>
                     <div class="mx-end" id="mxEnd">
-                        <img class="mx-end-logo" src="/hackfest-media/logo-full-dark.webp" alt="HACKFEST27 MIXIT" width="1375" height="505" decoding="async">
-                        <div class="mx-end-mid">
-                            <h2 class="mx-end-title">Seni bekliyoruz.</h2>
-                            <div class="mx-count" id="mxCount">
-                                <div><b data-mx="d">–</b><span>gün</span></div>
-                                <div><b data-mx="h">–</b><span>saat</span></div>
-                                <div><b data-mx="m">–</b><span>dakika</span></div>
-                            </div>
+                        <div class="mx-end-top">
+                            <img class="mx-end-logo" src="/hackfest-media/logo-full.webp" alt="HACKFEST27 MIXIT" width="1375" height="505" decoding="async">
+                            <p class="mx-end-meta">6–7 Mart 2027<br>İstanbul Kongre Merkezi</p>
+                        </div>
+                        <h2 class="mx-end-title">Seni bekliyoruz.</h2>
+                        <div class="mx-count" id="mxCount" role="timer" aria-label="Festivale kalan süre">
+                            <div><b data-mx="d">–</b><span>gün</span></div>
+                            <div><b data-mx="h">–</b><span>saat</span></div>
+                            <div><b data-mx="m">–</b><span>dakika</span></div>
+                            <div><b data-mx="s">–</b><span>saniye</span></div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Önde kayan düz panel: şeritler arkasından akmaya devam eder. -->
+                <div class="mx-flow" id="mxFlow">
+                    <article class="mx-panel" id="mxPanel">
+                        <section class="mx-p-sec">
+                            <h2 class="mx-p-h">Bir festival. Birçok dünya.</h2>
+                            <p class="mx-p-lead">MIXIT, UniPakt’ın üniversite öğrencileri için düzenlediği çok disiplinli festival. Yarışmalar, konuşmalar ve marka alanları iki gün boyunca aynı çatı altında.</p>
+                            <dl class="mx-facts">
+                                <div><dt>Tarih</dt><dd>6–7 Mart 2027, Cumartesi ve Pazar</dd></div>
+                                <div><dt>Açılış</dt><dd>Cumartesi 10.00</dd></div>
+                                <div><dt>Mekân</dt><dd>İstanbul Kongre Merkezi, Harbiye / Şişli</dd></div>
+                                <div><dt>Kimler için</dt><dd>İstanbul’daki tüm üniversitelerin öğrencileri</dd></div>
+                            </dl>
+                        </section>
+                        <section class="mx-p-sec">
+                            <h2 class="mx-p-h">Dört yarışma. Tek Büyük Final.</h2>
+                            <dl class="mx-list">
+                                <div><dt>Hackathon</dt><dd>Teknoloji, üretim ve problem çözme.</dd></div>
+                                <div><dt>E-spor</dt><dd>Canlı rekabet; final ana sahnede oynanır.</dd></div>
+                                <div><dt>Gastronomi</dt><dd>Yaratıcılık ve mutfak becerileri.</dd></div>
+                                <div><dt>Dans</dt><dd>Sahne, ritim ve performans.</dd></div>
+                            </dl>
+                            <p class="mx-p-note">Her yarışmada ilk üçe kupa verilir. Programa yeni yarışma ve yan etkinlikler eklenebilir.</p>
+                        </section>
+                        <section class="mx-p-sec">
+                            <h2 class="mx-p-h">Programını sen seç.</h2>
+                            <p class="mx-p-lead">İçeri girdikten sonra festival alanında özgürce dolaşırsın; ilgini çeken salona, sahneye ya da standa geçersin. Konuşmalarda sektörden deneyim, yarışmalarda canlı karşılaşmalar, marka alanlarında ürün dene, tanış, keşfet.</p>
+                        </section>
+                        <section class="mx-p-sec">
+                            <h2 class="mx-p-h">İki gün. İki ritim.</h2>
+                            <div class="mx-days">
+                                <div>
+                                    <h3>6 Mart, Cumartesi</h3>
+                                    <dl class="mx-list mx-list-sm">
+                                        <div><dt>10.00</dt><dd>Kapılar açılıyor, festival başlıyor.</dd></div>
+                                        <div><dt>Gün boyu</dt><dd>Beş konuşmacı, ana sahnede birer saatlik oturumlarla.</dd></div>
+                                        <div><dt>Eş zamanlı</dt><dd>Diğer alanlarda yarışmalar ve marka deneyimleri.</dd></div>
+                                    </dl>
+                                </div>
+                                <div>
+                                    <h3>7 Mart, Pazar</h3>
+                                    <dl class="mx-list mx-list-sm">
+                                        <div><dt>Final</dt><dd>Yarışmaların Büyük Finali ve ödül töreni ana sahnede.</dd></div>
+                                        <div><dt>19.00</dt><dd>Kapanış eğlencesiyle festival sona eriyor.</dd></div>
+                                    </dl>
+                                </div>
+                            </div>
+                            <p class="mx-p-note">Konuşmacılar ve saat saat program yaklaştıkça duyurulacak.</p>
+                        </section>
+                        <section class="mx-p-sec">
+                            <h2 class="mx-p-h">Geçen yıl böyleydi.</h2>
+                            <p class="mx-p-lead"><b class="mx-p-big" data-no-i18n>200</b> katılımcı. Yalnızca hackathon’la. HACKFEST 2026 · İstinye Üniversitesi. MIXIT, bu ilk deneyimin büyüyen hâli.</p>
+                        </section>
+                        <section class="mx-p-sec">
+                            <h2 class="mx-p-h">İstanbul Kongre Merkezi</h2>
+                            <p class="mx-p-lead">Harbiye Mahallesi, Darülbedai Caddesi No: 3, Şişli / İstanbul</p>
+                            <p class="mx-p-note">M2 hattında Osmanbey ya da Taksim durağında in; mekân yürüme mesafesinde. Kabataş’tan F1 ile Taksim’e çık, oradan yürü.</p>
+                            <a class="mx-p-link" href="https://www.google.com/maps/search/?api=1&amp;query=%C4%B0stanbul+Kongre+Merkezi" target="_blank" rel="noopener">Haritada aç <b aria-hidden="true">↗</b></a>
+                        </section>
+                    </article>
+                    <div class="mx-drop" id="mxDrop" aria-hidden="true"></div>
                 </div>
             </section>
         </section>
@@ -8515,9 +8618,10 @@
                 };
             }).sort((a, b) => ((a.occurrences[0]?.date || '9999-99-99') + (a.occurrences[0]?.time || '99:99')).localeCompare((b.occurrences[0]?.date || '9999-99-99') + (b.occurrences[0]?.time || '99:99')));
         }
-        // UniPakt'ın kendi büyük etkinlikleri: panelden gelmez, her zaman takvimde görünür ve kendi sayfasına gider.
+        // UniPakt'ın kendi büyük etkinlikleri: panelden gelmez; yalnız takvim ızgarasında işaretlenir (listede yok),
+        // o gün seçilince satırı çıkar ve kendi sayfasına gider. Liste boşken altta 'Sıradaki büyük etkinlik' kartı görünür.
         const FEATURED = [{
-            id: 'mixit', href: '/mixit/', title: 'HACKFEST27: MIXIT', desc: '', place: 'İstanbul Kongre Merkezi', address: 'Harbiye, Şişli', rules: '',
+            id: 'mixit', href: '/mixit/', gridOnly: true, title: 'HACKFEST27: MIXIT', desc: '', place: 'İstanbul Kongre Merkezi', address: 'Harbiye, Şişli', rules: '',
             poster_url: '', tags: ['hackathon', 'e-spor', 'gastronomi', 'dans'], registration_url: '', fee_type: 'none', fee_amount: null,
             organizer_id: '', by: 'UniPakt', university: '', category: 'Festival',
             occurrences: [{ date: '2027-03-06', time: '10:00' }, { date: '2027-03-07', time: '' }]
@@ -8581,7 +8685,7 @@
         }
         function filteredEvents() {
             // A picked day shows that day's events, past ones included.
-            let list = dayFilter ? events.filter(e => e.occurrences.some(o => o.date === dayFilter)) : upcomingEvents();
+            let list = dayFilter ? events.filter(e => e.occurrences.some(o => o.date === dayFilter)) : upcomingEvents().filter(e => !e.gridOnly);
             if (searchQuery.trim())
                 list = list.filter(e => matches(e, searchQuery.trim()));
             return list;
@@ -8595,7 +8699,7 @@
                 return `<div class="cal3-items">${list.map(eventRow).join('')}</div>`;
             const msg = `<p class="site-cal-v2-empty">${esc(dayFilter ? ui.noDay() : (searchQuery ? ui.noSearch() : loaded ? ui.empty() : failed ? ui.failed() : ui.load()))}</p>`;
             // Hiç etkinlik yokken (ya da yüklenemediğinde) boş liste yerine sıradaki büyük etkinlik gösterilir.
-            const bare = !dayFilter && !searchQuery && (loaded || failed) && !events.length;
+            const bare = !dayFilter && !searchQuery && (loaded || failed) && !events.some(e => !e.gridOnly);
             return bare ? msg + `<a class="cal-next" href="/mixit/" data-route="mixit">
                     <span class="cal-next-kick">Sıradaki büyük etkinlik</span>
                     <strong class="cal-next-title" data-no-i18n>HACKFEST27: MIXIT</strong>
@@ -8619,7 +8723,7 @@
         let autoMonth = false;
         function renderCalendar() {
             // İlk açılışta bu ay boşsa takvim en yakın etkinliğin ayında açılır.
-            if (!autoMonth && loaded && events.length) {
+            if (!autoMonth && loaded && events.some(e => !e.gridOnly)) {
                 autoMonth = true;
                 if (!monthHasEvents(view.y, view.m)) {
                     const n = nextEventDay(view.y, view.m);
@@ -10959,15 +11063,25 @@
         window.addEventListener('unipakt:route', setMode);
         setMode();
 
-        // MIXIT geri sayımı: açılış 6 Mart 2027 10.00 (İstanbul). Sayfa açıkken dakikada bir güncellenir.
+        // MIXIT geri sayımı: açılış 6 Mart 2027 10.00 (İstanbul). Sayfa açıkken her saniye güncellenir;
+        // değişen rakam aşağıdan kayarak gelir.
         const count = document.getElementById('mxCount');
         const mixit = document.getElementById('page-mixit');
         if (count && mixit) {
             const START = Date.parse('2027-03-06T10:00:00+03:00');
             const END = Date.parse('2027-03-07T19:00:00+03:00');
-            const cells = { d: count.querySelector('[data-mx="d"]'), h: count.querySelector('[data-mx="h"]'), m: count.querySelector('[data-mx="m"]') };
-            const title = document.querySelector('#page-mixit .mx-end-title');
+            const cells = ['d', 'h', 'm', 's'].map((k) => [k, count.querySelector(`[data-mx="${k}"]`)]);
+            const title = mixit.querySelector('.mx-end-title');
+            const two = (n) => String(n).padStart(2, '0');
             let timer = 0;
+            const put = (el, v) => {
+                if (el.dataset.v === v) return;
+                el.dataset.v = v;
+                const i = document.createElement('i');
+                i.textContent = v;
+                if (!still && el.firstChild) i.className = 'mx-roll';
+                el.replaceChildren(i);
+            };
             const tick = () => {
                 const now = Date.now();
                 if (now >= START) {
@@ -10975,29 +11089,30 @@
                     if (title) title.textContent = now < END ? 'Festival şu an devam ediyor.' : 'MIXIT 2027 tamamlandı.';
                     return;
                 }
-                const left = Math.floor((START - now) / 60000);
-                cells.d.textContent = Math.floor(left / 1440);
-                cells.h.textContent = Math.floor((left % 1440) / 60);
-                cells.m.textContent = left % 60;
+                const left = Math.floor((START - now) / 1000);
+                const v = { d: String(Math.floor(left / 86400)), h: two(Math.floor((left % 86400) / 3600)), m: two(Math.floor((left % 3600) / 60)), s: two(left % 60) };
+                cells.forEach(([k, el]) => put(el, v[k]));
             };
             const sync = () => {
                 clearInterval(timer);
                 if (!mixit.classList.contains('active'))
                     return;
                 tick();
-                timer = setInterval(tick, 30000);
+                timer = setInterval(tick, 1000);
             };
             window.addEventListener('unipakt:route', sync);
             sync();
         }
 
-        // MIXIT şerit gösterisi. Kaydırma ilerlemesi (0–1):
-        // 0–.62 yedi şerit sırayla sağdan/soldan iner · .55–.70 son şerit ortaya gelip dikilir ·
-        // .70–.84 son şeridin yazısı akar · .86'da düşük fps'li (12 kare/sn) jenerik başlar:
-        // düşüş → yere çarpma → kara kalem karalamaları → turuncu dolgu → bitiş ekranı. Yukarı dönülünce sıfırlanır.
+        // MIXIT şerit gösterisi.
+        // Önde düz bilgi paneli kayar; arkada yedi şerit sırayla sağdan/soldan iner (iki tur).
+        // Panel bitince dik duran son şerit ekranın üstünden girer, kaydırdıkça iner; zemine değdiği an
+        // düşük fps'li (18 kare/sn) jenerik başlar: ezilme → kara kalem karalamaları → siyah perde → bitiş ekranı.
+        // Yukarı dönülünce sıfırlanır.
         const ride = document.getElementById('mxRide');
         const view = document.getElementById('mxView');
-        if (ride && view && mixit && !still) {
+        const panel = document.getElementById('mxPanel');
+        if (ride && view && panel && mixit && !still) {
             const strips = [...view.querySelectorAll('.mx-strip')];
             const last = document.getElementById('mxLast');
             const lastText = document.getElementById('mxLastText');
@@ -11006,36 +11121,49 @@
             const clamp01 = (v) => Math.max(0, Math.min(1, v));
             const lerp = (a, b, t) => a + (b - a) * t;
             const ease = (t) => (t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
-            const FPS = 12, FRAME = 1000 / FPS;
-            const P_STRIPS = .62, P_LAST_IN = .55, P_LAST = .7, P_TEXT = .84, P_GO = .86, P_RESET = .8;
+            const FPS = 18, FRAME = 1000 / FPS;
+            const LOOPS = 2;
             const PENCIL = 'rgba(242, 241, 238, .92)';
             let W = 0, H = 0, raf = 0, seq = null;
 
+            // Son şeridin boyu yazıya göre: tamamı görünsün, ekranın %72'sini geçmesin.
+            const fitLast = () => {
+                lastText.style.fontSize = '';
+                const max = H * .72 - 44;
+                const len = lastText.offsetHeight;
+                if (len > max) lastText.style.fontSize = `${parseFloat(getComputedStyle(lastText).fontSize) * max / len}px`;
+            };
             const size = () => {
                 const r = view.getBoundingClientRect();
                 const dpr = Math.min(2, window.devicePixelRatio || 1);
                 W = r.width; H = r.height;
                 canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
                 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                fitLast();
             };
-            const progress = () => {
-                const top = parseFloat(getComputedStyle(view).top) || 0;
-                const total = ride.offsetHeight - view.offsetHeight;
-                return total > 0 ? clamp01((top - ride.getBoundingClientRect().top) / total) : 0;
-            };
-            const placeLast = (x, y, rot, sx = 1, sy = 1) => {
-                last.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) rotate(${rot}deg) scale(${sx}, ${sy})`;
+            const scrolled = () => (parseFloat(getComputedStyle(view).top) || 0) - ride.getBoundingClientRect().top;
+            const placeLast = (y, sx = 1, sy = 1) => {
+                last.style.transform = `translate(-50%, ${y}px) scale(${sx}, ${sy})`;
             };
 
-            // Kaydırmaya bağlı kısım: şeritler ve son şeridin gelişi.
             const render = () => {
                 raf = 0;
-                const p = progress();
-                const span = .2, gap = (P_STRIPS - span) / Math.max(1, strips.length - 1);
+                const s = scrolled();
+                const panelEnd = panel.offsetTop + panel.offsetHeight; // panel ekrandan tamamen çıktığı an
+                const total = ride.offsetHeight - view.offsetHeight;
+                const touch = total - H * .35; // son şeridin zemine değdiği kaydırma
+                // Arka şeritler: panel boyunca iki tur.
+                const sp = clamp01(s / panelEnd) * LOOPS;
+                const n = strips.length, span = 1.6 / n * 1.0, gap = (1 - span) / (n - 1);
                 strips.forEach((el, i) => {
                     const side = Number(el.dataset.side) || 1;
-                    const t = clamp01((p - i * gap) / span);
+                    let t = -1;
+                    for (let loop = 0; loop < LOOPS; loop++) {
+                        const lt = (sp - loop - i * gap) / span;
+                        if (lt > 0 && lt < 1) t = lt;
+                    }
                     el.style.visibility = t <= 0 || t >= 1 ? 'hidden' : 'visible';
+                    if (t <= 0) return;
                     const y = lerp(-.3 * H, 1.3 * H, t);
                     const rot = side * lerp(26, -4, t);
                     const x = side * lerp(.35 * W, -.1 * W, t);
@@ -11043,26 +11171,24 @@
                     el.firstElementChild.style.transform = `translateX(${side * lerp(-18, 6, t)}%)`;
                 });
                 if (seq) {
-                    if (p < P_RESET) stop();
+                    if (s < touch - H * .2) stop();
                     return;
                 }
-                const lt = ease(clamp01((p - P_LAST_IN) / (P_LAST - P_LAST_IN)));
-                last.style.opacity = p > P_LAST_IN ? '1' : '0';
-                placeLast(lerp(-.25 * W, 0, lt), lerp(-.95 * H, 0, lt), lerp(-75, 0, lt));
-                const tt = clamp01((p - P_LAST) / (P_TEXT - P_LAST));
-                const run = Math.max(0, lastText.offsetHeight - last.clientHeight);
-                lastText.style.transform = `translateY(${-run * tt}px)`;
-                if (p >= P_GO) start();
+                // Son şerit: ekranın üstünden girer, alt ucu zemine değene kadar iner.
+                const h = last.offsetHeight;
+                const dt = clamp01((s - panelEnd + H * .2) / (touch - panelEnd + H * .2));
+                last.style.opacity = dt > 0 ? '1' : '0';
+                placeLast(lerp(-h - 20, H - h, dt));
+                if (dt >= 1) start();
             };
             const onScroll = () => { if (!raf) raf = requestAnimationFrame(render); };
 
             // ---- Kara kalem çizimleri: her karede titreyen (boil) çift çizgi ----
             const jit = (a) => (Math.random() - .5) * a;
-            const pencil = (pts, color = PENCIL, close = false) => {
+            const pencil = (pts, color = PENCIL) => {
                 for (let pass = 0; pass < 2; pass++) {
                     ctx.beginPath();
                     pts.forEach(([x, y], k) => { const px = x + jit(2.2), py = y + jit(2.2); k ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
-                    if (close) ctx.closePath();
                     ctx.strokeStyle = color;
                     ctx.globalAlpha = pass ? .45 : .95;
                     ctx.lineWidth = pass ? 1.2 : 2.4;
@@ -11089,7 +11215,7 @@
                         type: TYPES[i % TYPES.length], x: W / 2 + jit(60), y: H - 6,
                         vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
                         rot: Math.random() * 6.28, vr: (Math.random() - .5) * 9,
-                        s: (40 + Math.random() * 60) * Math.max(.75, k), delay: Math.floor(Math.random() * 3), age: 0
+                        s: (40 + Math.random() * 60) * Math.max(.75, k), delay: Math.floor(Math.random() * 4), age: 0
                     });
                 }
                 return list;
@@ -11098,7 +11224,8 @@
                 list.forEach((d) => {
                     if (d.delay > 0) { d.delay--; return; }
                     d.age += dt;
-                    d.vy += 520 * dt * (H / 800); d.vx *= .93; d.vy *= .95;
+                    const drag = Math.pow(.25, dt);
+                    d.vy += 520 * dt * (H / 800); d.vx *= drag; d.vy *= drag;
                     d.x += d.vx * dt; d.y += d.vy * dt; d.rot += d.vr * dt;
                     const g = Math.min(1, d.age / .5);
                     ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(d.rot);
@@ -11110,53 +11237,46 @@
                 const cx = W / 2, cy = H - 4;
                 for (let i = 0; i < 11; i++) {
                     const a = Math.PI + (i / 10) * Math.PI;
-                    const r0 = 30 + n * 40, r1 = r0 + 60 + Math.random() * 70;
+                    const r0 = 30 + n * 34, r1 = r0 + 60 + Math.random() * 70;
                     pencil([[cx + Math.cos(a) * r0, cy + Math.sin(a) * r0], [cx + Math.cos(a) * r1, cy + Math.sin(a) * r1]]);
                 }
             };
-            const drawFlood = (e) => {
+            // Siyah perde aşağıdan yükselir, karalamaları örter; kenarı kurşun kalem gibi titrer.
+            const drawCurtain = (e) => {
                 const level = lerp(H + 20, -40, e);
+                const edge = (x) => level + Math.sin(x * .018 + e * 9) * 14;
                 ctx.beginPath(); ctx.moveTo(0, H);
-                for (let x = 0; x <= W + 24; x += 24) ctx.lineTo(x, level + Math.sin(x * .018 + e * 9) * 14 + jit(8));
+                for (let x = 0; x <= W + 24; x += 24) ctx.lineTo(x, edge(x) + jit(8));
                 ctx.lineTo(W, H); ctx.closePath();
-                ctx.fillStyle = '#FF5A1F'; ctx.fill();
-                // Kenarın üstünde kara kalem tarama
-                for (let x = 0; x < W; x += 16) {
-                    const y = level + Math.sin(x * .018 + e * 9) * 14;
-                    pencil([[x, y - 4], [x + 14, y - 22 - Math.random() * 16]], 'rgba(255, 90, 31, .9)');
-                }
+                ctx.fillStyle = '#050505'; ctx.fill();
+                const pts = [];
+                for (let x = 0; x <= W + 24; x += 24) pts.push([x, edge(x)]);
+                pencil(pts);
+                for (let x = 0; x < W; x += 18) pencil([[x, edge(x) + 4], [x + 12, edge(x) + 18 + Math.random() * 14]], 'rgba(242, 241, 238, .35)');
             };
 
-            // ---- Zamana bağlı jenerik (12 kare/sn) ----
+            // ---- Zamana bağlı jenerik (18 kare/sn) ----
             function start() {
                 if (seq) return;
                 seq = { frame: 0, doodles: null, timer: 0 };
-                last.style.opacity = '1';
-                const lastH = last.offsetHeight;
-                const fallTo = H / 2 - lastH / 2; // alt ucu ekranın dibine değer
-                const FALL = 7, IMPACT = FALL, BURST_END = 34, FLOOD_START = 14, FLOOD_LEN = 12, END = FLOOD_START + FLOOD_LEN;
+                const h = last.offsetHeight;
+                const BURST_END = 46, CURTAIN_START = 24, CURTAIN_LEN = 18, END = CURTAIN_START + CURTAIN_LEN;
                 seq.timer = setInterval(() => {
                     const f = seq.frame++;
                     ctx.clearRect(0, 0, W, H);
-                    if (f < FALL) {
-                        // Önce hafif sıçrar, sonra hızlanarak düşer; hafifçe yana yatar.
-                        const t = f / (FALL - 1);
-                        const y = t < .25 ? lerp(0, -.05 * H, t / .25) : lerp(-.05 * H, fallTo, Math.pow((t - .25) / .75, 2));
-                        placeLast(jit(4), y, t * 4 - 2);
-                    } else if (f < IMPACT + 3) {
+                    if (f < 4) {
                         // Çarpma: iki kare ezilir, sonra dağılır.
-                        const k = f - IMPACT;
-                        if (k < 2) placeLast(0, fallTo + lastH * (k ? .1 : .06), 0, k ? 1.3 : 1.15, k ? .78 : .88);
+                        if (f < 2) placeLast(H - h, f ? 1.32 : 1.14, f ? .74 : .86);
                         else last.style.opacity = '0';
                         if (!seq.doodles) seq.doodles = spawn();
-                        drawImpact(k);
+                        drawImpact(f);
                     }
                     if (seq.doodles && f < BURST_END) drawDoodles(seq.doodles, 1 / FPS);
-                    if (f >= FLOOD_START) drawFlood(ease(clamp01((f - FLOOD_START) / FLOOD_LEN)));
+                    if (f >= CURTAIN_START) drawCurtain(ease(clamp01((f - CURTAIN_START) / CURTAIN_LEN)));
                     if (f >= END) {
                         view.classList.add('is-end');
                         clearInterval(seq.timer);
-                        setTimeout(() => { if (seq) ctx.clearRect(0, 0, W, H); }, 520);
+                        setTimeout(() => { if (seq) ctx.clearRect(0, 0, W, H); }, 480);
                     }
                 }, FRAME);
             }
