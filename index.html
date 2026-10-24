@@ -6743,26 +6743,51 @@
         .hf-strip-in .hf-btn { width: 100%; }
         .hf-crow-v { font-size: clamp(22px, 6.4vw, 28px); white-space: normal; overflow-wrap: anywhere; }
     }
-    /* ---- MIXIT katılımcı sayfası: geri sayım ve etkinlik künyesi (bilet sayfası düzeni) ---- */
-    .mx-count { margin-top: clamp(32px, 4vw, 56px); display: grid; grid-template-columns: repeat(3, max-content); gap: 8px clamp(32px, 6vw, 120px); }
-    .mx-count b { display: block; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: var(--hf-huge); line-height: .82; letter-spacing: -0.06em; font-variant-numeric: tabular-nums; }
-    .mx-count span { display: block; margin-top: 14px; font-size: var(--hf-lead); font-weight: 600; }
-    .mx-facts { margin: clamp(64px, 8vw, 120px) 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px clamp(24px, 3vw, 48px); }
-    .mx-facts > div { display: grid; gap: 8px; align-content: start; }
-    .mx-facts dt { font-size: var(--hf-body); color: var(--hf-soft-l); }
-    .mx-facts dd { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: var(--hf-lead); line-height: 1.3; letter-spacing: -0.01em; }
-    .mx-lead-top { margin-top: 0; }
-    .mx-figure { margin-top: clamp(40px, 5vw, 72px); }
-    .mx-map { display: inline-flex; align-items: center; gap: 8px; margin-top: 28px; color: #fff; font-weight: 700; font-size: var(--hf-body); text-decoration: underline; text-underline-offset: 4px; transition: color .2s ease; }
-    .mx-map:hover, .mx-map:focus-visible { color: var(--hf-acc); }
-    .mx-sponsor { color: #fff; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
-    .mx-sponsor:hover, .mx-sponsor:focus-visible { color: var(--hf-acc); }
+    /* ---- MIXIT katılımcı sayfası: kaydırmalı şerit gösterisi ---- */
+    .mx-page { background: #050505; }
+    .mx-hero { min-height: calc(100svh - var(--nav-h, 86px)); }
+    .mx-sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .mx-cue { position: absolute; left: 50%; bottom: clamp(20px, 4vh, 40px); transform: translateX(-50%); margin: 0; display: grid; justify-items: center; gap: 6px; font-size: var(--hf-small); font-weight: 600; color: var(--hf-soft-d); opacity: 0; transition: opacity .6s ease; }
+    .mx-cue b { font-size: 20px; animation: mxCue 1.6s ease-in-out infinite; }
+    .mx-hero:has(.hf-done) .mx-cue { opacity: 1; }
+    @keyframes mxCue { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+    /* Yolculuk: uzun bölüm, içinde ekrana yapışan sahne */
+    .mx-ride { position: relative; height: 900svh; background: #050505; }
+    .mx-view { position: sticky; top: var(--nav-h, 86px); height: calc(100svh - var(--nav-h, 86px)); overflow: hidden; contain: layout paint; }
+    .mx-strips { position: absolute; inset: 0; }
+    .mx-strip { position: absolute; left: 50%; top: 0; width: 190vmax; margin-left: -95vmax; height: clamp(76px, 13svh, 150px); display: flex; align-items: center; overflow: hidden; will-change: transform; transform: translate3d(0, -200%, 0); }
+    .mx-strip span, .mx-last span { display: block; white-space: nowrap; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(44px, 8.4svh, 104px); line-height: 1; letter-spacing: -0.04em; text-transform: uppercase; will-change: transform; }
+    .mx-s-acc { background: var(--hf-acc); color: var(--hf-ink); }
+    .mx-s-paper { background: var(--hf-light); color: var(--hf-ink); }
+    .mx-s-ink { background: #1D1D20; color: #fff; }
+    /* Son şerit: ortaya gelip dikilir; yazısı yukarı akar */
+    .mx-last { position: absolute; left: 50%; top: 50%; width: clamp(76px, 13svh, 150px); height: 74%; background: var(--hf-acc); color: var(--hf-ink); overflow: hidden; opacity: 0; will-change: transform; display: flex; align-items: flex-start; justify-content: center; }
+    .mx-last span { writing-mode: vertical-rl; transform-origin: center; }
+    .mx-burst { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    /* Bitiş ekranı: tam turuncu, üstte logo, ortada çağrı ve geri sayım */
+    .mx-end { position: absolute; inset: 0; display: grid; grid-template-rows: auto 1fr; justify-items: center; align-content: start; gap: 0; padding: clamp(20px, 5svh, 56px) var(--hf-m) clamp(24px, 6svh, 64px); background: var(--hf-acc); color: var(--hf-ink); text-align: center; opacity: 0; visibility: hidden; transition: opacity .5s steps(4), visibility 0s linear .5s; }
+    .mx-view.is-end .mx-end { opacity: 1; visibility: visible; transition: opacity .5s steps(4), visibility 0s; }
+    .mx-end-logo { display: block; width: min(760px, 86vw, 62svh * 2.72); height: auto; }
+    .mx-end-mid { display: grid; align-content: center; justify-items: center; }
+    .mx-end-title { margin: clamp(8px, 3svh, 32px) 0 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(48px, 9vw, 150px); line-height: .9; letter-spacing: -0.05em; text-wrap: balance; }
+    .mx-count { margin-top: clamp(20px, 5svh, 56px); display: grid; grid-template-columns: repeat(3, max-content); justify-content: center; gap: 8px clamp(28px, 6vw, 110px); }
+    .mx-count b { display: block; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(56px, 9vw, 150px); line-height: .85; letter-spacing: -0.06em; font-variant-numeric: tabular-nums; }
+    .mx-count span { display: block; margin-top: 10px; font-size: var(--hf-lead); font-weight: 700; }
+    .mx-end-title, .mx-count { transform: translateY(14px); transition: transform .5s steps(4); }
+    .mx-view.is-end .mx-end-title, .mx-view.is-end .mx-count { transform: none; }
     @media (max-width: 620px) {
-        .mx-count { grid-template-columns: repeat(3, max-content); column-gap: 28px; }
-        .mx-count b { font-size: clamp(52px, 15vw, 80px); }
-        .mx-facts { grid-template-columns: minmax(0, 1fr); }
+        .mx-count { column-gap: 26px; }
+        .mx-count b { font-size: clamp(52px, 16vw, 84px); }
     }
-    @media (min-width: 621px) and (max-width: 1100px) { .mx-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    /* Hareket istemeyenlere gösteri yok: doğrudan bitiş ekranı */
+    @media (prefers-reduced-motion: reduce) {
+        .mx-ride { height: auto; }
+        .mx-view { position: relative; top: 0; height: calc(100svh - var(--nav-h, 86px)); }
+        .mx-strips, .mx-last, .mx-burst { display: none; }
+        .mx-end { opacity: 1; visibility: visible; transition: none; }
+        .mx-end-title, .mx-count { transform: none; transition: none; }
+        .mx-cue b { animation: none; }
+    }
     @media (prefers-reduced-motion: reduce) {
         .hf-strip, .hf-pano img, .hf-photo img, .hf-btn, .hf-back { transition: none; }
         .hf-pano img { transform: none; }
@@ -7594,10 +7619,12 @@
         </section>
 
 
-        <!-- ================= MIXIT: katılımcı (etkinlik) sayfası =================
-             Sponsor dosyası /hackfest27/'de kalır; burası öğrencilere tanıtım ve etkinlik bilgisi. -->
+        <!-- ================= MIXIT: katılımcı (tanıtım) sayfası =================
+             Logo jeneriği → kaydırdıkça sağdan/soldan inen şeritler → ortada dikilen son şerit →
+             düşük fps'te düşüp yere çarpar → kara kalem karalamaları fırlar → ekran turuncuya boyanır →
+             logo, "Seni bekliyoruz" ve geri sayım. Sponsor dosyası /hackfest27/'de kalır. -->
         <section class="page hf-page mx-page" id="page-mixit" data-page="mixit">
-            <div class="hf-hero">
+            <div class="hf-hero mx-hero">
                 <div class="hf-stage" role="img" aria-label="UniPakt HACKFEST27 MIXIT">
                     <img class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp" alt="" width="1375" height="505" decoding="async">
                     <img class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp" alt="" width="1375" height="505" decoding="async">
@@ -7605,140 +7632,33 @@
                     <img class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp" alt="" width="1375" height="505" decoding="async">
                     <img class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp" alt="" width="1375" height="505" decoding="async">
                 </div>
-                <div class="hf-strip">
-                    <div class="hf-wrap hf-strip-in">
-                        <div>
-                            <h1 class="hf-date">6–7 Mart 2027, İstanbul Kongre Merkezi</h1>
-                            <p class="hf-place">İki gün boyunca hackathon, e-spor, gastronomi ve dans. İstanbul’un üniversiteleri tek festivalde.</p>
-                        </div>
-                        <a class="hf-btn" href="/hackfest-media/mixit.ics" download="MIXIT.ics">Takvimime ekle</a>
-                    </div>
-                </div>
+                <h1 class="mx-sr">HACKFEST27: MIXIT, 6–7 Mart 2027, İstanbul Kongre Merkezi</h1>
+                <p class="mx-cue" aria-hidden="true">Kaydır <b>↓</b></p>
             </div>
 
-            <section class="hf-sec hf-light" aria-labelledby="mxBilgi">
-                <div class="hf-wrap">
-                    <div class="mx-count-head">
-                        <h2 class="hf-h" id="mxBilgi" data-reveal>Festivale kalan</h2>
-                        <div class="mx-count" id="mxCount" data-reveal aria-live="off">
-                            <div><b data-mx="d">–</b><span>gün</span></div>
-                            <div><b data-mx="h">–</b><span>saat</span></div>
-                            <div><b data-mx="m">–</b><span>dakika</span></div>
+            <section class="mx-ride" id="mxRide" aria-label="MIXIT">
+                <div class="mx-view" id="mxView">
+                    <div class="mx-strips" aria-hidden="true">
+                        <div class="mx-strip mx-s-acc" data-side="-1"><span>6–7 Mart 2027 · 6–7 Mart 2027 · 6–7 Mart 2027 · 6–7 Mart 2027 ·</span></div>
+                        <div class="mx-strip mx-s-paper" data-side="1"><span>İstanbul Kongre Merkezi · İstanbul Kongre Merkezi · İstanbul Kongre Merkezi ·</span></div>
+                        <div class="mx-strip mx-s-ink" data-side="-1"><span>Hackathon · Hackathon · Hackathon · Hackathon · Hackathon · Hackathon ·</span></div>
+                        <div class="mx-strip mx-s-acc" data-side="1"><span>E-spor · E-spor · E-spor · E-spor · E-spor · E-spor · E-spor · E-spor ·</span></div>
+                        <div class="mx-strip mx-s-paper" data-side="-1"><span>Gastronomi · Gastronomi · Gastronomi · Gastronomi · Gastronomi ·</span></div>
+                        <div class="mx-strip mx-s-ink" data-side="1"><span>Dans · Dans · Dans · Dans · Dans · Dans · Dans · Dans · Dans · Dans ·</span></div>
+                        <div class="mx-strip mx-s-acc" data-side="-1"><span>Konuşmalar · Büyük Final · Konuşmalar · Büyük Final · Konuşmalar ·</span></div>
+                    </div>
+                    <div class="mx-last" id="mxLast" aria-hidden="true"><span id="mxLastText" lang="en" data-no-i18n>Hackfest27 · Mixit · Hackfest27 · Mixit · Hackfest27 · Mixit · Hackfest27 · Mixit ·</span></div>
+                    <canvas class="mx-burst" id="mxBurst" aria-hidden="true"></canvas>
+                    <div class="mx-end" id="mxEnd">
+                        <img class="mx-end-logo" src="/hackfest-media/logo-full-dark.webp" alt="HACKFEST27 MIXIT" width="1375" height="505" decoding="async">
+                        <div class="mx-end-mid">
+                            <h2 class="mx-end-title">Seni bekliyoruz.</h2>
+                            <div class="mx-count" id="mxCount">
+                                <div><b data-mx="d">–</b><span>gün</span></div>
+                                <div><b data-mx="h">–</b><span>saat</span></div>
+                                <div><b data-mx="m">–</b><span>dakika</span></div>
+                            </div>
                         </div>
-                    </div>
-                    <dl class="mx-facts" data-reveal-stagger>
-                        <div><dt>Tarih</dt><dd>6–7 Mart 2027, Cumartesi ve Pazar</dd></div>
-                        <div><dt>Açılış</dt><dd>Cumartesi 10.00</dd></div>
-                        <div><dt>Mekân</dt><dd>İstanbul Kongre Merkezi, Harbiye / Şişli</dd></div>
-                        <div><dt>Kimler için</dt><dd>İstanbul’daki tüm üniversitelerin öğrencileri</dd></div>
-                    </dl>
-                </div>
-            </section>
-
-            <section class="hf-sec hf-dark" aria-labelledby="mxHakkinda">
-                <div class="hf-wrap hf-split">
-                    <div class="hf-split-head">
-                        <h2 class="hf-h" id="mxHakkinda" data-reveal>Bir festival. Birçok dünya.</h2>
-                    </div>
-                    <div>
-                        <p class="hf-lead mx-lead-top" data-reveal>MIXIT, UniPakt’ın üniversite öğrencileri için düzenlediği çok disiplinli festival. Yarışmalar, konuşmalar ve marka alanları iki gün boyunca aynı çatı altında.</p>
-                        <p class="hf-text" data-reveal>Kodla, oyna, pişir, dans et ya da sadece gel ve izle. Sahne, salonlar ve fuaye aynı anda canlı; programını sen kurarsın.</p>
-                        <p class="hf-figure-line mx-figure" data-reveal><span class="hf-figure" data-no-i18n>5.000+</span><span>üniversiteli bekleniyor.</span></p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="hf-sec hf-light" aria-labelledby="mxYarisma">
-                <div class="hf-wrap">
-                    <h2 class="hf-h" id="mxYarisma" data-reveal>Dört yarışma. Tek Büyük Final.</h2>
-                    <dl class="hf-lineup" data-reveal-stagger>
-                        <div><dt>Hackathon</dt><dd>Teknoloji, üretim ve problem çözme.</dd></div>
-                        <div><dt>E-spor</dt><dd>Canlı rekabet; final ana sahnede oynanır.</dd></div>
-                        <div><dt>Gastronomi</dt><dd>Yaratıcılık ve mutfak becerileri.</dd></div>
-                        <div><dt>Dans</dt><dd>Sahne, ritim ve performans.</dd></div>
-                    </dl>
-                    <p class="hf-note" data-reveal>Her yarışmada ilk üçe kupa verilir. Programa yeni yarışma ve yan etkinlikler eklenebilir.</p>
-                </div>
-            </section>
-
-            <section class="hf-sec hf-accent" aria-labelledby="mxSecim">
-                <div class="hf-wrap">
-                    <h2 class="hf-h" id="mxSecim" data-reveal>Programını sen seç.</h2>
-                    <p class="hf-lead" data-reveal>İçeri girdikten sonra festival alanında özgürce dolaşırsın; ilgini çeken salona, sahneye ya da standa geçersin.</p>
-                    <ul class="hf-choice" data-reveal-stagger>
-                        <li><b>Konuşmalar</b><span>Sektörden deneyim paylaşımı</span></li>
-                        <li><b>Yarışmalar</b><span>Canlı karşılaşmalar</span></li>
-                        <li><b>Marka alanları</b><span>Ürün dene, tanış, keşfet</span></li>
-                    </ul>
-                </div>
-            </section>
-
-            <section class="hf-sec hf-dark" aria-labelledby="mxProgram">
-                <div class="hf-wrap">
-                    <h2 class="hf-h" id="mxProgram" data-reveal>İki gün. İki ritim.</h2>
-                    <div class="hf-days">
-                        <div class="hf-day" data-reveal>
-                            <h3>6 Mart, Cumartesi</h3>
-                            <dl class="hf-sched">
-                                <div><dt>10.00</dt><dd>Kapılar açılıyor, festival başlıyor.</dd></div>
-                                <div><dt>Gün boyu</dt><dd>Beş konuşmacı, ana sahnede birer saatlik oturumlarla.</dd></div>
-                                <div><dt>Eş zamanlı</dt><dd>Diğer alanlarda yarışmalar ve marka deneyimleri.</dd></div>
-                            </dl>
-                        </div>
-                        <div class="hf-day" data-reveal>
-                            <h3>7 Mart, Pazar</h3>
-                            <dl class="hf-sched">
-                                <div><dt>Final</dt><dd>Yarışmaların Büyük Finali ve ödül töreni ana sahnede.</dd></div>
-                                <div><dt>19.00</dt><dd>Kapanış eğlencesiyle festival sona eriyor.</dd></div>
-                            </dl>
-                        </div>
-                    </div>
-                    <p class="hf-note" data-reveal>Konuşmacılar ve saat saat program yaklaştıkça duyurulacak.</p>
-                </div>
-            </section>
-
-            <section class="hf-sec hf-light hf-past-sec" aria-labelledby="mxGecmis">
-                <div class="hf-wrap hf-past-head">
-                    <h2 class="hf-h" id="mxGecmis" data-reveal>Geçen yıl böyleydi.</h2>
-                    <p class="hf-caption" data-reveal>HACKFEST 2026 · İstinye Üniversitesi</p>
-                    <p class="hf-caption" data-reveal>MIXIT, bu ilk deneyimin büyüyen hâli.</p>
-                </div>
-                <figure class="hf-pano" data-reveal><img src="/hackfest-media/hf26-sahne.webp?v=2" alt="HACKFEST 2026 katılımcıları sahnede" width="2000" height="759" loading="lazy" decoding="async"></figure>
-                <div class="hf-wrap hf-past-body">
-                    <p class="hf-figure-line" data-reveal><span class="hf-figure">200</span><span>katılımcı. Yalnızca hackathon’la.</span></p>
-                    <div class="hf-photos" data-reveal-stagger>
-                        <figure class="hf-photo"><img src="/hackfest-media/hf26-calisma.webp" alt="Hackathon çalışma ortamı" width="546" height="432" loading="lazy" decoding="async"><figcaption>Hackathon çalışma ortamı</figcaption></figure>
-                        <figure class="hf-photo"><img src="/hackfest-media/hf26-konusma.webp" alt="Etkinlik konuşması" width="632" height="432" loading="lazy" decoding="async"><figcaption>Etkinlik konuşması</figcaption></figure>
-                        <figure class="hf-photo"><img src="/hackfest-media/hf26-katilim.webp" alt="Öğrenci katılımı" width="577" height="432" loading="lazy" decoding="async"><figcaption>Öğrenci katılımı</figcaption></figure>
-                    </div>
-                </div>
-            </section>
-
-            <section class="hf-sec hf-dark" aria-labelledby="mxMekan">
-                <div class="hf-wrap hf-split">
-                    <div class="hf-split-head">
-                        <h2 class="hf-h" id="mxMekan" data-reveal>İstanbul Kongre Merkezi</h2>
-                        <p class="hf-lead" data-reveal>Harbiye Mahallesi, Darülbedai Caddesi No: 3, Şişli / İstanbul</p>
-                        <a class="mx-map" href="https://www.google.com/maps/search/?api=1&amp;query=%C4%B0stanbul+Kongre+Merkezi" target="_blank" rel="noopener" data-reveal>Haritada aç <b aria-hidden="true">↗</b></a>
-                    </div>
-                    <dl class="hf-rows" data-reveal-stagger>
-                        <div><dt>Metro</dt><dd>M2 hattında Osmanbey ya da Taksim durağında in; mekân yürüme mesafesinde.</dd></div>
-                        <div><dt>Füniküler</dt><dd>Kabataş’tan F1 ile Taksim’e çık, oradan yürü.</dd></div>
-                    </dl>
-                </div>
-            </section>
-
-            <section class="hf-sec hf-dark hf-contact-sec" aria-labelledby="mxTakip">
-                <div class="hf-wrap">
-                    <h2 class="hf-h" id="mxTakip" data-reveal>Duyuruları kaçırma.</h2>
-                    <p class="hf-lead" data-reveal>Konuşmacılar, yarışma detayları ve program önce burada ve Instagram’da paylaşılacak.</p>
-                    <div class="hf-contact-rows" data-reveal-stagger>
-                        <a class="hf-crow hf-crow-main" href="https://www.instagram.com/unipakt/" target="_blank" rel="noopener"><span class="hf-crow-v" data-no-i18n>@unipakt</span><span class="hf-crow-k">Instagram</span></a>
-                        <a class="hf-crow" href="/takvim/" data-route="takvim"><span class="hf-crow-v">Takvim</span><span class="hf-crow-k">Ağdaki diğer etkinlikler</span></a>
-                    </div>
-                    <div class="hf-close" data-reveal>
-                        <a class="hf-btn" href="/hackfest-media/mixit.ics" download="MIXIT.ics">Takvimime ekle</a>
-                        <p><img src="/unipakt-logo-bg-white.png?v=3" alt="UniPakt" width="885" height="208" loading="lazy"><span>Markan da MIXIT’te olsun mu? <a class="mx-sponsor" href="/hackfest27/" data-route="hackfest27">Sponsorluk</a></span></p>
                     </div>
                 </div>
             </section>
@@ -11037,7 +10957,7 @@
             const START = Date.parse('2027-03-06T10:00:00+03:00');
             const END = Date.parse('2027-03-07T19:00:00+03:00');
             const cells = { d: count.querySelector('[data-mx="d"]'), h: count.querySelector('[data-mx="h"]'), m: count.querySelector('[data-mx="m"]') };
-            const title = document.getElementById('mxBilgi');
+            const title = document.querySelector('#page-mixit .mx-end-title');
             let timer = 0;
             const tick = () => {
                 const now = Date.now();
@@ -11060,6 +10980,194 @@
             };
             window.addEventListener('unipakt:route', sync);
             sync();
+        }
+
+        // MIXIT şerit gösterisi. Kaydırma ilerlemesi (0–1):
+        // 0–.62 yedi şerit sırayla sağdan/soldan iner · .55–.70 son şerit ortaya gelip dikilir ·
+        // .70–.84 son şeridin yazısı akar · .86'da düşük fps'li (12 kare/sn) jenerik başlar:
+        // düşüş → yere çarpma → kara kalem karalamaları → turuncu dolgu → bitiş ekranı. Yukarı dönülünce sıfırlanır.
+        const ride = document.getElementById('mxRide');
+        const view = document.getElementById('mxView');
+        if (ride && view && mixit && !still) {
+            const strips = [...view.querySelectorAll('.mx-strip')];
+            const last = document.getElementById('mxLast');
+            const lastText = document.getElementById('mxLastText');
+            const canvas = document.getElementById('mxBurst');
+            const ctx = canvas.getContext('2d');
+            const clamp01 = (v) => Math.max(0, Math.min(1, v));
+            const lerp = (a, b, t) => a + (b - a) * t;
+            const ease = (t) => (t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+            const FPS = 12, FRAME = 1000 / FPS;
+            const P_STRIPS = .62, P_LAST_IN = .55, P_LAST = .7, P_TEXT = .84, P_GO = .86, P_RESET = .8;
+            const PENCIL = 'rgba(242, 241, 238, .92)';
+            let W = 0, H = 0, raf = 0, seq = null;
+
+            const size = () => {
+                const r = view.getBoundingClientRect();
+                const dpr = Math.min(2, window.devicePixelRatio || 1);
+                W = r.width; H = r.height;
+                canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            };
+            const progress = () => {
+                const top = parseFloat(getComputedStyle(view).top) || 0;
+                const total = ride.offsetHeight - view.offsetHeight;
+                return total > 0 ? clamp01((top - ride.getBoundingClientRect().top) / total) : 0;
+            };
+            const placeLast = (x, y, rot, sx = 1, sy = 1) => {
+                last.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) rotate(${rot}deg) scale(${sx}, ${sy})`;
+            };
+
+            // Kaydırmaya bağlı kısım: şeritler ve son şeridin gelişi.
+            const render = () => {
+                raf = 0;
+                const p = progress();
+                const span = .2, gap = (P_STRIPS - span) / Math.max(1, strips.length - 1);
+                strips.forEach((el, i) => {
+                    const side = Number(el.dataset.side) || 1;
+                    const t = clamp01((p - i * gap) / span);
+                    el.style.visibility = t <= 0 || t >= 1 ? 'hidden' : 'visible';
+                    const y = lerp(-.3 * H, 1.3 * H, t);
+                    const rot = side * lerp(26, -4, t);
+                    const x = side * lerp(.35 * W, -.1 * W, t);
+                    el.style.transform = `translate3d(${x}px, ${y - el.offsetHeight / 2}px, 0) rotate(${rot}deg)`;
+                    el.firstElementChild.style.transform = `translateX(${side * lerp(-18, 6, t)}%)`;
+                });
+                if (seq) {
+                    if (p < P_RESET) stop();
+                    return;
+                }
+                const lt = ease(clamp01((p - P_LAST_IN) / (P_LAST - P_LAST_IN)));
+                last.style.opacity = p > P_LAST_IN ? '1' : '0';
+                placeLast(lerp(-.25 * W, 0, lt), lerp(-.95 * H, 0, lt), lerp(-75, 0, lt));
+                const tt = clamp01((p - P_LAST) / (P_TEXT - P_LAST));
+                const run = Math.max(0, lastText.offsetHeight - last.clientHeight);
+                lastText.style.transform = `translateY(${-run * tt}px)`;
+                if (p >= P_GO) start();
+            };
+            const onScroll = () => { if (!raf) raf = requestAnimationFrame(render); };
+
+            // ---- Kara kalem çizimleri: her karede titreyen (boil) çift çizgi ----
+            const jit = (a) => (Math.random() - .5) * a;
+            const pencil = (pts, color = PENCIL, close = false) => {
+                for (let pass = 0; pass < 2; pass++) {
+                    ctx.beginPath();
+                    pts.forEach(([x, y], k) => { const px = x + jit(2.2), py = y + jit(2.2); k ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
+                    if (close) ctx.closePath();
+                    ctx.strokeStyle = color;
+                    ctx.globalAlpha = pass ? .45 : .95;
+                    ctx.lineWidth = pass ? 1.2 : 2.4;
+                    ctx.stroke();
+                }
+                ctx.globalAlpha = 1;
+            };
+            const SHAPES = {
+                hash: (s) => [[[-.5 * s, -.18 * s], [.5 * s, -.22 * s]], [[-.5 * s, .2 * s], [.5 * s, .16 * s]], [[-.18 * s, -.5 * s], [-.22 * s, .5 * s]], [[.2 * s, -.5 * s], [.16 * s, .5 * s]]],
+                spiral: (s, g) => { const pts = []; const end = 3.6 * Math.PI * g; for (let a = 0; a <= end; a += .25) pts.push([Math.cos(a) * s * (.06 + .13 * a / Math.PI), Math.sin(a) * s * (.06 + .13 * a / Math.PI)]); return [pts]; },
+                loops: (s, g) => { const pts = []; const end = 6 * Math.PI * g; for (let u = 0; u <= end; u += .3) pts.push([(u / (6 * Math.PI) - .5) * 1.5 * s + .3 * s * Math.cos(u), .3 * s * Math.sin(u)]); return [pts]; },
+                circle: (s, g) => { const a = [], b = []; const end = 2.15 * Math.PI * g; for (let t = 0; t <= end; t += .3) { a.push([Math.cos(t) * .42 * s, Math.sin(t) * .42 * s]); b.push([Math.cos(t + .4) * .34 * s + .05 * s, Math.sin(t + .4) * .36 * s]); } return [a, b]; },
+                puff: (s) => { const out = []; [[-.3, 0, .26], [0, -.14, .3], [.3, 0, .24], [0, .14, .22]].forEach(([cx, cy, r]) => { const arc = []; for (let t = Math.PI; t <= 2.2 * Math.PI; t += .3) arc.push([(cx + Math.cos(t) * r) * s, (cy + Math.sin(t) * r) * s]); out.push(arc); }); return out; },
+                star: (s) => [[[-.45 * s, 0], [.45 * s, 0]], [[-.25 * s, -.4 * s], [.25 * s, .4 * s]], [[.25 * s, -.4 * s], [-.25 * s, .4 * s]]],
+                zig: (s) => [[[-.5 * s, 0], [-.3 * s, -.2 * s], [-.1 * s, .2 * s], [.1 * s, -.2 * s], [.3 * s, .2 * s], [.5 * s, 0]]]
+            };
+            const TYPES = Object.keys(SHAPES);
+            const spawn = () => {
+                const k = H / 800, list = [];
+                for (let i = 0; i < 52; i++) {
+                    const ang = -Math.PI / 2 + (Math.random() - .5) * 2.7;
+                    const sp = (520 + Math.random() * 680) * k;
+                    list.push({
+                        type: TYPES[i % TYPES.length], x: W / 2 + jit(60), y: H - 6,
+                        vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
+                        rot: Math.random() * 6.28, vr: (Math.random() - .5) * 9,
+                        s: (40 + Math.random() * 60) * Math.max(.75, k), delay: Math.floor(Math.random() * 3), age: 0
+                    });
+                }
+                return list;
+            };
+            const drawDoodles = (list, dt) => {
+                list.forEach((d) => {
+                    if (d.delay > 0) { d.delay--; return; }
+                    d.age += dt;
+                    d.vy += 520 * dt * (H / 800); d.vx *= .93; d.vy *= .95;
+                    d.x += d.vx * dt; d.y += d.vy * dt; d.rot += d.vr * dt;
+                    const g = Math.min(1, d.age / .5);
+                    ctx.save(); ctx.translate(d.x, d.y); ctx.rotate(d.rot);
+                    SHAPES[d.type](d.s, g).forEach((pts) => pencil(pts));
+                    ctx.restore();
+                });
+            };
+            const drawImpact = (n) => {
+                const cx = W / 2, cy = H - 4;
+                for (let i = 0; i < 11; i++) {
+                    const a = Math.PI + (i / 10) * Math.PI;
+                    const r0 = 30 + n * 40, r1 = r0 + 60 + Math.random() * 70;
+                    pencil([[cx + Math.cos(a) * r0, cy + Math.sin(a) * r0], [cx + Math.cos(a) * r1, cy + Math.sin(a) * r1]]);
+                }
+            };
+            const drawFlood = (e) => {
+                const level = lerp(H + 20, -40, e);
+                ctx.beginPath(); ctx.moveTo(0, H);
+                for (let x = 0; x <= W + 24; x += 24) ctx.lineTo(x, level + Math.sin(x * .018 + e * 9) * 14 + jit(8));
+                ctx.lineTo(W, H); ctx.closePath();
+                ctx.fillStyle = '#FF5A1F'; ctx.fill();
+                // Kenarın üstünde kara kalem tarama
+                for (let x = 0; x < W; x += 16) {
+                    const y = level + Math.sin(x * .018 + e * 9) * 14;
+                    pencil([[x, y - 4], [x + 14, y - 22 - Math.random() * 16]], 'rgba(255, 90, 31, .9)');
+                }
+            };
+
+            // ---- Zamana bağlı jenerik (12 kare/sn) ----
+            function start() {
+                if (seq) return;
+                seq = { frame: 0, doodles: null, timer: 0 };
+                last.style.opacity = '1';
+                const lastH = last.offsetHeight;
+                const fallTo = H / 2 - lastH / 2; // alt ucu ekranın dibine değer
+                const FALL = 7, IMPACT = FALL, BURST_END = 34, FLOOD_START = 14, FLOOD_LEN = 12, END = FLOOD_START + FLOOD_LEN;
+                seq.timer = setInterval(() => {
+                    const f = seq.frame++;
+                    ctx.clearRect(0, 0, W, H);
+                    if (f < FALL) {
+                        // Önce hafif sıçrar, sonra hızlanarak düşer; hafifçe yana yatar.
+                        const t = f / (FALL - 1);
+                        const y = t < .25 ? lerp(0, -.05 * H, t / .25) : lerp(-.05 * H, fallTo, Math.pow((t - .25) / .75, 2));
+                        placeLast(jit(4), y, t * 4 - 2);
+                    } else if (f < IMPACT + 3) {
+                        // Çarpma: iki kare ezilir, sonra dağılır.
+                        const k = f - IMPACT;
+                        if (k < 2) placeLast(0, fallTo + lastH * (k ? .1 : .06), 0, k ? 1.3 : 1.15, k ? .78 : .88);
+                        else last.style.opacity = '0';
+                        if (!seq.doodles) seq.doodles = spawn();
+                        drawImpact(k);
+                    }
+                    if (seq.doodles && f < BURST_END) drawDoodles(seq.doodles, 1 / FPS);
+                    if (f >= FLOOD_START) drawFlood(ease(clamp01((f - FLOOD_START) / FLOOD_LEN)));
+                    if (f >= END) {
+                        view.classList.add('is-end');
+                        clearInterval(seq.timer);
+                        setTimeout(() => { if (seq) ctx.clearRect(0, 0, W, H); }, 520);
+                    }
+                }, FRAME);
+            }
+            function stop() {
+                if (!seq) return;
+                clearInterval(seq.timer);
+                seq = null;
+                ctx.clearRect(0, 0, W, H);
+                view.classList.remove('is-end');
+                onScroll();
+            }
+
+            const syncRide = () => {
+                if (mixit.classList.contains('active')) { size(); onScroll(); }
+                else stop();
+            };
+            window.addEventListener('scroll', onScroll, { passive: true });
+            window.addEventListener('resize', () => { size(); onScroll(); });
+            window.addEventListener('unipakt:route', syncRide);
+            syncRide();
         }
     })();
 
