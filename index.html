@@ -6798,7 +6798,8 @@
     .mx-s-paper { background: var(--hf-light); color: var(--hf-ink); }
     .mx-s-ink { background: #1D1D20; color: #fff; }
     /* Son şerit: ortaya gelip dikilir; yazısı yukarı akar */
-    .mx-last { position: absolute; left: 50%; top: 0; padding: 22px 0; background: var(--hf-acc); color: var(--hf-ink); opacity: 0; will-change: transform; display: flex; align-items: center; justify-content: center; transform-origin: 50% 100%; }
+    /* Son şerit yukarıdan sarkar: üst ucu hep ekranın dışında, kaydırdıkça uzar; yazı alt ucundadır. */
+    .mx-last { position: absolute; left: 50%; top: -40px; height: 0; padding: 0 0 22px; background: var(--hf-acc); color: var(--hf-ink); opacity: 0; will-change: transform, height; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; transform: translateX(-50%); transform-origin: 50% 100%; }
     .mx-last span { writing-mode: vertical-rl; padding: 0 .12em; }
     .mx-burst { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
     /* Bitiş ekranı (Taste: ad anıt gibi; sola hizalı, eşit kenar boşlukları, çizgi/etiket yok).
@@ -11129,7 +11130,7 @@
             // Son şeridin boyu yazıya göre: tamamı görünsün, ekranın %72'sini geçmesin.
             const fitLast = () => {
                 lastText.style.fontSize = '';
-                const max = H * .72 - 44;
+                const max = H * .72 - 22;
                 const len = lastText.offsetHeight;
                 if (len > max) lastText.style.fontSize = `${parseFloat(getComputedStyle(lastText).fontSize) * max / len}px`;
             };
@@ -11142,8 +11143,10 @@
                 fitLast();
             };
             const scrolled = () => (parseFloat(getComputedStyle(view).top) || 0) - ride.getBoundingClientRect().top;
-            const placeLast = (y, sx = 1, sy = 1) => {
-                last.style.transform = `translate(-50%, ${y}px) scale(${sx}, ${sy})`;
+            // bottom: şeridin alt ucunun ekrandaki yeri (üst ucu hep ekranın üstünde kalır).
+            const placeLast = (bottom, sx = 1, sy = 1) => {
+                last.style.height = `${Math.max(0, bottom + 40)}px`;
+                last.style.transform = `translateX(-50%) scale(${sx}, ${sy})`;
             };
 
             const render = () => {
@@ -11174,11 +11177,10 @@
                     if (s < touch - H * .2) stop();
                     return;
                 }
-                // Son şerit: ekranın üstünden girer, alt ucu zemine değene kadar iner.
-                const h = last.offsetHeight;
+                // Son şerit: yukarıdan sarkarak iner; alt ucu zemine değince patlar.
                 const dt = clamp01((s - panelEnd + H * .2) / (touch - panelEnd + H * .2));
                 last.style.opacity = dt > 0 ? '1' : '0';
-                placeLast(lerp(-h - 20, H - h, dt));
+                placeLast(lerp(0, H, dt));
                 if (dt >= 1) start();
             };
             const onScroll = () => { if (!raf) raf = requestAnimationFrame(render); };
@@ -11259,14 +11261,13 @@
             function start() {
                 if (seq) return;
                 seq = { frame: 0, doodles: null, timer: 0 };
-                const h = last.offsetHeight;
                 const BURST_END = 61, CURTAIN_START = 32, CURTAIN_LEN = 24, END = CURTAIN_START + CURTAIN_LEN;
                 seq.timer = setInterval(() => {
                     const f = seq.frame++;
                     ctx.clearRect(0, 0, W, H);
                     if (f < 5) {
                         // Çarpma: üç kare ezilir, sonra dağılır.
-                        if (f < 3) placeLast(H - h, [1.1, 1.22, 1.32][f], [.9, .8, .74][f]);
+                        if (f < 3) placeLast(H - [6, 14, 22][f], [1.12, 1.26, 1.38][f]);
                         else last.style.opacity = '0';
                         if (!seq.doodles) seq.doodles = spawn();
                         drawImpact(f * .75);
