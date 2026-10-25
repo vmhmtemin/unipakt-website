@@ -6761,7 +6761,7 @@
     .mx-hero:has(.hf-done) .mx-cue { opacity: 1; }
     @keyframes mxCue { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
     /* Yolculuk: uzun bölüm, içinde ekrana yapışan sahne */
-    .mx-ride { position: relative; background: #050505; }
+    .mx-ride { position: relative; background: #050505; overflow-anchor: none; }
     /* Önde kayan içerik: yapışkan sahnenin üstüne çekilir (negatif üst boşluk) */
     .mx-flow { position: relative; z-index: 2; overflow: clip; margin-top: calc(-1 * (100svh - var(--nav-h, 86px))); padding-top: 70svh; }
     .mx-panel-wrap { position: relative; z-index: 1; }
@@ -11197,7 +11197,8 @@
             const lastStrip = backStrips ? backStrips.lastElementChild : null;
             const clamp01 = (v) => Math.max(0, Math.min(1, v));
             let H = 0, raf = 0;
-            const size = () => { H = view.getBoundingClientRect().height; };
+            let sDone = 0;
+            const size = () => { H = view.getBoundingClientRect().height; sDone = 0; };
             const scrolled = () => (parseFloat(getComputedStyle(view).top) || 0) - ride.getBoundingClientRect().top;
             const setEnd = (end) => {
                 if (end === view.classList.contains('is-end')) return;
@@ -11216,13 +11217,16 @@
                 }
                 // Geri sayım yalnız son şerit ekranın üstünden tamamen çıktıktan sonra belirir.
                 // Şerit katmanı kaydırmanın (1 − DEPTH) hızıyla yukarı gider; çıkış anı buradan hesaplanır.
-                let sDone = panelEnd;
-                if (lastStrip) {
-                    const r = lastStrip.getBoundingClientRect(), vt = view.getBoundingClientRect().top;
-                    sDone = s + (r.bottom - vt) / (1 - DEPTH);
+                // Çıkış anı katmanın kendi içindeki yerinden hesaplanır (ekran ölçümüne bağlı değil): bölüm
+                // bitip ekran yapışkanlıktan çıkarken değişmez, geri sayım titremez. Bölüm uzunluğu bir kez ayarlanır.
+                if (!sDone) {
+                    sDone = panelEnd;
+                    if (lastStrip && backStrips) {
+                        const b = lastStrip.getBoundingClientRect().bottom - backStrips.getBoundingClientRect().top;
+                        sDone = b / (1 - DEPTH);
+                    }
+                    drop.style.height = `${Math.round(Math.max(H * .4, sDone + H * 2.4 - panelEnd))}px`; // tam göründükten sonra ~1 ekran boyu kalır
                 }
-                const need = Math.round(Math.max(H * .4, sDone + H * 2.4 - panelEnd)); // geri sayım tam göründükten sonra ~1 ekran boyu kalır
-                if (Math.abs(need - drop.offsetHeight) > 4) drop.style.height = `${need}px`;
                 const fade = clamp01((s - sDone) / (H * .5));
                 endEl.style.opacity = String(fade);
                 endEl.style.visibility = fade > 0 ? 'visible' : 'hidden';
