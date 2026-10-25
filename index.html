@@ -6754,7 +6754,13 @@
     }
     /* MIXIT logo jeneriği oynarken üstteki menü yavaşça yukarı kaçar, jenerik bitince geri gelir. */
     header.nav { transition: transform .9s cubic-bezier(.65, 0, .35, 1); }
-    html.mx-intro header.nav { transform: translate3d(0, -110%, 0); }
+    html.mx-intro header.nav, html.mx-headup header.nav, html.mx-countdown header.nav { transform: translate3d(0, -110%, 0); }
+    /* MIXIT'e özel menü logosu: yalnız "Hackfest27" ve yıldız. Menü yukarı kaçıp geri inerken değişir (glitch yok). */
+    .nav .logo .logo-mx { position: absolute; left: 0; top: 50%; width: auto !important; height: 26px !important; max-height: none !important; transform: translateY(-50%); opacity: 0; pointer-events: none; filter: none !important; }
+    html.mx-logo .nav .logo .logo-img:not(.logo-mx) { opacity: 0 !important; }
+    html.mx-logo .nav .logo .logo-mx { opacity: 1; }
+    html .nav .logo img.logo-img.logo-mx { filter: none !important; } /* koyu tema/hf-mode ters çevirmesi bu logoya uygulanmaz */
+    @media (max-width: 560px) { .nav .logo .logo-mx { height: 20px !important; } }
     html.mx-intro, html.mx-intro body { background: #050505 !important; } /* menünün boşalttığı yer logo zeminiyle aynı */
     @media (prefers-reduced-motion: reduce) { html.mx-intro header.nav { transform: translate3d(0, 0, 0); } }
     /* ---- MIXIT katılımcı sayfası: kaydırmalı şerit gösterisi ---- */
@@ -11076,6 +11082,31 @@
     (function initHackfestPages() {
         const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const pages = ['page-hackfest27', 'page-mixit'].map((id) => document.getElementById(id)).filter(Boolean);
+        // Menü logosu: MIXIT sayfasında "Hackfest27 ✦" logosu. Değişim, menü yukarı kaçtığında (görünmezken) olur.
+        const root = document.documentElement;
+        const navLogo = document.querySelector('.nav .logo');
+        if (navLogo && !navLogo.querySelector('.logo-mx')) {
+            const mx = document.createElement('img');
+            mx.className = 'logo-img logo-mx'; mx.alt = ''; mx.setAttribute('aria-hidden', 'true');
+            mx.src = '/hackfest-media/logo-hf27.webp'; mx.width = 680; mx.height = 106; mx.decoding = 'async';
+            navLogo.appendChild(mx);
+        }
+        let swapTimer = 0;
+        // Menüyü kaçır, logo değişsin, geri getir.
+        const swapNavLogo = (toMx) => {
+            clearTimeout(swapTimer);
+            if (root.classList.contains('mx-logo') === toMx) return;
+            if (still) { root.classList.toggle('mx-logo', toMx); return; }
+            root.classList.add('mx-headup');
+            swapTimer = setTimeout(() => {
+                root.classList.toggle('mx-logo', toMx);
+                swapTimer = setTimeout(() => root.classList.remove('mx-headup'), 60);
+            }, 900);
+        };
+        window.addEventListener('unipakt:route', () => {
+            const mixitOn = document.getElementById('page-mixit')?.classList.contains('active');
+            if (!mixitOn) { root.classList.remove('mx-countdown'); if (root.classList.contains('mx-logo')) swapNavLogo(false); }
+        });
         const setMode = () => document.documentElement.classList.toggle('hf-mode', pages.some((p) => p.classList.contains('active')));
         pages.forEach((section) => {
             const hero = section.querySelector('.hf-hero');
@@ -11104,7 +11135,7 @@
             };
             const play = () => {
                 reset();
-                if (still) { stage.classList.add('hf-done'); hero.classList.add('is-ready'); return; }
+                if (still) { stage.classList.add('hf-done'); hero.classList.add('is-ready'); if (isMixit) document.documentElement.classList.add('mx-logo'); return; }
                 const me = ++run;
                 if (isMixit) { window.scrollTo(0, 0); lock(true); }
                 // Katmanlar çözülmeden başlamasın (yoksa jenerik takılır); en fazla 1,5 sn bekle.
@@ -11113,7 +11144,7 @@
                     if (me !== run || !active()) { lock(false); return; }
                     void stage.offsetWidth;
                     stage.classList.add('hf-play');
-                    if (isMixit) document.documentElement.classList.add('mx-intro');
+                    if (isMixit) { document.documentElement.classList.add('mx-intro'); setTimeout(() => { if (me === run) document.documentElement.classList.add('mx-logo'); }, 950); }
                     readyTimer = setTimeout(() => hero.classList.add('is-ready'), 1500);
                     doneTimer = setTimeout(() => { stage.classList.remove('hf-play'); stage.classList.add('hf-done'); if (isMixit) document.documentElement.classList.remove('mx-intro'); lock(false); }, 2650);
                 });
@@ -11251,6 +11282,8 @@
             };
             const render = () => {
                 raf = 0;
+                // Sayfa görünür değilken (geçiş anı, gizli bölüm) ölçüm yapma.
+                if (!mixit.classList.contains('active') || !panel.offsetHeight || !H) return;
                 const s = scrolled();
                 const panelEnd = panel.offsetTop + panel.offsetHeight;
                 const total = ride.offsetHeight - view.offsetHeight;
@@ -11266,12 +11299,17 @@
                 if (!sDone) {
                     sDone = panelEnd;
                     if (lastStrip && backStrips) {
-                        const b = lastStrip.getBoundingClientRect().bottom - backStrips.getBoundingClientRect().top;
-                        sDone = b / (1 - DEPTH);
+                        // Döndürülmüş şeridin katman içindeki en alt noktası (yalnız yerleşimden; ekran ölçümü yok).
+                        const ang = Math.abs(parseFloat((lastStrip.style.transform.match(/-?[\d.]+/) || [0])[0]) * Math.PI / 180);
+                        const hh = lastStrip.offsetHeight / 2;
+                        const b = lastStrip.offsetTop + hh + hh / Math.cos(ang) + (backStrips.clientWidth / 2) * Math.tan(ang);
+                        sDone = Math.max(panelEnd, b / (1 - DEPTH)); // panel de ekrandan çıkmış olmalı
                     }
                     drop.style.height = `${Math.round(Math.max(H * .4, sDone + H * 2.4 - panelEnd))}px`; // tam göründükten sonra ~1 ekran boyu kalır
                 }
                 const fade = clamp01((s - sDone) / (H * .5));
+                // Geri sayım ekrandayken üst menü yukarı kaçar; bölüm bitip sayfa akmaya başlayınca geri gelir.
+                document.documentElement.classList.toggle('mx-countdown', fade > .5 && s < total - 2);
                 endEl.style.opacity = String(fade);
                 endEl.style.visibility = fade > 0 ? 'visible' : 'hidden';
                 setEnd(fade > 0);
