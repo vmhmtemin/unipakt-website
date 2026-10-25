@@ -516,8 +516,83 @@
     .flower-credit .flower-mark { width: 12px; }
   }
 </style>
+<style>
+/* Girişte HACKFEST27: MIXIT logo jeneriği (sitedeki MIXIT sayfasıyla aynı). Tarayıcı oturumu başına bir kez,
+   tıklayınca ya da bir tuşa basınca atlanır; hareket azaltılmışsa hiç gösterilmez. */
+.pf-intro { position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center; background: #050505; cursor: pointer; transition: opacity .6s ease, visibility 0s linear .6s; }
+.pf-intro.is-out { opacity: 0; visibility: hidden; }
+    .hf-stage { position: relative; width: min(1040px, 92vw); aspect-ratio: 1375 / 505; margin: auto; }
+    .hf-l { position: absolute; inset: 0; width: 100%; height: 100%; display: block; user-select: none; -webkit-user-drag: none; pointer-events: none; }
+    .hf-stage .hf-l-full { opacity: 0; }
+    .hf-stage .hf-l-hack, .hf-stage .hf-l-uni, .hf-stage .hf-l-mix, .hf-stage .hf-l-star { opacity: 0; }
+    .hf-stage .hf-l-star { transform-origin: 96.1% 40.9%; }
+    .hf-stage.hf-play .hf-l-hack { animation: hfHack .8s cubic-bezier(.2, .7, .2, 1) both; }
+    .hf-stage.hf-play .hf-l-uni { animation: hfUni .6s ease-out .62s both; }
+    .hf-stage.hf-play .hf-l-mix { animation: hfMix .95s cubic-bezier(.55, .05, .3, 1) 1.08s both; }
+    .hf-stage.hf-play .hf-l-star { animation: hfStar .8s cubic-bezier(.22, .8, .3, 1) 1.75s both; }
+    /* Parçalar tam logoyla aynı hizada üretildi; bitişte tam logo (yıldız ve kavis çizgisiyle) yumuşakça üstüne oturur, parçalar söner. */
+    .hf-stage.hf-done .hf-l-full { opacity: 1; animation: hfFullIn .7s ease-out both; }
+    .hf-stage.hf-done .hf-l-hack, .hf-stage.hf-done .hf-l-uni, .hf-stage.hf-done .hf-l-mix, .hf-stage.hf-done .hf-l-star { opacity: 0; animation: hfPartsOut .7s ease-out both; }
+    /* Yıldız 27'nin arkasından, görünmezden görünüre süzülerek çıkar (katman olarak 27'nin altında). */
+    @keyframes hfStar {
+        0% { opacity: 0; transform: translateX(-7%) scale(.7); filter: drop-shadow(0 0 0 #ff5a1f00); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+        60% { opacity: 1; filter: drop-shadow(0 0 14px #ff5a1f99); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+        100% { opacity: 1; transform: none; filter: drop-shadow(0 0 4px #ff5a1f55); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+    }
+    @keyframes hfFullIn { 0% { opacity: 0; filter: drop-shadow(0 0 0 #ff5a1f00) brightness(1.12); } 45% { opacity: 1; filter: drop-shadow(0 0 22px #ff5a1f55) brightness(1.06); } 100% { opacity: 1; filter: drop-shadow(0 0 0 #ff5a1f00) brightness(1); } } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+    @keyframes hfPartsOut { from { opacity: 1; } to { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { .hf-stage.hf-done .hf-l { animation: none; } }
+    @keyframes hfHack {
+        0% { opacity: 0; transform: scale(1.06); filter: blur(14px) brightness(1.8); clip-path: inset(0 100% 0 0); }
+        55% { opacity: 1; filter: blur(3px) brightness(1.25); }
+        100% { opacity: 1; transform: none; filter: none; clip-path: inset(0 0 0 0); }
+    }
+    @keyframes hfUni { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    @keyframes hfMix {
+        0% { opacity: 1; clip-path: polygon(0 0, 0 0, -14% 100%, -14% 100%); }
+        100% { opacity: 1; clip-path: polygon(0 0, 114% 0, 100% 100%, -14% 100%); }
+    }
+@media (prefers-reduced-motion: reduce) { .pf-intro { display: none; } }
+</style>
 </head>
 <body>
+<div class="pf-intro" id="pfIntro" aria-hidden="true" hidden>
+    <div class="hf-stage" id="pfStage">
+        <img class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp" alt="" width="1375" height="505" decoding="async">
+        <img class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp" alt="" width="1375" height="505" decoding="async">
+        <img class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp" alt="" width="1375" height="505" decoding="async">
+        <img class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp" alt="" width="1375" height="505" decoding="async">
+        <img class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp" alt="" width="1375" height="505" decoding="async">
+    </div>
+</div>
+<script>
+(function () {
+    var box = document.getElementById('pfIntro'), stage = document.getElementById('pfStage');
+    if (!box || !stage) return;
+    var seen = false;
+    try { seen = sessionStorage.getItem('unipaktPanelIntro') === '1'; } catch (e) {}
+    if (seen || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) { box.remove(); return; }
+    try { sessionStorage.setItem('unipaktPanelIntro', '1'); } catch (e) {}
+    box.hidden = false;
+    var timers = [];
+    var close = function () {
+        timers.forEach(clearTimeout);
+        box.classList.add('is-out');
+        setTimeout(function () { box.remove(); }, 650);
+        window.removeEventListener('keydown', close);
+    };
+    box.addEventListener('click', close);
+    window.addEventListener('keydown', close);
+    var imgs = Array.prototype.slice.call(stage.querySelectorAll('img'));
+    var decoded = Promise.all(imgs.map(function (i) { return i.decode ? i.decode().catch(function () {}) : null; }));
+    Promise.race([decoded, new Promise(function (r) { setTimeout(r, 1500); })]).then(function () {
+        void stage.offsetWidth;
+        stage.classList.add('hf-play');
+        timers.push(setTimeout(function () { stage.classList.remove('hf-play'); stage.classList.add('hf-done'); }, 2650));
+        timers.push(setTimeout(close, 3500));
+    });
+})();
+</script>
 
 <div id="root"></div>
 <dialog id="dlg" data-modal><form id="dlgForm" novalidate></form></dialog>
