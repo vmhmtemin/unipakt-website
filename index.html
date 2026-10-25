@@ -6874,6 +6874,12 @@
     </style>
 </head>
 <body>
+    <script>
+        // Sayfa yenilenince tarayıcı eski kaydırma yerine dönmesin; her sayfa en üstten açılır.
+        try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) {}
+        window.scrollTo(0, 0);
+        window.addEventListener('pageshow', function () { window.scrollTo(0, 0); });
+    </script>
     <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
     <!-- Opening screen: shown once per browser tab/session before the homepage. -->
     <div class="intro-screen" id="introScreen" aria-label="UniPakt açılış ekranı">
@@ -11078,11 +11084,21 @@
                 return;
             const active = () => section.classList.contains('active');
             const isMixit = section.id === 'page-mixit';
+            // MIXIT jeneriği izlenmeden geçilemez: oynarken kaydırma (tekerlek, dokunma, klavye) kilitli.
+            const KEYS = new Set([' ', 'PageDown', 'PageUp', 'ArrowDown', 'ArrowUp', 'Home', 'End']);
+            const block = (e) => { if (e.type !== 'keydown' || KEYS.has(e.key)) e.preventDefault(); };
+            let locked = false;
+            const lock = (on) => {
+                if (!isMixit || on === locked) return;
+                locked = on;
+                ['wheel', 'touchmove', 'keydown'].forEach((t) => window[on ? 'addEventListener' : 'removeEventListener'](t, block, { passive: false }));
+            };
             let readyTimer = 0, doneTimer = 0, run = 0;
             const reset = () => {
                 clearTimeout(readyTimer);
                 clearTimeout(doneTimer);
                 if (isMixit) document.documentElement.classList.remove('mx-intro');
+                lock(false);
                 stage.classList.remove('hf-play', 'hf-done');
                 hero.classList.remove('is-ready');
             };
@@ -11090,16 +11106,16 @@
                 reset();
                 if (still) { stage.classList.add('hf-done'); hero.classList.add('is-ready'); return; }
                 const me = ++run;
+                if (isMixit) { window.scrollTo(0, 0); lock(true); }
                 // Katmanlar çözülmeden başlamasın (yoksa jenerik takılır); en fazla 1,5 sn bekle.
                 const decoded = Promise.all([...stage.querySelectorAll('img')].map((img) => (img.decode ? img.decode().catch(() => {}) : null)));
                 Promise.race([decoded, new Promise((r) => setTimeout(r, 1500))]).then(() => {
-                    if (me !== run || !active())
-                        return;
+                    if (me !== run || !active()) { lock(false); return; }
                     void stage.offsetWidth;
                     stage.classList.add('hf-play');
-                    if (isMixit && window.scrollY < 40) document.documentElement.classList.add('mx-intro');
+                    if (isMixit) document.documentElement.classList.add('mx-intro');
                     readyTimer = setTimeout(() => hero.classList.add('is-ready'), 1500);
-                    doneTimer = setTimeout(() => { stage.classList.remove('hf-play'); stage.classList.add('hf-done'); if (isMixit) document.documentElement.classList.remove('mx-intro'); }, 2650);
+                    doneTimer = setTimeout(() => { stage.classList.remove('hf-play'); stage.classList.add('hf-done'); if (isMixit) document.documentElement.classList.remove('mx-intro'); lock(false); }, 2650);
                 });
             };
             section.querySelectorAll('[data-hf-go]').forEach((a) => a.addEventListener('click', (e) => {
