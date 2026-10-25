@@ -6779,7 +6779,10 @@
     .mx-panel { position: relative; z-index: 1; width: min(980px, calc(100% - 2 * var(--hf-m))); margin: 0 auto; padding: clamp(28px, 5vw, 64px); background: #161618; color: #fff; border-radius: 28px; display: grid; gap: clamp(56px, 7vw, 96px); }
     .mx-p-sec { display: grid; gap: 20px; }
     .mx-p-h { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(30px, 3.6vw, 48px); line-height: 1.02; letter-spacing: -0.035em; text-wrap: balance; }
-    .mx-p-lead { margin: 0; font-size: var(--hf-lead); line-height: 1.5; color: #FFFFFFE0; }
+    .mx-p-lead { margin: 0; font-size: var(--hf-lead); line-height: 1.5; color: #FFFFFFB0; }
+    /* Vurgu: düz metin soluk, anahtar bilgi tam beyaz ve kalın; tek turuncu vurgu Büyük Final. */
+    .mx-p-lead strong, .mx-p-note strong { color: #fff; font-weight: 700; }
+    .mx-p-lead .mx-hl { color: var(--hf-acc); }
     .mx-p-note { margin: 0; font-size: var(--hf-small); line-height: 1.55; color: var(--hf-soft-d); }
     .mx-p-big { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 1.6em; letter-spacing: -0.03em; color: #fff; }
     .mx-p-link { justify-self: start; color: #fff; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; transition: color .2s ease; }
@@ -7776,8 +7779,8 @@
                     <div class="mx-panel-wrap" id="mxPanelWrap">
                     <article class="mx-panel" id="mxPanel">
                         <section class="mx-p-sec">
-                            <h2 class="mx-p-h">Bir festival, birçok dünya.</h2>
-                            <p class="mx-p-lead">MIXIT, UniPakt’ın üniversite öğrencileri için düzenlediği iki günlük bir festival. Yarışmalar, konuşmalar ve markaların alanları aynı çatı altında buluşuyor.</p>
+                            <h2 class="mx-p-h">İki gün. Dört yarışma. Tek festival.</h2>
+                            <p class="mx-p-lead">MIXIT, İstanbul’un üniversitelilerini <strong>6–7 Mart 2027</strong>’de <strong>İstanbul Kongre Merkezi</strong>’nde buluşturuyor. Kod yazanlar, oyun oynayanlar, mutfakta iddialı olanlar ve sahneyi sevenler aynı çatı altında.</p>
                             <dl class="mx-facts">
                                 <div><dt>Tarih</dt><dd>6–7 Mart 2027, Cumartesi ve Pazar</dd></div>
                                 <div><dt>Mekân</dt><dd>İstanbul Kongre Merkezi, Harbiye / Şişli</dd></div>
@@ -7785,7 +7788,8 @@
                             </dl>
                         </section>
                         <section class="mx-p-sec">
-                            <h2 class="mx-p-h">Dört yarışma, tek büyük final.</h2>
+                            <h2 class="mx-p-h">Sahneye çık ya da tribünde yerini al.</h2>
+                            <p class="mx-p-lead">Dört farklı alanda yarışma var; hepsi aynı sahnede, <strong class="mx-hl">Büyük Final</strong>’de sonuçlanıyor.</p>
                             <ul class="mx-names">
                                 <li>Hackathon</li>
                                 <li>E-spor</li>
@@ -7796,7 +7800,7 @@
                         </section>
                         <section class="mx-p-sec">
                             <h2 class="mx-p-h">Programını sen seç.</h2>
-                            <p class="mx-p-lead">İçeri girdikten sonra istediğin yere gidebilirsin. Bir salonda konuşma dinle, sahnede yarışmaları izle, stantlarda yeni ürünler dene ve yeni insanlarla tanış.</p>
+                            <p class="mx-p-lead">Kapıdan girdikten sonra <strong>rota senin</strong>. Bir salonda konuşma dinle, sahnede yarışmaları izle, stantlarda yeni şeyler dene, yeni insanlarla tanış.</p>
                             <ul class="mx-picks">
                                 <li><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="20" r="10"/><path d="M12 56c0-12 9-20 20-20s20 8 20 20"/></svg><span>İstersen konuşmacılar,</span></li>
                                 <li><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M14 58V8"/><path d="M14 10h38v26H14"/><path class="f" d="M14 10h9.5v8.7H14zM33 10h9.5v8.7H33zM23.5 18.7H33v8.6h-9.5zM42.5 18.7H52v8.6h-9.5zM14 27.3h9.5V36H14zM33 27.3h9.5V36H33z"/></svg><span>İstersen yarışmalar,</span></li>
@@ -7809,22 +7813,22 @@
                             <div class="mx-days">
                                 <div>
                                     <h3>6 Mart, Cumartesi</h3>
-                                    <p class="mx-p-lead">Festival kapılarını açıyor. Konuşmalar, yarışmalar ve marka alanları gün boyu devam ediyor.</p>
+                                    <p class="mx-p-lead"><strong>Kapılar açılıyor.</strong> Konuşmalar, yarışmalar ve marka alanları gün boyu dolu dolu.</p>
                                 </div>
                                 <div>
                                     <h3>7 Mart, Pazar</h3>
-                                    <p class="mx-p-lead">Yarışmalar sonuçlanıyor. Büyük final, ödüller ve kapanış eğlencesiyle festivali birlikte bitiriyoruz.</p>
+                                    <p class="mx-p-lead"><strong>Final günü.</strong> Kazananlar belli oluyor, ödüller veriliyor ve festivali kapanış eğlencesiyle birlikte bitiriyoruz.</p>
                                 </div>
                             </div>
                         </section>
                         <section class="mx-p-sec">
-                            <h2 class="mx-p-h">Geçen yıl böyleydi.</h2>
-                            <p class="mx-p-lead"><b class="mx-p-big" data-no-i18n>200</b> katılımcı. Üstelik o gün yalnızca hackathon vardı. HACKFEST 2026, İstinye Üniversitesi’nde yapılmıştı; MIXIT, o ilk adımın büyümüş hâli.</p>
+                            <h2 class="mx-p-h">Her şey bir hackathon’la başladı.</h2>
+                            <p class="mx-p-lead"><b class="mx-p-big" data-no-i18n>200</b> kişi, tek bir hackathon için İstinye Üniversitesi’nde buluştu. HACKFEST 2026 böyleydi; <strong>MIXIT, o ilk adımın büyümüş hâli.</strong></p>
                         </section>
                         <section class="mx-p-sec">
-                            <h2 class="mx-p-h">İstanbul Kongre Merkezi</h2>
+                            <h2 class="mx-p-h">Buluşma noktası: İstanbul Kongre Merkezi</h2>
                             <p class="mx-p-lead">Harbiye Mahallesi, Darülbedai Caddesi No: 3, Şişli / İstanbul</p>
-                            <p class="mx-p-note">Metroyla geliyorsan M2 hattında Osmanbey ya da Taksim durağında inebilirsin; mekân yürüme mesafesinde. Kabataş’tan geliyorsan F1 füniküleriyle Taksim’e çıkıp oradan yürüyebilirsin.</p>
+                            <p class="mx-p-note">Metroyla geliyorsan M2 hattında <strong>Osmanbey</strong> ya da <strong>Taksim</strong>’de in; mekân yürüme mesafesinde. Kabataş’tan geliyorsan F1 füniküleriyle Taksim’e çık, oradan yürü.</p>
                             <a class="mx-p-link" href="https://www.google.com/maps/search/?api=1&amp;query=%C4%B0stanbul+Kongre+Merkezi" target="_blank" rel="noopener">Haritada aç <b aria-hidden="true">↗</b></a>
                         </section>
                     </article>
@@ -11882,7 +11886,7 @@
                 return Promise.resolve(window.UNIPAKT_I18N[code]);
             return loaded[code] = loaded[code] || new Promise((resolve, reject) => {
                 const s = document.createElement('script');
-                s.src = `/i18n/${code}.js?v=19`;
+                s.src = `/i18n/${code}.js?v=20`;
                 s.onload = () => (window.UNIPAKT_I18N[code] ? resolve(window.UNIPAKT_I18N[code]) : reject(new Error(code)));
                 s.onerror = () => {
                     delete loaded[code];
