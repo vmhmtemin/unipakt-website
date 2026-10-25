@@ -6752,6 +6752,11 @@
         .hf-strip-in .hf-btn { width: 100%; }
         .hf-crow-v { font-size: clamp(22px, 6.4vw, 28px); white-space: normal; overflow-wrap: anywhere; }
     }
+    /* MIXIT logo jeneriği oynarken üstteki menü yavaşça yukarı kaçar, jenerik bitince geri gelir. */
+    header.nav { transition: transform .9s cubic-bezier(.65, 0, .35, 1); }
+    html.mx-intro header.nav { transform: translate3d(0, -110%, 0); }
+    html.mx-intro, html.mx-intro body { background: #050505 !important; } /* menünün boşalttığı yer logo zeminiyle aynı */
+    @media (prefers-reduced-motion: reduce) { html.mx-intro header.nav { transform: translate3d(0, 0, 0); } }
     /* ---- MIXIT katılımcı sayfası: kaydırmalı şerit gösterisi ---- */
     .mx-page { background: #050505; }
     .mx-hero { min-height: calc(100svh - var(--nav-h, 86px)); }
@@ -11072,10 +11077,12 @@
             if (!hero || !stage)
                 return;
             const active = () => section.classList.contains('active');
+            const isMixit = section.id === 'page-mixit';
             let readyTimer = 0, doneTimer = 0, run = 0;
             const reset = () => {
                 clearTimeout(readyTimer);
                 clearTimeout(doneTimer);
+                if (isMixit) document.documentElement.classList.remove('mx-intro');
                 stage.classList.remove('hf-play', 'hf-done');
                 hero.classList.remove('is-ready');
             };
@@ -11090,8 +11097,9 @@
                         return;
                     void stage.offsetWidth;
                     stage.classList.add('hf-play');
+                    if (isMixit && window.scrollY < 40) document.documentElement.classList.add('mx-intro');
                     readyTimer = setTimeout(() => hero.classList.add('is-ready'), 1500);
-                    doneTimer = setTimeout(() => { stage.classList.remove('hf-play'); stage.classList.add('hf-done'); }, 2650);
+                    doneTimer = setTimeout(() => { stage.classList.remove('hf-play'); stage.classList.add('hf-done'); if (isMixit) document.documentElement.classList.remove('mx-intro'); }, 2650);
                 });
             };
             section.querySelectorAll('[data-hf-go]').forEach((a) => a.addEventListener('click', (e) => {
