@@ -2268,7 +2268,7 @@
           <section class="card evp-sec"><h2>Bilet</h2>
             ${evField('Ücret durumu', `<select name="feeType" data-ev-fee><option value="free" ${evForm.fee !== 'paid' ? 'selected' : ''}>Ücretsiz</option><option value="paid" ${evForm.fee === 'paid' ? 'selected' : ''}>Ücretli</option></select>`)}
             ${evForm.fee === 'paid' ? evField('Ücret tutarı (TL)', `<input type="number" name="feeAmount" required min="0.01" step="0.01" inputmode="decimal" value="${esc(v.feeAmount)}" placeholder="Örn. 150">`) : ''}
-            ${evField('biletimGO sayfası', `<input type="url" name="biletimgo" maxlength="1000" value="${esc(v.biletimgo)}" placeholder="https://biletimgo.com/...">`, { opt: true, hint: 'Yalnızca biletimgo.com adresleri kabul edilir. Sitede tıklanabilir biletimGO logosu çıkar.' })}
+            ${evField('biletimGO sayfası', `<input type="url" name="biletimgo" maxlength="1000" value="${esc(v.biletimgo)}" placeholder="https://biletimgo.com/...">`, { opt: true, hint: 'Yalnızca biletimgo.com adresleri kabul edilir.' })}
             <div class="field-row">${evField('Kayıt linki', `<input type="url" name="registration" maxlength="1000" value="${esc(v.registration)}" placeholder="https://...">`, { opt: true })}${evField('Kontenjan', `<input type="number" name="capacity" min="1" step="1" inputmode="numeric" value="${esc(v.capacity)}">`, { opt: true })}</div>
           </section>
 
@@ -2279,7 +2279,6 @@
             <div class="evp-img"><span class="field-label">Banner görseli <em class="opt">(isteğe bağlı, 5:1)</em></span>
               <div class="thumb banner" data-ev-thumb="banner">${thumb('banner')}</div>
               <div class="row"><input type="file" accept="image/jpeg,image/png,image/webp" data-ev-image="banner">${evForm.images.banner ? '<button type="button" class="btn ghost small" data-ev-clear="banner">Banner’ı kaldır</button>' : ''}<small class="hint" data-ev-hint="banner"></small></div></div>
-            <small class="hint" style="opacity:.6;font-size:12px">Görseller yüklenmeden önce tarayıcında 1 MB’ın altına küçültülür.</small>
             <div class="field-row three">${evField('Etkinlik yeri', `<input name="place" maxlength="120" value="${esc(v.place)}" placeholder="Volkswagen Arena">`)}${evField('İl', `<input name="city" maxlength="60" value="${esc(v.city)}" placeholder="İstanbul">`, { opt: true })}${evField('Üniversite', `<input name="university" maxlength="200" value="${esc(v.university)}">`, { opt: true })}</div>
             ${evField('Açık adres', `<textarea name="address" required maxlength="300" style="min-height:70px" placeholder="Tam adresi yaz. Ziyaretçi “Haritada aç” ile Google Maps’e gider.">${esc(v.address)}</textarea>`)}
             <label class="field"><span>Detay metni</span>
@@ -2297,7 +2296,7 @@
           </section>
 
           <section class="card evp-sec">
-            <label class="evp-check"><input type="checkbox" name="hidden" ${v.hidden ? 'checked' : ''}><span>Etkinliği gizle<small>Takvimde ve listelerde görünmez; linki bilen etkinlik sayfasını açabilir.${editing && !isAdmin() ? ' Değiştirirsen UniPakt’a görünürlük talebi gider.' : ''}</small></span></label>
+            <label class="evp-check"><input type="checkbox" name="hidden" ${v.hidden ? 'checked' : ''}><span>Etkinliği gizle<small>Takvimde ve listelerde görünmez.${editing && !isAdmin() ? ' Değiştirirsen UniPakt’a görünürlük talebi gider.' : ''}</small></span></label>
           </section>
 
           <div class="evp-save">
@@ -3151,7 +3150,7 @@
       const desired = e.visible === false;
       openForm({
         title: desired ? 'Görünürlük talebi' : 'Gizleme talebi',
-        lead: `“${e.title}” etkinliğinin sitede ${desired ? 'yeniden görünür' : 'gizli'} olmasını isteyebilirsin. Talep UniPakt Onaylamalar'a düşer.`,
+        lead: `“${e.title}” etkinliğinin sitede ${desired ? 'yeniden görünür' : 'gizli'} olmasını isteyebilirsin.`,
         fields: field('Not (isteğe bağlı)', '<textarea name="note" maxlength="400"></textarea>'),
         submit: 'Talebi gönder',
         onSubmit: async (fd) => { await api.requestEventVisibility(id, desired, val(fd, 'note')); toast('Görünürlük talebin UniPakt onayına gönderildi.'); },
