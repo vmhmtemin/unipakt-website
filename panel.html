@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://*.supabase.co; connect-src https://hcgotmcbwmleeklbvawb.supabase.co; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://*.supabase.co https://chat.unipakt.com; connect-src https://hcgotmcbwmleeklbvawb.supabase.co https://chat.unipakt.com; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'">
 <meta name="robots" content="noindex, nofollow">
 <title>UniPakt Panel</title>
 <link rel="icon" href="/favicon.ico" sizes="48x48">
@@ -105,6 +105,34 @@
   button.proof { background: transparent; cursor: pointer; text-align: left; }
   .demo-note { margin-top: 22px; font-size: 13px; line-height: 1.6; opacity: .6; }
 
+  /* ---- Encrypted chat launcher ---- */
+  .chat-launcher { position: fixed; z-index: 1200; right: 24px; bottom: 24px; display: grid; place-items: center; width: 60px; height: 60px; border: 0; border-radius: 50%; background: var(--accent); color: #111; box-shadow: 0 12px 36px #0008; cursor: pointer; }
+  .chat-launcher:hover { transform: translateY(-2px); }
+  .chat-launcher svg { width: 28px; height: 28px; }
+  .chat-window { position: fixed; z-index: 1199; right: 24px; bottom: 96px; display: flex; flex-direction: column; width: min(390px, calc(100vw - 24px)); height: min(570px, calc(100dvh - 116px)); overflow: hidden; border: 1px solid var(--border-strong); border-radius: 22px; background: #0b0b0b; box-shadow: 0 20px 70px #000b; }
+  .chat-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border); background: #101010; }
+  .chat-head strong { display: flex; align-items: center; gap: 7px; font-weight: 700; }
+  .chat-head small { display: block; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: .6; font-size: 12px; }
+  .chat-verified { display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; background: #54a8ff; color: #07121e; font-size: 12px; font-weight: 900; }
+  .chat-close { width: 34px; height: 34px; border: 1px solid var(--border-strong); border-radius: 50%; background: transparent; cursor: pointer; }
+  .chat-body { flex: 1; min-height: 0; overflow: auto; padding: 14px; }
+  .chat-room-list, .chat-peer-list { display: grid; gap: 6px; }
+  .chat-row { display: flex; width: 100%; align-items: center; gap: 10px; padding: 11px; border: 1px solid var(--border); border-radius: 13px; background: #101010; text-align: left; cursor: pointer; }
+  .chat-row:hover { border-color: var(--accent); }
+  .chat-row strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chat-row small { display: block; opacity: .58; font-size: 12px; }
+  .chat-section-title { margin: 16px 0 8px; font-size: 12px; font-weight: 700; opacity: .55; text-transform: uppercase; letter-spacing: .06em; }
+  .chat-messages { display: flex; flex-direction: column; gap: 8px; }
+  .chat-message { max-width: 86%; align-self: flex-start; padding: 9px 12px; border-radius: 15px 15px 15px 4px; background: #1a1a1a; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .chat-message.mine { align-self: flex-end; border-radius: 15px 15px 4px 15px; background: #fe5c1d; color: #111; }
+  .chat-composer { display: flex; align-items: end; gap: 8px; padding: 12px; border-top: 1px solid var(--border); }
+  .chat-composer textarea { flex: 1; min-width: 0; min-height: 42px; max-height: 120px; resize: vertical; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 14px; background: #111; color: var(--ink); }
+  .chat-status { padding: 22px 12px; text-align: center; opacity: .65; font-size: 13px; }
+  .chat-beta-notice { display: grid; gap: 12px; font-size: 14px; line-height: 1.55; }
+  .chat-beta-consent { display: flex; align-items: flex-start; gap: 10px; margin-top: 4px; font-size: 13px; }
+  .chat-beta-consent input { flex: none; margin-top: 4px; accent-color: var(--accent); }
+  @media (max-width: 520px) { .chat-launcher { right: 16px; bottom: 16px; } .chat-window { right: 12px; bottom: 88px; height: min(620px, calc(100dvh - 100px)); } }
+
   /* ---- App shell ---- */
   .app { display: grid; grid-template-columns: var(--side-w) minmax(0, 1fr); min-height: calc(100vh - 64px); }
   .side {
@@ -132,12 +160,30 @@
   .side-foot { margin-top: auto; padding: 16px 12px 0; border-top: 1px solid var(--border); display: grid; gap: 12px; }
   .side-user strong { display: block; font-weight: 600; line-height: 1.3; }
   .side-user small { opacity: .6; font-size: 13px; }
+  button.side-user { width: 100%; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+  button.side-user:hover strong { color: var(--accent); }
+  button.mobile-user { width: 100%; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
   .side-foot .row { display: flex; flex-wrap: wrap; gap: 8px; }
   .link-btn { background: none; border: 0; padding: 0; font-size: 13px; opacity: .55; text-decoration: underline; text-underline-offset: 3px; text-align: left; }
   .link-btn:hover { opacity: 1; }
 
   .main { padding: clamp(24px, 4vw, 56px); min-width: 0; }
   .main-inner { max-width: 1080px; }
+  .profile-menu { position: relative; z-index: 30; display: flex; justify-content: flex-end; margin: -10px 0 22px; }
+  .profile-trigger { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 5px 14px 5px 6px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--ink); font-weight: 650; }
+  .profile-trigger:hover, .profile-trigger[aria-expanded="true"] { border-color: var(--accent); }
+  .profile-avatar { width: 36px; height: 36px; flex: none; display: grid; place-items: center; overflow: hidden; border-radius: 50%; background: #222; color: var(--ink); font-weight: 700; }
+  .profile-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .profile-caret { width: 8px; height: 8px; margin: -4px 2px 0 4px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg); opacity: .65; }
+  .profile-dropdown { position: absolute; top: calc(100% + 8px); right: 0; width: min(230px, calc(100vw - 32px)); padding: 7px; border: 1px solid var(--border-strong); border-radius: 14px; background: var(--surface); box-shadow: 0 16px 42px #0009; }
+  .profile-dropdown button { display: flex; align-items: center; width: 100%; min-height: 42px; padding: 0 12px; border: 0; border-radius: 9px; background: transparent; color: var(--ink); text-align: left; }
+  .profile-dropdown button:hover { background: var(--paper-soft); color: var(--accent); }
+  .profile-editor { display: flex; align-items: center; gap: 18px; margin-bottom: 8px; }
+  .profile-avatar.large { width: 92px; height: 92px; font-size: 30px; border: 1px solid var(--border-strong); }
+  .profile-logo-actions { display: grid; gap: 8px; }
+  .profile-logo-actions .hint { margin: 0; }
+  .profile-remove-logo { justify-self: start; }
+  .account-summary { margin: 0 0 18px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--paper-soft); }
   .demo-bar {
     display: flex; align-items: center; gap: 10px; margin-bottom: clamp(22px, 3vw, 36px);
     padding: 10px 16px; border: 1px dashed var(--border-strong); border-radius: 12px;
@@ -459,7 +505,7 @@
     .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .stat b { font-size: 36px; }
     .grid-2, .grid-3 { grid-template-columns: minmax(0, 1fr); }
-    .mobile-user { display: block; }
+    .mobile-user { display: none; }
   }
   @media (min-width: 901px) { .mobile-user { display: none; } }
   .mobile-user { margin-bottom: 18px; font-size: 13px; opacity: .65; }
@@ -642,6 +688,8 @@
   // enforced by the row level security rules in supabase/schema.sql.
   const SUPABASE_URL = 'https://hcgotmcbwmleeklbvawb.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_RcHJDYGkpd-01DPYG9o3HQ_8prlhUQn';
+  const MATRIX_BASE_URL = 'https://chat.unipakt.com';
+  const MATRIX_SERVER_NAME = 'chat.unipakt.com';
   // panel.html?demo keeps everything in this browser and needs no account. It only
   // works on a local machine; on the live site the flag is ignored.
   const LOCAL_HOST = location.protocol === 'file:' || ['localhost', '127.0.0.1', '[::1]', '::1'].includes(location.hostname);
@@ -727,6 +775,12 @@
      ------------------------------------------------------------------ */
   const TOKENS = 'unipaktPanelSession';
   let session = null;   // { access_token, refresh_token, expires_at, user_id }
+  const recoveryParams = new URLSearchParams(location.hash.slice(1));
+  let recoveryToken = recoveryParams.get('type') === 'recovery' ? recoveryParams.get('access_token') : '';
+  if (recoveryToken) {
+    const cleanUrl = new URL(location.href); cleanUrl.hash = ''; cleanUrl.searchParams.set('password-reset', '1');
+    history.replaceState(null, '', cleanUrl.toString());
+  }
   const writeSession = (next) => {
     session = next;
     try { next ? localStorage.setItem(TOKENS, JSON.stringify(next)) : localStorage.removeItem(TOKENS); } catch (_) {}
@@ -740,16 +794,31 @@
   const readSession = () => { session = storedSession(); };
   const signedOut = (message) => { writeSession(null); state.user = null; db = null; return new Error(message); };
 
+  // Supabase requests must not leave the login form in a permanent loading state.
+  const fetchWithTimeout = async (url, options = {}) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 20000);
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } catch (error) {
+      if (error.name === 'AbortError') throw new Error('Sunucu 20 saniye içinde yanıt vermedi. İnternet bağlantını kontrol edip tekrar dene.');
+      throw error;
+    } finally { clearTimeout(timer); }
+  };
+
   const authCall = async (grant, body) => {
     let r, data = {};
     try {
-      r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=${grant}`, {
+      r = await fetchWithTimeout(`${SUPABASE_URL}/auth/v1/token?grant_type=${grant}`, {
         method: 'POST', headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       data = await r.json().catch(() => ({}));
-    } catch (_) { throw new Error('Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.'); }
+    } catch (error) {
+      if (/20 saniye içinde yanıt vermedi/.test(error.message || '')) throw error;
+      throw new Error('Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.');
+    }
     if (!r.ok || !data.access_token) { const e = new Error(data.msg || data.error_description || 'Giriş yapılamadı.'); e.status = r.status; throw e; }
     writeSession({ access_token: data.access_token, refresh_token: data.refresh_token,
-      expires_at: Date.now() + (data.expires_in || 3600) * 1000, user_id: data.user.id });
+      expires_at: Date.now() + (data.expires_in || 3600) * 1000, user_id: data.user.id, email: data.user.email || session?.email || '' });
   };
   let refreshing = null;
   const fresh = (s) => !!s && Date.now() < s.expires_at - 60000;
@@ -780,12 +849,15 @@
     const auth = await token();
     let r;
     try {
-      r = await fetch(SUPABASE_URL + path, {
+      r = await fetchWithTimeout(SUPABASE_URL + path, {
         method,
         headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${auth}`, ...(body !== undefined && !raw ? { 'Content-Type': 'application/json' } : {}), ...headers },
         body: body === undefined ? undefined : raw ? body : JSON.stringify(body),
       });
-    } catch (_) { throw new Error('Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.'); }
+    } catch (error) {
+      if (/20 saniye içinde yanıt vermedi/.test(error.message || '')) throw error;
+      throw new Error('Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.');
+    }
     const text = await r.text();
     let data = null;
     try { data = text ? JSON.parse(text) : null; } catch (_) {}
@@ -891,21 +963,23 @@
   };
 
   const loadRemote = async () => {
-    const profiles = await rest(`profiles?select=role,club_id&id=eq.${encodeURIComponent(session.user_id)}`);
+    const profiles = await rest(`profiles?select=role,club_id,full_name,bio,collaboration_interests,avatar_url&id=eq.${encodeURIComponent(session.user_id)}`);
     const profile = profiles && profiles[0];
     if (!profile) throw signedOut('Bu hesaba panel yetkisi verilmemiş. UniPakt ile iletişime geç.');
-    const [clubs, anns, events, apps, tasks, points, eventVisibilityRequests, eventEditRequests, notifications, board, eventComments] = await Promise.all([
+    const [clubs, anns, events, apps, tasks, points, eventVisibilityRequests, eventEditRequests, notifications, board, eventComments, panelProfiles] = await Promise.all([
       rest('clubs?select=*&order=name'), rest('announcements?select=*'), rest('events?select=*,event_occurrences(date,time)&order=event_date'),
       rest('event_applications?select=*&order=created_at'), rest('tasks?select=*'), rest('point_entries?select=*'),
       rest('event_visibility_requests?select=*&order=created_at.desc'),
       rest('event_edit_requests?select=*&order=created_at.desc'),
       rest('notifications?select=*&order=created_at.desc'),
       rest('rpc/leaderboard', { method: 'POST', body: {} }),
+      rest('profiles?select=id,role,club_id,full_name,bio,collaboration_interests,avatar_url'),
       // Yorumları yalnızca yetkili okuyabilir (RLS); kulüp hesabı hiç istemez.
       profile.role === 'admin' ? rest('event_comments?select=id,event_id,name,email,body,status,created_at&status=eq.pending&order=created_at') : [],
     ]);
     const owner = (clubId) => clubId || ADMIN;
     db = {
+      panelProfiles: (panelProfiles || []).map((p) => ({ id: p.id, role: p.role, clubId: p.club_id || '', fullName: p.full_name || '', bio: p.bio || '', interests: Array.isArray(p.collaboration_interests) ? p.collaboration_interests : [], avatarUrl: p.avatar_url || '' })),
       clubs: clubs.map((c) => ({ id: c.id, name: c.name, uni: c.university, category: c.category || '', visible: c.visible !== false,
         kvkkNoticeSentAt: c.kvkk_notice_sent_at || null, kvkkConsentAt: c.kvkk_consent_at || null,
         contact: Object.fromEntries(CONTACT_KEYS.map(([k]) => [k, c[k] || ''])) })),
@@ -960,6 +1034,7 @@
       })(),
     };
     state.user = profile.role === 'admin' ? ADMIN : profile.club_id;
+    state.profile = { fullName: profile.full_name || '', bio: profile.bio || '', collaborationInterests: Array.isArray(profile.collaboration_interests) ? profile.collaboration_interests : [], avatarUrl: profile.avatar_url || '' };
     try { await loadSupportRemote(); }
     catch (error) {
       supportLoadError = error;
@@ -1161,6 +1236,9 @@
       save();
     },
     async accounts() { return Object.fromEntries(db.clubs.map((c) => [c.id, c.account || ''])); },
+    async uploadProfileLogo(file) { return await readDataUrl(file); },
+    async updateMyProfile(fields) { if (!String(fields.fullName || '').trim()) throw new Error('Kulüp başkanının adını yaz.'); state.profile.fullName = String(fields.fullName).trim(); state.profile.bio = String(fields.bio || '').trim(); state.profile.collaborationInterests = String(fields.collaborationInterests || '').split(/[\n,;]/).map(x => x.trim()).filter(Boolean).slice(0, 12); state.profile.avatarUrl = fields.avatarUrl || ''; },
+    async changePassword() { throw new Error('Demo hesaplarında giriş şifresi yok.'); },
     async supportCreate({subject,category,categoryLabel,body,eventId,attachmentName,attachmentPath}) { const t={id:uid(),number:'#UP-'+String(Date.now()).slice(-6),clubId:state.user,subject,category,categoryLabel:categoryLabel||category,eventId:eventId||'',attachmentName:attachmentName||'',attachmentPath:attachmentPath||'',status:'open',createdAt:stamp(),updatedAt:stamp(),messages:[{id:uid(),authorRole:'club',authorLabel:'Kulüp',body,createdAt:stamp()}]}; db.supportTickets.unshift(t); save(); },
     async supportReply(id,body) { const t=db.supportTickets.find(x=>x.id===id); if(!t) throw new Error('Talep bulunamadı.'); if(!isAdmin()&&t.status==='closed') throw new Error('Bu talep kapatıldı; yanıt verilemez.'); t.messages.push({id:uid(),authorRole:isAdmin()?'admin':'club',authorLabel:isAdmin()?'UniPakt Destek':'Kulüp',body,createdAt:stamp()}); t.status=isAdmin()?'answered':'open'; t.updatedAt=stamp(); save(); },
     async supportUpdate(id, fields) { const t=db.supportTickets.find(x=>x.id===id); if(!t) throw new Error('Talep bulunamadı.'); Object.assign(t, fields, {updatedAt:stamp()}); save(); },
@@ -1438,6 +1516,51 @@
       const data = await call(`/storage/v1/object/sign/task-proofs/${path}`, { method: 'POST', body: { expiresIn: 120 } });
       return `${SUPABASE_URL}/storage/v1${data.signedURL}`;
     },
+    async updateMyProfile(fields) {
+      if (!String(fields.fullName || '').trim()) throw new Error('Kulüp başkanının adını yaz.');
+      if (isAdmin()) throw new Error('UniPakt profili bu ekrandan değiştirilemez.');
+      const interests = String(fields.collaborationInterests || '').split(/[\n,;]/).map(x => x.trim()).filter(Boolean).slice(0, 12);
+      await restMust(`profiles?id=eq.${encodeURIComponent(session.user_id)}`, { method: 'PATCH', body: {
+        full_name: String(fields.fullName).trim(), bio: String(fields.bio || '').trim() || null,
+        collaboration_interests: interests, avatar_url: fields.avatarUrl || null,
+      } });
+    },
+    async uploadProfileLogo(file) {
+      if (isAdmin()) throw new Error('UniPakt profiline logo eklenemez.');
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) throw new Error('Logo JPG, PNG veya WebP olmalı.');
+      if (file.size > MAX_IMAGE) throw new Error('Logo 1 MB’tan küçük olmalı.');
+      const path = `${session.user_id}/logo`;
+      await call(`/storage/v1/object/profile-logos/${path}`, { method: 'POST', body: file, raw: true, headers: { 'Content-Type': file.type, 'x-upsert': 'true' } });
+      return `${SUPABASE_URL}/storage/v1/object/public/profile-logos/${path}?v=${Date.now()}`;
+    },
+    async changePassword(currentPassword, newPassword) {
+      if (newPassword.length < 8) throw new Error('Yeni şifre en az 8 karakter olmalı.');
+      const me = await call('/auth/v1/user');
+      try { await authCall('password', { email: me.email, password: currentPassword }); }
+      catch (_) { throw new Error('Mevcut şifre hatalı.'); }
+      await call('/auth/v1/user', { method: 'PUT', body: { password: newPassword } });
+    },
+    async recoverPassword(email) {
+      const redirect = `${location.origin}${location.pathname}`;
+      let r, data = {};
+      try {
+        r = await fetch(`${SUPABASE_URL}/auth/v1/recover?redirect_to=${encodeURIComponent(redirect)}`, {
+          method: 'POST', headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+        data = await r.json().catch(() => ({}));
+      } catch (_) { throw new Error('Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.'); }
+      if (!r.ok) throw new Error(data.msg || data.message || 'Şifre sıfırlama bağlantısı gönderilemedi.');
+    },
+    async resetPassword(tokenValue, password) {
+      let r, data = {};
+      try {
+        r = await fetch(`${SUPABASE_URL}/auth/v1/user`, { method: 'PUT', headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${tokenValue}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
+        data = await r.json().catch(() => ({}));
+      } catch (_) { throw new Error('Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.'); }
+      if (!r.ok) throw new Error(data.msg || data.message || 'Şifre değiştirilemedi. Bağlantı süresi dolmuş olabilir.');
+    },
+    async matrixSession(deviceId) {
+      return await call('/functions/v1/matrix-session', { method: 'POST', body: { device_id: deviceId } });
+    },
     async login(email, password) {
       try { await authCall('password', { email, password }); }
       catch (e) { throw e.status === 400 ? new Error('E-posta ya da şifre hatalı.') : e; }
@@ -1452,7 +1575,7 @@
 
   // Remote writes are followed by a fresh read, so the screen shows what the server kept.
   const api = DEMO ? local : new Proxy(remote, {
-    get: (target, name) => (['refresh', 'proofUrl', 'login', 'logout', 'accounts', 'account', 'supportCreate', 'supportReply', 'supportUpdate', 'supportDelete', 'siteInbox', 'siteInboxDelete', 'siteInboxDeleteAll', 'siteInboxCount'].includes(name) ? target[name]
+    get: (target, name) => (['refresh', 'proofUrl', 'login', 'logout', 'accounts', 'account', 'recoverPassword', 'resetPassword', 'matrixSession', 'supportCreate', 'supportReply', 'supportUpdate', 'supportDelete', 'siteInbox', 'siteInboxDelete', 'siteInboxDeleteAll', 'siteInboxCount'].includes(name) ? target[name]
       : async (...args) => { const result = await target[name](...args); await loadRemote(); return result; }),
   });
 
@@ -1462,6 +1585,9 @@
   const now = new Date();
   const state = {
     user: null,
+    profile: { fullName: '', avatarUrl: '' },
+    profileMenuOpen: false,
+    chat: { open: false, roomId: '', roomName: '', rooms: [], loading: false, error: '' },
     view: 'genel',
     cal: { y: now.getFullYear(), m: now.getMonth(), sel: ymd(now) },
     taskTab: 'open',
@@ -1470,10 +1596,83 @@
     support: { q: '', category: 'all', status: 'all' },
     inbox: { tab: 'contact', data: null, error: null, loading: false, count: null },   // Site Mesajları (yalnızca yetkili)
   };
+  let profileLogoPreviewUrl = '';
   if (DEMO) { try { state.user = sessionStorage.getItem(SESSION); } catch (_) {} }
+
+  let matrixModule = null;
+  let matrixLoadingPromise = null;
+  const matrixSessionKey = (userId) => `unipaktMatrixSession.${userId}`;
+  const matrixDeviceKey = (userId) => `unipaktMatrixDevice.${userId}`;
+  const startMatrix = async () => {
+    if (DEMO || !state.user || !session?.user_id || matrixLoadingPromise) return matrixLoadingPromise;
+    state.chat.loading = true; state.chat.error = '';
+    matrixLoadingPromise = (async () => {
+      try {
+        matrixModule ||= await import('/assets/matrix/matrix-client.js');
+        const panelUserId = session.user_id;
+        const saved = (() => { try { return JSON.parse(localStorage.getItem(matrixSessionKey(panelUserId)) || 'null'); } catch (_) { return null; } })();
+        const deviceId = (() => {
+          try {
+            let value = localStorage.getItem(matrixDeviceKey(panelUserId));
+            if (!value) { value = crypto.randomUUID().replaceAll('-', '').slice(0, 20).toUpperCase(); localStorage.setItem(matrixDeviceKey(panelUserId), value); }
+            return value;
+          } catch (_) { return crypto.randomUUID().replaceAll('-', '').slice(0, 20).toUpperCase(); }
+        })();
+        let matrixSession = saved?.panel_user_id === panelUserId ? saved : null;
+        const connect = async (value) => {
+          await matrixModule.connect(value);
+          state.chat.rooms = matrixModule.listRooms();
+          matrixModule.onChange((event) => {
+            if (event.type === 'message' || event.type === 'sync') {
+              state.chat.rooms = matrixModule.listRooms();
+              if (state.chat.open && state.user && !busy()) render();
+            }
+          });
+        };
+        try {
+          if (!matrixSession) throw new Error('Oturum gerekiyor.');
+          await connect(matrixSession);
+        } catch (_) {
+          if (matrixSession) localStorage.removeItem(matrixSessionKey(panelUserId));
+          matrixSession = { ...(await remote.matrixSession(deviceId)), panel_user_id: panelUserId };
+          localStorage.setItem(matrixSessionKey(panelUserId), JSON.stringify(matrixSession));
+          await connect(matrixSession);
+        }
+      } catch (error) {
+        state.chat.error = error.message || 'Güvenli sohbet açılamadı.';
+      } finally {
+        state.chat.loading = false;
+        matrixLoadingPromise = null;
+        if (state.user && !busy()) render();
+      }
+    })();
+    return matrixLoadingPromise;
+  };
+  const stopMatrix = async () => {
+    const panelUserId = session?.user_id;
+    try { if (matrixModule?.logout) await matrixModule.logout(); else if (matrixModule) await matrixModule.disconnect(); }
+    catch (_) {}
+    if (panelUserId) localStorage.removeItem(matrixSessionKey(panelUserId));
+    state.chat = { open: false, roomId: '', roomName: '', rooms: [], loading: false, error: '' };
+  };
 
   const isAdmin = () => state.user === ADMIN;
   const club = (id) => db.clubs.find((c) => c.id === id);
+  const avatarMarkup = (url, label, extraClass = '') => url
+    ? `<span class="profile-avatar ${extraClass}"><img src="${esc(url)}" alt="${esc(label || 'Profil görseli')}" loading="lazy"></span>`
+    : `<span class="profile-avatar ${extraClass}" aria-hidden="true">${esc(String(label || 'U').trim().charAt(0).toLocaleUpperCase('tr-TR') || 'U')}</span>`;
+  const profileMenu = () => {
+    const label = isAdmin() ? 'UniPakt' : (club(state.user)?.name || 'Kulüp');
+    return `<div class="profile-menu">
+      <button class="profile-trigger" type="button" data-act="profile-menu-toggle" aria-haspopup="menu" aria-expanded="${state.profileMenuOpen ? 'true' : 'false'}">
+        ${avatarMarkup(state.profile.avatarUrl, label)}<span>Profil</span><i class="profile-caret" aria-hidden="true"></i>
+      </button>
+      <div class="profile-dropdown" role="menu" ${state.profileMenuOpen ? '' : 'hidden'}>
+        <button type="button" role="menuitem" data-go="ayarlar">Profil</button>
+        <button type="button" role="menuitem" data-go="hesap">Hesap</button>
+      </div>
+    </div>`;
+  };
   const searchKey = (v) => String(v || '').toLocaleLowerCase('tr-TR').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i').trim();
   const shortUni = (u) => String(u || '').replace(/\s+(Üniversitesi|University)$/i, '').trim();
   const clubLabel = (c) => (c.uni ? `${shortUni(c.uni)} - ${c.name}` : c.name);
@@ -1759,7 +1958,7 @@
     return items;
   };
   // Menüde görünmeyen ama açılabilen sayfalar.
-  const HIDDEN_VIEWS = ['etkinlik-olustur'];
+  const HIDDEN_VIEWS = ['etkinlik-olustur', 'ayarlar', 'hesap'];
   const knownView = (view) => HIDDEN_VIEWS.includes(view) || NAV().some(([id]) => id === view);
 
   /* ------------------------------------------------------------------
@@ -2502,6 +2701,45 @@
 
   const views = {
     'etkinlik-olustur': () => eventPageView(),
+    ayarlar() {
+      const clubInfo = club(state.user);
+      return `${head('Profil', 'Kulüp profilinde diğer kulüplerin göreceği bilgileri düzenle.')}
+        <section class="card">
+          ${isAdmin() ? `<p class="body">UniPakt <span class="tag ok">✓ Onaylı</span></p>` : `<p class="body">Profilin yalnızca panelde ve kulüpler arası sohbetlerde görünür.</p>
+            <form id="profileForm" class="stack" style="margin-top:20px">
+              <div class="profile-editor">
+                <div data-profile-avatar>${avatarMarkup(state.profile.avatarUrl, state.profile.fullName || clubInfo?.name || 'Kulüp', 'large')}</div>
+                <div class="profile-logo-actions">
+                  <label class="field"><span>Kulüp logosu</span><input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" data-profile-logo></label>
+                  <small class="hint">JPG, PNG veya WebP · en fazla 1 MB</small>
+                  <input type="checkbox" name="removeAvatar" hidden>
+                  <button class="btn ghost small profile-remove-logo" type="button" data-act="profile-avatar-remove" ${state.profile.avatarUrl ? '' : 'hidden'}>Logoyu kaldır</button>
+                </div>
+              </div>
+              <p><strong>${esc(clubInfo?.name || '')}</strong> <span class="tag">Kulüp</span><br><small>${esc(clubInfo?.uni || '')} · ${esc(clubInfo?.category || '')}</small></p>
+              ${field('Kulüp başkanının adı', `<input name="fullName" maxlength="120" required value="${esc(state.profile.fullName)}" autocomplete="name">`)}
+              ${field('Kısa tanıtım (isteğe bağlı)', `<textarea name="bio" maxlength="500" placeholder="Kulübünüzü kısaca tanıtın">${esc(state.profile.bio || '')}</textarea>`)}
+              ${field('İş birliği aradığınız alanlar (isteğe bağlı)', `<textarea name="collaborationInterests" maxlength="500" placeholder="Örn. tasarım, konuşmacı, mekân desteği">${esc((state.profile.collaborationInterests || []).join(', '))}</textarea>`)}
+              <button class="btn small" type="submit">Profili kaydet</button>
+              <p class="form-error" data-profile-error hidden></p>
+            </form>`}
+        </section>`;
+    },
+    hesap() {
+      return `${head('Hesap', 'Giriş bilgilerini ve şifreni yönet.')}
+        <section class="card">
+          <h2>Hesap bilgileri</h2>
+          <div class="account-summary"><strong>${esc(session?.email || 'E-posta bilgisi yüklenemedi')}</strong><br><small>${esc(isAdmin() ? 'UniPakt yöneticisi' : 'Kulüp hesabı')}</small></div>
+          <h2>Şifre değiştir</h2>
+          <form id="passwordForm" class="stack" style="margin-top:18px;max-width:520px">
+            ${field('Mevcut şifre', '<input type="password" name="currentPassword" required autocomplete="current-password">')}
+            ${field('Yeni şifre', '<input type="password" name="newPassword" required minlength="8" autocomplete="new-password">')}
+            ${field('Yeni şifreyi tekrar yaz', '<input type="password" name="confirmPassword" required minlength="8" autocomplete="new-password">')}
+            <button class="btn small" type="submit">Şifreyi değiştir</button>
+            <p class="form-error" data-password-error hidden></p>
+          </form>
+        </section>`;
+    },
     genel() {
       const events = upcomingEvents().slice(0, 3);
       const eventsBlock = `
@@ -3008,8 +3246,78 @@
     title, lead, submit, danger: true,
     onSubmit: async () => { await apply(); toast(/sil$/i.test(submit) ? 'Silindi.' : 'Kaldırıldı.'); },
   });
+  const chatNoticeStorageKey = () => `unipaktChatNoticeAccepted.v1.${session?.user_id || 'unknown'}`;
+  const hasAcceptedChatNotice = () => {
+    if (state.chat.noticeAccepted) return true;
+    try { state.chat.noticeAccepted = localStorage.getItem(chatNoticeStorageKey()) === '1'; }
+    catch (_) { state.chat.noticeAccepted = false; }
+    return state.chat.noticeAccepted;
+  };
+  const openChatNotice = () => openForm({
+    title: 'UniPakt Instant Messages hakkında',
+    fields: `<div class="chat-beta-notice">
+      <p>UniPakt Instant Messages beta sürümüdür. Kişisel ve özel bilgilerinizi paylaşmayın.</p>
+      <p>Mesajların Oracle sunucularında uçtan uca şifrelenerek aktarılması planlanmaktadır. Sunucu ve şifreleme altyapısı devreye alınıp doğrulanana kadar bu güvenlik özelliği kullanıma açık değildir.</p>
+      <p>UniPakt Instant Messages ürününün tüm bölümleri değişime tabi olabilir. Sistem tamamen kaldırılabilir, gizlenebilir veya kullanımı kısıtlanabilir. Mesajlarınızın bir bölümü veya tamamı silinebilir, kaybolabilir veya anonim hale gelebilir.</p>
+      <p>Destek bildirimleriniz için UniPakt Destek sekmesini kullanın. UniPakt olarak kişisel sohbetlerinizde WhatsApp, Telegram ya da SMS sağlayıcısı gibi farklı yazılımlar kullanmanızı tavsiye ediyoruz.</p>
+      <label class="chat-beta-consent"><input type="checkbox" name="chatNoticeAccepted" required><span>Bilgilendirmeyi okudum ve sohbeti açmayı kabul ediyorum.</span></label>
+    </div>`,
+    submit: 'Kabul et ve sohbeti aç',
+    onSubmit: (fd) => {
+      if (fd.get('chatNoticeAccepted') !== 'on') return 'Sohbeti açmak için bilgilendirmeyi kabul etmelisin.';
+      state.chat.noticeAccepted = true;
+      try { localStorage.setItem(chatNoticeStorageKey(), '1'); } catch (_) {}
+      state.chat.open = true;
+      startMatrix();
+    },
+  });
 
   const actions = {
+    'profile-menu-toggle'() { state.profileMenuOpen = !state.profileMenuOpen; render(); },
+    'profile-avatar-remove'() {
+      const form = document.querySelector('#profileForm');
+      if (!form) return;
+      form.elements.removeAvatar.checked = true;
+      form.elements.avatar.value = '';
+      const preview = form.querySelector('[data-profile-avatar]');
+      if (preview) preview.innerHTML = avatarMarkup('', state.profile.fullName || club(state.user)?.name || 'Kulüp', 'large');
+      const remove = form.querySelector('[data-act="profile-avatar-remove"]');
+      if (remove) remove.hidden = true;
+      if (profileLogoPreviewUrl) { URL.revokeObjectURL(profileLogoPreviewUrl); profileLogoPreviewUrl = ''; }
+    },
+    'chat-toggle'() {
+      if (state.chat.open) { state.chat.open = false; render(); return; }
+      if (!hasAcceptedChatNotice()) { openChatNotice(); return; }
+      state.chat.open = true; startMatrix(); render();
+    },
+    'chat-close'() { state.chat.open = false; render(); },
+    'chat-back'() { state.chat.roomId = ''; state.chat.roomName = ''; render(); },
+    'chat-open-room'(roomId, roomName = '') { state.chat.roomId = roomId; state.chat.roomName = roomName; render(); },
+    'chat-open-peer': async (id) => {
+      if (!matrixModule) await startMatrix();
+      if (!matrixModule || state.chat.error) throw new Error(state.chat.error || 'Sohbet bağlantısı hazır değil.');
+      const peerId = id === 'unipakt' ? `@unipakt:${MATRIX_SERVER_NAME}` : `@club_${String(id).replaceAll('-', '')}:${MATRIX_SERVER_NAME}`;
+      const peerName = id === 'unipakt' ? 'UniPakt' : (club(id)?.name || 'Kulüp');
+      state.chat.loading = true; render();
+      try {
+        state.chat.roomId = await matrixModule.openDirect(peerId, peerName);
+        state.chat.roomName = peerName;
+        state.chat.rooms = matrixModule.listRooms();
+      } finally { state.chat.loading = false; render(); }
+    },
+    'forgot-password'() {
+      if (DEMO) return toast('Demo hesaplarında şifre yok.');
+      openForm({
+        title: 'Şifremi unuttum',
+        lead: 'Hesabına bağlı e-posta adresine şifre sıfırlama bağlantısı gönderelim.',
+        fields: field('E-posta', '<input type="email" name="email" required autocomplete="username">'),
+        submit: 'Bağlantı gönder',
+        onSubmit: async (fd) => {
+          await remote.recoverPassword(val(fd, 'email').trim());
+          toast('Adres kayıtlıysa sıfırlama bağlantısı gönderildi. E-postanı kontrol et.');
+        },
+      });
+    },
     'support-ticket-new'() {
       if (isAdmin()) return;
 
@@ -3547,6 +3855,7 @@
       render(); window.scrollTo(0, 0);
     },
     logout() {
+      stopMatrix();
       state.user = null;
       if (DEMO) { try { sessionStorage.removeItem(SESSION); } catch (_) {} }
       else { remote.logout(); db = null; }
@@ -3568,16 +3877,52 @@
   const go = (view) => {
     if (!knownView(view)) view = 'genel';
     if (view !== state.view && !leaveEventPage()) return;
-    state.view = view;
+    state.view = view; state.profileMenuOpen = false;
     if (location.hash !== `#${view}`) history.pushState(null, '', `#${view}`);
     render(); window.scrollTo(0, 0);
+  };
+
+  const renderPasswordReset = (message = '') => {
+    root.innerHTML = `
+      <main class="login"><div class="login-box">
+        <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=3" alt="UniPakt"></a>
+        <p class="kicker">Panel</p><h2>Yeni şifre belirle</h2>
+        <form class="login-form" id="passwordResetForm" novalidate>
+          ${field('Yeni şifre', '<input type="password" name="password" required minlength="8" autocomplete="new-password">')}
+          ${field('Yeni şifreyi tekrar yaz', '<input type="password" name="confirmPassword" required minlength="8" autocomplete="new-password">')}
+          <p class="form-error" id="passwordResetError" ${message ? '' : 'hidden'}>${esc(message)}</p>
+          <button type="submit" class="btn">Şifreyi kaydet</button>
+        </form>
+      </div></main>`;
+  };
+
+  const chatWidget = () => {
+    if (DEMO || !state.user) return '';
+    const launcher = `<button class="chat-launcher" type="button" data-act="chat-toggle" aria-label="Sohbetleri aç"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H5l-2 2v-6a7.5 7.5 0 1 1 17-3.5Z"/><path d="M8 11h.01M12 11h.01M16 11h.01" stroke-linecap="round"/></svg></button>`;
+    if (!state.chat.open) return launcher;
+    const activeRoom = state.chat.rooms.find((r) => r.roomId === state.chat.roomId);
+    const title = esc(state.chat.roomName || activeRoom?.name || 'Sohbet');
+    const messages = activeRoom?.messages || [];
+    let body = '';
+    if (state.chat.loading) body = '<p class="chat-status">Güvenli sohbet yükleniyor…</p>';
+    else if (state.chat.error) body = `<p class="chat-status">${esc(state.chat.error)}</p>`;
+    else if (!matrixModule) body = '<p class="chat-status">Güvenli sohbet hazırlanıyor…</p>';
+    else if (state.chat.roomId) body = `<div class="chat-messages">${messages.map((m) => `<div class="chat-message ${m.sender === matrixModule.getCurrentUserId() ? 'mine' : ''}">${esc(m.body)}</div>`).join('') || '<p class="chat-status">Henüz mesaj yok. İlk mesajı gönder.</p>'}</div>`;
+    else {
+      const rooms = state.chat.rooms.map((r) => `<button class="chat-row" type="button" data-act="chat-open-room" data-id="${esc(r.roomId)}" data-sub="${esc(r.name)}"><span><strong>${esc(r.name)}</strong><small>Uçtan uca şifreli sohbet</small></span></button>`).join('');
+      const clubs = db.clubs.filter((c) => c.id !== state.user).sort(byLabel).map((c) => { const p = db.panelProfiles?.find((x) => x.clubId === c.id); return `<button class="chat-row" type="button" data-act="chat-open-peer" data-id="${esc(c.id)}">${avatarMarkup(p?.avatarUrl, c.name)}<span><strong>${esc(c.name)} <span class="tag">Kulüp</span></strong><small>${esc(c.uni)} · ${esc(c.category || 'Kulüp')}</small></span></button>`; }).join('');
+      body = `${rooms ? `<p class="chat-section-title">Sohbetler</p><div class="chat-room-list">${rooms}</div>` : ''}<p class="chat-section-title">Yeni sohbet</p><div class="chat-peer-list">${!isAdmin() ? '<button class="chat-row" type="button" data-act="chat-open-peer" data-id="unipakt"><span><strong>UniPakt <span class="chat-verified">✓</span></strong><small>Resmî destek hesabı</small></span></button>' : ''}${clubs || '<p class="chat-status">Başka kulüp bulunamadı.</p>'}</div>`;
+    }
+    const composer = state.chat.roomId && !state.chat.error && !state.chat.loading
+      ? `<form class="chat-composer" id="chatMessageForm"><textarea name="message" maxlength="4000" required placeholder="Mesajını yaz…" aria-label="Mesajını yaz"></textarea><button class="btn small" type="submit">Gönder</button></form>` : '';
+    return `${launcher}<section class="chat-window" role="dialog" aria-label="UniPakt sohbeti"><header class="chat-head"><div><strong>UniPakt <span class="chat-verified" aria-label="Onaylı hesap">✓</span></strong><small>${state.chat.roomId ? `${title}${state.chat.roomName === 'UniPakt' ? '' : ' · Kulüp'}` : 'Uçtan uca şifreli mesajlaşma'}</small></div><button class="chat-close" type="button" data-act="chat-close" aria-label="Sohbeti kapat">×</button></header><div class="chat-body">${body}</div>${composer}</section>`;
   };
 
   const renderLogin = (message = '') => {
     if (!DEMO) {
       root.innerHTML = `
         <main class="login"><div class="login-box">
-          <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="/unipakt-logo-bg-white.png?v=3" alt="UniPakt"></a>
+          <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=3" alt="UniPakt"></a>
           <p class="kicker">Panel</p>
           <form class="login-form" id="loginForm" novalidate>
             ${field('E-posta', '<input type="email" name="email" required autocomplete="username">')}
@@ -3585,13 +3930,13 @@
             <p class="form-error" id="loginError" ${message ? '' : 'hidden'}>${esc(message)}</p>
             <button type="submit" class="btn">Giriş yap</button>
           </form>
-          <p class="demo-note">Şifreni unuttuysan UniPakt’tan yeni bir şifre isteyebilirsin; hesaplar yalnızca UniPakt tarafından düzenlenir. <a href="mailto:iletisim@unipakt.com">iletisim@unipakt.com</a></p>
+          <p class="demo-note"><button class="link-btn" type="button" data-act="forgot-password">Şifremi unuttum</button></p>
         </div></main>`;
       return;
     }
     root.innerHTML = `
       <main class="login"><div class="login-box">
-        <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="/unipakt-logo-bg-white.png?v=3" alt="UniPakt"></a>
+        <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=3" alt="UniPakt"></a>
         <p class="kicker">Panel</p>
         <h2>Demo girişi: bir hesap seç</h2>
         <div class="account-list">
@@ -3611,7 +3956,7 @@
       <div class="app">
         <aside class="side">
           <div class="side-brand">
-            <a class="wordmark" href="https://unipakt.com/" title="unipakt.com’a git" aria-label="UniPakt"><img class="wordmark-img" src="/unipakt-logo-bg-white.png?v=3" alt="UniPakt"></a>
+            <a class="wordmark" href="https://unipakt.com/" title="unipakt.com’a git" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=3" alt="UniPakt"></a>
             <p class="kicker">Panel</p>
           </div>
           <nav class="side-nav" aria-label="Panel">
@@ -3624,10 +3969,11 @@
           </div>
         </aside>
         <main class="main"><div class="main-inner">
-          <p class="mobile-user">${esc(me.name)} · ${me.role}</p>
+          ${profileMenu()}
           ${DEMO ? '<div class="demo-bar"><span><b>Demo</b> — veriler yalnızca bu tarayıcıda saklanıyor.</span></div>' : ''}
           ${views[state.view]()}
         </div></main>
+        ${chatWidget()}
       </div>`;
     root.querySelector('.nav-item.active')?.scrollIntoView({ block: 'nearest', inline: 'center' });
     if (state.view === 'etkinlik-olustur') mountEventPage();
@@ -3637,6 +3983,12 @@
   const fail = (error) => { toast(error.message || 'İşlem yapılamadı.'); if (!state.user) render(); };
 
   document.addEventListener('click', (e) => {
+    if (state.profileMenuOpen && !e.target.closest('.profile-menu')) {
+      state.profileMenuOpen = false;
+      const dropdown = document.querySelector('.profile-dropdown');
+      if (dropdown) dropdown.hidden = true;
+      document.querySelector('.profile-trigger')?.setAttribute('aria-expanded', 'false');
+    }
     const goBtn = e.target.closest('[data-go]');
     if (goBtn) { go(goBtn.dataset.go); return; }
     const btn = e.target.closest('[data-act]');
@@ -3660,6 +4012,20 @@
     }
   });
   document.addEventListener('change', (e) => {
+    if (e.target.matches('[data-profile-logo]')) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { toast('Logo JPG, PNG veya WebP olmalı.'); e.target.value = ''; return; }
+      if (profileLogoPreviewUrl) URL.revokeObjectURL(profileLogoPreviewUrl);
+      profileLogoPreviewUrl = URL.createObjectURL(file);
+      const preview = e.target.closest('form')?.querySelector('[data-profile-avatar]');
+      if (preview) preview.innerHTML = avatarMarkup(profileLogoPreviewUrl, 'Logo önizlemesi', 'large');
+      const form = e.target.closest('form');
+      const remove = form?.querySelector('[data-act="profile-avatar-remove"]');
+      if (remove) remove.hidden = false;
+      if (form) form.elements.removeAvatar.checked = false;
+      return;
+    }
     if (e.target.id === 'taskClub') { state.taskClub = e.target.value; render(); return; }
     if (e.target.matches('[data-support-category-filter]')) { state.support.category = e.target.value; render(); return; }
     if (e.target.matches('[data-support-status-filter]')) { state.support.status = e.target.value; render(); return; }
@@ -3669,6 +4035,62 @@
     if (chip) { state.support.status = chip.dataset.supportStatusChip; render(); return; }
   });
   document.addEventListener('submit', async (e) => {
+    if (e.target.id === 'chatMessageForm') {
+      e.preventDefault();
+      const form = e.target, button = form.querySelector('button[type="submit"]'), body = form.elements.message.value;
+      if (!matrixModule || !state.chat.roomId) { toast('Sohbet bağlantısı hazır değil.'); return; }
+      button.disabled = true;
+      try { await matrixModule.sendText(state.chat.roomId, body); form.elements.message.value = ''; state.chat.rooms = matrixModule.listRooms(); render(); }
+      catch (problem) { toast(problem.message || 'Mesaj gönderilemedi.'); button.disabled = false; }
+      return;
+    }
+    if (e.target.id === 'profileForm') {
+      e.preventDefault();
+      const form = e.target, error = form.querySelector('[data-profile-error]'), button = form.querySelector('button[type="submit"]');
+      error.hidden = true; button.disabled = true;
+      try {
+        let avatarUrl = form.elements.removeAvatar.checked ? '' : state.profile.avatarUrl;
+        const selectedLogo = form.elements.avatar.files && form.elements.avatar.files[0];
+        if (selectedLogo) {
+          const { file: optimizedLogo } = await shrinkImage(selectedLogo);
+          avatarUrl = await api.uploadProfileLogo(optimizedLogo);
+        }
+        await api.updateMyProfile({ fullName: form.elements.fullName.value, bio: form.elements.bio.value, collaborationInterests: form.elements.collaborationInterests.value, avatarUrl });
+        toast('Profil kaydedildi.');
+        if (profileLogoPreviewUrl) { URL.revokeObjectURL(profileLogoPreviewUrl); profileLogoPreviewUrl = ''; }
+        render();
+      }
+      catch (problem) { error.textContent = problem.message || 'Profil kaydedilemedi.'; error.hidden = false; }
+      finally { button.disabled = false; }
+      return;
+    }
+    if (e.target.id === 'passwordForm') {
+      e.preventDefault();
+      const form = e.target, error = form.querySelector('[data-password-error]'), button = form.querySelector('button[type="submit"]');
+      error.hidden = true;
+      if (form.elements.newPassword.value !== form.elements.confirmPassword.value) { error.textContent = 'Yeni şifreler eşleşmiyor.'; error.hidden = false; return; }
+      button.disabled = true;
+      try { await api.changePassword(form.elements.currentPassword.value, form.elements.newPassword.value); toast('Şifren değiştirildi.'); render(); }
+      catch (problem) { error.textContent = problem.message || 'Şifre değiştirilemedi.'; error.hidden = false; }
+      finally { button.disabled = false; }
+      return;
+    }
+    if (e.target.id === 'passwordResetForm') {
+      e.preventDefault();
+      const form = e.target, error = form.querySelector('#passwordResetError'), button = form.querySelector('button[type="submit"]');
+      error.hidden = true;
+      if (form.elements.password.value.length < 8) { error.textContent = 'Şifre en az 8 karakter olmalı.'; error.hidden = false; return; }
+      if (form.elements.password.value !== form.elements.confirmPassword.value) { error.textContent = 'Yeni şifreler eşleşmiyor.'; error.hidden = false; return; }
+      button.disabled = true;
+      try {
+        await remote.resetPassword(recoveryToken, form.elements.password.value);
+        recoveryToken = '';
+        const cleanUrl = new URL(location.href); cleanUrl.searchParams.delete('password-reset'); cleanUrl.hash = '';
+        history.replaceState(null, '', cleanUrl.toString());
+        renderLogin('Şifren güncellendi. Yeni şifrenle giriş yap.');
+      } catch (problem) { error.textContent = problem.message || 'Şifre değiştirilemedi.'; error.hidden = false; button.disabled = false; }
+      return;
+    }
     if (e.target.id !== 'loginForm') return;
     e.preventDefault();
     const form = e.target;
@@ -3683,6 +4105,7 @@
       state.view = 'genel';
       render(); window.scrollTo(0, 0);
       loadSiteInboxCount();
+      startMatrix();
     } catch (error) {
       if (!document.body.contains(form)) { renderLogin(error.message); return; }
       err.textContent = error.message || 'Giriş yapılamadı.'; err.hidden = false;
@@ -3694,7 +4117,7 @@
     if (next === state.view) return;
     // Geri tuşuyla kaydedilmemiş formdan çıkılıyorsa önce sor; vazgeçerse adresi geri al.
     if (!leaveEventPage()) { history.pushState(null, '', '#etkinlik-olustur'); return; }
-    state.view = next; if (state.user) render();
+    state.view = next; state.profileMenuOpen = false; if (state.user) render();
   });
   window.addEventListener('beforeunload', (e) => { if (state.view === 'etkinlik-olustur' && evForm.dirty) { e.preventDefault(); e.returnValue = ''; } });
 
@@ -3733,13 +4156,14 @@
   });
 
   const start = async () => {
+    if (recoveryToken) { state.user = null; renderPasswordReset(); return; }
     state.view = location.hash.slice(1) || 'genel';
     if (DEMO) { loadLocal(); render(); return; }
     state.user = null;
     readSession();
     if (!session) { renderLogin(); return; }
     root.innerHTML = '<main class="login"><p class="loading">Yükleniyor…</p></main>';
-    try { await loadRemote(); lastSync = Date.now(); render(); loadSiteInboxCount(); }
+    try { await loadRemote(); lastSync = Date.now(); render(); loadSiteInboxCount(); startMatrix(); }
     catch (error) { state.user = null; renderLogin(error.message); }
   };
   start();

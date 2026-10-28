@@ -1,0 +1,16 @@
+{
+  "name": "unipakt-website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:matrix": "vite build --config vite.matrix.config.js"
+  },
+  "dependencies": {
+    "@zxing/browser": "0.2.1",
+    "matrix-js-sdk": "44.0.0",
+    "qrcode": "1.5.4"
+  },
+  "devDependencies": {
+    "vite": "8.3.5"
+  }
+}

@@ -20,6 +20,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - name: Install chat SDK dependencies
+        run: pnpm install --no-frozen-lockfile
+      - name: Build encrypted chat SDK bundle
+        run: pnpm run build:matrix
       - name: Build _site (one copy of index.html per page path)
         run: python3 tools/build_pages.py
       - uses: actions/configure-pages@v6
