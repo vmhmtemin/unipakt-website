@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
       return reply(502, { message: "Mesajlaşma sunucusuna ulaşılamadı." }, origin);
     }
 
-    const login = await fetch(`${homeserver}/_matrix/client/v3/login`, {
+    const loginMatrix = () => fetch(`${homeserver}/_matrix/client/v3/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -81,8 +81,27 @@ Deno.serve(async (req) => {
         initial_device_display_name: "UniPakt Panel",
       }),
     });
-    const session = await login.json().catch(() => ({}));
-    if (!login.ok || !session.access_token) return reply(502, { message: "Güvenli mesajlaşma oturumu açılamadı." }, origin);
+    let login = await loginMatrix();
+    let session = await login.json().catch(() => ({}));
+    // If the deterministic password secret was rotated after this Matrix user
+    // was first created, repair the account password once and retry.
+    if (!login.ok && session.errcode === "M_FORBIDDEN") {
+      const repaired = await fetch(adminUrl, {
+        method: "PUT", headers,
+        body: JSON.stringify({ password, logout_devices: false }),
+      });
+      if (repaired.ok) {
+        login = await loginMatrix();
+        session = await login.json().catch(() => ({}));
+      } else {
+        const repairError = await repaired.json().catch(() => ({}));
+        console.error("Matrix account password repair failed", repaired.status, repairError.errcode || "unknown");
+      }
+    }
+    if (!login.ok || !session.access_token) {
+      console.error("Matrix login failed", login.status, session.errcode || "unknown");
+      return reply(502, { message: "Güvenli mesajlaşma oturumu açılamadı." }, origin);
+    }
     return reply(200, {
       base_url: homeserver,
       user_id: session.user_id,
