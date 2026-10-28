@@ -26,7 +26,6 @@ export async function connect(session, callbacks = {}) {
     userId: session.user_id,
     deviceId: session.device_id,
     accessToken: session.access_token,
-    verificationMethods: [sdk.VerificationMethod.Sas, sdk.VerificationMethod.ShowQrCode, sdk.VerificationMethod.ScanQrCode],
     cryptoCallbacks: callbacks.cryptoCallbacks || {},
   });
   await client.initRustCrypto();
