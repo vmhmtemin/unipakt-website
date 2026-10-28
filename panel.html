@@ -1619,6 +1619,11 @@
           } catch (_) { return crypto.randomUUID().replaceAll('-', '').slice(0, 20).toUpperCase(); }
         })();
         let matrixSession = saved?.panel_user_id === panelUserId ? saved : null;
+        const isExpiredMatrixSession = (error) => {
+          const errcode = String(error?.errcode || error?.data?.errcode || '');
+          const status = Number(error?.httpStatus || error?.statusCode || error?.status || error?.data?.status || 0);
+          return status === 401 || errcode === 'M_UNKNOWN_TOKEN' || errcode === 'M_MISSING_TOKEN';
+        };
         const connect = async (value) => {
           await matrixModule.connect(value);
           state.chat.rooms = matrixModule.listRooms();
@@ -1629,11 +1634,15 @@
             }
           });
         };
-        try {
-          if (!matrixSession) throw new Error('Oturum gerekiyor.');
-          await connect(matrixSession);
-        } catch (_) {
-          if (matrixSession) localStorage.removeItem(matrixSessionKey(panelUserId));
+        if (matrixSession) {
+          try { await connect(matrixSession); }
+          catch (error) {
+            if (!isExpiredMatrixSession(error)) throw error;
+            localStorage.removeItem(matrixSessionKey(panelUserId));
+            matrixSession = null;
+          }
+        }
+        if (!matrixSession) {
           matrixSession = { ...(await remote.matrixSession(deviceId)), panel_user_id: panelUserId };
           localStorage.setItem(matrixSessionKey(panelUserId), JSON.stringify(matrixSession));
           await connect(matrixSession);

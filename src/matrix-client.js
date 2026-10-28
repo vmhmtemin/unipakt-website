@@ -2,6 +2,7 @@ import * as sdk from 'matrix-js-sdk';
 
 let client = null;
 let activeSession = null;
+let syncPrepared = false;
 const listeners = new Set();
 const publish = (type, detail = {}) => listeners.forEach((fn) => fn({ type, ...detail }));
 
@@ -19,30 +20,36 @@ const eventView = (event, room) => {
 };
 
 export async function connect(session, callbacks = {}) {
-  if (client && activeSession?.user_id === session.user_id && activeSession?.device_id === session.device_id) return client;
+  if (client && syncPrepared && activeSession?.user_id === session.user_id && activeSession?.device_id === session.device_id) return client;
   await disconnect();
-  client = sdk.createClient({
-    baseUrl: session.base_url,
-    userId: session.user_id,
-    deviceId: session.device_id,
-    accessToken: session.access_token,
-    cryptoCallbacks: callbacks.cryptoCallbacks || {},
-  });
-  await client.initRustCrypto();
-  activeSession = { user_id: session.user_id, device_id: session.device_id };
-  client.on(sdk.RoomEvent.Timeline, (event, room) => {
-    const message = eventView(event, room);
-    if (message) publish('message', { message });
-  });
-  client.on(sdk.ClientEvent.Sync, (state) => publish('sync', { state }));
-  await client.startClient({ initialSyncLimit: 30 });
-  await new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error('Sohbetler yüklenemedi.')), 25000);
-    client.once(sdk.ClientEvent.Sync, (state) => {
-      if (state === sdk.SyncState.Prepared) { clearTimeout(timer); resolve(); }
+  try {
+    client = sdk.createClient({
+      baseUrl: session.base_url,
+      userId: session.user_id,
+      deviceId: session.device_id,
+      accessToken: session.access_token,
+      cryptoCallbacks: callbacks.cryptoCallbacks || {},
     });
-  });
-  return client;
+    await client.initRustCrypto();
+    activeSession = { user_id: session.user_id, device_id: session.device_id };
+    client.on(sdk.RoomEvent.Timeline, (event, room) => {
+      const message = eventView(event, room);
+      if (message) publish('message', { message });
+    });
+    client.on(sdk.ClientEvent.Sync, (state) => publish('sync', { state }));
+    await client.startClient({ initialSyncLimit: 30 });
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('Sohbetler yüklenemedi.')), 25000);
+      client.once(sdk.ClientEvent.Sync, (state) => {
+        if (state === sdk.SyncState.Prepared) { clearTimeout(timer); resolve(); }
+      });
+    });
+    syncPrepared = true;
+    return client;
+  } catch (error) {
+    await disconnect();
+    throw error;
+  }
 }
 
 export function onChange(listener) { listeners.add(listener); return () => listeners.delete(listener); }
@@ -117,7 +124,7 @@ export async function requestOwnDeviceVerification() {
 export async function disconnect() {
   if (client) {
     const previous = client;
-    client = null; activeSession = null;
+    client = null; activeSession = null; syncPrepared = false;
     try { previous.stopClient(); } catch (_) {}
   }
   listeners.clear();
