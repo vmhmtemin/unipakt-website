@@ -6,9 +6,13 @@ export default defineConfig({
     outDir: 'assets/matrix',
     emptyOutDir: true,
     target: 'esnext',
-    rollupOptions: {
-      input: 'src/matrix-client.js',
-      output: { entryFileNames: 'matrix-client.js' },
+    // This file is loaded with `import()` from panel.html, so its named exports
+    // must remain available in the generated bundle. Vite app mode strips entry
+    // exports; library mode preserves `connect`, `listRooms`, and the other API.
+    lib: {
+      entry: 'src/matrix-client.js',
+      formats: ['es'],
+      fileName: () => 'matrix-client.js',
     },
   },
 });
