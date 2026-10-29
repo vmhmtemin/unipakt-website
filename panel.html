@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://*.supabase.co https://chat.unipakt.com; connect-src data: https://hcgotmcbwmleeklbvawb.supabase.co https://chat.unipakt.com; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://*.supabase.co https://chat.unipakt.com; connect-src https://hcgotmcbwmleeklbvawb.supabase.co https://chat.unipakt.com; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'">
 <meta name="robots" content="noindex, nofollow">
 <title>UniPakt Panel</title>
 <link rel="icon" href="/favicon.ico" sizes="48x48">
@@ -1655,7 +1655,7 @@
           await connect(matrixSession);
         }
       } catch (error) {
-        state.chat.error = error.message || 'Güvenli sohbet açılamadı.';
+        state.chat.error = error.message || 'Sohbet açılamadı.';
       } finally {
         state.chat.loading = false;
         matrixLoadingPromise = null;
@@ -3921,18 +3921,18 @@
     const title = esc(state.chat.roomName || activeRoom?.name || 'Sohbet');
     const messages = activeRoom?.messages || [];
     let body = '';
-    if (state.chat.loading) body = '<p class="chat-status">Güvenli sohbet yükleniyor…</p>';
+    if (state.chat.loading) body = '<p class="chat-status">Sohbet yükleniyor…</p>';
     else if (state.chat.error) body = `<p class="chat-status">${esc(state.chat.error)}</p>`;
-    else if (!matrixModule) body = '<p class="chat-status">Güvenli sohbet hazırlanıyor…</p>';
+    else if (!matrixModule) body = '<p class="chat-status">Sohbet hazırlanıyor…</p>';
     else if (state.chat.roomId) body = `<div class="chat-messages">${messages.map((m) => `<div class="chat-message ${m.sender === matrixModule.getCurrentUserId() ? 'mine' : ''}">${esc(m.body)}</div>`).join('') || '<p class="chat-status">Henüz mesaj yok. İlk mesajı gönder.</p>'}</div>`;
     else {
-      const rooms = state.chat.rooms.map((r) => `<button class="chat-row" type="button" data-act="chat-open-room" data-id="${esc(r.roomId)}" data-sub="${esc(r.name)}"><span><strong>${esc(r.name)}</strong><small>Uçtan uca şifreli sohbet</small></span></button>`).join('');
+      const rooms = state.chat.rooms.map((r) => `<button class="chat-row" type="button" data-act="chat-open-room" data-id="${esc(r.roomId)}" data-sub="${esc(r.name)}"><span><strong>${esc(r.name)}</strong><small>Özel sohbet</small></span></button>`).join('');
       const clubs = db.clubs.filter((c) => c.id !== state.user).sort(byLabel).map((c) => { const p = db.panelProfiles?.find((x) => x.clubId === c.id); return `<button class="chat-row" type="button" data-act="chat-open-peer" data-id="${esc(c.id)}">${avatarMarkup(p?.avatarUrl, c.name)}<span><strong>${esc(c.name)} <span class="tag">Kulüp</span></strong><small>${esc(c.uni)} · ${esc(c.category || 'Kulüp')}</small></span></button>`; }).join('');
       body = `${rooms ? `<p class="chat-section-title">Sohbetler</p><div class="chat-room-list">${rooms}</div>` : ''}<p class="chat-section-title">Yeni sohbet</p><div class="chat-peer-list">${!isAdmin() ? '<button class="chat-row" type="button" data-act="chat-open-peer" data-id="unipakt"><span><strong>UniPakt <span class="chat-verified">✓</span></strong><small>Resmî destek hesabı</small></span></button>' : ''}${clubs || '<p class="chat-status">Başka kulüp bulunamadı.</p>'}</div>`;
     }
     const composer = state.chat.roomId && !state.chat.error && !state.chat.loading
       ? `<form class="chat-composer" id="chatMessageForm"><textarea name="message" maxlength="4000" required placeholder="Mesajını yaz…" aria-label="Mesajını yaz"></textarea><button class="btn small" type="submit">Gönder</button></form>` : '';
-    return `${launcher}<section class="chat-window" role="dialog" aria-label="UniPakt sohbeti"><header class="chat-head"><div class="chat-head-main">${state.chat.roomId ? '<button class="chat-back" type="button" data-act="chat-back" aria-label="Sohbet listesine dön">‹</button>' : ''}<div><strong>UniPakt <span class="chat-verified" aria-label="Onaylı hesap">✓</span></strong><small>${state.chat.roomId ? `${title}${state.chat.roomName === 'UniPakt' ? '' : ' · Kulüp'}` : 'Uçtan uca şifreli mesajlaşma'}</small></div></div><button class="chat-close" type="button" data-act="chat-close" aria-label="Sohbeti kapat">×</button></header><div class="chat-body">${body}</div>${composer}</section>`;
+    return `${launcher}<section class="chat-window" role="dialog" aria-label="UniPakt sohbeti"><header class="chat-head"><div class="chat-head-main">${state.chat.roomId ? '<button class="chat-back" type="button" data-act="chat-back" aria-label="Sohbet listesine dön">‹</button>' : ''}<div><strong>UniPakt <span class="chat-verified" aria-label="Onaylı hesap">✓</span></strong><small>${state.chat.roomId ? `${title}${state.chat.roomName === 'UniPakt' ? '' : ' · Kulüp'}` : 'Kulüpler arası mesajlaşma'}</small></div></div><button class="chat-close" type="button" data-act="chat-close" aria-label="Sohbeti kapat">×</button></header><div class="chat-body">${body}</div>${composer}</section>`;
   };
 
   const renderLogin = (message = '') => {

@@ -1,9 +1,13 @@
 import * as sdk from 'matrix-js-sdk';
 
-// Matrix client used by panel.html. Every UniPakt chat is a private, encrypted
-// 1:1 room between two panel accounts (club ↔ club or club ↔ UniPakt).
-
-const MEGOLM = 'm.megolm.v1.aes-sha2';
+// Matrix client used by panel.html. Every UniPakt chat is a private 1:1 room
+// between two panel accounts (club ↔ club or club ↔ UniPakt).
+//
+// End-to-end encryption is turned OFF for now: messages travel over HTTPS and
+// are stored readable on chat.unipakt.com. This keeps history visible on every
+// device and lets a club receive messages before it has ever opened the chat.
+// Rooms created while encryption was on cannot be decrypted without crypto,
+// so they are hidden from the list and never reused.
 
 let client = null;
 let activeSession = null;
@@ -12,22 +16,22 @@ const listeners = new Set();
 const publish = (type, detail = {}) => listeners.forEach((fn) => fn({ type, ...detail }));
 
 // Turn a timeline event into the small shape the panel renders.
-// Encrypted events that could not be decrypted are shown as a placeholder
-// instead of silently disappearing.
 const eventView = (event, room) => {
-  const base = {
-    roomId: room?.roomId || event.getRoomId?.() || '',
-    eventId: event.getId?.() || '',
-    sender: event.getSender?.() || '',
-    timestamp: Number(event.getTs?.() || Date.now()),
-    status: event.getStatus?.() || null,
-  };
-  if (event.isDecryptionFailure?.()) return { ...base, body: 'Bu mesaj bu cihazda çözülemedi.', undecryptable: true };
   if (event.getType?.() !== sdk.EventType.RoomMessage) return null;
   const content = event.getContent?.() || {};
   if (content.msgtype !== 'm.text') return null;
-  return { ...base, body: String(content.body || '') };
+  return {
+    roomId: room?.roomId || event.getRoomId?.() || '',
+    eventId: event.getId?.() || '',
+    sender: event.getSender?.() || '',
+    body: String(content.body || ''),
+    timestamp: Number(event.getTs?.() || Date.now()),
+    status: event.getStatus?.() || null,
+  };
 };
+
+// Only plain (unencrypted) rooms are usable without the crypto module.
+const isPlainRoom = (room) => !room.hasEncryptionStateEvent();
 
 // The person on the other side of a 1:1 room (joined or still invited).
 const peerOf = (room) => {
@@ -50,7 +54,7 @@ const joinPendingInvites = async () => {
   if (invites.length) publish('rooms');
 };
 
-export async function connect(session, callbacks = {}) {
+export async function connect(session) {
   if (client && syncPrepared && activeSession?.user_id === session.user_id && activeSession?.device_id === session.device_id) return client;
   await disconnect();
   try {
@@ -59,19 +63,12 @@ export async function connect(session, callbacks = {}) {
       userId: session.user_id,
       deviceId: session.device_id,
       accessToken: session.access_token,
-      cryptoCallbacks: callbacks.cryptoCallbacks || {},
     });
-    await client.initRustCrypto();
     activeSession = { user_id: session.user_id, device_id: session.device_id };
 
     client.on(sdk.RoomEvent.Timeline, (event, room, toStartOfTimeline) => {
-      if (toStartOfTimeline) return;
+      if (toStartOfTimeline || !room || !isPlainRoom(room)) return;
       const message = eventView(event, room);
-      if (message) publish('message', { message });
-    });
-    // Incoming messages arrive encrypted first and are decrypted a moment later.
-    client.on(sdk.MatrixEventEvent.Decrypted, (event) => {
-      const message = eventView(event, client?.getRoom(event.getRoomId()));
       if (message) publish('message', { message });
     });
     client.on(sdk.RoomMemberEvent.Membership, () => publish('rooms'));
@@ -110,7 +107,7 @@ export function getCurrentUserId() { return client?.getUserId() || ''; }
 export function listRooms() {
   if (!client) return [];
   return client.getRooms()
-    .filter((room) => room.getMyMembership() === 'join')
+    .filter((room) => room.getMyMembership() === 'join' && isPlainRoom(room))
     .map((room) => {
       const peer = peerOf(room);
       return {
@@ -128,11 +125,11 @@ export function listRooms() {
 }
 
 export async function openDirect(peerUserId, roomName) {
-  if (!client) throw new Error('Güvenli mesajlaşma başlatılamadı.');
+  if (!client) throw new Error('Sohbet başlatılamadı.');
   const me = client.getUserId();
   // Reuse an existing 1:1 room with this peer, even if they have not joined yet.
   const existing = client.getRooms().find((room) => {
-    if (room.getMyMembership() !== 'join' || !room.hasEncryptionStateEvent()) return false;
+    if (room.getMyMembership() !== 'join' || !isPlainRoom(room)) return false;
     const active = room.getMembers().filter((m) => ['join', 'invite'].includes(m.membership));
     return active.length === 2 && active.some((m) => m.userId === peerUserId) && active.some((m) => m.userId === me);
   });
@@ -143,11 +140,6 @@ export async function openDirect(peerUserId, roomName) {
     is_direct: true,
     visibility: 'private',
     preset: 'trusted_private_chat',
-    initial_state: [{
-      type: sdk.EventType.RoomEncryption,
-      state_key: '',
-      content: { algorithm: MEGOLM },
-    }],
   });
   // Wait until our own sync has the new room *and* the peer's invite, so the
   // room is listed and a second click on the same club reuses it.
@@ -170,38 +162,7 @@ export async function sendText(roomId, text) {
   if (!client) throw new Error('Sohbet bağlantısı yok.');
   const body = String(text || '').trim();
   if (!body || body.length > 4000) throw new Error('Mesaj 1–4000 karakter arasında olmalı.');
-  // An encrypted message can only be read by devices that exist when it is
-  // sent. If the other side has never opened the panel there is no device yet,
-  // and the message would stay unreadable forever — so stop and say so.
-  const room = client.getRoom(roomId);
-  const peer = room ? peerOf(room) : null;
-  if (peer) {
-    const devices = await client.getCrypto().getUserDeviceInfo([peer.userId], true);
-    if (!devices.get(peer.userId)?.size) {
-      throw new Error(`${peer.name || 'Karşı taraf'} sohbeti henüz hiç açmadı. Panele bir kez girdikten sonra mesaj gönderebilirsin.`);
-    }
-  }
   await client.sendTextMessage(roomId, body);
-}
-
-export async function ensureRecoveryBackup(createSecretStorageKey) {
-  if (!client) throw new Error('Sohbet bağlantısı yok.');
-  const crypto = client.getCrypto();
-  const hasBackup = await crypto.checkKeyBackupAndEnable();
-  if (hasBackup) return { created: false };
-  await crypto.bootstrapCrossSigning({ setupNewCrossSigning: true });
-  const recovery = await crypto.createRecoveryKeyFromPassphrase();
-  await crypto.bootstrapSecretStorage({
-    setupNewSecretStorage: true,
-    setupNewKeyBackup: true,
-    createSecretStorageKey: createSecretStorageKey || (async () => recovery),
-  });
-  return { created: true, recoveryKey: recovery.encodedPrivateKey || '' };
-}
-
-export async function requestOwnDeviceVerification() {
-  if (!client) throw new Error('Sohbet bağlantısı yok.');
-  return await client.getCrypto().requestOwnUserVerification();
 }
 
 export async function disconnect() {
@@ -218,8 +179,6 @@ export async function logout() {
   try { if (previous) await previous.logout(true); }
   finally {
     await disconnect();
-    // The Matrix device is deleted on logout, so its local encryption keys must
-    // go too; otherwise a later login with a fresh device would trip over them.
     try { if (previous) await previous.clearStores(); } catch (_) {}
   }
 }
