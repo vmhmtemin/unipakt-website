@@ -8123,7 +8123,7 @@
             <div class="section field-alt" style="padding-top: clamp(90px, 12vw, 130px);">
                 <article class="wrap legal">
                     <h1>KVKK Aydınlatma Metni</h1>
-                    <p class="legal-meta">Kişisel Verilerin İşlenmesine İlişkin Aydınlatma Metni · Son güncelleme: 13 Ekim 2026</p>
+                    <p class="legal-meta">Kişisel Verilerin İşlenmesine İlişkin Aydınlatma Metni · Son güncelleme: 29 Ekim 2026</p>
 
                     <h2>1. Veri Sorumlusu</h2>
                     <p>UniPakt, tüzel kişiliği bulunmayan bir öğrenci topluluğudur. 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında kişisel verileriniz, topluluğu yürüten Mehmet Emin Soyal tarafından veri sorumlusu sıfatıyla işlenir.</p>
@@ -8146,6 +8146,8 @@
                                 <tr><td>Destek talepleri (panel)</td><td>Talep konusu, mesajlar ve talebe eklenen dosyalar</td></tr>
                                 <tr><td>Görev kanıtları (panel)</td><td>Görevin yapıldığını gösteren dosyalar. Bu dosyalar fotoğraf ve fotoğraflarda görünen kişileri içerebilir.</td></tr>
                                 <tr><td>Etkinlik bilgileri (panel)</td><td>Etkinlik adı, açıklaması, tarihi, yeri, düzenleyen kulüp ve etkinlik afişleri</td></tr>
+                                <tr><td>Etkinlik kayıt formu</td><td>Ad soyad, e-posta adresi, etkinliği düzenleyen kulübün sorduğu sorulara verilen cevaplar ve etkinlik girişinde kontrolün yapıldığı zaman</td></tr>
+                                <tr><td>Etkinlik görevlileri (panel)</td><td>Etkinlik girişinde kontrol yapan görevlinin adı soyadı ve e-posta adresi</td></tr>
                                 <tr><td>The Story bölümü</td><td>Ekip üyelerinin adı soyadı, fotoğrafı, görevi ve iletişim bilgileri (e-posta, LinkedIn)</td></tr>
                                 <tr><td>Ortak Kulüpler listesi</td><td>Kulübün adı, üniversitesi, kategorisi ve kulübün yayınlanmasına izin verdiği iletişim bilgileri (e-posta, sosyal medya hesapları, web sitesi)</td></tr>
                             </tbody>
@@ -8161,6 +8163,7 @@
                         <li>Kulüp başkanı hesaplarını oluşturmak, kimliği doğrulamak ve panele erişimi sağlamak</li>
                         <li>Panel üzerinden etkinlik ve duyuru başvurularını yönetmek ve onay süreçlerini yürütmek</li>
                         <li>Destek taleplerini yanıtlamak, görevlerin yapıldığını doğrulamak ve etkinlikleri afişleriyle birlikte sitede duyurmak</li>
+                        <li>Etkinliklere kayıt almak, kayıt olan kişiye giriş kodu vermek, etkinlik girişinde kontrol yapmak ve kayıtları etkinliği düzenleyen kulübe iletmek</li>
                         <li>The Story bölümünde UniPakt ekibini tanıtmak</li>
                         <li>Ortak kulüplerin iletişim bilgilerini, kulübün izniyle sitede yayınlamak</li>
                         <li>Sitenin ve panelin güvenliğini sağlamak, yetkisiz erişimi ve kötüye kullanımı önlemek</li>
@@ -8169,7 +8172,7 @@
                     <h2>4. İşlemenin Hukuki Sebebi</h2>
                     <p>Verileriniz KVKK m.5 uyarınca şu hukuki sebeplere dayanılarak işlenir:</p>
                     <ul>
-                        <li><strong>m.5/2-c:</strong> Bir sözleşmenin kurulması veya ifasıyla doğrudan ilgili olması kaydıyla; UniPakt üyeliği kapsamında kulüp başkanı hesabının açılması, panel kullanımı ve panelde paylaşılan yetkili adı, destek talepleri ve ekleri, görev kanıtları ile etkinlik bilgileri ve afişleri için.</li>
+                        <li><strong>m.5/2-c:</strong> Bir sözleşmenin kurulması veya ifasıyla doğrudan ilgili olması kaydıyla; UniPakt üyeliği kapsamında kulüp başkanı hesabının açılması, panel kullanımı ve panelde paylaşılan yetkili adı, destek talepleri ve ekleri, görev kanıtları ile etkinlik bilgileri ve afişleri için; ayrıca etkinlik kaydınızın alınması ve etkinlik girişinde kontrol edilmesi için.</li>
                         <li><strong>m.5/2-f:</strong> İlgili kişinin temel hak ve özgürlüklerine zarar vermemek kaydıyla veri sorumlusunun meşru menfaati için; mesajların yanıtlanması, başvuruların değerlendirilmesi, etkinliklerin sitede duyurulması ve güvenliğin sağlanması için.</li>
                         <li><strong>m.5/1 (açık rıza):</strong> The Story bölümündeki ekip fotoğrafları ve iletişim bilgileri, ekip üyelerinin açık rızasıyla; kulüp iletişim bilgileri, kulübün açık rızasıyla sitede yayınlanır. Rıza kayıt altına alınır ve her zaman geri çekilebilir; geri çekildiğinde ilgili bilgiler yayından kaldırılır.</li>
                     </ul>
@@ -8179,16 +8182,18 @@
                     <p>Verileriniz yalnızca hizmetin sunulması için gerektiği kadar aşağıdaki hizmet sağlayıcılara aktarılır:</p>
                     <ul>
                         <li><strong>Supabase (veri tabanı, kimlik doğrulama ve dosya depolama):</strong> Verileriniz Supabase'in Almanya'nın Frankfurt şehrindeki sunucularında saklanır.</li>
-                        <li><strong>Resend (bildirim e-postaları):</strong> Bildirim gönderilen kulüp ve yönetici hesaplarının e-posta adresleri ile bildirimlerin içeriği Resend'e iletilir. Resend, Amerika Birleşik Devletleri merkezli bir şirkettir; bu veriler AWS altyapısıyla korunan ABD, İrlanda, Brezilya ve Japonya'daki sunucularda saklanır. İletişim ve Bize Katıl formlarına girdiğiniz bilgiler Resend'e aktarılmaz; yalnızca yeni bir mesaj geldiğini bildiren, kişisel veri içermeyen bir e-posta gönderilir.</li>
+                        <li><strong>Resend (bildirim e-postaları):</strong> Bildirim gönderilen kulüp ve yönetici hesaplarının e-posta adresleri ile bildirimlerin içeriği Resend'e iletilir. Resend, Amerika Birleşik Devletleri merkezli bir şirkettir; bu veriler AWS altyapısıyla korunan ABD, İrlanda, Brezilya ve Japonya'daki sunucularda saklanır. İletişim ve Bize Katıl formlarına girdiğiniz bilgiler Resend'e aktarılmaz; yalnızca yeni bir mesaj geldiğini bildiren, kişisel veri içermeyen bir e-posta gönderilir. Etkinlik görevlilerine, giriş kontrol sayfasının bağlantısını ve erişim kodunu içeren e-posta da Resend üzerinden gönderilir; bu e-postada görevlinin adı, e-posta adresi ve etkinliğin bilgileri bulunur.</li>
                         <li><strong>GitHub Pages (site barındırma):</strong> Site, GitHub'ın ABD merkezli GitHub Pages hizmetiyle yayınlanır. Siteyi açtığınızda IP adresi ve tarayıcı bilgisi gibi bağlantı verileri, sayfanın size iletilmesi için GitHub tarafından işlenir.</li>
                     </ul>
                     <p>Sitenin yazı tipleri sitenin kendisinden yüklenir; Google Fonts gibi üçüncü taraf bir yazı tipi hizmeti kullanılmaz.</p>
                     <p>Bu hizmet sağlayıcıların sunucuları yurt dışında olduğu için verileriniz yurt dışına aktarılmış olur.</p>
-                    <p>Yasal bir zorunluluk bulunmadıkça verileriniz, bu hizmet sağlayıcılar dışında başka üçüncü kişilerle paylaşılmaz.</p>
+                    <p>Etkinlik kayıt formuyla verdiğiniz bilgiler yalnızca etkinliği düzenleyen kulüple paylaşılır: kulübün panel hesabı kayıtları görür, kulübün yetki verdiği giriş görevlileri ise yalnızca giriş kontrolü sırasında adınızı ve kaydınızın geçerli olup olmadığını görür.</p>
+                    <p>Yasal bir zorunluluk bulunmadıkça verileriniz, bu hizmet sağlayıcılar ve etkinliği düzenleyen kulüp dışında başka üçüncü kişilerle paylaşılmaz.</p>
 
                     <h2>6. Saklama Süresi ve Güvenlik Tedbirleri</h2>
                     <p>Verileriniz, işleme amacının gerektirdiği süre boyunca saklanır. Süre dolunca ya da talebiniz üzerine silinir, yok edilir veya anonim hale getirilir.</p>
                     <p>Site formlarından gelen mesajlar en geç 12 ay sonra otomatik olarak silinir. Panel hesabı verileri hesap silinene kadar, kulüp iletişim bilgileri rıza geri çekilene kadar saklanır.</p>
+                    <p>Etkinlik kayıtları, etkinliğin bitişinden 6 ay sonra otomatik olarak silinir. Görevlilere gönderilen giriş kontrol bağlantıları etkinlik bitince geçersiz olur ve 30 gün sonra silinir; görevli listesi, kulüp görevliyi listeden çıkarana kadar saklanır.</p>
                     <p>KVKK m.12 uyarınca verilerin hukuka aykırı işlenmesini ve erişilmesini önlemek için teknik ve idari tedbirler alınır:</p>
                     <ul>
                         <li>Veri iletimi şifreli bağlantı (HTTPS) üzerinden yapılır.</li>
@@ -8213,7 +8218,7 @@
                     <h2>8. Başvuru Yöntemi</h2>
                     <p>Yukarıdaki haklarınızı kullanmak için taleplerinizi <a href="mailto:iletisim@unipakt.com">iletisim@unipakt.com</a> adresine, bize daha önce bildirdiğiniz e-posta adresinizden gönderebilirsiniz. Talebinizde kimliğinizi ve talep konusunu açıkça belirtmeniz gerekir.</p>
                     <p>Taleplerinizi en geç otuz gün içinde yanıtlarız. Yanıtı yetersiz bulursanız ya da süresinde yanıt alamazsanız, Kişisel Verileri Koruma Kurulu'na şikayet hakkınız saklıdır.</p>
-                    <p>Bu metin, 13 Ekim 2026 tarihinde güncellenmiştir ve gerektiğinde yeniden güncellenebilir.</p>
+                    <p>Bu metin, 29 Ekim 2026 tarihinde güncellenmiştir ve gerektiğinde yeniden güncellenebilir.</p>
                     <p class="legal-meta">Bu metin Türkçe hazırlanmıştır. Çeviriler yalnızca bilgi amaçlıdır; çeviri ile Türkçe metin arasında farklılık olması halinde Türkçe metin esas alınır.</p>
                 </article>
             </div>
@@ -11711,7 +11716,7 @@
     const FORM_RPC = 'https://hcgotmcbwmleeklbvawb.supabase.co/rest/v1/rpc/';
     // Okunduğu işaretlenen KVKK Aydınlatma Metni'nin sürümü (metindeki "Son güncelleme" tarihi).
     // Metin değişince bu tarih ve /kvkk/ sayfasındaki tarih birlikte güncellenir.
-    const KVKK_VERSION = '2026-10-13';
+    const KVKK_VERSION = '2026-10-29';
     const FORM_TIMEOUT_MS = 15000;
 
     function fieldValue(id) {
