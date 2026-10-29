@@ -8240,7 +8240,7 @@
                     <h2>4. İşlemenin Hukuki Sebebi</h2>
                     <p>Verileriniz KVKK m.5 uyarınca şu hukuki sebeplere dayanılarak işlenir:</p>
                     <ul>
-                        <li><strong>m.5/2-c:</strong> Bir sözleşmenin kurulması veya ifasıyla doğrudan ilgili olması kaydıyla; UniPakt üyeliği kapsamında kulüp başkanı ve başkanın davet ettiği ekip üyesi hesaplarının açılması, panel kullanımı ve panelde paylaşılan yetkili adı, destek talepleri ve ekleri, görev kanıtları ile etkinlik bilgileri ve afişleri için; ayrıca etkinlik kaydınızın alınması ve etkinlik girişinde kontrol edilmesi için.</li>
+                        <li><strong>m.5/2-c:</strong> Bir sözleşmenin kurulması veya ifasıyla doğrudan ilgili olması kaydıyla; UniPakt üyeliği kapsamında kulüp başkanı ve başkanın davet ettiği ekip üyesi hesaplarının açılması, panel kullanımı ve panelde paylaşılan yetkili adı, destek talepleri ve ekleri, görev kanıtları ile etkinlik bilgileri ve afişleri için; ayrıca etkinlik kaydınızın alınması, bilet ve kulübün seçtiği hatırlatma e-postalarının gönderilmesi ve etkinlik girişinde kontrol edilmesi için.</li>
                         <li><strong>m.5/2-f:</strong> İlgili kişinin temel hak ve özgürlüklerine zarar vermemek kaydıyla veri sorumlusunun meşru menfaati için; mesajların yanıtlanması, başvuruların değerlendirilmesi, etkinliklerin sitede duyurulması ve güvenliğin sağlanması için.</li>
                         <li><strong>m.5/1 (açık rıza):</strong> The Story bölümündeki ekip fotoğrafları ve iletişim bilgileri, ekip üyelerinin açık rızasıyla; kulüp iletişim bilgileri, kulübün açık rızasıyla sitede yayınlanır. Rıza kayıt altına alınır ve her zaman geri çekilebilir; geri çekildiğinde ilgili bilgiler yayından kaldırılır.</li>
                     </ul>
@@ -9480,7 +9480,7 @@
                 <div class="reg-head"><div><h2 id="regTitle">Kaydı iptal et</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
                 ${ask ? `<p class="reg-lead">Kayıtlı e-posta adresini yaz; kaydın varsa iptal kodu bu adrese gelir.</p>
                 <label class="reg-field"><span>E-posta</span><input type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email"></label>`
-                : `<p class="reg-lead"><b data-no-i18n>${esc(who.name || '')}</b> kaydını iptal etmek için kayıtlı e-postaya bir kod göndereceğiz. İptal edilince giriş kodu geçersiz olur${e.reg?.waiting ? ', yerin bekleme listesindeki sıradakine geçer' : ''}.</p>`}
+                : `<p class="reg-lead">${who.name ? `<b data-no-i18n>${esc(who.name)}</b> kaydını` : `<b data-no-i18n>${esc(who.code || '')}</b> kodlu kaydını`} iptal etmek için kayıtlı e-postaya bir kod göndereceğiz. İptal edilince giriş kodu geçersiz olur${e.reg?.waiting ? ', yerin bekleme listesindeki sıradakine geçer' : ''}.</p>`}
                 <p class="reg-error" data-reg-error role="alert"></p>
                 <button type="submit" class="btn-pill">İptal kodu gönder</button>
             </form>`;
@@ -9543,8 +9543,15 @@
             } catch (_) {}
             if (current === e) render(e);
         }
-        // E-postadaki bağlantılar: #bilet=… (bileti her cihazda açar) ve #teklif=… (bekleme listesinde yer teklifi).
+        // E-postadaki bağlantılar: #bilet=… (bileti her cihazda açar), #teklif=… (bekleme listesinde yer teklifi)
+        // ve #iptal=KOD (hatırlatma e-postasındaki "kaydını iptal et"; iptal yine e-postaya gelen kodla onaylanır).
         async function handleRegHash(e) {
+            const c = (location.hash || '').match(/^#iptal=([A-Za-z0-9]{6})$/);
+            if (c) {
+                history.replaceState(history.state, '', location.pathname + location.search);
+                openRegCancel(e, { code: c[1].toUpperCase(), name: '' });
+                return;
+            }
             const m = (location.hash || '').match(/^#(bilet|teklif)=([A-Za-z0-9_-]{10,100})$/);
             if (!m) return;
             history.replaceState(history.state, '', location.pathname + location.search);
@@ -10898,7 +10905,7 @@
             params.delete('id');
         const query = params.toString();
         // E-postadaki bilet / yer teklifi bağlantıları (#bilet=… / #teklif=…) etkinlik sayfası okuyana kadar kalır.
-        const keepHash = route === 'etkinlik' && /^#(bilet|teklif)=/.test(location.hash) ? location.hash : '';
+        const keepHash = route === 'etkinlik' && /^#(bilet|teklif|iptal)=/.test(location.hash) ? location.hash : '';
         const url = routePath(route) + (query ? `?${query}` : '') + keepHash;
         const current = location.pathname + location.search + location.hash;
         try {

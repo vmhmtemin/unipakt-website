@@ -20,7 +20,8 @@
 //   Cancelling (code e-mailed to the registered address):
 //   { action: "cancel_start", event_id, email | code } -> { cancel_id, email (masked) }
 //   { action: "cancel_resend", cancel_id } / { action: "cancel_verify", cancel_id, code }
-//   { action: "sweep", event_id? }  expired offers out, freed seats offered (cron every 10 min)
+//   { action: "sweep", event_id? }  expired offers out, freed seats offered (cron every 10 min);
+//        without event_id also sends the due reminder e-mails (1 day / 2 hours before, per club setting)
 //
 // Limits: the code lives 15 minutes, 5 wrong tries end it, a new code at most every
 // 60 seconds and 5 codes per registration. start_event_registration (database)
@@ -211,6 +212,36 @@ const runSweep = async (eventId?: string) => {
   return ids.size;
 };
 
+// Hatırlatma (kulübün kayıt ayarında seçtiği: 1 gün / 2 saat önce). Bilet bağlantısı
+// yeniden üretilmez (ilk e-postadaki bağlantı çalışmaya devam etsin); kod ve QR ekte.
+const sendReminder = async (r: { id: string; event_id: string; kind: string; code: string; full_name: string; email: string }) => {
+  const ev = await eventOf(r.event_id);
+  const soon = r.kind === "2h" ? "2 saat sonra başlıyor" : "Yarın görüşüyoruz";
+  let attachments: unknown[] | undefined;
+  try {
+    const png = await QRCode.toDataURL(`UP1:${ev.id}:${r.code}`, { margin: 2, width: 720, errorCorrectionLevel: "M" });
+    attachments = [{ filename: `UniPakt-bilet-${r.code}.png`, content: png.split(",")[1] }];
+  } catch (error) { console.error("qr failed", error); }
+  const page = `${SITE}/etkinlik/?id=${ev.id}`;
+  const cancel = `${page}#iptal=${r.code}`;
+  const letters = r.code.split("").map((c) =>
+    `<td style="width:46px;height:58px;background:#F2F1EE;border-radius:10px;text-align:center;vertical-align:middle;font:800 28px/58px Arial,Helvetica,sans-serif;color:#0C0C0D;">${esc(c)}</td><td style="width:6px;"></td>`).join("");
+  const html = frame(soon.toLocaleUpperCase("tr-TR"), `${eventBlock(ev)}
+  <p style="margin:22px 0 18px;font:400 16px/1.6 Arial,Helvetica,sans-serif;color:#C9C8C4;">Merhaba ${esc(r.full_name)}, kaydın hazır. Girişte QR'ı (ekte) ya da bu kodu göster.</p>
+  <table role="presentation" cellspacing="0" cellpadding="0"><tr>${letters}</tr></table>
+  <p style="margin:26px 0 0;">${button(page, "Etkinlik sayfası")}</p>
+  <p style="margin:22px 0 0;font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#9A9995;">Gelemeyeceksen <a href="${esc(cancel)}" style="color:#FF5A1F;">kaydını iptal et</a>; yerin bekleyen birine geçsin.</p>`);
+  const text = `${ev.title}\n${whenWhere(ev).join("\n")}\n\nMerhaba ${r.full_name}, girişte QR'ı (ekte) ya da bu kodu göster: ${r.code}\n\nEtkinlik sayfası: ${page}\nGelemeyeceksen kaydını iptal et: ${cancel}`;
+  return mail(r.email, `${soon}: ${ev.title}`, html, text, attachments);
+};
+const runReminders = async () => {
+  const { data, error } = await supabase.rpc("due_registration_reminders", { p_limit: 200 });
+  if (error) { console.error("reminders failed", error.message); return 0; }
+  let sent = 0;
+  for (const r of data ?? []) if (await sendReminder(r)) sent++;
+  return sent;
+};
+
 const cancelEmail = (name: string, ev: Ev, code: string) => {
   const digits = code.split("").map((d) =>
     `<td style="width:44px;height:56px;background:#1E1E21;border-radius:12px;text-align:center;vertical-align:middle;font:700 26px/56px Arial,Helvetica,sans-serif;color:#F2F1EE;">${esc(d)}</td><td style="width:8px;"></td>`).join("");
@@ -265,7 +296,9 @@ Deno.serve(async (req) => {
 
     if (action === "sweep") {
       const eventId = String(body.event_id ?? "");
-      return reply(200, { offered: await runSweep(UUID.test(eventId) ? eventId : undefined) });
+      if (UUID.test(eventId)) return reply(200, { offered: await runSweep(eventId) });
+      const offered = await runSweep();
+      return reply(200, { offered, reminded: await runReminders() });
     }
 
     if (action === "ticket" || action === "offer" || action === "offer_accept" || action === "offer_decline") {

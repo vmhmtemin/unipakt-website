@@ -708,6 +708,12 @@
   .staff-head h3 .tag { margin-left: 6px; vertical-align: middle; }
   .team-perms { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
   .team-checks { max-height: none; }
+  .regb-rem { display: flex; gap: 8px; flex-wrap: wrap; }
+  .regb-rem label { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border: 1px solid var(--border-strong); border-radius: 999px; cursor: pointer; font-size: 14px; }
+  .field .regb-rem input[type="checkbox"], .regb-rem input[type="checkbox"] { width: auto; padding: 0; margin: 0; border-radius: 4px; box-shadow: none; flex: none; }
+  .regb-rem label { white-space: nowrap; }
+  .regb-rem label:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .rb-rem > div:first-child { flex: 1 1 280px; }
   .act-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
   .act-filters input { flex: 1 1 260px; width: auto; }
   .act-filters select { width: auto; }
@@ -1488,7 +1494,7 @@
       const count = db.registrations.filter((r) => r.event_id === eventId).length;
       if (s.questions !== undefined && count && JSON.stringify(old?.questions || []) !== JSON.stringify(s.questions)) throw new Error('Kayıt gelmeye başladığı için form soruları artık değiştirilemez.');
       db.regSettings[eventId] = { event_id: eventId, enabled: s.enabled ?? old?.enabled ?? true, is_open: s.open ?? old?.is_open ?? true, deadline: s.deadline || null,
-        questions: s.questions ?? old?.questions ?? [], board_columns: s.columns ?? old?.board_columns ?? [] };
+        questions: s.questions ?? old?.questions ?? [], board_columns: s.columns ?? old?.board_columns ?? [], reminders: s.reminders ?? old?.reminders ?? ['1d'] };
       save();
     },
     async registrations(eventId) { return (db.registrations || []).filter((r) => r.event_id === eventId); },
@@ -1764,6 +1770,7 @@
     async setRegistration(eventId, s) {
       await rest('rpc/set_event_registration', { method: 'POST', body: { p_event: eventId, p_enabled: s.enabled, p_open: s.open, p_deadline: s.deadline || null,
         p_questions: s.questions === undefined ? null : s.questions, p_columns: s.columns === undefined ? null : s.columns } });
+      if (Array.isArray(s.reminders) && s.enabled !== false) await rest('rpc/set_registration_reminders', { method: 'POST', body: { p_event: eventId, p_reminders: s.reminders } });
     },
     async registrations(eventId) {
       return (await rest(`event_registrations?select=id,code,full_name,email,answers,created_at,checked_in_at,checked_in_by,status,offered_at,offer_expires_at&event_id=eq.${encodeURIComponent(eventId)}&order=created_at.asc&limit=10000`)) || [];
@@ -3644,7 +3651,7 @@
       if (regProblem) throw new Error(regProblem);
       const newId = await api.addEvent({ ...f, kind: evForm.kind, visible });
       if (reg?.enabled && newId) {
-        try { await api.setRegistration(newId, { enabled: true, open: true, deadline: fromLocalInput(reg.deadline), questions: cleanRegQuestions(reg), columns: [] }); }
+        try { await api.setRegistration(newId, { enabled: true, open: true, deadline: fromLocalInput(reg.deadline), questions: cleanRegQuestions(reg), columns: [], reminders: reg.reminders || [] }); }
         catch (error) { toast(`Etkinlik kaydedildi ama kayıt formu kaydedilemedi: ${error.message}. Etkinliklerim → Kayıtlar’dan tekrar dene.`); }
       }
       toast(isAdmin() ? (evForm.kind === 'partner' ? 'Ortak Arama’da yayınlandı.' : 'Etkinlik takvime eklendi.') : 'Etkinlik onaya gönderildi.');
@@ -4260,7 +4267,7 @@
   const REG_LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
   const REG_TYPES = [['text', 'Kısa yanıt'], ['choice', 'Çoktan seçmeli']];
   const newQid = () => `q${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
-  const freshRegDraft = () => ({ enabled: false, deadline: '', questions: [] });
+  const freshRegDraft = () => ({ enabled: false, deadline: '', questions: [], reminders: ['1d'] });
   // <input type="datetime-local"> works in local wall time; the panel is Istanbul (UTC+03:00).
   const toLocalInput = (iso) => (iso ? new Date(new Date(iso).getTime() + 3 * 3600000).toISOString().slice(0, 16) : '');
   const fromLocalInput = (v) => (v ? new Date(`${v}:00+03:00`).toISOString() : null);
@@ -4269,6 +4276,9 @@
   const regDraft = () => (state.view === 'kayitlar' ? state.regBoard.edit : (evForm.reg ||= freshRegDraft()));
   const ownsEventUi = (e) => !!e && (isAdmin() || e.ownerId === state.user);
 
+  const REMINDERS = [['1d', '1 gün önce'], ['2h', '2 saat önce']];
+  const reminderChecks = (on, attr) => `<div class="regb-rem">${REMINDERS.map(([k, l]) => `<label><input type="checkbox" ${attr} value="${k}" ${on.includes(k) ? 'checked' : ''}> ${l}</label>`).join('')}</div>`;
+  const REMINDER_HINT = 'Kayıtlı herkese giriş kodu, QR ve “gelemeyeceksen iptal et” bağlantısıyla gider. 2 saat önceki hatırlatma yalnızca etkinlik saati girildiyse gider. İkisini de boş bırakırsan hatırlatma gitmez.';
   const regBuilderHtml = (d) => {
     if (!d) return '';
     const qs = d.questions.map((q, i) => `
@@ -4298,6 +4308,7 @@
       <label class="evp-check"><input type="checkbox" data-regb="enabled" ${d.enabled ? 'checked' : ''}><span>UniPakt üzerinden kayıt topla<small>Etkinlik sayfasında “Kayıt ol” düğmesi çıkar. Kayıt olan kişiye QR ve 6 karakterli giriş kodu gösterilir.</small></span></label>
       ${d.enabled ? `
         ${evField('Son kayıt zamanı', `<input type="datetime-local" data-regb="deadline" value="${esc(d.deadline)}">`, { opt: true, hint: 'Boş bırakırsan kayıtlar etkinlik bitene kadar açık kalır. Kontenjan girdiysen kontenjan dolunca da kapanır.' })}
+        ${d.reminders ? `<div class="field"><span>Hatırlatma e-postası</span>${reminderChecks(d.reminders, 'data-regb="rem"')}<small class="hint">${esc(REMINDER_HINT)}</small></div>` : ''}
         <div class="regb-fixed" aria-label="Her formda bulunan sabit sorular">
           <div class="regb-fixed-head"><strong>Sabit sorular</strong><small>Her kayıt formunda bulunur, kaldırılamaz.</small></div>
           <div class="regb-fixed-row"><span class="regb-lock" aria-hidden="true">${REG_LOCK}</span><span>Ad soyad</span><em>Kısa yanıt · zorunlu</em></div>
@@ -4410,6 +4421,7 @@
     const d = regDraft(); if (!d) return;
     const k = el.dataset.regb, i = Number(el.dataset.i);
     if (k === 'enabled') { d.enabled = el.checked; rerenderRegb(); }
+    else if (k === 'rem') d.reminders = [...document.querySelectorAll('[data-regb="rem"]:checked')].map((x) => x.value);
     else if (k === 'req') d.questions[i].required = el.checked;
     else if (k === 'multi') { d.questions[i].multiple = el.value === '1'; rerenderRegb(); }
     else if (k === 'type') {
@@ -4516,6 +4528,10 @@
           <label class="field" style="flex:1;max-width:320px"><span>Son kayıt zamanı</span><input type="datetime-local" data-reg-deadline value="${esc(toLocalInput(s.deadline))}"></label>
           <button class="btn small ghost" data-act="reg-deadline-save">Kaydet</button>
         </div>
+        <div class="rb-set-row rb-rem">
+          <div><strong>Hatırlatma e-postası</strong><small>${esc(REMINDER_HINT)}</small></div>
+          ${reminderChecks(Array.isArray(s.reminders) ? s.reminders : ['1d'], 'data-reg-rem')}
+        </div>
         <div class="rb-set-row rb-links">
           <a class="link-btn" href="https://unipakt.com/etkinlik/?id=${esc(e.id)}" target="_blank" rel="noopener">Etkinlik sayfasını aç ↗</a>
           ${rows.length ? '<span class="hint">Kayıt geldiği için form soruları artık değiştirilemez.</span>' : '<button class="link-btn" data-act="reg-edit">Formu düzenle</button>'}
@@ -4580,6 +4596,14 @@
       <p class="hint rs-foot">Bu özet ${esc(new Date().toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }))} itibarıyla UniPakt Paneli'nden alınmıştır. Kişisel bilgi içermez.</p>
     </section>`;
   };
+  document.addEventListener('change', async (e) => {
+    if (!e.target.matches?.('[data-reg-rem]')) return;
+    const reminders = [...document.querySelectorAll('[data-reg-rem]:checked')].map((x) => x.value);
+    document.querySelectorAll('[data-reg-rem]').forEach((x) => { x.disabled = true; });
+    try { await saveRegSettings({ reminders }); toast(reminders.length ? `Hatırlatma: ${REMINDERS.filter(([k]) => reminders.includes(k)).map(([, l]) => l).join(' ve ')}.` : 'Hatırlatma e-postaları kapatıldı.'); }
+    catch (error) { toast(error.message || 'Kaydedilemedi.'); }
+    if (state.view === 'kayitlar' && !busy()) render();
+  });
   const saveRegSettings = async (patch) => {
     const b = state.regBoard, s = b.settings || {};
     await api.setRegistration(b.eventId, { enabled: s.enabled ?? true, open: s.is_open ?? true, deadline: s.deadline || null, ...patch });
