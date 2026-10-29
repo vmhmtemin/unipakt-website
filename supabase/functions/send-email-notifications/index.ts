@@ -48,8 +48,24 @@ function notificationType(type: string): string {
     announcement_decision: "Duyuru Sonucu",
     event_removed: "Etkinlik Kaldırıldı",
     event_published: "Etkinlik Yayında",
+    event_submission_decision: "Etkinlik Başvurusu Sonucu",
+    calendar_decision: "Takvim Talebi Sonucu",
+    event_unpublished: "Etkinlik Yayından Kaldırıldı",
+    partner_removed: "Ortaklık Kaldırıldı",
+    registration_full: "Kontenjan Doldu",
+    registration_digest: "Günlük Kayıt Özeti",
   };
   return labels[type] || "UniPakt Bildirimi";
+}
+
+// Kulüp bildirimleri başkana ve bu konuda yetkisi olan ekip üyelerine gider.
+function permFor(type: string): string | null {
+  if (type.startsWith("registration_")) return "registrations";
+  if (type.startsWith("task_")) return "tasks";
+  if (type.startsWith("announcement_")) return "announcements";
+  if (type.startsWith("support")) return "support";
+  if (type.startsWith("event_") || type.startsWith("partner") || type.startsWith("calendar_")) return "events";
+  return null;
 }
 
 function buildHtml(notification: any): string {
@@ -132,7 +148,8 @@ Deno.serve(async (req) => {
     if (nError) throw nError;
     if (!notification) return json(404, { error: "Bildirim bulunamadı." });
 
-    const recipients: string[] = [];
+    const found = new Set<string>();
+    const add = (email?: string | null) => { const e = String(email ?? "").trim().toLowerCase(); if (e) found.add(e); };
 
     if (notification.recipient_club_id) {
       const { data: club, error } = await supabase
@@ -141,15 +158,28 @@ Deno.serve(async (req) => {
         .eq("id", notification.recipient_club_id)
         .maybeSingle();
       if (error) throw error;
-      if (club?.email) recipients.push(club.email);
+      add(club?.email);
+      const perm = permFor(String(notification.type ?? ""));
+      const { data: people, error: pError } = await supabase
+        .from("profiles")
+        .select("id, role, permissions")
+        .eq("club_id", notification.recipient_club_id)
+        .in("role", ["club", "member"]);
+      if (pError) throw pError;
+      for (const person of people ?? []) {
+        if (person.role === "member" && !(perm && Array.isArray(person.permissions) && person.permissions.includes(perm))) continue;
+        const { data } = await supabase.auth.admin.getUserById(person.id);
+        add(data?.user?.email);
+      }
     } else if (notification.recipient_role === "admin") {
       const { data: admins, error } = await supabase.from("profiles").select("id").eq("role", "admin");
       if (error) throw error;
       for (const admin of admins ?? []) {
         const { data } = await supabase.auth.admin.getUserById(admin.id);
-        if (data?.user?.email) recipients.push(data.user.email);
+        add(data?.user?.email);
       }
     }
+    const recipients = [...found];
 
     if (!recipients.length) return json(200, { success: true, skipped: true });
 

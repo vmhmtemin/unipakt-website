@@ -708,6 +708,7 @@
   .staff-head h3 .tag { margin-left: 6px; vertical-align: middle; }
   .team-perms { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
   .team-checks { max-height: none; }
+  .notif-body { white-space: pre-line; }
   .regb-rem { display: flex; gap: 8px; flex-wrap: wrap; }
   .regb-rem label { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border: 1px solid var(--border-strong); border-radius: 999px; cursor: pointer; font-size: 14px; }
   .field .regb-rem input[type="checkbox"], .regb-rem input[type="checkbox"] { width: auto; padding: 0; margin: 0; border-radius: 4px; box-shadow: none; flex: none; }
@@ -3862,7 +3863,7 @@
 
     bildirimler() {
       const list = [...(db.notifications || [])].sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
-      const row = (n) => { const app = notificationApplication(n); const pending = n.type === 'partnership_application' ? !!(app?.p.status === 'pending') : (n.actionable && !n.resolved); return `<article class="card item notification ${!n.readAt ? 'unread' : ''}"><div class="meta top"><span class="tag ${pending?'wait':'ok'}">${pending?'İşlem bekliyor':'Bilgi'}</span><span>${fmtStamp(n.createdAt)}</span></div><h3>${esc(n.title)}</h3><p class="body">${esc(n.body)}</p><div class="actions">${n.type === 'partnership_application' ? notificationAction(n) : (pending ? notificationAction(n) : '')}${!n.readAt ? `<button class="btn ghost small" data-act="notif-read" data-id="${esc(n.id)}">Okundu</button>` : ''}${!pending ? `<button class="btn ghost small" data-act="notif-delete" data-id="${esc(n.id)}">Sil</button>` : ''}</div></article>`; };
+      const row = (n) => { const app = notificationApplication(n); const pending = n.type === 'partnership_application' ? !!(app?.p.status === 'pending') : (n.actionable && !n.resolved); return `<article class="card item notification ${!n.readAt ? 'unread' : ''}"><div class="meta top"><span class="tag ${pending?'wait':'ok'}">${pending?'İşlem bekliyor':'Bilgi'}</span><span>${fmtStamp(n.createdAt)}</span></div><h3>${esc(n.title)}</h3><p class="body notif-body">${esc(n.body)}</p><div class="actions">${n.type === 'partnership_application' ? notificationAction(n) : (pending ? notificationAction(n) : '')}${!n.readAt ? `<button class="btn ghost small" data-act="notif-read" data-id="${esc(n.id)}">Okundu</button>` : ''}${!pending ? `<button class="btn ghost small" data-act="notif-delete" data-id="${esc(n.id)}">Sil</button>` : ''}</div></article>`; };
       return `${head('Bildirimler','Talepler, sonuçlar ve seninle ilgili önemli gelişmeler. Sonuçlandırılmamış talepler silinemez.')}${list.length ? `<div class="stack">${list.map(row).join('')}</div>` : empty('Henüz bildirimin yok.')}`;
     },
 
