@@ -17,3 +17,4 @@ _site/
 node_modules/
 assets/matrix/
 assets/qr/
+__pycache__/
