@@ -6220,6 +6220,17 @@
     .reg-choices input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--on-accent, #000); }
     .reg-choices input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
     .reg-error { margin: 0; min-height: 20px; font-size: 14px; color: #F87171; }
+    .reg-hint { font-size: 12.5px; color: color-mix(in srgb, var(--ink) 55%, transparent); }
+    .reg-lead { margin: 0; line-height: 1.55; color: color-mix(in srgb, var(--ink) 75%, transparent); }
+    .reg-lead b { color: var(--ink); }
+    .reg-field input.reg-otp { font: 800 30px/1 'Archivo', sans-serif; letter-spacing: .5em; text-align: center; padding: 14px 10px 14px calc(10px + .5em); }
+    .reg-links { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .reg-link { background: none; border: 0; padding: 4px 0; color: var(--ink); font: inherit; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; opacity: .8; }
+    .reg-link:disabled { opacity: .4; cursor: default; text-decoration: none; }
+    .reg-people { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+    .reg-person { padding: 7px 14px; border: 1px solid var(--border-strong); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; }
+    .reg-person[aria-selected="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .ev-ticket-act .ev-reg-mine { background: transparent; color: var(--ink); border: 1px solid var(--border-strong); }
     .reg-done { text-align: center; }
     .reg-qr { width: min(240px, 70vw); margin: 4px auto 0; padding: 12px; border-radius: 18px; background: #fff; }
     .reg-qr svg { display: block; width: 100%; height: auto; }
@@ -9061,23 +9072,37 @@
         let loadingId = '';
 
         /* ---- UniPakt üzerinden kayıt ----
-           public_event_registration(p_event) formu ve durumunu verir; kayıt
-           register_for_event() ile yapılır ve 6 karakterli giriş kodunu döndürür.
-           Kod ve QR yalnızca ekranda gösterilir; aynı tarayıcıda tekrar açılabilsin
-           diye bu tarayıcıya da kaydedilir. QR içeriği: UP1:<etkinlik id>:<KOD>. */
+           public_event_registration(p_event) formu ve durumunu verir. Kayıt iki adımlı:
+           event-register fonksiyonu e-postaya 6 haneli doğrulama kodu gönderir; kod girilince
+           kayıt kesinleşir ve 6 karakterli giriş kodu + QR gösterilir. Kayıtlar bu tarayıcıda
+           da tutulur (aynı tarayıcıdan başkaları için de kayıt açılabilir).
+           QR içeriği: UP1:<etkinlik id>:<KOD>. */
+        const REG_FN = 'https://hcgotmcbwmleeklbvawb.supabase.co/functions/v1/event-register';
         const REG_KEY = (id) => `unipakt-reg.${id}`;
-        const savedReg = (id) => { try { const v = JSON.parse(localStorage.getItem(REG_KEY(id)) || 'null'); return v && /^[A-Z0-9]{6}$/.test(v.code) ? v : null; } catch (_) { return null; } };
+        const savedRegs = (id) => {
+            try {
+                let v = JSON.parse(localStorage.getItem(REG_KEY(id)) || '[]');
+                if (v && !Array.isArray(v)) v = [v];                         // eski biçim: tek kayıt
+                return (Array.isArray(v) ? v : []).filter((r) => r && /^[A-Z0-9]{6}$/.test(r.code));
+            } catch (_) { return []; }
+        };
+        const addSavedReg = (id, reg) => {
+            const list = savedRegs(id).filter((r) => r.code !== reg.code);
+            list.push(reg);
+            try { localStorage.setItem(REG_KEY(id), JSON.stringify(list.slice(-20))); } catch (_) {}
+        };
         const REG_REASON = { closed: 'Kayıtlar kapalı', deadline: 'Kayıt süresi doldu', full: 'Kontenjan doldu', ended: 'Etkinlik sona erdi' };
         function regButtonHtml(e) {
             const reg = e.reg && e.reg.enabled ? e.reg : null;
             if (!reg) return e.registration ? `<a class="btn-pill ev-cta" href="${esc(e.registration)}" target="_blank" rel="noopener noreferrer">Kayıt ol ↗</a>` : '';
-            if (savedReg(e.id)) return '<button type="button" class="btn-pill ev-cta" data-ev-myreg>Kaydını göster</button>';
-            if (reg.open) return '<button type="button" class="btn-pill ev-cta" data-ev-register>Kayıt ol</button>';
-            return `<span class="ev-reg-closed">${esc(REG_REASON[reg.reason] || 'Kayıtlar kapalı')}</span>`;
+            const mine = savedRegs(e.id);
+            const show = mine.length ? `<button type="button" class="btn-pill ${reg.open ? 'ghost ev-reg-mine' : 'ev-cta'}" data-ev-myreg>${mine.length > 1 ? `Kayıtlarım (<span data-no-i18n>${mine.length}</span>)` : 'Kaydını göster'}</button>` : '';
+            if (reg.open) return `${show}<button type="button" class="btn-pill ev-cta" data-ev-register>${mine.length ? 'Yeni kayıt oluştur' : 'Kayıt ol'}</button>`;
+            return `${show}<span class="ev-reg-closed">${esc(REG_REASON[reg.reason] || 'Kayıtlar kapalı')}</span>`;
         }
         function regNoteHtml(e) {
             const reg = e.reg && e.reg.enabled && e.reg.open ? e.reg : null;
-            if (!reg || savedReg(e.id)) return '';
+            if (!reg) return '';
             const parts = [];
             if (reg.deadline) {
                 const d = new Date(reg.deadline);
@@ -9103,21 +9128,35 @@
             dlg.showModal();
             return dlg;
         };
-        // Code + QR after registering (or "Kaydını göster").
-        async function showRegDone(e, saved, dlg) {
+        const regCall = async (payload) => {
+            const res = await fetch(REG_FN, { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) { const err = new Error(data.message || 'İşlem yapılamadı.'); err.data = data; throw err; }
+            return data;
+        };
+        const netError = (error) => (error.message === 'Failed to fetch' ? 'Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.' : error.message);
+        // Code + QR after registering (or "Kaydını göster"); several registrations → pick one.
+        async function showRegDone(e, saved, dlg, fresh = false) {
+            const all = savedRegs(e.id);
+
             const html = `<div class="reg-in reg-done">
-                <div class="reg-head"><div style="text-align:left"><h2 id="regTitle">Kaydın tamam</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                <div class="reg-head"><div style="text-align:left"><h2 id="regTitle">${fresh ? 'Kaydın tamam' : 'Kayıt'}</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                ${all.length > 1 ? `<div class="reg-people" role="tablist" aria-label="Bu tarayıcıdaki kayıtlar">${all.map((r) => `<button type="button" role="tab" class="reg-person" aria-selected="${r.code === saved.code}" data-reg-pick="${esc(r.code)}" data-no-i18n>${esc(r.name)}</button>`).join('')}</div>` : ''}
                 <div class="reg-qr" data-reg-qr aria-label="Giriş QR kodu"></div>
                 <div class="reg-code" data-no-i18n aria-label="Giriş kodu">${esc(saved.code)}</div>
                 <p class="reg-name" data-no-i18n>${esc(saved.name)}</p>
-                <p>Girişte bu QR kodu ya da 6 karakterli kodu göstereceksin. Bu ekranın görüntüsünü al; kod e-postayla gönderilmez.</p>
-                <div class="reg-actions"><button type="button" class="btn-pill" data-reg-png>QR’ı indir</button><button type="button" class="btn-pill ghost" data-reg-close>Kapat</button></div>
+                <p>Girişte bu QR kodu ya da 6 karakterli kodu göstereceksin. Bu ekranın görüntüsünü al ya da QR’ı indir.</p>
+                <div class="reg-actions"><button type="button" class="btn-pill" data-reg-png>QR’ı indir</button>${e.reg?.open ? '<button type="button" class="btn-pill ghost" data-reg-new>Başka biri için kayıt oluştur</button>' : ''}<button type="button" class="btn-pill ghost" data-reg-close>Kapat</button></div>
             </div>`;
             if (dlg) dlg.innerHTML = html; else dlg = regDialog(html);
             const svg = await qrFor(e.id, saved.code);
             const box = dlg.querySelector('[data-reg-qr]');
             if (box) { if (svg) box.innerHTML = svg; else box.hidden = true; }
             dlg.querySelector('[data-reg-png]')?.addEventListener('click', () => downloadQrPng(svg, `${e.title}-${saved.code}`));
+            dlg.querySelector('[data-reg-new]')?.addEventListener('click', () => openRegForm(e, null, dlg));
+            dlg.querySelectorAll('[data-reg-pick]').forEach((b) => b.addEventListener('click', () => {
+                const r = all.find((x) => x.code === b.dataset.regPick); if (r) showRegDone(e, r, dlg);
+            }));
         }
         // QR as a PNG with the code underneath, for the phone's photo gallery.
         function downloadQrPng(svg, name) {
@@ -9141,26 +9180,32 @@
             };
             img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
         }
-        function openRegForm(e) {
+        // Step 1: the form. `prefill` keeps what was typed when going back from the code step.
+        function openRegForm(e, prefill = null, dlg = null) {
             const qs = Array.isArray(e.reg?.questions) ? e.reg.questions : [];
-            const qHtml = qs.map((q, i) => {
+            const pv = prefill || { name: '', email: '', answers: {} };
+            const qHtml = qs.map((q) => {
                 const multi = q.type === 'choice' && q.multiple === true;
                 const label = `<span data-no-i18n>${esc(q.label)}</span>${q.required ? '' : ' <em>(isteğe bağlı)</em>'}${multi ? ' <em>(birden fazla seçebilirsin)</em>' : ''}`;
+                const had = pv.answers[q.id];
                 if (q.type === 'choice') {
-                    const opts = (q.options || []).map((o) => `<label><input type="${multi ? 'checkbox' : 'radio'}" name="q_${esc(q.id)}" value="${esc(o)}" ${q.required && !multi ? 'required' : ''}><span data-no-i18n>${esc(o)}</span></label>`).join('');
+                    const on = (o) => (multi ? Array.isArray(had) && had.includes(o) : had === o);
+                    const opts = (q.options || []).map((o) => `<label><input type="${multi ? 'checkbox' : 'radio'}" name="q_${esc(q.id)}" value="${esc(o)}" ${on(o) ? 'checked' : ''}><span data-no-i18n>${esc(o)}</span></label>`).join('');
                     return `<fieldset class="reg-field" style="border:0;padding:0;margin:0"><span>${label}</span><div class="reg-choices">${opts}</div></fieldset>`;
                 }
-                return `<label class="reg-field"><span>${label}</span><input type="text" name="q_${esc(q.id)}" maxlength="1000" ${q.required ? 'required' : ''}></label>`;
+                return `<label class="reg-field"><span>${label}</span><input type="text" name="q_${esc(q.id)}" maxlength="1000" value="${esc(typeof had === 'string' ? had : '')}"></label>`;
             }).join('');
-            const dlg = regDialog(`<form class="reg-in" novalidate>
-                <div class="reg-head"><div><h2 id="regTitle">Kayıt ol</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
-                <label class="reg-field"><span>Ad soyad</span><input type="text" name="name" required maxlength="120" autocomplete="name"></label>
-                <label class="reg-field"><span>E-posta</span><input type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email"></label>
+            const html = `<form class="reg-in" novalidate>
+                <div class="reg-head"><div><h2 id="regTitle">${savedRegs(e.id).length ? 'Yeni kayıt' : 'Kayıt ol'}</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                <label class="reg-field"><span>Ad soyad</span><input type="text" name="name" required maxlength="120" autocomplete="name" value="${esc(pv.name)}"></label>
+                <label class="reg-field"><span>E-posta</span><input type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email" value="${esc(pv.email)}"><small class="reg-hint">Bu adrese 6 haneli bir doğrulama kodu göndereceğiz.</small></label>
                 ${qHtml}
-                <label class="kvkk-consent" style="margin:2px 0 0"><input type="checkbox" name="kvkk" required data-reg-kvkk><span><a href="/kvkk/" data-reg-kvkk-link>KVKK Aydınlatma Metni</a>'ni okudum.</span></label>
+                <input class="hp-field" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+                <label class="kvkk-consent" style="margin:2px 0 0"><input type="checkbox" name="kvkk" required data-reg-kvkk ${prefill ? 'checked' : ''}><span><a href="/kvkk/" data-reg-kvkk-link>KVKK Aydınlatma Metni</a>'ni okudum.</span></label>
                 <p class="reg-error" data-reg-error role="alert"></p>
-                <button type="submit" class="btn-pill">Kaydı tamamla</button>
-            </form>`);
+                <button type="submit" class="btn-pill">Doğrulama kodu gönder</button>
+            </form>`;
+            if (dlg && dlg.open) dlg.innerHTML = html; else dlg = regDialog(html);
             const form = dlg.querySelector('form');
             const box = form.querySelector('[data-reg-kvkk]');
             const openKvkk = () => { if (typeof window.unipaktKvkkOpen === 'function') { window.unipaktKvkkOpen(box); return true; } return false; };
@@ -9190,16 +9235,72 @@
                 if (!box.checked) { err.textContent = 'Devam etmek için KVKK Aydınlatma Metni’ni okuduğunu işaretle.'; return; }
                 err.textContent = ''; button.disabled = true; button.classList.add('is-loading'); button.setAttribute('aria-busy', 'true');
                 try {
-                    const res = await fetch(RPC + 'register_for_event', { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ p_event: e.id, p_full_name: name, p_email: email, p_answers: answers, p_consent: true }) });
-                    const data = await res.json().catch(() => ({}));
-                    if (!res.ok) throw new Error(data.message || 'Kayıt yapılamadı.');
-                    const saved = { code: data.code, name: data.full_name || name, at: new Date().toISOString() };
-                    try { localStorage.setItem(REG_KEY(e.id), JSON.stringify(saved)); } catch (_) {}
-                    await showRegDone(e, saved, dlg);
-                    render(e);   // the button becomes "Kaydını göster"
+                    const data = await regCall({ action: 'start', event_id: e.id, full_name: name, email, answers, consent: true, hp: String(fd.get('_honey') || '') });
+                    openRegVerify(e, { name, email, answers }, data, dlg);
                 } catch (error) {
-                    err.textContent = error.message === 'Failed to fetch' ? 'Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.' : error.message;
+                    err.textContent = netError(error);
+                    button.disabled = false; button.classList.remove('is-loading'); button.removeAttribute('aria-busy');
+                }
+            });
+        }
+        // Step 2: the 6-digit code from the e-mail.
+        function openRegVerify(e, typed, started, dlg) {
+            const pendingId = started.pending_id;
+            dlg.innerHTML = `<form class="reg-in reg-verify" novalidate>
+                <div class="reg-head"><div><h2 id="regTitle">E-postanı doğrula</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                <p class="reg-lead"><b data-no-i18n>${esc(started.email || typed.email)}</b> adresine 6 haneli bir kod gönderdik. Kodu buraya yaz; gelmediyse gereksiz (spam) klasörüne de bak.</p>
+                <label class="reg-field"><span>Doğrulama kodu</span><input class="reg-otp" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" placeholder="••••••" aria-describedby="regVerifyErr"></label>
+                <p class="reg-error" id="regVerifyErr" data-reg-error role="alert"></p>
+                <button type="submit" class="btn-pill">Kaydı tamamla</button>
+                <div class="reg-links"><button type="button" class="reg-link" data-reg-resend disabled>Kodu tekrar gönder</button><button type="button" class="reg-link" data-reg-back>E-postayı düzelt</button></div>
+            </form>`;
+            const form = dlg.querySelector('form');
+            const input = form.querySelector('[name="code"]');
+            const err = form.querySelector('[data-reg-error]');
+            const resend = form.querySelector('[data-reg-resend]');
+            let timer = null;
+            const countdown = (s) => {
+                clearInterval(timer);
+                let left = Math.max(0, Number(s) || 0);
+                const draw = () => { resend.disabled = left > 0; resend.textContent = left > 0 ? `Kodu tekrar gönder (${left})` : 'Kodu tekrar gönder'; };
+                draw();
+                timer = setInterval(() => { left -= 1; draw(); if (left <= 0) clearInterval(timer); }, 1000);
+            };
+            countdown(started.resend_in || 60);
+            dlg.addEventListener('close', () => clearInterval(timer), { once: true });
+            input.focus();
+            input.addEventListener('input', () => {
+                input.value = input.value.replace(/\D/g, '').slice(0, 6);
+                if (input.value.length === 6) form.requestSubmit();
+            });
+            form.querySelector('[data-reg-back]').addEventListener('click', () => { clearInterval(timer); openRegForm(e, typed, dlg); });
+            resend.addEventListener('click', async () => {
+                resend.disabled = true; err.textContent = '';
+                try { const d = await regCall({ action: 'resend', pending_id: pendingId }); countdown(d.resend_in || 60); err.textContent = 'Yeni kod gönderildi.'; }
+                catch (error) {
+                    if (error.data?.error === 'wait') countdown(error.data.resend_in);
+                    else if (error.data?.error === 'gone') { err.textContent = netError(error); setTimeout(() => openRegForm(e, typed, dlg), 1600); }
+                    else { err.textContent = netError(error); resend.disabled = false; }
+                }
+            });
+            form.addEventListener('submit', async (ev) => {
+                ev.preventDefault();
+                const button = form.querySelector('button[type="submit"]');
+                const code = input.value.replace(/\D/g, '');
+                if (code.length !== 6) { err.textContent = 'E-postadaki 6 haneli kodu yaz.'; return; }
+                if (button.disabled) return;
+                err.textContent = ''; button.disabled = true; button.classList.add('is-loading'); button.setAttribute('aria-busy', 'true');
+                try {
+                    const data = await regCall({ action: 'verify', pending_id: pendingId, code });
+                    clearInterval(timer);
+                    const saved = { code: data.code, name: data.full_name || typed.name, at: new Date().toISOString() };
+                    addSavedReg(e.id, saved);
+                    await showRegDone(e, saved, dlg, true);
+                    render(e);   // the buttons become "Kaydını göster" + "Yeni kayıt oluştur"
+                } catch (error) {
+                    err.textContent = netError(error);
+                    input.select();
+                    if (error.data?.error === 'gone') setTimeout(() => openRegForm(e, typed, dlg), 1600);
                     button.disabled = false; button.classList.remove('is-loading'); button.removeAttribute('aria-busy');
                 }
             });
@@ -9543,7 +9644,7 @@
             }
             if (!current) return;
             if (ev.target.closest('[data-ev-register]')) { openRegForm(current); return; }
-            if (ev.target.closest('[data-ev-myreg]')) { const saved = savedReg(current.id); if (saved) showRegDone(current, saved); return; }
+            if (ev.target.closest('[data-ev-myreg]')) { const mine = savedRegs(current.id); if (mine.length) showRegDone(current, mine[mine.length - 1]); return; }
             if (ev.target.closest('[data-ev-ics]')) { downloadIcs(current); return; }
             if (ev.target.closest('[data-ev-copy]')) {
                 const out = host.querySelector('[data-ev-copied]');
