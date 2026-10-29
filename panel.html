@@ -568,6 +568,13 @@
   .regb { display: grid; gap: 14px; }
   [data-regb-host] { display: grid; gap: 14px; }
   .regb-list { display: grid; gap: 10px; }
+  .regb-fixed { display: grid; gap: 0; padding: 12px 14px; border: 1px dashed var(--border-strong); border-radius: 16px; }
+  .regb-fixed-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding-bottom: 8px; }
+  .regb-fixed-head small, .regb-fixed-note { font-size: 12.5px; opacity: .6; }
+  .regb-fixed-row { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--border); font-size: 14px; }
+  .regb-fixed-row em { font-style: normal; font-size: 12px; opacity: .55; white-space: nowrap; }
+  .regb-lock svg { width: 15px; height: 15px; opacity: .55; display: block; }
+  .regb-fixed-note { margin: 8px 0 0; }
   .regb-q { position: relative; display: grid; gap: 10px; padding: 14px 14px 14px 40px; border: 1px solid var(--border); border-radius: 16px; background: var(--bg); }
   .regb-handle { position: absolute; left: 0; top: 0; bottom: 0; width: 30px; display: grid; place-items: center; padding: 0; border: 0; border-right: 1px dashed var(--border); border-radius: 16px 0 0 16px; background: transparent; color: var(--ink); opacity: .45; cursor: grab; touch-action: none; transition: opacity .15s ease, background .15s ease; }
   .regb-handle svg { width: 10px; height: 16px; fill: currentColor; }
@@ -3897,6 +3904,7 @@
      Visitors register on the public event page; staff check entries on
      /kontrol.html with a link + access code e-mailed from here.
      ------------------------------------------------------------------ */
+  const REG_LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
   const REG_TYPES = [['text', 'Kısa yanıt'], ['choice', 'Çoktan seçmeli']];
   const newQid = () => `q${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
   const freshRegDraft = () => ({ enabled: false, deadline: '', questions: [] });
@@ -3934,10 +3942,17 @@
         </div>
       </div>`).join('');
     return `
-      <label class="evp-check"><input type="checkbox" data-regb="enabled" ${d.enabled ? 'checked' : ''}><span>UniPakt üzerinden kayıt topla<small>Etkinlik sayfasında “Kayıt ol” düğmesi çıkar. Ad soyad ve e-posta her formda sorulur; kayıt olan kişiye QR ve 6 karakterli giriş kodu gösterilir.</small></span></label>
+      <label class="evp-check"><input type="checkbox" data-regb="enabled" ${d.enabled ? 'checked' : ''}><span>UniPakt üzerinden kayıt topla<small>Etkinlik sayfasında “Kayıt ol” düğmesi çıkar. Kayıt olan kişiye QR ve 6 karakterli giriş kodu gösterilir.</small></span></label>
       ${d.enabled ? `
         ${evField('Son kayıt zamanı', `<input type="datetime-local" data-regb="deadline" value="${esc(d.deadline)}">`, { opt: true, hint: 'Boş bırakırsan kayıtlar etkinlik bitene kadar açık kalır. Kontenjan girdiysen kontenjan dolunca da kapanır.' })}
-        <div class="regb-list">${qs || '<p class="hint">Henüz ek soru yok. Ad soyad ve e-posta zaten soruluyor.</p>'}</div>
+        <div class="regb-fixed" aria-label="Her formda bulunan sabit sorular">
+          <div class="regb-fixed-head"><strong>Sabit sorular</strong><small>Her kayıt formunda bulunur, kaldırılamaz.</small></div>
+          <div class="regb-fixed-row"><span class="regb-lock" aria-hidden="true">${REG_LOCK}</span><span>Ad soyad</span><em>Kısa yanıt · zorunlu</em></div>
+          <div class="regb-fixed-row"><span class="regb-lock" aria-hidden="true">${REG_LOCK}</span><span>E-posta</span><em>E-posta · zorunlu</em></div>
+          <div class="regb-fixed-row"><span class="regb-lock" aria-hidden="true">${REG_LOCK}</span><span>KVKK Aydınlatma Metni’ni okudum</span><em>Onay kutusu · zorunlu</em></div>
+          <p class="regb-fixed-note">KVKK kutusu sitedeki diğer formlardaki gibi çalışır: işaretlemek isteyen kişiye aydınlatma metni açılır, metin sonuna kadar kaydırılınca “Okudum” ile onaylanır.</p>
+        </div>
+        <div class="regb-list">${qs || '<p class="hint">Henüz ek soru yok. “+ Soru ekle” ile kulübünün soracağı soruları ekle.</p>'}</div>
         ${d.questions.length < 30 ? '<div><button type="button" class="btn ghost small" data-act="regb-add">+ Soru ekle</button></div>' : ''}` : ''}`;
   };
   const rerenderRegb = (focus) => {
