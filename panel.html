@@ -174,6 +174,7 @@
   .im-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
   .im-head { display: flex; align-items: center; gap: 12px; min-height: 76px; padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--surface); }
   .im-head .im-back { display: none; }
+  .im-head-who { display: flex; align-items: center; gap: 12px; min-width: 0; }
   .im-head-text { min-width: 0; }
   .im-head-text strong { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 16px; }
   .im-head-text small { display: block; overflow: hidden; font-size: 13px; opacity: .6; white-space: nowrap; text-overflow: ellipsis; }
@@ -971,6 +972,7 @@
     return data;
   };
   const rest = (query, opts) => call(`/rest/v1/${query}`, opts);
+  const mapPanelProfile = (p) => ({ id: p.id, role: p.role, clubId: p.club_id || '', fullName: p.full_name || '', bio: p.bio || '', interests: Array.isArray(p.collaboration_interests) ? p.collaboration_interests : [], avatarUrl: p.avatar_url || '' });
   const eq = (id) => `id=eq.${encodeURIComponent(id)}`;
   // PATCH/DELETE that must touch at least one row. Row level security turns a
   // forbidden or missing row into an empty success, so ask for the rows back.
@@ -1084,7 +1086,7 @@
     ]);
     const owner = (clubId) => clubId || ADMIN;
     db = {
-      panelProfiles: (panelProfiles || []).map((p) => ({ id: p.id, role: p.role, clubId: p.club_id || '', fullName: p.full_name || '', bio: p.bio || '', interests: Array.isArray(p.collaboration_interests) ? p.collaboration_interests : [], avatarUrl: p.avatar_url || '' })),
+      panelProfiles: (panelProfiles || []).map(mapPanelProfile),
       clubs: clubs.map((c) => ({ id: c.id, name: c.name, uni: c.university, category: c.category || '', visible: c.visible !== false,
         kvkkNoticeSentAt: c.kvkk_notice_sent_at || null, kvkkConsentAt: c.kvkk_consent_at || null,
         contact: Object.fromEntries(CONTACT_KEYS.map(([k]) => [k, c[k] || ''])) })),
@@ -4214,7 +4216,7 @@
   /* ------------------------------------------------------------------
      UNIPAKT INSTANT MESSAGES — page
      Two panes like WhatsApp Web: chats on the left, the conversation on the
-     right (one pane at a time on phones). Only #imList, #imHeadText and
+     right (one pane at a time on phones). Only #imList, #imHeadWho and
      #imMsgs are patched when messages arrive; the composer is never rebuilt
      while someone is typing in it.
      ------------------------------------------------------------------ */
@@ -4294,10 +4296,10 @@
     }
     return rows.map(({ info, room }) => imRowHtml(info, room)).join('');
   };
-  const imHeadTextHtml = () => {
+  const imHeadWhoHtml = () => {
     const info = imPeerInfo(state.chat.peer);
     const room = imRoomFor(state.chat.peer);
-    return `<strong>${imNameMarkup(info)}</strong>${room?.peerTyping ? '<small class="is-typing">yazıyor…</small>' : `<small>${esc(info.sub)}</small>`}`;
+    return `${avatarMarkup(info.avatar, info.name)}<div class="im-head-text"><strong>${imNameMarkup(info)}</strong>${room?.peerTyping ? '<small class="is-typing">yazıyor…</small>' : `<small>${esc(info.sub)}</small>`}</div>`;
   };
   const imMsgsHtml = () => {
     const room = imRoomFor(state.chat.peer);
@@ -4333,8 +4335,7 @@
     const info = imPeerInfo(state.chat.peer);
     return `<header class="im-head">
         <button class="im-icon-btn ghost im-back" type="button" data-act="ims-back" aria-label="Sohbet listesine dön">${IM_ICON.back}</button>
-        ${avatarMarkup(info.avatar, info.name)}
-        <div class="im-head-text" id="imHeadText">${imHeadTextHtml()}</div>
+        <div class="im-head-who" id="imHeadWho">${imHeadWhoHtml()}</div>
       </header>
       <div class="im-msgs" id="imMsgs" aria-live="polite">${imMsgsHtml()}</div>
       <form class="im-composer" id="imComposer">
@@ -4393,8 +4394,8 @@
     if (im.dataset.mode !== imMode()) { if (!busy()) render(); return; }
     const list = document.getElementById('imList');
     if (list) list.innerHTML = imListHtml();
-    const head = document.getElementById('imHeadText');
-    if (head) head.innerHTML = imHeadTextHtml();
+    const head = document.getElementById('imHeadWho');
+    if (head) head.innerHTML = imHeadWhoHtml();
     const msgs = document.getElementById('imMsgs');
     if (msgs) {
       const atBottom = msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight < 120;
@@ -4408,7 +4409,20 @@
     imRefreshQueued = true;
     requestAnimationFrame(() => { imRefreshQueued = false; refreshIm(); });
   };
+  // Club logos and names can change while the panel is open (another club
+  // saves its profile); reload just the profiles for the chat page.
+  let profilesFetchedAt = 0;
+  const refreshChatProfiles = async (force = false) => {
+    if (DEMO || !db || !state.user || (!force && Date.now() - profilesFetchedAt < 20000)) return;
+    profilesFetchedAt = Date.now();
+    try {
+      const rows = await rest('profiles?select=id,role,club_id,full_name,bio,collaboration_interests,avatar_url');
+      if (db && Array.isArray(rows)) { db.panelProfiles = rows.map(mapPanelProfile); refreshIm(); }
+    } catch (_) {}
+  };
+  setInterval(() => { if (state.view === 'ims' && !document.hidden) refreshChatProfiles(true); }, 60000);
   const openImPeer = (peer) => {
+    refreshChatProfiles();
     state.chat.peer = peer; state.chat.newChat = false; state.chat.search = '';
     state.chat.roomId = matrixModule?.findDirect(matrixIdFor(peer)) || '';
     render(); mountIm(true);
@@ -4496,7 +4510,7 @@
       </div>`;
     root.querySelector('.nav-item.active')?.scrollIntoView({ block: 'nearest', inline: 'center' });
     if (state.view === 'etkinlik-olustur') mountEventPage();
-    if (state.view === 'ims') mountIm();
+    if (state.view === 'ims') { mountIm(); if (!document.getElementById('imMsgs')) refreshChatProfiles(); }
   };
 
   // A failed action says why; if it signed the user out, the login screen follows.
