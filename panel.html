@@ -652,6 +652,48 @@
   .rb-chip { border: 1px solid var(--border-strong); background: transparent; color: var(--ink); border-radius: 999px; padding: 6px 12px; font-size: 12.5px; opacity: .6; }
   .rb-chip[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); opacity: 1; }
   .rb-search { margin: 0 0 12px; max-width: 420px; }
+  .rb-tabs { display: inline-flex; gap: 4px; padding: 4px; margin: 28px 0 14px; border: 1px solid var(--border-strong); border-radius: 999px; }
+  .rb-tab { padding: 8px 18px; border: 0; border-radius: 999px; background: transparent; color: var(--ink); font-weight: 600; opacity: .6; }
+  .rb-tab[aria-selected="true"] { background: var(--accent); color: var(--on-accent); opacity: 1; }
+  .rb-report { display: grid; gap: 16px; }
+  .rs-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+  .rs-head h2 { margin: 4px 0; }
+  .rs-kicker { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  .rs-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .rs-stats > div { padding: 18px; border-radius: 18px; background: var(--surface); }
+  .rs-stats b { display: block; font: 900 34px/1 'Archivo', sans-serif; }
+  .rs-stats span { display: block; margin-top: 6px; font-size: 13px; opacity: .65; }
+  .rs-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .rs-card { padding: 18px 20px; border-radius: 18px; background: var(--surface); display: grid; gap: 12px; align-content: start; }
+  .rs-card h3 { margin: 0; font-size: 16px; }
+  .rs-card h3 small, .rs-q h4 small { font-weight: 400; opacity: .55; }
+  .rs-q { display: grid; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .rs-q h4 { margin: 0; font-size: 14px; }
+  .rs-q .hint, .rs-card .hint { margin: 0; font-size: 12.5px; opacity: .6; }
+  .rs-bars { display: grid; gap: 7px; }
+  .rs-bar { display: grid; grid-template-columns: minmax(70px, 30%) minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 13px; }
+  .rs-bar-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rs-bar-track { height: 10px; border-radius: 999px; background: color-mix(in srgb, var(--ink) 8%, transparent); overflow: hidden; }
+  .rs-bar-track i { display: block; height: 100%; border-radius: 999px; background: var(--accent); min-width: 2px; }
+  .rs-bar b { font-variant-numeric: tabular-nums; }
+  .rs-bar b small { font-weight: 400; opacity: .6; }
+  .rs-foot { font-size: 12px; opacity: .55; }
+  @media (max-width: 760px) { .rs-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .rs-grid { grid-template-columns: minmax(0, 1fr); } }
+  @media print {
+    html.print-report body * { visibility: hidden; }
+    html.print-report #rbReport, html.print-report #rbReport * { visibility: visible; }
+    html.print-report #rbReport { position: absolute; inset: 0 auto auto 0; width: 100%; color: #000; }
+    html.print-report #rbReport [data-act="reg-print"] { display: none; }
+    html.print-report .rs-stats > div, html.print-report .rs-card { background: #f4f4f4; }
+    html.print-report .rs-bar-track i { background: #FF5A1F; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    html.print-report .flower-credit { display: none; }
+    html.print-report, html.print-report body { background: #fff !important; color-scheme: light !important; }
+    html.print-report #rbReport, html.print-report #rbReport * { color: #111 !important; }
+    html.print-report #rbReport .rs-kicker { color: #E04A12 !important; }
+    html.print-report .rs-bar-track { background: #e6e6e6; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    html.print-report .rs-stats > div, html.print-report .rs-card { -webkit-print-color-adjust: exact; print-color-adjust: exact; break-inside: avoid; }
+    @page { margin: 14mm; }
+  }
   .rb-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); }
   .rb-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   .rb-table th, .rb-table td { padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; white-space: nowrap; }
@@ -4384,10 +4426,64 @@
           ${rows.length ? '<span class="hint">Kayıt geldiği için form soruları artık değiştirilemez.</span>' : '<button class="link-btn" data-act="reg-edit">Formu düzenle</button>'}
         </div>
       </section>
-      <div class="section-head"><h2>Pano</h2></div>
+      <div class="rb-tabs" role="tablist" aria-label="Kayıt görünümü">
+        <button type="button" role="tab" class="rb-tab" aria-selected="${b.tab !== 'ozet'}" data-act="reg-tab" data-id="pano">Pano</button>
+        <button type="button" role="tab" class="rb-tab" aria-selected="${b.tab === 'ozet'}" data-act="reg-tab" data-id="ozet">Özet</button>
+      </div>
+      ${b.tab === 'ozet' ? regSummaryHtml(e, s, rows) : `
       <div class="rb-cols" role="group" aria-label="Panoda görünecek bilgiler">${all.map(([k, l]) => `<button type="button" class="rb-chip" data-act="reg-col" data-id="${esc(k)}" aria-pressed="${chosen.includes(k)}">${esc(l)}</button>`).join('')}</div>
       <label class="im-search rb-search">${IM_ICON.search}<input type="search" placeholder="Ad, e-posta ya da kod ara" value="${esc(b.search)}" data-reg-search aria-label="Kayıt ara"></label>
-      <div id="rbTable">${regTableHtml()}</div>`;
+      <div id="rbTable">${regTableHtml()}</div>`}`;
+  };
+  // ---- Özet (etkinlik sonrası rapor): sayılar, kayıt günleri, saatlik giriş, cevap dağılımı ----
+  const IST_HOUR = (iso) => Number(new Date(iso).toLocaleString('en-GB', { timeZone: 'Europe/Istanbul', hour: '2-digit', hour12: false }));
+  const IST_DAY = (iso) => new Date(iso).toLocaleDateString('sv-SE', { timeZone: 'Europe/Istanbul' });
+  const barsHtml = (items, { total = 0, unit = '' } = {}) => {
+    const max = Math.max(1, ...items.map(([, n]) => n));
+    return `<div class="rs-bars">${items.map(([label, n]) => `<div class="rs-bar"><span class="rs-bar-label">${esc(label)}</span>
+      <span class="rs-bar-track"><i style="width:${Math.round((n / max) * 100)}%"></i></span>
+      <b>${n}${unit}${total ? ` <small>%${Math.round((n / total) * 100)}</small>` : ''}</b></div>`).join('')}</div>`;
+  };
+  const regSummaryHtml = (e, s, rows) => {
+    const seated = rows.filter((r) => regStatus(r) === 'confirmed');
+    const came = seated.filter((r) => r.checked_in_at);
+    const waiting = rows.filter((r) => regStatus(r) !== 'confirmed').length;
+    const cap = Number(e.capacity) || 0;
+    const rate = seated.length ? Math.round((came.length / seated.length) * 100) : 0;
+    // Kayıtların günlere dağılımı
+    const byDay = new Map();
+    rows.forEach((r) => { const d = IST_DAY(r.created_at); byDay.set(d, (byDay.get(d) || 0) + 1); });
+    const days = [...byDay.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([d, n]) => [fmtDay(d), n]);
+    // Saat saat giriş
+    const byHour = new Map();
+    came.forEach((r) => { const h = IST_HOUR(r.checked_in_at); byHour.set(h, (byHour.get(h) || 0) + 1); });
+    const hours = [...byHour.keys()].sort((a, b) => a - b);
+    const hourItems = hours.length ? Array.from({ length: hours[hours.length - 1] - hours[0] + 1 }, (_, i) => hours[0] + i)
+      .map((h) => [`${String(h).padStart(2, '0')}:00`, byHour.get(h) || 0]) : [];
+    // Soru cevapları (kesin kayıtlar)
+    const qs = (s?.questions || []);
+    const questionHtml = qs.map((q) => {
+      const answered = seated.filter((r) => { const v = r.answers?.[q.id]; return Array.isArray(v) ? v.length : String(v ?? '').trim(); });
+      if (q.type !== 'choice') return `<div class="rs-q"><h4>${esc(q.label)}</h4><p class="hint">Kısa yanıt · ${answered.length} / ${seated.length} kişi cevapladı. Cevaplar Pano ve CSV'de.</p></div>`;
+      const counts = (q.options || []).map((o) => [o, answered.filter((r) => { const v = r.answers?.[q.id]; return Array.isArray(v) ? v.includes(o) : v === o; }).length]);
+      return `<div class="rs-q"><h4>${esc(q.label)}${q.multiple ? ' <small>(çok cevap)</small>' : ''}</h4>${barsHtml(counts, { total: answered.length })}<p class="hint">${answered.length} / ${seated.length} kişi cevapladı.</p></div>`;
+    }).join('');
+    return `<section class="rb-report" id="rbReport">
+      <div class="rs-head"><div><p class="rs-kicker">UniPakt · Etkinlik özeti</p><h2>${esc(e.title)}</h2><p class="hint">${esc(fmtDay(e.date))}${e.place ? ` · ${esc(e.place)}` : ''} · ${esc(who(e.ownerId))}</p></div>
+        <button type="button" class="btn small" data-act="reg-print">Yazdır / PDF</button></div>
+      <div class="rs-stats">
+        <div><b>${seated.length}</b><span>Kesin kayıt${cap ? ` · kontenjanın %${Math.round((seated.length / cap) * 100)}'i` : ''}</span></div>
+        <div><b>${came.length}</b><span>Etkinliğe gelen</span></div>
+        <div><b>%${rate}</b><span>Gelme oranı</span></div>
+        <div><b>${waiting}</b><span>Bekleme listesi</span></div>
+      </div>
+      <div class="rs-grid">
+        <div class="rs-card"><h3>Kayıtların günlere dağılımı</h3>${days.length ? barsHtml(days) : '<p class="hint">Henüz kayıt yok.</p>'}</div>
+        <div class="rs-card"><h3>Saat saat giriş</h3>${hourItems.length ? barsHtml(hourItems) : '<p class="hint">Henüz giriş yapılmadı.</p>'}</div>
+      </div>
+      ${qs.length ? `<div class="rs-card"><h3>Form cevapları <small>(kesin kayıtlar)</small></h3>${questionHtml}</div>` : ''}
+      <p class="hint rs-foot">Bu özet ${esc(new Date().toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }))} itibarıyla UniPakt Paneli'nden alınmıştır. Kişisel bilgi içermez.</p>
+    </section>`;
   };
   const saveRegSettings = async (patch) => {
     const b = state.regBoard, s = b.settings || {};
@@ -4507,6 +4603,8 @@
       }, 'Sil');
     },
     'reg-csv'() { downloadRegCsv(); },
+    'reg-tab'(tab) { state.regBoard.tab = tab === 'ozet' ? 'ozet' : 'pano'; render(); },
+    'reg-print'() { document.documentElement.classList.add('print-report'); window.print(); setTimeout(() => document.documentElement.classList.remove('print-report'), 500); },
     'staff-reload'() { state.staffView = freshStaffView(); loadStaffView(); render(); },
     'staff-add'() {
       openForm({
