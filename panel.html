@@ -108,6 +108,33 @@
   button.proof { background: transparent; cursor: pointer; text-align: left; }
   .demo-note { margin-top: 22px; font-size: 13px; line-height: 1.6; opacity: .6; }
 
+  /* ---- İki adımlı doğrulama (kod ekranı) ---- */
+  .mfa { display: grid; gap: 18px; }
+  .mfa-digits { display: grid; grid-template-columns: repeat(6, minmax(0, 58px)); gap: clamp(6px, 1.6vw, 12px); }
+  .mfa-digit {
+    width: 100%; min-width: 0; height: clamp(54px, 14vw, 70px); padding: 0; text-align: center;
+    font: 800 clamp(26px, 6vw, 32px)/1 'Archivo', sans-serif; color: var(--ink); caret-color: var(--accent);
+    border: 1px solid var(--border-strong); border-radius: 14px; background: color-mix(in srgb, var(--ink) 4%, transparent);
+    transition: border-color .2s ease, box-shadow .2s ease, color .2s ease;
+  }
+  .mfa-digit:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent); }
+  .mfa-digit:disabled { opacity: .6; }
+  .mfa.is-wrong .mfa-digit { animation: mfaWrong 1s ease; }
+  @keyframes mfaWrong { 0%, 55% { border-color: var(--no); box-shadow: 0 0 0 4px color-mix(in srgb, var(--no) 18%, transparent); } }
+  .mfa.is-ok .mfa-digit { border-color: var(--ok); color: var(--ok); }
+  .mfa-msg { min-height: 21px; font-size: 14px; opacity: .75; }
+  .mfa-msg.is-error { color: var(--no); opacity: 1; }
+  .mfa-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .mfa-actions .link-btn:disabled { opacity: .4; cursor: default; text-decoration: none; }
+  /* A digit falling out of its box after a wrong code. */
+  .mfa-drop { position: fixed; z-index: 3000; display: grid; place-items: center; pointer-events: none; will-change: transform, opacity; }
+  .mfa-title { font: 900 clamp(30px, 5vw, 44px)/1.05 'Archivo', sans-serif; letter-spacing: -0.04em; margin-bottom: 12px; }
+  .mfa-lead { opacity: .72; margin-bottom: 26px; max-width: 46ch; }
+  .mfa-lead b { color: var(--ink); opacity: 1; }
+  .mfa-note { margin-top: 24px; font-size: 13px; opacity: .55; }
+  .mfa-box .link-btn.mfa-signout { margin-top: 14px; }
+  .mfa-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .mfa-card .body { margin: 10px 0 18px; opacity: .72; max-width: 62ch; }
   /* ---- Logo kırpma (profil fotoğrafı hizalama) ---- */
   .crop-dlg { width: min(100% - 24px, 440px); }
   .crop { display: grid; gap: 16px; padding: 24px; }
@@ -968,7 +995,7 @@
     let data = null;
     try { data = text ? JSON.parse(text) : null; } catch (_) {}
     if (r.status === 401) throw signedOut('Oturumun süresi doldu. Tekrar giriş yap.');
-    if (!r.ok) { const e = new Error((data && (data.message || data.error || data.msg)) || 'İşlem yapılamadı.'); e.status = r.status; throw e; }
+    if (!r.ok) { const e = new Error((data && (data.message || data.error || data.msg)) || 'İşlem yapılamadı.'); e.status = r.status; e.data = data; throw e; }
     return data;
   };
   const rest = (query, opts) => call(`/rest/v1/${query}`, opts);
@@ -1072,7 +1099,13 @@
   const loadRemote = async () => {
     const profiles = await rest(`profiles?select=role,club_id,full_name,bio,collaboration_interests,avatar_url&id=eq.${encodeURIComponent(session.user_id)}`);
     const profile = profiles && profiles[0];
-    if (!profile) throw signedOut('Bu hesaba panel yetkisi verilmemiş. UniPakt ile iletişime geç.');
+    if (!profile) {
+      // A 2FA account whose session is not verified yet sees no rows at all; that
+      // is not "no panel access", so ask for the code instead of signing out.
+      const mfa = await remote.mfa('status').catch(() => null);
+      if (mfa && mfa.enabled && !mfa.verified) { const e = new Error('Bu tarayıcı için iki adımlı doğrulama gerekli.'); e.mfa = true; throw e; }
+      throw signedOut('Bu hesaba panel yetkisi verilmemiş. UniPakt ile iletişime geç.');
+    }
     const [clubs, anns, events, apps, tasks, points, eventVisibilityRequests, eventEditRequests, notifications, board, eventComments, panelProfiles] = await Promise.all([
       rest('clubs?select=*&order=name'), rest('announcements?select=*'), rest('events?select=*,event_occurrences(date,time)&order=event_date'),
       rest('event_applications?select=*&order=created_at'), rest('tasks?select=*'), rest('point_entries?select=*'),
@@ -1164,6 +1197,19 @@
      Every call resolves once `db` reflects the change.
      ------------------------------------------------------------------ */
   const local = {
+    // Demo 2FA: nothing is e-mailed; the code is always 123456.
+    async mfa(action, extra = {}) {
+      const on = sessionStorage.getItem('unipaktDemoMfa') === '1';
+      if (action === 'status') return { enabled: on, verified: true, email: 'de••••@ornek.com' };
+      if (action === 'send') return { sent: true, email: 'de••••@ornek.com' };
+      if (action === 'verify') {
+        if (String(extra.code) !== '123456') { const e = new Error('Kod yanlış. (Demo kodu: 123456)'); e.data = { error: 'wrong' }; throw e; }
+        if (extra.purpose === 'enable') sessionStorage.setItem('unipaktDemoMfa', '1');
+        if (extra.purpose === 'disable') sessionStorage.removeItem('unipaktDemoMfa');
+        return { ok: true, device_token: 'demo' };
+      }
+      return { verified: true };
+    },
     async uploadEventPoster(file) {
       if (!file) return '';
       return await new Promise((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(String(r.result)); r.onerror = () => reject(new Error('Afiş okunamadı.')); r.readAsDataURL(file); });
@@ -1665,13 +1711,17 @@
       } catch (_) { throw new Error('Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.'); }
       if (!r.ok) throw new Error(data.msg || data.message || 'Şifre değiştirilemedi. Bağlantı süresi dolmuş olabilir.');
     },
+    // Two-step verification by e-mail code (Edge Function `mfa`).
+    async mfa(action, extra = {}) {
+      return await call('/functions/v1/mfa', { method: 'POST', body: { action, ...extra } });
+    },
     async matrixSession(deviceId) {
       return await call('/functions/v1/matrix-session', { method: 'POST', body: { device_id: deviceId } });
     },
+    // Only signs in; enterPanel() does 2FA and loads the data afterwards.
     async login(email, password) {
       try { await authCall('password', { email, password }); }
       catch (e) { throw e.status === 400 ? new Error('E-posta ya da şifre hatalı.') : e; }
-      await loadRemote();
     },
     async logout() {
       const auth = session && session.access_token;
@@ -1682,7 +1732,7 @@
 
   // Remote writes are followed by a fresh read, so the screen shows what the server kept.
   const api = DEMO ? local : new Proxy(remote, {
-    get: (target, name) => (['refresh', 'proofUrl', 'login', 'logout', 'accounts', 'account', 'recoverPassword', 'resetPassword', 'matrixSession', 'supportCreate', 'supportReply', 'supportUpdate', 'supportDelete', 'siteInbox', 'siteInboxDelete', 'siteInboxDeleteAll', 'siteInboxCount'].includes(name) ? target[name]
+    get: (target, name) => (['refresh', 'proofUrl', 'login', 'logout', 'accounts', 'account', 'recoverPassword', 'resetPassword', 'matrixSession', 'mfa', 'supportCreate', 'supportReply', 'supportUpdate', 'supportDelete', 'siteInbox', 'siteInboxDelete', 'siteInboxDeleteAll', 'siteInboxCount'].includes(name) ? target[name]
       : async (...args) => { const result = await target[name](...args); await loadRemote(); return result; }),
   });
 
@@ -1693,6 +1743,8 @@
   // UniPakt Instant Messages page state. `peer` is the panel user ('unipakt' or a
   // club id) of the open conversation; its room is created on the first message.
   const IM_TITLE = 'UniPakt Instant Messages';
+  // Two-step verification: `flow` is the code screen being shown ({ purpose }).
+  const freshMfaState = () => ({ enabled: false, email: '', flow: null, resendAt: 0, busy: false });
   const freshChatState = () => ({
     peer: '', roomId: '', rooms: [], loading: false, error: '',
     search: '', newChat: false, drafts: {}, noticeAccepted: false,
@@ -1703,6 +1755,7 @@
     profile: { fullName: '', avatarUrl: '' },
     profileMenuOpen: false,
     chat: freshChatState(),
+    mfa: freshMfaState(),
     view: 'genel',
     cal: { y: now.getFullYear(), m: now.getMonth(), sel: ymd(now) },
     taskTab: 'open',
@@ -2112,7 +2165,7 @@
     return items;
   };
   // Menüde görünmeyen ama açılabilen sayfalar.
-  const HIDDEN_VIEWS = ['etkinlik-olustur', 'ayarlar', 'hesap'];
+  const HIDDEN_VIEWS = ['etkinlik-olustur', 'ayarlar', 'hesap', 'dogrulama'];
   const knownView = (view) => HIDDEN_VIEWS.includes(view) || NAV().some(([id]) => id === view);
 
   /* ------------------------------------------------------------------
@@ -3055,6 +3108,7 @@
         </section>`;
     },
     hesap() {
+      if (DEMO) state.mfa.enabled = sessionStorage.getItem('unipaktDemoMfa') === '1';
       return `${head('Hesap', 'Giriş bilgilerini ve şifreni yönet.')}
         <section class="card">
           <h2>Hesap bilgileri</h2>
@@ -3067,6 +3121,23 @@
             <button class="btn small" type="submit">Şifreyi değiştir</button>
             <p class="form-error" data-password-error hidden></p>
           </form>
+        </section>
+        <section class="card mfa-card" style="margin-top:16px">
+          <div class="mfa-card-head"><h2>İki adımlı doğrulama</h2><span class="tag ${state.mfa.enabled ? 'ok' : ''}">${state.mfa.enabled ? 'Açık' : 'Kapalı'}</span></div>
+          <p class="body">Açıkken panele yeni bir tarayıcıdan girişte e-posta adresine 6 haneli bir kod gönderilir. Doğruladığın tarayıcı 30 gün boyunca tekrar kod istemez.</p>
+          <button class="btn small ${state.mfa.enabled ? 'ghost' : ''}" type="button" data-act="mfa-start" data-id="${state.mfa.enabled ? 'disable' : 'enable'}">${state.mfa.enabled ? 'Kapat' : 'Etkinleştir'}</button>
+        </section>`;
+    },
+    dogrulama() {
+      const purpose = state.mfa.flow?.purpose;
+      if (purpose !== 'enable' && purpose !== 'disable') { setTimeout(() => go('hesap')); return ''; }
+      const enabling = purpose === 'enable';
+      return `${head(enabling ? 'Doğrulamayı aç' : 'Doğrulamayı kapat', 'İki adımlı doğrulama')}
+        <section class="card" style="max-width:560px">
+          <p class="mfa-lead" data-mfa-lead>${mfaLead()}</p>
+          ${mfaCodeHtml(purpose)}
+          <p class="mfa-note">${enabling ? 'Açtıktan sonra bu tarayıcı 30 gün boyunca kod istemez; yeni bir tarayıcıdan girişte kod e-postana gelir.' : 'Kapatınca kayıtlı tüm tarayıcılar da unutulur.'}</p>
+          <button class="link-btn" type="button" data-go="hesap" style="margin-top:12px">Vazgeç</button>
         </section>`;
     },
     genel() {
@@ -3606,6 +3677,11 @@
       const remove = form.querySelector('[data-act="profile-avatar-remove"]');
       if (remove) remove.hidden = true;
       if (profileLogoPreviewUrl) { URL.revokeObjectURL(profileLogoPreviewUrl); profileLogoPreviewUrl = ''; }
+    },
+    'mfa-start'(purpose) {
+      state.mfa.flow = { purpose: purpose === 'disable' ? 'disable' : 'enable' };
+      go('dogrulama');
+      requestMfaCode(state.mfa.flow.purpose);
     },
     'ims-new'() {
       state.chat.newChat = !state.chat.newChat; state.chat.search = ''; render();
@@ -4177,6 +4253,8 @@
       if (DEMO) { try { sessionStorage.removeItem(SESSION); } catch (_) {} }
       else { remote.logout(); db = null; }
       state.accounts = null;
+      // The 30-day trusted-browser token stays, so this browser is not asked again.
+      state.mfa = freshMfaState();
       state.inbox = { tab: 'contact', data: null, error: null, loading: false, count: null };
       history.replaceState(null, '', location.pathname + location.search);
       render(); window.scrollTo(0, 0);
@@ -4186,6 +4264,186 @@
       openForm({ title: 'Demo verisini sıfırla', lead: 'Bu tarayıcıdaki tüm panel verisi silinir ve örnek veriler geri gelir.', submit: 'Sıfırla', danger: true,
         onSubmit: () => { db = seed(); save(); toast('Demo verisi sıfırlandı.'); } });
     },
+  };
+
+  /* ------------------------------------------------------------------
+     TWO-STEP VERIFICATION (2FA) — e-mail code
+     The database refuses everything to a 2FA account's session until that
+     session is verified; this is the screen that verifies it. A browser that
+     verified once keeps a 30-day token (localStorage) and is let through
+     without a code next time.
+     ------------------------------------------------------------------ */
+  const MFA_LEN = 6;
+  const mfaDeviceKey = () => `unipaktMfaDevice.${session?.user_id || state.user || ''}`;
+  const mfaLead = () => `<b>${esc(state.mfa.email || 'E-posta adresine')}</b> ${state.mfa.email ? 'adresine' : ''} 6 haneli bir kod gönderdik. Kod 10 dakika geçerli.`;
+  const mfaCodeHtml = (purpose) => `<form class="mfa" id="mfaForm" data-purpose="${esc(purpose)}" novalidate autocomplete="off">
+      <div class="mfa-digits" role="group" aria-label="6 haneli doğrulama kodu">
+        ${Array.from({ length: MFA_LEN }, (_, i) => `<input class="mfa-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="${i === 0 ? MFA_LEN : 1}" aria-label="${i + 1}. hane" data-mfa-digit="${i}" ${i === 0 ? 'autocomplete="one-time-code"' : 'autocomplete="off"'}>`).join('')}
+      </div>
+      <p class="mfa-msg" data-mfa-msg aria-live="polite"></p>
+      <div class="mfa-actions">
+        <button class="btn" type="submit">Doğrula</button>
+        <button class="link-btn" type="button" data-mfa-resend>Kodu tekrar gönder</button>
+      </div>
+    </form>`;
+  const setMfaMsg = (text, isError = false) => {
+    const el = document.querySelector('[data-mfa-msg]');
+    if (!el) return;
+    el.textContent = text || ''; el.classList.toggle('is-error', !!isError);
+  };
+  // "Kodu tekrar gönder" is disabled while the 45-second wait runs.
+  let mfaTimer = null;
+  const tickMfaResend = () => {
+    clearInterval(mfaTimer);
+    const update = () => {
+      const btn = document.querySelector('[data-mfa-resend]');
+      if (!btn) { clearInterval(mfaTimer); return; }
+      const left = Math.ceil((state.mfa.resendAt - Date.now()) / 1000);
+      btn.disabled = left > 0;
+      btn.textContent = left > 0 ? `Kodu tekrar gönder (${left})` : 'Kodu tekrar gönder';
+      if (left <= 0) clearInterval(mfaTimer);
+    };
+    update(); mfaTimer = setInterval(update, 1000);
+  };
+  const requestMfaCode = async (purpose) => {
+    try {
+      const r = await api.mfa('send', { purpose });
+      if (r?.email) state.mfa.email = r.email;
+      state.mfa.resendAt = Date.now() + 45000;
+      const lead = document.querySelector('[data-mfa-lead]');
+      if (lead) lead.innerHTML = mfaLead();
+      setMfaMsg('');
+    } catch (error) {
+      if (error.data?.retry_after) state.mfa.resendAt = Date.now() + error.data.retry_after * 1000;
+      setMfaMsg(error.message || 'Kod gönderilemedi.', true);
+    }
+    tickMfaResend();
+  };
+  const mountMfa = () => {
+    document.querySelector('[data-mfa-digit="0"]')?.focus();
+    tickMfaResend();
+  };
+  const mfaDigits = (form) => [...form.querySelectorAll('[data-mfa-digit]')];
+  // Put a run of digits into the boxes from `start` (typing, paste, autofill).
+  const fillMfaDigits = (form, start, text) => {
+    const boxes = mfaDigits(form);
+    const digits = String(text).replace(/\D/g, '').slice(0, MFA_LEN - start).split('');
+    digits.forEach((d, k) => { boxes[start + k].value = d; });
+    const next = Math.min(start + digits.length, MFA_LEN - 1);
+    boxes[next].focus();
+    if (boxes.every((b) => b.value)) form.requestSubmit();
+  };
+  // Wrong code: every digit hops up a little and falls out of its box.
+  const spillMfaDigits = (form) => {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    mfaDigits(form).forEach((box, i) => {
+      const value = box.value;
+      box.value = '';
+      if (!value) return;
+      const r = box.getBoundingClientRect();
+      const cs = getComputedStyle(box);
+      const drop = document.createElement('span');
+      drop.className = 'mfa-drop';
+      drop.textContent = value;
+      Object.assign(drop.style, { left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px`, font: cs.font, color: cs.color });
+      document.body.append(drop);
+      const fall = window.innerHeight - r.top + 120;
+      const drift = (Math.random() - 0.5) * 70;
+      const spin = (Math.random() - 0.5) * 90;
+      const anim = drop.animate(reduce
+        ? [{ opacity: 1 }, { opacity: 0 }]
+        : [
+          { transform: 'translate(0, 0) rotate(0deg)', opacity: 1 },
+          { transform: `translate(${drift * 0.15}px, -16px) rotate(${spin * 0.1}deg)`, opacity: 1, offset: 0.16, easing: 'cubic-bezier(.5, 0, .9, .5)' },
+          { transform: `translate(${drift}px, ${fall}px) rotate(${spin}deg)`, opacity: 0.85 },
+        ], { duration: reduce ? 250 : 950 + Math.random() * 300, delay: reduce ? 0 : i * 60, fill: 'forwards' });
+      anim.onfinish = () => drop.remove();
+    });
+    form.classList.remove('is-wrong'); void form.offsetWidth; form.classList.add('is-wrong');
+    setTimeout(() => form.querySelector('[data-mfa-digit="0"]')?.focus(), 150);
+  };
+  const verifyMfa = async (form) => {
+    const purpose = form.dataset.purpose;
+    const code = mfaDigits(form).map((b) => b.value).join('');
+    if (code.length !== MFA_LEN) { setMfaMsg('Kodun 6 hanesini de gir.', true); return; }
+    if (state.mfa.busy) return;
+    state.mfa.busy = true;
+    const button = form.querySelector('button[type="submit"]');
+    button.disabled = true; setMfaMsg('Doğrulanıyor…');
+    try {
+      const r = await api.mfa('verify', { purpose, code });
+      if (r?.device_token && !DEMO) { try { localStorage.setItem(mfaDeviceKey(), r.device_token); } catch (_) {} }
+      form.classList.add('is-ok'); setMfaMsg('Doğrulandı.');
+      await new Promise((ok) => setTimeout(ok, 450));
+      state.mfa.flow = null;
+      if (purpose === 'login') { await enterPanel(); return; }
+      if (purpose === 'enable') { state.mfa.enabled = true; toast('İki adımlı doğrulama açıldı.'); }
+      if (purpose === 'disable') {
+        state.mfa.enabled = false;
+        try { localStorage.removeItem(mfaDeviceKey()); } catch (_) {}
+        toast('İki adımlı doğrulama kapatıldı.');
+      }
+      go('hesap');
+    } catch (error) {
+      if (!state.user && !session && !DEMO) { renderLogin(error.message); return; }
+      spillMfaDigits(form);
+      const kind = error.data?.error;
+      setMfaMsg(error.message || 'Kod doğrulanamadı.', true);
+      if (kind === 'expired' || kind === 'locked') { state.mfa.resendAt = 0; tickMfaResend(); }
+    } finally {
+      state.mfa.busy = false;
+      if (document.body.contains(button)) button.disabled = false;
+    }
+  };
+  // Full-screen code page shown after sign-in, before any panel data loads.
+  const renderMfaGate = () => {
+    root.innerHTML = `
+      <main class="login"><div class="login-box mfa-box">
+        <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=3" alt="UniPakt"></a>
+        <p class="kicker">Panel</p>
+        <h1 class="mfa-title">Bu tarayıcıyı doğrula</h1>
+        <p class="mfa-lead" data-mfa-lead>İki adımlı doğrulama açık. ${mfaLead()}</p>
+        ${mfaCodeHtml('login')}
+        <p class="mfa-note">Doğruladığın tarayıcı 30 gün boyunca tekrar kod istemez.</p>
+        <button class="link-btn mfa-signout" type="button" data-mfa-signout>Farklı bir hesapla giriş yap</button>
+      </div></main>`;
+    mountMfa();
+  };
+  const showMfaGate = async () => {
+    state.mfa.flow = { purpose: 'login' };
+    renderMfaGate();
+    await requestMfaCode('login');
+  };
+  // True when this session may load the panel; otherwise the code page is shown.
+  const passMfaGate = async () => {
+    let status;
+    // If the check itself is unreachable, carry on: the database still enforces 2FA.
+    try { status = await remote.mfa('status'); } catch (error) { if (!session) throw error; return true; }
+    state.mfa.enabled = !!status.enabled; state.mfa.email = status.email || '';
+    if (status.verified) return true;
+    let token = '';
+    try { token = localStorage.getItem(mfaDeviceKey()) || ''; } catch (_) {}
+    if (token) {
+      const trusted = await remote.mfa('trust', { device_token: token }).catch(() => null);
+      if (trusted?.verified) return true;
+      try { localStorage.removeItem(mfaDeviceKey()); } catch (_) {}
+    }
+    await showMfaGate();
+    return false;
+  };
+  // Sign-in → 2FA (if on) → data → panel.
+  const enterPanel = async () => {
+    root.innerHTML = '<main class="login"><p class="loading">Yükleniyor…</p></main>';
+    try {
+      if (!DEMO && !(await passMfaGate())) return;
+      await loadRemote(); lastSync = Date.now();
+      if (!knownView(state.view)) state.view = 'genel';
+      render(); window.scrollTo(0, 0);
+      loadSiteInboxCount(); startMatrix();
+    } catch (error) {
+      if (error.mfa) { await showMfaGate(); return; }
+      state.user = null; renderLogin(error.message);
+    }
   };
 
   /* ------------------------------------------------------------------
@@ -4510,6 +4768,7 @@
       </div>`;
     root.querySelector('.nav-item.active')?.scrollIntoView({ block: 'nearest', inline: 'center' });
     if (state.view === 'etkinlik-olustur') mountEventPage();
+    if (state.view === 'dogrulama') mountMfa();
     if (state.view === 'ims') { mountIm(); if (!document.getElementById('imMsgs')) refreshChatProfiles(); }
   };
 
@@ -4536,6 +4795,41 @@
       result.catch(fail).finally(() => { btn.disabled = false; });
     }
   });
+  // 2FA code boxes: one digit per box, typing moves on, Backspace moves back,
+  // a pasted or auto-filled code is spread over the boxes; 6 digits submit.
+  document.addEventListener('input', (e) => {
+    if (!e.target.matches?.('[data-mfa-digit]')) return;
+    const form = e.target.form, i = Number(e.target.dataset.mfaDigit);
+    const value = e.target.value.replace(/\D/g, '');
+    e.target.value = '';
+    if (value) fillMfaDigits(form, i, value);
+    if (document.querySelector('[data-mfa-msg]')?.classList.contains('is-error')) setMfaMsg('');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (!e.target.matches?.('[data-mfa-digit]')) return;
+    const boxes = mfaDigits(e.target.form), i = Number(e.target.dataset.mfaDigit);
+    if (e.key === 'Backspace' && !e.target.value && i > 0) { e.preventDefault(); boxes[i - 1].value = ''; boxes[i - 1].focus(); }
+    else if (e.key === 'ArrowLeft' && i > 0) { e.preventDefault(); boxes[i - 1].focus(); }
+    else if (e.key === 'ArrowRight' && i < MFA_LEN - 1) { e.preventDefault(); boxes[i + 1].focus(); }
+  });
+  document.addEventListener('paste', (e) => {
+    if (!e.target.matches?.('[data-mfa-digit]')) return;
+    e.preventDefault();
+    fillMfaDigits(e.target.form, Number(e.target.dataset.mfaDigit), e.clipboardData?.getData('text') || '');
+  });
+  document.addEventListener('focusin', (e) => { if (e.target.matches?.('[data-mfa-digit]')) e.target.select(); });
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-mfa-resend]')) {
+      const form = document.getElementById('mfaForm');
+      if (form) requestMfaCode(form.dataset.purpose);
+      return;
+    }
+    if (e.target.closest('[data-mfa-signout]')) {
+      clearInterval(mfaTimer); state.mfa = freshMfaState();
+      remote.logout(); state.user = null; renderLogin();
+    }
+  });
+
   // UniPakt Instant Messages: Enter sends, Shift+Enter starts a new line.
   document.addEventListener('keydown', (e) => {
     if (!e.target.matches?.('[data-im-input]')) return;
@@ -4594,6 +4888,7 @@
     if (chip) { state.support.status = chip.dataset.supportStatusChip; render(); return; }
   });
   document.addEventListener('submit', async (e) => {
+    if (e.target.id === 'mfaForm') { e.preventDefault(); verifyMfa(e.target); return; }
     if (e.target.id === 'imComposer') { e.preventDefault(); sendImMessage(e.target); return; }
     if (e.target.id === 'imNoticeForm') {
       e.preventDefault();
@@ -4661,9 +4956,7 @@
     try {
       await remote.login(email, password);
       state.view = 'genel';
-      render(); window.scrollTo(0, 0);
-      loadSiteInboxCount();
-      startMatrix();
+      await enterPanel();
     } catch (error) {
       if (!document.body.contains(form)) { renderLogin(error.message); return; }
       err.textContent = error.message || 'Giriş yapılamadı.'; err.hidden = false;
@@ -4687,7 +4980,7 @@
       await api.refresh();   // the remote refresh reloads support too
       lastSync = Date.now();
       render();
-    } catch (error) { fail(error); }
+    } catch (error) { if (error.mfa) { showMfaGate(); return; } fail(error); }
   };
   if (DEMO) window.addEventListener('storage', (e) => { if (e.key === KEY) sync(); });
   else document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastSync > 30000) sync(); });
@@ -4720,9 +5013,7 @@
     state.user = null;
     readSession();
     if (!session) { renderLogin(); return; }
-    root.innerHTML = '<main class="login"><p class="loading">Yükleniyor…</p></main>';
-    try { await loadRemote(); lastSync = Date.now(); render(); loadSiteInboxCount(); startMatrix(); }
-    catch (error) { state.user = null; renderLogin(error.message); }
+    await enterPanel();
   };
   start();
 })();

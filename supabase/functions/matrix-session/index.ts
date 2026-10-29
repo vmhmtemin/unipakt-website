@@ -20,6 +20,15 @@ const matrixPassword = async (secret: string, accountKey: string) => {
   return encodeBase64Url(digest);
 };
 
+// The JWT's session_id; a 2FA account's session must have been verified (see the `mfa` function).
+const sessionIdOf = (jwt: string) => {
+  try {
+    const part = jwt.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(atob(part + "=".repeat((4 - (part.length % 4)) % 4)));
+    return /^[0-9a-f-]{36}$/i.test(String(payload.session_id ?? "")) ? String(payload.session_id) : "00000000-0000-0000-0000-000000000000";
+  } catch { return "00000000-0000-0000-0000-000000000000"; }
+};
+
 Deno.serve(async (req) => {
   const origin = req.headers.get("Origin");
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsFor(origin) });
@@ -38,6 +47,8 @@ Deno.serve(async (req) => {
   if (profileError || !profile || !["club", "admin"].includes(profile.role)) {
     return reply(403, { message: "Bu hesap mesajlaşmaya yetkili değil." }, origin);
   }
+  const { data: mfaOk } = await supabase.rpc("mfa_session_ok", { p_user: user.id, p_session: sessionIdOf(token) });
+  if (!mfaOk) return reply(403, { message: "Önce iki adımlı doğrulamayı tamamla.", mfa_required: true }, origin);
   let body: Record<string, unknown>;
   try { body = await req.json(); } catch { return reply(400, { message: "Geçersiz istek." }, origin); }
   const deviceId = String(body.device_id ?? "");
