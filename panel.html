@@ -108,6 +108,30 @@
   button.proof { background: transparent; cursor: pointer; text-align: left; }
   .demo-note { margin-top: 22px; font-size: 13px; line-height: 1.6; opacity: .6; }
 
+  /* ---- Logo kırpma (profil fotoğrafı hizalama) ---- */
+  .crop-dlg { width: min(100% - 24px, 440px); }
+  .crop { display: grid; gap: 16px; padding: 24px; }
+  .crop h2 { font: 900 26px/1.1 'Archivo', sans-serif; letter-spacing: -0.03em; }
+  .crop .lead { margin-top: -8px; opacity: .7; font-size: 14px; }
+  .crop-stage { position: relative; width: 100%; aspect-ratio: 1; overflow: hidden; border-radius: 16px; background: #0C0C0D; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; outline: none; }
+  .crop-stage:active { cursor: grabbing; }
+  .crop-stage:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+  .crop-stage img { position: absolute; left: 50%; top: 50%; max-width: none; pointer-events: none; will-change: transform; }
+  /* The circle is what will be kept; everything outside it is dimmed. */
+  .crop-ring { position: absolute; inset: 7%; border-radius: 50%; pointer-events: none; overflow: hidden;
+    box-shadow: 0 0 0 9999px rgba(12, 12, 13, .7); outline: 1.5px solid rgba(242, 241, 238, .85); outline-offset: -1px; }
+  .crop-ring::before { content: ''; position: absolute; inset: 0; opacity: .55;
+    background:
+      linear-gradient(to right, transparent calc(33.333% - .5px), rgba(242,241,238,.8) calc(33.333% - .5px), rgba(242,241,238,.8) calc(33.333% + .5px), transparent calc(33.333% + .5px), transparent calc(66.666% - .5px), rgba(242,241,238,.8) calc(66.666% - .5px), rgba(242,241,238,.8) calc(66.666% + .5px), transparent calc(66.666% + .5px)),
+      linear-gradient(to bottom, transparent calc(33.333% - .5px), rgba(242,241,238,.8) calc(33.333% - .5px), rgba(242,241,238,.8) calc(33.333% + .5px), transparent calc(33.333% + .5px), transparent calc(66.666% - .5px), rgba(242,241,238,.8) calc(66.666% - .5px), rgba(242,241,238,.8) calc(66.666% + .5px), transparent calc(66.666% + .5px)); }
+  /* Small centre mark so the logo can be centred by eye. */
+  .crop-ring::after { content: ''; position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; transform: translate(-50%, -50%); opacity: .8;
+    background: linear-gradient(rgba(242,241,238,.9), rgba(242,241,238,.9)) center / 100% 1px no-repeat, linear-gradient(rgba(242,241,238,.9), rgba(242,241,238,.9)) center / 1px 100% no-repeat; }
+  .crop-zoom { display: flex; align-items: center; gap: 12px; }
+  .crop-zoom svg { width: 18px; height: 18px; flex: none; opacity: .7; }
+  .crop-zoom input { flex: 1; accent-color: var(--accent); }
+  .crop-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .crop-actions .spacer { flex: 1; }
   /* ---- UniPakt Instant Messages (tam sayfa sohbet) ---- */
   .main.is-im { padding-bottom: clamp(16px, 2vw, 28px); }
   .main.is-im .main-inner { max-width: none; }
@@ -2447,6 +2471,143 @@
     img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Görsel açılamadı.')); };
     img.src = url;
   });
+  /* ------------------------------------------------------------------
+     LOGO CROPPER — a round mask with a 3×3 grid and centre mark over the
+     chosen image. Drag (mouse, finger, arrow keys) to position; zoom with
+     the slider, wheel, pinch or +/−. "Uygula" returns a 512×512 image of
+     the circle's square; null when cancelled.
+     ------------------------------------------------------------------ */
+  const LOGO_OUT = 512;
+  const openLogoCropper = (file) => new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onerror = () => { URL.revokeObjectURL(url); toast('Görsel açılamadı. Başka bir dosya dene.'); resolve(null); };
+    img.onload = () => {
+      const box = document.createElement('dialog');
+      box.className = 'crop-dlg';
+      box.innerHTML = `<div class="crop">
+        <h2>Logoyu hizala</h2>
+        <p class="lead">Sürükleyerek konumlandır, yakınlaştırarak boyutla. Yuvarlağın içi profilinde görünür.</p>
+        <div class="crop-stage" tabindex="0" aria-label="Logoyu hizalama alanı. Ok tuşlarıyla kaydır, artı ve eksi ile yakınlaştır.">
+          <img src="${esc(url)}" alt="" draggable="false"><div class="crop-ring"></div>
+        </div>
+        <label class="crop-zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M8 11h6M20 20l-3.5-3.5"/></svg>
+          <input type="range" min="1" max="4" step="0.01" value="1" aria-label="Yakınlaştır">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M8 11h6M11 8v6M20 20l-3.5-3.5"/></svg></label>
+        <div class="crop-actions">
+          <button class="btn ghost small" type="button" data-crop="reset">Ortala</button><span class="spacer"></span>
+          <button class="btn ghost" type="button" data-crop="cancel">Vazgeç</button>
+          <button class="btn" type="button" data-crop="apply">Uygula</button>
+        </div></div>`;
+      document.body.append(box);
+      const stage = box.querySelector('.crop-stage');
+      const pic = box.querySelector('.crop-stage img');
+      const slider = box.querySelector('input[type="range"]');
+      const W = img.naturalWidth, H = img.naturalHeight;
+      let zoom = 1, x = 0, y = 0;   // x, y: image centre offset from the stage centre, in stage px
+      const circle = () => stage.clientWidth * 0.86;          // matches .crop-ring inset: 7%
+      const scale = () => Math.max(circle() / W, circle() / H) * zoom;
+      const clamp = () => {
+        const s = scale(), d = circle();
+        const mx = Math.max(0, (W * s - d) / 2), my = Math.max(0, (H * s - d) / 2);
+        x = Math.min(mx, Math.max(-mx, x)); y = Math.min(my, Math.max(-my, y));
+      };
+      const draw = () => {
+        clamp();
+        const s = scale();
+        pic.style.width = `${W * s}px`; pic.style.height = `${H * s}px`;
+        pic.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+        slider.value = String(zoom);
+      };
+      // Zoom towards a point (stage px from centre) so it stays under the finger/cursor.
+      const setZoom = (next, px = 0, py = 0) => {
+        const before = scale();
+        zoom = Math.min(4, Math.max(1, next));
+        const k = scale() / before;
+        x = px - (px - x) * k; y = py - (py - y) * k;
+        draw();
+      };
+      const pointers = new Map();
+      let pinch = null;
+      const local = (ev) => { const r = stage.getBoundingClientRect(); return [ev.clientX - r.left - r.width / 2, ev.clientY - r.top - r.height / 2]; };
+      stage.addEventListener('pointerdown', (ev) => {
+        stage.setPointerCapture(ev.pointerId);
+        pointers.set(ev.pointerId, [ev.clientX, ev.clientY]);
+        if (pointers.size === 2) {
+          const [a, b] = [...pointers.values()];
+          pinch = { dist: Math.hypot(a[0] - b[0], a[1] - b[1]), zoom };
+        }
+      });
+      stage.addEventListener('pointermove', (ev) => {
+        const prev = pointers.get(ev.pointerId);
+        if (!prev) return;
+        pointers.set(ev.pointerId, [ev.clientX, ev.clientY]);
+        if (pointers.size === 1) { x += ev.clientX - prev[0]; y += ev.clientY - prev[1]; draw(); return; }
+        if (pinch && pointers.size === 2) {
+          const [a, b] = [...pointers.values()];
+          const r = stage.getBoundingClientRect();
+          setZoom(pinch.zoom * Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch.dist,
+            (a[0] + b[0]) / 2 - r.left - r.width / 2, (a[1] + b[1]) / 2 - r.top - r.height / 2);
+        }
+      });
+      const lift = (ev) => { pointers.delete(ev.pointerId); if (pointers.size < 2) pinch = null; };
+      stage.addEventListener('pointerup', lift);
+      stage.addEventListener('pointercancel', lift);
+      stage.addEventListener('wheel', (ev) => { ev.preventDefault(); const [px, py] = local(ev); setZoom(zoom * Math.exp(-ev.deltaY * 0.0015), px, py); }, { passive: false });
+      stage.addEventListener('keydown', (ev) => {
+        const step = ev.shiftKey ? 20 : 4;
+        const moves = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+        if (moves[ev.key]) { ev.preventDefault(); x += moves[ev.key][0]; y += moves[ev.key][1]; draw(); }
+        else if (ev.key === '+' || ev.key === '=') { ev.preventDefault(); setZoom(zoom * 1.08); }
+        else if (ev.key === '-') { ev.preventDefault(); setZoom(zoom / 1.08); }
+      });
+      slider.addEventListener('input', () => setZoom(Number(slider.value)));
+      const onResize = () => draw();
+      window.addEventListener('resize', onResize);
+      let result = null;
+      const finish = () => { box.close(); };
+      box.addEventListener('close', () => {
+        window.removeEventListener('resize', onResize);
+        URL.revokeObjectURL(url); box.remove(); resolve(result);
+      });
+      box.addEventListener('click', async (ev) => {
+        const act = ev.target.closest('[data-crop]')?.dataset.crop;
+        if (act === 'reset') { zoom = 1; x = 0; y = 0; draw(); }
+        if (act === 'cancel') finish();
+        if (act === 'apply') {
+          const canvas = document.createElement('canvas');
+          canvas.width = LOGO_OUT; canvas.height = LOGO_OUT;
+          const ctx = canvas.getContext('2d');
+          const s = scale(), k = LOGO_OUT / circle();
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, LOGO_OUT / 2 + (x - (W * s) / 2) * k, LOGO_OUT / 2 + (y - (H * s) / 2) * k, W * s * k, H * s * k);
+          const blob = await new Promise((r) => canvas.toBlob(r, 'image/webp', 0.92))
+            || await new Promise((r) => canvas.toBlob(r, 'image/png'));
+          if (!blob) { toast('Logo hazırlanamadı. Tekrar dene.'); return; }
+          const ext = blob.type === 'image/webp' ? 'webp' : 'png';
+          result = new File([blob], `logo.${ext}`, { type: blob.type });
+          finish();
+        }
+      });
+      box.showModal();
+      draw();
+      stage.focus();
+    };
+    img.src = url;
+  });
+
+  // Show the cropped logo in the profile form; it is uploaded when the form is saved.
+  const showPickedLogo = (input, file) => {
+    if (profileLogoPreviewUrl) URL.revokeObjectURL(profileLogoPreviewUrl);
+    profileLogoPreviewUrl = URL.createObjectURL(file);
+    const form = input.closest('form');
+    const preview = form?.querySelector('[data-profile-avatar]');
+    if (preview) preview.innerHTML = avatarMarkup(profileLogoPreviewUrl, 'Logo önizlemesi', 'large');
+    const remove = form?.querySelector('[data-act="profile-avatar-remove"]');
+    if (remove) remove.hidden = false;
+    if (form) form.elements.removeAvatar.checked = false;
+  };
+
   const shrinkImage = async (file) => {
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) throw new Error('Görsel yalnızca JPG, PNG veya WebP olabilir.');
     const img = await loadImage(file);
@@ -2840,7 +3001,7 @@
                 <div data-profile-avatar>${avatarMarkup(state.profile.avatarUrl, state.profile.fullName || clubInfo?.name || 'Kulüp', 'large')}</div>
                 <div class="profile-logo-actions">
                   <label class="field"><span>Kulüp logosu</span><input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" data-profile-logo></label>
-                  <small class="hint">JPG, PNG veya WebP · en fazla 1 MB</small>
+                  <small class="hint">JPG, PNG veya WebP · seçince yuvarlağa göre hizalarsın</small>
                   <input type="checkbox" name="removeAvatar" hidden>
                   <button class="btn ghost small profile-remove-logo" type="button" data-act="profile-avatar-remove" ${state.profile.avatarUrl ? '' : 'hidden'}>Logoyu kaldır</button>
                 </div>
@@ -4360,17 +4521,17 @@
   });
   document.addEventListener('change', (e) => {
     if (e.target.matches('[data-profile-logo]')) {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { toast('Logo JPG, PNG veya WebP olmalı.'); e.target.value = ''; return; }
-      if (profileLogoPreviewUrl) URL.revokeObjectURL(profileLogoPreviewUrl);
-      profileLogoPreviewUrl = URL.createObjectURL(file);
-      const preview = e.target.closest('form')?.querySelector('[data-profile-avatar]');
-      if (preview) preview.innerHTML = avatarMarkup(profileLogoPreviewUrl, 'Logo önizlemesi', 'large');
-      const form = e.target.closest('form');
-      const remove = form?.querySelector('[data-act="profile-avatar-remove"]');
-      if (remove) remove.hidden = false;
-      if (form) form.elements.removeAvatar.checked = false;
+      const input = e.target;
+      const picked = input.files && input.files[0];
+      if (!picked) return;
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(picked.type)) { toast('Logo JPG, PNG veya WebP olmalı.'); input.value = ''; return; }
+      // Align the logo in the round crop first; the cropped square replaces the picked file.
+      openLogoCropper(picked).then((file) => {
+        if (!file) { input.value = ''; return; }
+        try { const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files; }
+        catch (_) { toast('Bu tarayıcı kırpılan logoyu ekleyemedi.'); input.value = ''; return; }
+        showPickedLogo(input, file);
+      });
       return;
     }
     if (e.target.id === 'taskClub') { state.taskClub = e.target.value; render(); return; }
