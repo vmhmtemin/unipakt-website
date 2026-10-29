@@ -2474,10 +2474,38 @@
   /* ------------------------------------------------------------------
      LOGO CROPPER — a round mask with a 3×3 grid and centre mark over the
      chosen image. Drag (mouse, finger, arrow keys) to position; zoom with
-     the slider, wheel, pinch or +/−. "Uygula" returns a 512×512 image of
-     the circle's square; null when cancelled.
+     the slider, wheel, pinch or +/−. The image can be zoomed out until it
+     fits completely; the uncovered area is then filled with the colour of
+     the image's outermost pixels (white edge → white, black edge → black,
+     transparent edge → stays transparent). "Uygula" returns a 512×512
+     image of the circle's square; null when cancelled.
      ------------------------------------------------------------------ */
   const LOGO_OUT = 512;
+  // Colour of the image's outermost pixel ring: the most common (quantised)
+  // colour along all four edges, averaged over the pixels in that bucket.
+  // Returns null for a transparent edge.
+  const edgeColour = (img) => {
+    const w = Math.min(img.naturalWidth, 400), h = Math.min(img.naturalHeight, 400);
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0, w, h);
+    const px = ctx.getImageData(0, 0, w, h).data;
+    const buckets = new Map();
+    const add = (x, y) => {
+      const i = (y * w + x) * 4, a = px[i + 3];
+      const key = a < 32 ? 'clear' : `${px[i] >> 4},${px[i + 1] >> 4},${px[i + 2] >> 4}`;
+      const b = buckets.get(key) || { n: 0, r: 0, g: 0, bl: 0 };
+      b.n += 1; b.r += px[i]; b.g += px[i + 1]; b.bl += px[i + 2];
+      buckets.set(key, b);
+    };
+    for (let x = 0; x < w; x += 1) { add(x, 0); add(x, h - 1); }
+    for (let y = 1; y < h - 1; y += 1) { add(0, y); add(w - 1, y); }
+    let bestKey = 'clear', best = { n: 0 };
+    buckets.forEach((b, key) => { if (b.n > best.n) { best = b; bestKey = key; } });
+    if (bestKey === 'clear') return null;
+    const hex = (v) => Math.round(v / best.n).toString(16).padStart(2, '0');
+    return `#${hex(best.r)}${hex(best.g)}${hex(best.bl)}`;
+  };
   const openLogoCropper = (file) => new Promise((resolve) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
@@ -2504,12 +2532,19 @@
       const pic = box.querySelector('.crop-stage img');
       const slider = box.querySelector('input[type="range"]');
       const W = img.naturalWidth, H = img.naturalHeight;
+      const fill = edgeColour(img);
+      // The stage shows the fill too, so what you see is what gets saved.
+      if (fill) stage.style.background = fill;
+      // zoom 1 = the image covers the circle's square; MIN_ZOOM = the whole image fits inside it.
+      const MIN_ZOOM = Math.min(W, H) / Math.max(W, H);
+      slider.min = String(MIN_ZOOM);
       let zoom = 1, x = 0, y = 0;   // x, y: image centre offset from the stage centre, in stage px
       const circle = () => stage.clientWidth * 0.86;          // matches .crop-ring inset: 7%
       const scale = () => Math.max(circle() / W, circle() / H) * zoom;
+      // Larger than the square: it must keep covering it. Smaller: it must stay inside it.
       const clamp = () => {
         const s = scale(), d = circle();
-        const mx = Math.max(0, (W * s - d) / 2), my = Math.max(0, (H * s - d) / 2);
+        const mx = Math.abs(W * s - d) / 2, my = Math.abs(H * s - d) / 2;
         x = Math.min(mx, Math.max(-mx, x)); y = Math.min(my, Math.max(-my, y));
       };
       const draw = () => {
@@ -2522,7 +2557,7 @@
       // Zoom towards a point (stage px from centre) so it stays under the finger/cursor.
       const setZoom = (next, px = 0, py = 0) => {
         const before = scale();
-        zoom = Math.min(4, Math.max(1, next));
+        zoom = Math.min(4, Math.max(MIN_ZOOM, next));
         const k = scale() / before;
         x = px - (px - x) * k; y = py - (py - y) * k;
         draw();
@@ -2579,6 +2614,8 @@
           canvas.width = LOGO_OUT; canvas.height = LOGO_OUT;
           const ctx = canvas.getContext('2d');
           const s = scale(), k = LOGO_OUT / circle();
+          // Only needed when the image no longer covers the whole square.
+          if (fill && (W * s < circle() - 0.5 || H * s < circle() - 0.5)) { ctx.fillStyle = fill; ctx.fillRect(0, 0, LOGO_OUT, LOGO_OUT); }
           ctx.imageSmoothingQuality = 'high';
           ctx.drawImage(img, LOGO_OUT / 2 + (x - (W * s) / 2) * k, LOGO_OUT / 2 + (y - (H * s) / 2) * k, W * s * k, H * s * k);
           const blob = await new Promise((r) => canvas.toBlob(r, 'image/webp', 0.92))
