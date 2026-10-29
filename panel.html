@@ -683,6 +683,66 @@
   .pv-social { display: flex; gap: 8px; }
   .pv-social svg { width: 18px; height: 18px; color: #fff; }
   .pv-empty { opacity: .45; font-style: italic; }
+  .pv-org-logo { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; vertical-align: middle; margin-right: 7px; border: 1px solid #ffffff33; }
+  .pv-hero { color: var(--pv-ink, #fff); }
+  .pv-hero.bg-clear::before { background: linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.6)); }
+  .pv-hero.bg-clear::after { opacity: 0; }
+  .pv-hero.bg-blur { background-image: none !important; overflow: hidden; }
+  .pv-hero.bg-blur::before { background: var(--pv-poster, none) center / cover no-repeat; filter: blur(22px) saturate(1.35); transform: scale(1.3); z-index: -2; }
+  .pv-hero.bg-blur::after { background: rgba(0,0,0,.42); opacity: 1; }
+  .pv-hero.bg-color { background: var(--pv-bgc) !important; }
+  .pv-hero.bg-gradient { background: linear-gradient(135deg, var(--pv-bgc), var(--pv-grad2)) !important; }
+  .pv-hero.bg-color::before, .pv-hero.bg-gradient::before { display: none; }
+  .pv-hero.bg-color::after, .pv-hero.bg-gradient::after { background-image: radial-gradient(var(--pv-ink) 1px, transparent 1.2px); opacity: .18; }
+  .pv-hero.light i { background: var(--accent); }
+  .pv-hero.t-left { text-align: left; }
+  .pv-hero.t-left i { margin-left: 0; }
+  .pv-hero.t-left h3 { font-size: 27px; }
+  .pv-hero.t-compact h3 { font-size: 16px; font-weight: 800; }
+  .pv-hero.t-outline h3 { color: transparent; -webkit-text-stroke: 1px var(--pv-ink, #fff); }
+  .pv-hero.t-caps h3 { text-transform: uppercase; letter-spacing: .05em; font-weight: 800; font-size: 18px; }
+  .pv-hero.t-hand h3 { font-family: 'Caveat', cursive; font-weight: 700; font-size: 32px; letter-spacing: 0; line-height: 1; }
+  .pv-fee span { color: inherit; }
+  /* Sayfa tasarımı (etkinlik formu) */
+  .evd-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .evd-head h2 { margin: 0; }
+  .evd-group { display: grid; gap: 10px; padding-top: 6px; }
+  .evd-group > .hint { margin-top: -6px; font-size: 12.5px; opacity: .6; }
+  .evd-colors { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .evd-sw { width: 32px; height: 32px; padding: 0; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--sw); cursor: pointer; position: relative; transition: transform .15s ease; }
+  .evd-sw:hover { transform: scale(1.08); }
+  .evd-sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--bg, #0c0c0d), 0 0 0 4px var(--ink); }
+  .evd-sw-none { background: transparent; display: grid; place-items: center; font-size: 14px; opacity: .75; }
+  .evd-custom { position: relative; width: 32px; height: 32px; border-radius: 50%; border: 1px dashed var(--border-strong); display: grid; place-items: center; cursor: pointer; overflow: hidden; background: conic-gradient(from 0deg, #ff5a1f, #fbbc05, #34a853, #06b6d4, #4285f4, #8b5cf6, #ec4899, #ff5a1f); }
+  .evd-custom span { width: 18px; height: 18px; border-radius: 50%; background: var(--bg, #0c0c0d); color: var(--ink); display: grid; place-items: center; font-size: 14px; line-height: 1; }
+  .evd-custom input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; border: 0; padding: 0; }
+  .evd-hex { width: 108px; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border-strong); background: color-mix(in srgb, var(--ink) 4%, transparent); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; text-transform: uppercase; outline: none; }
+  .evd-hex:focus { border-color: var(--accent); }
+  .evd-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+  .evd-card { position: relative; display: grid; gap: 4px; padding: 8px; border: 1px solid var(--border); border-radius: 14px; cursor: pointer; transition: border-color .15s ease, background .15s ease; }
+  .evd-card:hover { border-color: var(--border-strong); }
+  .evd-card input { position: absolute; opacity: 0; pointer-events: none; }
+  .evd-card:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .evd-card:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .evd-card b { font-size: 12.5px; }
+  .evd-card small { font-size: 11px; opacity: .55; line-height: 1.3; }
+  .evd-thumb { display: block; height: 44px; border-radius: 9px; position: relative; overflow: hidden; background: #3a3a3a; }
+  .evd-thumb i { position: absolute; left: 50%; top: 50%; width: 46%; height: 5px; border-radius: 3px; background: #fff; transform: translate(-50%, -50%); box-shadow: 0 9px 0 -1px #ffffff80; }
+  .evd-thumb.bg-default { background: radial-gradient(#ffffff40 1px, transparent 1.3px) 0 0 / 7px 7px, linear-gradient(135deg, #2a2a2a, #111); }
+  .evd-thumb.bg-clear { background: linear-gradient(135deg, #6b8fb5, #c48a5a); }
+  .evd-thumb.bg-blur { background: linear-gradient(135deg, #b35b7a, #5b6fb3, #3e9b8a); filter: saturate(1.1); }
+  .evd-thumb.bg-blur i { filter: none; }
+  .evd-thumb.bg-color { background: #1E3A8A; }
+  .evd-thumb.bg-gradient { background: linear-gradient(135deg, #1E3A8A, #FF5A1F); }
+  .evd-cards.titles { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+  .evd-aa { display: grid; place-items: center; height: 44px; border-radius: 9px; background: color-mix(in srgb, var(--ink) 6%, transparent); font: 900 22px/1 'Archivo', sans-serif; letter-spacing: -0.02em; }
+  .evd-aa.t-left { justify-items: start; padding-left: 10px; font-size: 26px; }
+  .evd-aa.t-compact { font-size: 16px; font-weight: 800; }
+  .evd-aa.t-outline { color: transparent; -webkit-text-stroke: 1px var(--ink); }
+  .evd-aa.t-caps { font-size: 17px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  .evd-aa.t-hand { font-family: 'Caveat', cursive; font-weight: 700; font-size: 28px; letter-spacing: 0; }
+  .evd-bgcolor { display: grid; gap: 8px; padding-top: 4px; }
+  .evd-bgcolor[hidden] { display: none; }
 
   /* Yorum onayı */
   .comment-body { white-space: pre-line; overflow-wrap: anywhere; }
@@ -1164,18 +1224,20 @@
     category: e.category || '', biletimgo: e.biletimgo_url || '', instagram: e.instagram_url || '', facebook: e.facebook_url || '',
     x: e.x_url || '', youtube: e.youtube_url || '', capacity: e.capacity ?? '',
     speakers: Array.isArray(e.speakers) ? e.speakers : [],
+    design: e.design && typeof e.design === 'object' && !Array.isArray(e.design) ? e.design : {},
   });
 
   // Formdaki adı → events sütunu. onlyPresent: düzenleme talebinde olmayan alan hiç yazılmaz,
   // böylece bu alanlardan önce gönderilmiş eski talepler onaylanınca hiçbir şey sıfırlanmaz.
   const EXTRA_COLS = [['endDate', 'end_date'], ['endTime', 'end_time'], ['bannerUrl', 'banner_url'], ['city', 'city'], ['category', 'category'],
-    ['biletimgo', 'biletimgo_url'], ['instagram', 'instagram_url'], ['facebook', 'facebook_url'], ['x', 'x_url'], ['youtube', 'youtube_url'], ['capacity', 'capacity'], ['speakers', 'speakers']];
+    ['biletimgo', 'biletimgo_url'], ['instagram', 'instagram_url'], ['facebook', 'facebook_url'], ['x', 'x_url'], ['youtube', 'youtube_url'], ['capacity', 'capacity'], ['speakers', 'speakers'], ['design', 'design']];
   const extraPayload = (f, onlyPresent = false) => {
     const out = {};
     EXTRA_COLS.forEach(([k, col]) => {
       if (onlyPresent && !(k in f)) return;
       const v = f[k];
       if (k === 'speakers') { out[col] = Array.isArray(v) ? v : []; return; }
+      if (k === 'design') { out[col] = v && typeof v === 'object' ? v : {}; return; }
       out[col] = (v === '' || v === null || v === undefined) ? null : (k === 'capacity' ? Number(v) : v);
     });
     return out;
@@ -1184,7 +1246,7 @@
     const out = {};
     EXTRA_COLS.forEach(([k]) => {
       if (onlyPresent && !(k in f)) return;
-      out[k === 'bannerUrl' ? 'banner' : k] = k === 'speakers' ? (Array.isArray(f[k]) ? f[k] : []) : (f[k] ?? '');
+      out[k === 'bannerUrl' ? 'banner' : k] = k === 'speakers' ? (Array.isArray(f[k]) ? f[k] : []) : k === 'design' ? (f[k] && typeof f[k] === 'object' ? f[k] : {}) : (f[k] ?? '');
     });
     return out;
   };
@@ -2592,12 +2654,13 @@
   // Approvals: before/after for every field a club's edit request carries. Everything is escaped.
   const EDIT_LABELS = { title: 'Başlık', desc: 'Açıklama', date: 'İlk tarih', time: 'Saat', occurrences: 'Tarihler', university: 'Üniversite', place: 'Mekan', address: 'Açık adres', rules: 'Bilgiler / kurallar', posterUrl: 'Afiş', tags: 'Etiketler', registration: 'Kayıt bağlantısı', feeType: 'Ücret durumu', feeAmount: 'Ücret tutarı', seeking: 'Aranan ortak', kind: 'Tür',
     endDate: 'Bitiş tarihi', endTime: 'Bitiş saati', bannerUrl: 'Banner', city: 'İl', category: 'Kategori', biletimgo: 'biletimGO sayfası',
-    instagram: 'Instagram', facebook: 'Facebook', x: 'X / Twitter', youtube: 'YouTube', capacity: 'Kontenjan', speakers: 'Konuşmacılar' };
+    instagram: 'Instagram', facebook: 'Facebook', x: 'X / Twitter', youtube: 'YouTube', capacity: 'Kontenjan', speakers: 'Konuşmacılar', design: 'Sayfa tasarımı' };
   const editValue = (k, v) => {
     if (v === null || v === undefined || v === '') return '';
     if (k === 'occurrences' && Array.isArray(v)) return v.map((o) => `${o.date || ''}${o.time ? ` ${o.time}` : ''}`).join('\n');
     if (k === 'feeType') return v === 'paid' ? 'Ücretli' : 'Ücretsiz';
     if (k === 'time') return String(v).slice(0, 5);
+    if (k === 'design' && v && typeof v === 'object') return designSummary(v);
     if (k === 'speakers' && Array.isArray(v)) return v.map((s) => `${s.name}${s.linkedin ? ` (${s.linkedin})` : ''}`).join('\n');
     if (Array.isArray(v)) return v.map((x) => (typeof x === 'object' ? JSON.stringify(x) : String(x))).join(', ');
     if (typeof v === 'object') return JSON.stringify(v);
@@ -2914,7 +2977,7 @@
   const icon = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
 
   const EMPTY_VALUES = { title: '', category: '', date: '', time: '', endDate: '', endTime: '', extraDates: '', place: '', city: '', university: '', address: '',
-    desc: '', rules: '', registration: '', capacity: '', tags: '', seeking: '', feeAmount: '', biletimgo: '', instagram: '', facebook: '', x: '', youtube: '', hidden: false, speakers: [] };
+    desc: '', rules: '', registration: '', capacity: '', tags: '', seeking: '', feeAmount: '', biletimgo: '', instagram: '', facebook: '', x: '', youtube: '', hidden: false, speakers: [], dAccent: '', dBg: 'default', dBgColor: '', dTitle: 'default' };
   const valuesFromEvent = (e) => {
     const occ = e.occurrences && e.occurrences.length ? e.occurrences : [{ date: e.date, time: e.time || '' }];
     return { ...EMPTY_VALUES, title: e.title || '', category: e.category || '', date: occ[0].date || '', time: occ[0].time || '', endDate: e.endDate || '', endTime: e.endTime || '',
@@ -2922,7 +2985,8 @@
       address: e.address || '', desc: e.desc || '', rules: e.rules || '', registration: e.registration || '', capacity: e.capacity === '' || e.capacity == null ? '' : String(e.capacity),
       tags: (e.tags || []).join(', '), seeking: e.seeking || '', feeAmount: e.feeAmount == null ? '' : String(e.feeAmount), biletimgo: e.biletimgo || '',
       instagram: e.instagram || '', facebook: e.facebook || '', x: e.x || '', youtube: e.youtube || '', hidden: e.visible === false,
-      speakers: (e.speakers || []).map((s) => ({ name: s.name || '', linkedin: s.linkedin || '' })) };
+      speakers: (e.speakers || []).map((s) => ({ name: s.name || '', linkedin: s.linkedin || '' })),
+      dAccent: e.design?.accent || '', dBg: e.design?.bg || 'default', dBgColor: e.design?.bgColor || '', dTitle: e.design?.title || 'default' };
   };
 
   // Sayfayı açar. Yeni etkinlikte tür seçimiyle başlar; taslak varsa tür seçilince geri yüklenir.
@@ -3030,6 +3094,11 @@
             ${partner ? evField('Nasıl bir ortak arıyorsun?', `<input name="seeking" required maxlength="200" value="${esc(v.seeking)}">`) : ''}
           </section>
 
+          <section class="card evp-sec evd" data-evd><div class="evd-head"><h2>Sayfa tasarımı</h2><button type="button" class="btn ghost small" data-act="evd-reset">Varsayılana dön</button></div>
+            <p class="hint">Etkinlik sayfasının görünümünü seç. Hiçbir şeye dokunmazsan UniPakt’ın varsayılan tasarımı kullanılır; sağdaki önizleme anında değişir.</p>
+            ${designHtml(v)}
+          </section>
+
           <section class="card evp-sec"><h2>Konuşmacılar</h2><p class="hint">İsteğe bağlı. Sitede madde madde listelenir; LinkedIn bağlantısı eklersen konuşmacının adına tıklayınca profili açılır.</p>
             <div class="sp-list" data-sp-host>${speakersHtml(v.speakers)}</div>
           </section>
@@ -3079,6 +3148,98 @@
 
   const HTTPS = /^https:\/\/[^\s"'<>]+$/i;
   const BILETIMGO = /^https:\/\/(www\.)?biletimgo\.com\/[^\s"'<>]*$/i;
+  // ---- Sayfa tasarımı: vurgu rengi, üst alan arka planı, başlık stili (boş = varsayılan) ----
+  const HEX6 = /^#[0-9a-f]{6}$/i;
+  const ACCENT_SWATCHES = [['#FF5A1F', 'UniPakt turuncusu'], ['#EA4335', 'Kırmızı'], ['#FBBC05', 'Sarı'], ['#34A853', 'Yeşil'], ['#4285F4', 'Mavi'], ['#06B6D4', 'Turkuaz'], ['#8B5CF6', 'Mor'], ['#EC4899', 'Pembe'], ['#F2F1EE', 'Kırık beyaz']];
+  const BG_SWATCHES = [['#0C0C0D', 'Siyah'], ['#1F2937', 'Antrasit'], ['#1E3A8A', 'Lacivert'], ['#14532D', 'Koyu yeşil'], ['#7C2D12', 'Kiremit'], ['#4C1D95', 'Koyu mor'], ['#F5F5F4', 'Açık gri'], ['#FDE68A', 'Krem sarı'], ['#FFFFFF', 'Beyaz']];
+  const DESIGN_BGS = [['default', 'Varsayılan', 'Görsel, koyu katman ve noktalar'], ['clear', 'Görsel net', 'Banner daha belirgin'], ['blur', 'Afişten bulanık', 'Afişin renkleri yumuşak bir zemin olur'], ['color', 'Düz renk', 'Seçtiğin renk'], ['gradient', 'Renk geçişi', 'Arka plan renginden vurgu rengine']];
+  const DESIGN_TITLES = [['default', 'Varsayılan'], ['left', 'Sola yaslı, büyük'], ['compact', 'Kompakt'], ['outline', 'Çizgili (içi boş)'], ['caps', 'BÜYÜK HARF'], ['hand', 'El yazısı']];
+  const designFrom = (v) => {
+    const d = {};
+    if (HEX6.test(v.dAccent || '')) d.accent = v.dAccent.toUpperCase();
+    if (v.dBg && v.dBg !== 'default' && DESIGN_BGS.some(([k]) => k === v.dBg)) d.bg = v.dBg;
+    if ((d.bg === 'color' || d.bg === 'gradient') && HEX6.test(v.dBgColor || '')) d.bgColor = v.dBgColor.toUpperCase();
+    if (v.dTitle && v.dTitle !== 'default' && DESIGN_TITLES.some(([k]) => k === v.dTitle)) d.title = v.dTitle;
+    return d;
+  };
+  const designSummary = (d) => {
+    const parts = [];
+    if (d.accent) parts.push(`Vurgu ${d.accent}`);
+    if (d.bg) parts.push(`Arka plan: ${(DESIGN_BGS.find(([k]) => k === d.bg) || [, d.bg])[1]}${d.bgColor ? ` ${d.bgColor}` : ''}`);
+    if (d.title) parts.push(`Başlık: ${(DESIGN_TITLES.find(([k]) => k === d.title) || [, d.title])[1]}`);
+    return parts.length ? parts.join(' · ') : 'Varsayılan';
+  };
+  const lum = (hex) => { const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((x) => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+  const colorRow = (name, value, swatches, { allowDefault }) => `
+    <div class="evd-colors" data-evd-colors="${name}">
+      ${allowDefault ? `<button type="button" class="evd-sw evd-sw-none" data-evd-sw="${name}" data-v="" aria-pressed="${!value}" title="Varsayılan"><span>Ø</span></button>` : ''}
+      ${swatches.map(([hex, label]) => `<button type="button" class="evd-sw" data-evd-sw="${name}" data-v="${hex}" aria-pressed="${String(value).toUpperCase() === hex}" title="${esc(label)}" aria-label="${esc(label)}" style="--sw:${hex}"></button>`).join('')}
+      <label class="evd-custom" title="Özel renk"><input type="color" data-evd-pick="${name}" value="${HEX6.test(value) ? esc(value) : '#ff5a1f'}" aria-label="Özel renk seç"><span>+</span></label>
+      <input class="evd-hex" name="${name}" value="${esc(value)}" maxlength="7" placeholder="${allowDefault ? 'Varsayılan' : '#RRGGBB'}" spellcheck="false" autocomplete="off" aria-label="Renk kodu">
+    </div>`;
+  const designHtml = (v) => `
+    <div class="evd-group"><span class="field-label">Vurgu rengi</span><small class="hint">Çizgiler, simgeler, geri sayım çerçevesi ve “Kayıt ol” düğmesi bu renge döner.</small>
+      ${colorRow('dAccent', v.dAccent || '', ACCENT_SWATCHES, { allowDefault: true })}</div>
+    <div class="evd-group"><span class="field-label">Üst alan arka planı</span>
+      <div class="evd-cards">${DESIGN_BGS.map(([k, label, hint]) => `<label class="evd-card"><input type="radio" name="dBg" value="${k}" ${v.dBg === k ? 'checked' : ''}><span class="evd-thumb bg-${k}" aria-hidden="true"><i></i></span><b>${esc(label)}</b><small>${esc(hint)}</small></label>`).join('')}</div>
+      <div class="evd-bgcolor" data-evd-bgcolor ${v.dBg === 'color' || v.dBg === 'gradient' ? '' : 'hidden'}><span class="field-label">Arka plan rengi</span>${colorRow('dBgColor', v.dBgColor || '', BG_SWATCHES, { allowDefault: false })}</div></div>
+    <div class="evd-group"><span class="field-label">Başlık stili</span>
+      <div class="evd-cards titles">${DESIGN_TITLES.map(([k, label]) => `<label class="evd-card"><input type="radio" name="dTitle" value="${k}" ${v.dTitle === k ? 'checked' : ''}><span class="evd-aa t-${k}" aria-hidden="true">Aa</span><b>${esc(label)}</b></label>`).join('')}</div></div>`;
+  const syncDesignUi = (form) => {
+    const fd = new FormData(form);
+    form.querySelectorAll('[data-evd-sw]').forEach((b) => b.setAttribute('aria-pressed', String(String(fd.get(b.dataset.evdSw) || '').toUpperCase() === b.dataset.v.toUpperCase())));
+    const bg = fd.get('dBg');
+    const box = form.querySelector('[data-evd-bgcolor]'); if (box) box.hidden = !(bg === 'color' || bg === 'gradient');
+  };
+  const setDesignValue = (name, value) => {
+    const form = document.getElementById('evpForm'); if (!form) return;
+    const input = form.querySelector(`[name="${name}"]`); if (!input) return;
+    input.value = value;
+    const pick = form.querySelector(`[data-evd-pick="${name}"]`); if (pick && HEX6.test(value)) pick.value = value.toLowerCase();
+    syncDesignUi(form);
+    form.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest?.('[data-evd-sw]'); if (!b) return;
+    e.preventDefault();
+    setDesignValue(b.dataset.evdSw, b.dataset.v);
+    if (b.dataset.evdSw === 'dBgColor') {
+      const form = document.getElementById('evpForm');
+      const bg = form?.querySelector('[name="dBg"]:checked');
+      if (bg && bg.value !== 'color' && bg.value !== 'gradient') { form.querySelector('[name="dBg"][value="color"]').checked = true; syncDesignUi(form); form.dispatchEvent(new Event('input', { bubbles: true })); }
+    }
+  });
+  document.addEventListener('input', (e) => {
+    const el = e.target;
+    if (el.matches?.('[data-evd-pick]')) { setDesignValue(el.dataset.evdPick, el.value.toUpperCase()); return; }
+    if (el.matches?.('.evd-hex')) {
+      let s = el.value.trim(); if (s && !s.startsWith('#')) { s = `#${s}`; el.value = s; }
+      const form = el.form; if (form) syncDesignUi(form);
+    }
+  });
+  document.addEventListener('change', (e) => {
+    const el = e.target;
+    if (!el.matches?.('[name="dBg"], [name="dTitle"]') || !el.form) return;
+    // Düz renk / geçiş seçilince henüz renk yoksa siyahla başlar; önizleme ve kayıt hep geçerli bir renkle çalışır.
+    if (el.name === 'dBg' && (el.value === 'color' || el.value === 'gradient')) {
+      const c = el.form.querySelector('[name="dBgColor"]');
+      if (c && !HEX6.test(c.value)) { c.value = '#0C0C0D'; el.form.dispatchEvent(new Event('input', { bubbles: true })); }
+    }
+    syncDesignUi(el.form);
+  });
+  const designActions = {
+    'evd-reset'() {
+      const form = document.getElementById('evpForm'); if (!form) return;
+      form.querySelector('[name="dAccent"]').value = '';
+      form.querySelector('[name="dBgColor"]').value = '';
+      form.querySelector('[name="dBg"][value="default"]').checked = true;
+      form.querySelector('[name="dTitle"][value="default"]').checked = true;
+      syncDesignUi(form);
+      form.dispatchEvent(new Event('input', { bubbles: true }));
+      toast('Sayfa tasarımı varsayılana döndü.');
+    },
+  };
+
   // ---- Konuşmacılar: ad + isteğe bağlı LinkedIn (sitede ada tıklayınca açılır) ----
   const LINKEDIN = /^https:\/\/([a-z]{2,3}\.)?(www\.)?linkedin\.com\/[^\s"'<>]+$/i;
   const normLinkedin = (u) => {
@@ -3151,6 +3312,8 @@
     for (const [k, label] of [['instagram', 'Instagram'], ['facebook', 'Facebook'], ['x', 'X / Twitter'], ['youtube', 'YouTube']]) {
       if (v[k] && !HTTPS.test(v[k])) return `${label} linki https:// ile başlamalı.`;
     }
+    if (v.dAccent && !HEX6.test(v.dAccent)) return 'Vurgu rengi #RRGGBB biçiminde olmalı (örn. #FF5A1F).';
+    if ((v.dBg === 'color' || v.dBg === 'gradient') && !HEX6.test(v.dBgColor)) return 'Arka plan rengi seç ya da #RRGGBB biçiminde yaz.';
     const speakerProblem = speakersProblem(v.speakers);
     if (speakerProblem) return speakerProblem;
     return '';
@@ -3165,8 +3328,23 @@
     const socials = ['instagram', 'facebook', 'x', 'youtube'].filter((k) => v[k]);
     const row = (ic, label, val) => (val ? `<div class="pv-row">${icon(ic)}<div><small>${esc(label)}</small><span>${val}</span></div></div>` : '');
     const placeText = [v.place, v.address, v.city].map((x) => String(x).trim()).filter(Boolean).map(esc).join('<br>');
+    const d = designFrom(v);
+    const pvVars = [];
+    let heroInk = '#FFFFFF';
+    if (d.bg === 'color' || d.bg === 'gradient') {
+      d.bgColor = d.bgColor || '#0C0C0D';
+      const second = d.bg === 'gradient' ? (d.accent || '#FF5A1F') : d.bgColor;
+      heroInk = (lum(d.bgColor) + lum(second)) / 2 > 0.42 ? '#0C0C0D' : '#FFFFFF';
+      pvVars.push(`--pv-bgc:${d.bgColor}`, `--pv-grad2:${second}`);
+    }
+    pvVars.push(`--pv-ink:${heroInk}`);
+    if (img) pvVars.push(`--pv-poster:url('${esc(img).replace(/'/g, '%27')}')`);
+    if (hero) pvVars.push(`background-image:url('${esc(hero).replace(/'/g, '%27')}')`);
+    if (d.accent) { box.style.setProperty('--accent', d.accent); box.style.setProperty('--pv-on-acc', lum(d.accent) > 0.42 ? '#0C0C0D' : '#FFFFFF'); }
+    else { box.style.removeProperty('--accent'); box.style.removeProperty('--pv-on-acc'); }
+    const orgLogo = isAdmin() || (evForm.mode === 'edit' && db.events.find((x) => x.id === evForm.id)?.ownerId === ADMIN) ? '/apple-touch-icon.png' : (state.profile.avatarUrl || '');
     box.innerHTML = `
-      <div class="pv-hero" ${hero ? `style="background-image:url('${esc(hero).replace(/'/g, '%27')}')"` : ''}>
+      <div class="pv-hero bg-${d.bg || 'default'} t-${d.title || 'default'}${heroInk === '#0C0C0D' ? ' light' : ''}" style="${pvVars.join(';')}">
         <h3>${esc(v.title) || '<span class="pv-empty">Etkinlik adı</span>'}</h3><i></i>
         <p>${[v.place, fmtWhen(first.date, first.time)].filter(Boolean).map(esc).join(' · ') || '<span class="pv-empty">Yer · tarih</span>'}</p>
       </div>
@@ -3178,7 +3356,7 @@
         <div class="pv-card"><h4>Etkinlik Bilgileri</h4>
           ${row('start', 'Başlangıç', esc(fmtWhen(first.date, first.time)))}
           ${row('end', 'Bitiş', esc(fmtWhen(v.endDate || (v.endTime ? first.date : ''), v.endTime)))}
-          ${row('org', 'Organizatör', esc(organizerName()))}
+          ${row('org', 'Organizatör', `${orgLogo ? `<img class="pv-org-logo" src="${esc(orgLogo)}" alt="">` : ''}${esc(organizerName())}`)}
           ${row('cat', 'Kategori', esc(v.category))}
           ${row('place', 'Yer', placeText)}
           ${socials.length ? row('link', 'Etkinlik sayfaları', `<span class="pv-social">${socials.map((k) => icon(k)).join('')}</span>`) : ''}
@@ -3284,6 +3462,7 @@
       registration: v.registration.trim(), feeType: evForm.fee === 'paid' ? 'paid' : 'free', feeAmount: evForm.fee === 'paid' ? v.feeAmount : '',
       biletimgo: v.biletimgo.trim(), instagram: v.instagram.trim(), facebook: v.facebook.trim(), x: v.x.trim(), youtube: v.youtube.trim(), capacity: v.capacity,
       speakers: cleanSpeakers(v.speakers),
+      design: designFrom(v),
     };
     if (evForm.kind === 'partner') f.seeking = v.seeking.trim();
     const visible = !v.hidden;
@@ -4338,6 +4517,7 @@
   const actions = {
     ...regActions,
     ...speakerActions,
+    ...designActions,
     'mobile-nav-toggle'() { state.navOpen = !state.navOpen; render(); },
     'profile-menu-toggle'() { state.profileMenuOpen = !state.profileMenuOpen; render(); },
     'profile-avatar-remove'() {

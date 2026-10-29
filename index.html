@@ -6564,6 +6564,44 @@
     .ev-count div { border-color: color-mix(in srgb, #fff 35%, transparent); }
     .ev-ended { border-color: currentColor; color: inherit; }
     .ev-fee { color: inherit; font-weight: 700; }
+    /* ---- Etkinlik sayfası tasarımı (kulübün panelde seçtiği; boşsa yukarıdaki varsayılan) ---- */
+    .ev-org-line { display: inline-flex; align-items: center; gap: 10px; }
+    .ev-org-logo { width: 32px; height: 32px; flex: none; border-radius: 50%; object-fit: cover; background: var(--paper); border: 1px solid var(--border-strong); }
+    .ev-skin.has-acc .ev-bar, .ev-skin.has-acc .ev-detail h2::before, .ev-skin.has-acc .ev-card h2::before { background: var(--ev-acc); }
+    .ev-skin.has-acc .ev-hero-meta svg, .ev-skin.has-acc .ev-info-row > svg, .ev-skin.has-acc .ev-rules svg { color: var(--ev-acc); opacity: 1; }
+    .ev-skin.has-acc .ev-count div { border-color: var(--ev-acc); }
+    .ev-skin.has-acc .ev-ticket { border-color: color-mix(in srgb, var(--ev-acc) 60%, transparent); }
+    .ev-skin.has-acc .ev-cta { background: var(--ev-acc); border-color: var(--ev-acc); color: var(--ev-on-acc); }
+    .ev-skin.has-acc .ev-act:hover, .ev-skin.has-acc .ev-social a:hover, .ev-skin.has-acc .ev-back-top:hover { border-color: var(--ev-acc); color: inherit; }
+    .ev-skin.has-acc .ev-org:hover, .ev-skin.has-acc .ev-sp-link:hover { color: inherit; text-decoration-color: var(--ev-acc); border-bottom-color: var(--ev-acc); }
+    .ev-skin.has-acc .ev-org-logo { border-color: var(--ev-acc); }
+    .ev-skin.has-acc .ev-ticket .ev-fee { color: inherit; }
+    .ev-hero { color: var(--ev-hero-ink, #fff); }
+    /* Arka plan: görsel net */
+    .ev-hero.ev-bg-clear::after { background: linear-gradient(180deg, rgba(0, 0, 0, .18) 0%, rgba(0, 0, 0, .62) 100%); }
+    /* Arka plan: afişten bulanık */
+    .ev-hero.ev-bg-blur::before, .ev-hero.ev-bg-blur.is-placeholder::before { background-image: var(--ev-poster, var(--ev-hero)); filter: blur(38px) saturate(1.35); transform: scale(1.25); }
+    .ev-hero.ev-bg-blur::after { background: rgba(0, 0, 0, .42); }
+    /* Arka plan: düz renk / renk geçişi */
+    .ev-hero.ev-bg-color { background: var(--ev-bgc); }
+    .ev-hero.ev-bg-gradient { background: linear-gradient(135deg, var(--ev-bgc) 0%, var(--ev-grad2) 100%); }
+    .ev-hero.ev-bg-color::before, .ev-hero.ev-bg-gradient::before { display: none; }
+    .ev-hero.ev-bg-color::after, .ev-hero.ev-bg-gradient::after { background: radial-gradient(color-mix(in srgb, var(--ev-hero-ink) 20%, transparent) 1px, transparent 1.3px) 0 0 / 18px 18px; }
+    .ev-hero.ev-hero-light .ev-count div { border-color: color-mix(in srgb, #0C0C0D 30%, transparent); background: rgba(255, 255, 255, .35); }
+    .ev-skin.has-acc .ev-hero.ev-hero-light .ev-count div { border-color: var(--ev-acc); }
+    .ev-hero.ev-hero-light .ev-back-top { color: #0C0C0D; background: rgba(255, 255, 255, .45); border-color: rgba(0, 0, 0, .2); }
+    .ev-hero.ev-hero-light .ev-bar { background: #0C0C0D; }
+    .ev-skin.has-acc .ev-hero.ev-hero-light .ev-bar { background: var(--ev-acc); }
+    /* Başlık stilleri */
+    .ev-hero.ev-title-left { text-align: left; }
+    .ev-hero.ev-title-left .ev-hero-in { justify-items: start; }
+    .ev-hero.ev-title-left .ev-hero-meta { justify-content: flex-start; }
+    .ev-hero.ev-title-left h1 { font-size: clamp(36px, 6vw, 78px); max-width: 16ch; }
+    .ev-hero.ev-title-compact h1 { font-size: clamp(24px, 3.2vw, 40px); font-weight: 800; letter-spacing: -0.02em; max-width: 32ch; }
+    .ev-hero.ev-title-outline h1 { color: transparent; -webkit-text-stroke: clamp(1px, .14vw, 2px) var(--ev-hero-ink, #fff); }
+    @supports not (-webkit-text-stroke: 1px #fff) { .ev-hero.ev-title-outline h1 { color: inherit; } }
+    .ev-hero.ev-title-caps h1 { text-transform: uppercase; font-weight: 800; letter-spacing: .05em; font-size: clamp(24px, 3.8vw, 48px); max-width: 26ch; }
+    .ev-hero.ev-title-hand h1 { font-family: 'Caveat', cursive; font-weight: 700; letter-spacing: 0; line-height: 1; font-size: clamp(44px, 6.6vw, 86px); }
     .ev-md a, .ev-map, .club-details-empty a, .kampus-selected-card .club-contact a, .club-contact-go,
     .outside-istanbul-back, .minimal-form .outside-istanbul-back, .minimal-form .university-results .university-city-action, .cal3-hint button { color: var(--ink) !important; text-decoration: underline; text-underline-offset: 3px; }
     .cal3-chip, .site-cal-v2-filter-chip { border-color: var(--border-strong); color: var(--ink); }
@@ -9158,6 +9196,41 @@
             });
         }
 
+        // Sayfa tasarımı (panelde kulübün seçtiği): vurgu rengi, üst alan arka planı, başlık stili.
+        // Yalnızca bilinen değerler uygulanır; boş tasarım = varsayılan görünüm.
+        const HEX_RE = /^#[0-9a-f]{6}$/i;
+        const LOGO_RE = /^https:\/\/hcgotmcbwmleeklbvawb\.supabase\.co\/storage\/v1\/object\/public\/profile-logos\/[^\s"'<>()\\]+$/;
+        const DESIGN_BG = ['default', 'clear', 'blur', 'color', 'gradient'];
+        const DESIGN_TITLE = ['default', 'left', 'compact', 'outline', 'caps', 'hand'];
+        function cleanDesign(d) {
+            d = d && typeof d === 'object' ? d : {};
+            return {
+                accent: HEX_RE.test(d.accent || '') ? d.accent : '',
+                bg: DESIGN_BG.includes(d.bg) ? d.bg : 'default',
+                bgColor: HEX_RE.test(d.bgColor || '') ? d.bgColor : '#0C0C0D',
+                title: DESIGN_TITLE.includes(d.title) ? d.title : 'default',
+            };
+        }
+        const luminance = (hex) => {
+            const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+            return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+        };
+        const inkOn = (hex) => (luminance(hex) > 0.42 ? '#0C0C0D' : '#FFFFFF');
+        function designAttrs(e) {
+            const d = e.design || cleanDesign();
+            const vars = [];
+            if (d.accent) vars.push(`--ev-acc:${d.accent}`, `--ev-on-acc:${inkOn(d.accent)}`);
+            let ink = '#FFFFFF';
+            if (d.bg === 'color' || d.bg === 'gradient') {
+                const second = d.bg === 'gradient' ? (d.accent || '#FF5A1F') : d.bgColor;
+                ink = (luminance(d.bgColor) + luminance(second)) / 2 > 0.42 ? '#0C0C0D' : '#FFFFFF';
+                vars.push(`--ev-bgc:${d.bgColor}`, `--ev-grad2:${second}`);
+            }
+            vars.push(`--ev-hero-ink:${ink}`);
+            if (e.poster) vars.push(`--ev-poster:url('${esc(e.poster).replace(/'/g, '%27')}')`);
+            return { skin: `ev-skin${d.accent ? ' has-acc' : ''}`, hero: ` ev-bg-${d.bg} ev-title-${d.title}${ink === '#0C0C0D' ? ' ev-hero-light' : ''}`, style: vars.join(';') };
+        }
+
         // Konuşmacılar: yalnızca linkedin.com bağlantıları tıklanabilir olur.
         const LINKEDIN_RE = /^https:\/\/([a-z]{2,3}\.)?(www\.)?linkedin\.com\/[^\s"'<>]+$/i;
         const LINKEDIN_SVG = '<svg class="ev-sp-in" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 3.8A2.1 2.1 0 1 1 5 8a2.1 2.1 0 0 1 0-4.2zM3.3 9.5h3.4V21H3.3V9.5zm5.5 0h3.3v1.6h.1c.5-.9 1.7-1.9 3.6-1.9 3.8 0 4.5 2.5 4.5 5.8V21h-3.4v-5.3c0-1.3 0-3.1-1.9-3.1s-2.2 1.5-2.2 3V21H8.8V9.5z"/></svg>';
@@ -9240,17 +9313,22 @@
             const placeLine = [e.place, e.city].filter(Boolean).join(', ');
             const endDay = e.endDate || (e.endTime && first ? (e.occurrences.length === 1 ? e.occurrences[0].date : first.date) : '');
             const others = e.occurrences.length > 1 ? e.occurrences.map((o) => `<div>${when(o.date, o.time)}</div>`).join('') : '';
-            const org = e.organizerId
+            const orgLogo = e.organizerId ? e.orgLogo : '/apple-touch-icon.png';
+            const orgName = e.organizerId
                 ? `<a href="/kulupler/" class="ev-org" data-ev-club="${esc(e.organizerName)}" data-no-i18n>${esc(e.organizerName)}</a>`
                 : '<span data-no-i18n>UniPakt</span>';
+            const org = orgLogo
+                ? `<span class="ev-org-line"><img class="ev-org-logo" src="${esc(orgLogo)}" alt="" width="32" height="32" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">${orgName}</span>`
+                : orgName;
+            const look = designAttrs(e);
             const partners = e.partners.length ? `<div class="ev-sub"><span>Ortak kulüpler:</span> <span data-no-i18n>${e.partners.map(esc).join(', ')}</span></div>` : '';
             const placeVal = (e.place || e.address || e.city)
                 ? `<span data-no-i18n>${[e.place, e.address, e.city].filter(Boolean).map(esc).join('<br>')}</span>${e.address || e.place ? `<a class="ev-map" href="${esc(mapUrl(e))}" target="_blank" rel="noopener noreferrer">Haritada aç ↗</a>` : ''}`
                 : '';
             const social = e.social.length ? `<div class="ev-social">${e.social.map(([k, label, url]) => `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(label)}" title="${esc(label)}">${icon(k)}</a>`).join('')}</div>` : '';
             const rules = String(e.rules || '').split(/\r?\n/).map((l) => l.replace(/^\s*[-•]\s*/, '').trim()).filter(Boolean);
-            host.innerHTML = `
-                <header class="ev-hero${e.banner ? '' : ' is-placeholder'}" style="--ev-hero:url('${esc(hero).replace(/'/g, '%27')}')">
+            host.innerHTML = `<div class="${look.skin}" style="${look.style}">
+                <header class="ev-hero${e.banner ? '' : ' is-placeholder'}${look.hero}" style="--ev-hero:url('${esc(hero).replace(/'/g, '%27')}')">
                     <div class="wrap ev-hero-top"><button type="button" class="ev-back ev-back-top" data-ev-back>← Takvime dön</button></div>
                     <div class="wrap ev-hero-in">
                         <h1 data-no-i18n>${esc(e.title)}</h1><i class="ev-bar" aria-hidden="true"></i>
@@ -9304,7 +9382,7 @@
                         </ul>
                         <button type="button" class="btn-pill ev-feedback" data-ev-feedback>Geri Bildirim Ver</button>
                     </section>
-                </div>`;
+                </div></div>`;
             if (host.querySelector('[data-ev-count]')) { tick(); timer = setInterval(tick, 1000); }
         }
 
@@ -9413,8 +9491,8 @@
             loadingId = id;
             host.innerHTML = '<div class="wrap ev-body ev-msg"><p>Etkinlik yükleniyor…</p></div>';
             try {
-                const speakersReq = fetch(RPC + 'public_event_speakers', { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_id: id }) })
-                    .then((r) => (r.ok ? r.json() : [])).catch(() => []);
+                const pageReq = fetch(RPC + 'public_event_page', { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_id: id }) })
+                    .then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
                 const regInfo = fetch(RPC + 'public_event_registration', { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_event: id }) })
                     .then((r) => (r.ok ? r.json() : null)).catch(() => null);
                 const res = await fetch(RPC + 'public_event', { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_id: id }) });
@@ -9425,7 +9503,10 @@
                 if (!r || !txt(r.title, 120)) { host.innerHTML = messageHtml('Etkinlik bulunamadı'); return; }
                 current = normalize(r);
                 current.reg = await regInfo;
-                current.speakers = cleanSpeakers(await speakersReq);
+                const extra = (await pageReq) || {};
+                current.speakers = cleanSpeakers(extra.speakers);
+                current.design = cleanDesign(extra.design);
+                current.orgLogo = typeof extra.organizer_logo === 'string' && LOGO_RE.test(extra.organizer_logo) ? extra.organizer_logo : '';
                 if (loadingId !== id) return;
                 render(current);
                 document.title = `${current.title} — UniPakt`;
