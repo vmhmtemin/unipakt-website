@@ -617,6 +617,17 @@
     .rb-act .btn + .btn { margin: 6px 0 0; }
     .stat.rb-status b { font-size: 22px; }
   }
+  .sp-list { display: grid; gap: 8px; }
+  .sp-row { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 6px 8px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .sp-row input[name="spName"] { grid-column: 2; grid-row: 1; }
+  .sp-row .sp-tools { grid-column: 3; grid-row: 1; }
+  .sp-row input[name="spLink"] { grid-column: 2 / 4; grid-row: 2; font-size: 13px; }
+  .sp-n { font-size: 12px; opacity: .5; text-align: center; }
+  .sp-row input { width: 100%; min-width: 0; padding: 10px 14px; border-radius: 12px; background: color-mix(in srgb, var(--ink) 4%, transparent); border: 1px solid var(--border-strong); outline: none; transition: border-color .2s ease, box-shadow .2s ease; }
+  .sp-row input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent); }
+  .sp-tools { display: inline-flex; gap: 4px; }
+  .pv-speakers { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 4px; font-size: 13px; }
+  .pv-speakers a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
   .evp-check { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
   .evp-check input { width: 17px; height: 17px; margin-top: 3px; accent-color: var(--accent); flex: none; }
   .evp-check small { display: block; opacity: .6; font-size: 12.5px; }
@@ -1132,17 +1143,19 @@
     endDate: e.end_date || '', endTime: (e.end_time || '').slice(0, 5), banner: e.banner_url || '', city: e.city || '',
     category: e.category || '', biletimgo: e.biletimgo_url || '', instagram: e.instagram_url || '', facebook: e.facebook_url || '',
     x: e.x_url || '', youtube: e.youtube_url || '', capacity: e.capacity ?? '',
+    speakers: Array.isArray(e.speakers) ? e.speakers : [],
   });
 
   // Formdaki adı → events sütunu. onlyPresent: düzenleme talebinde olmayan alan hiç yazılmaz,
   // böylece bu alanlardan önce gönderilmiş eski talepler onaylanınca hiçbir şey sıfırlanmaz.
   const EXTRA_COLS = [['endDate', 'end_date'], ['endTime', 'end_time'], ['bannerUrl', 'banner_url'], ['city', 'city'], ['category', 'category'],
-    ['biletimgo', 'biletimgo_url'], ['instagram', 'instagram_url'], ['facebook', 'facebook_url'], ['x', 'x_url'], ['youtube', 'youtube_url'], ['capacity', 'capacity']];
+    ['biletimgo', 'biletimgo_url'], ['instagram', 'instagram_url'], ['facebook', 'facebook_url'], ['x', 'x_url'], ['youtube', 'youtube_url'], ['capacity', 'capacity'], ['speakers', 'speakers']];
   const extraPayload = (f, onlyPresent = false) => {
     const out = {};
     EXTRA_COLS.forEach(([k, col]) => {
       if (onlyPresent && !(k in f)) return;
       const v = f[k];
+      if (k === 'speakers') { out[col] = Array.isArray(v) ? v : []; return; }
       out[col] = (v === '' || v === null || v === undefined) ? null : (k === 'capacity' ? Number(v) : v);
     });
     return out;
@@ -1151,7 +1164,7 @@
     const out = {};
     EXTRA_COLS.forEach(([k]) => {
       if (onlyPresent && !(k in f)) return;
-      out[k === 'bannerUrl' ? 'banner' : k] = f[k] ?? '';
+      out[k === 'bannerUrl' ? 'banner' : k] = k === 'speakers' ? (Array.isArray(f[k]) ? f[k] : []) : (f[k] ?? '');
     });
     return out;
   };
@@ -2559,12 +2572,13 @@
   // Approvals: before/after for every field a club's edit request carries. Everything is escaped.
   const EDIT_LABELS = { title: 'Başlık', desc: 'Açıklama', date: 'İlk tarih', time: 'Saat', occurrences: 'Tarihler', university: 'Üniversite', place: 'Mekan', address: 'Açık adres', rules: 'Bilgiler / kurallar', posterUrl: 'Afiş', tags: 'Etiketler', registration: 'Kayıt bağlantısı', feeType: 'Ücret durumu', feeAmount: 'Ücret tutarı', seeking: 'Aranan ortak', kind: 'Tür',
     endDate: 'Bitiş tarihi', endTime: 'Bitiş saati', bannerUrl: 'Banner', city: 'İl', category: 'Kategori', biletimgo: 'biletimGO sayfası',
-    instagram: 'Instagram', facebook: 'Facebook', x: 'X / Twitter', youtube: 'YouTube', capacity: 'Kontenjan' };
+    instagram: 'Instagram', facebook: 'Facebook', x: 'X / Twitter', youtube: 'YouTube', capacity: 'Kontenjan', speakers: 'Konuşmacılar' };
   const editValue = (k, v) => {
     if (v === null || v === undefined || v === '') return '';
     if (k === 'occurrences' && Array.isArray(v)) return v.map((o) => `${o.date || ''}${o.time ? ` ${o.time}` : ''}`).join('\n');
     if (k === 'feeType') return v === 'paid' ? 'Ücretli' : 'Ücretsiz';
     if (k === 'time') return String(v).slice(0, 5);
+    if (k === 'speakers' && Array.isArray(v)) return v.map((s) => `${s.name}${s.linkedin ? ` (${s.linkedin})` : ''}`).join('\n');
     if (Array.isArray(v)) return v.map((x) => (typeof x === 'object' ? JSON.stringify(x) : String(x))).join(', ');
     if (typeof v === 'object') return JSON.stringify(v);
     return String(v);
@@ -2880,14 +2894,15 @@
   const icon = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
 
   const EMPTY_VALUES = { title: '', category: '', date: '', time: '', endDate: '', endTime: '', extraDates: '', place: '', city: '', university: '', address: '',
-    desc: '', rules: '', registration: '', capacity: '', tags: '', seeking: '', feeAmount: '', biletimgo: '', instagram: '', facebook: '', x: '', youtube: '', hidden: false };
+    desc: '', rules: '', registration: '', capacity: '', tags: '', seeking: '', feeAmount: '', biletimgo: '', instagram: '', facebook: '', x: '', youtube: '', hidden: false, speakers: [] };
   const valuesFromEvent = (e) => {
     const occ = e.occurrences && e.occurrences.length ? e.occurrences : [{ date: e.date, time: e.time || '' }];
     return { ...EMPTY_VALUES, title: e.title || '', category: e.category || '', date: occ[0].date || '', time: occ[0].time || '', endDate: e.endDate || '', endTime: e.endTime || '',
       extraDates: occ.slice(1).map((o) => `${o.date}${o.time ? ` ${o.time}` : ''}`).join('\n'), place: e.place || '', city: e.city || '', university: e.university || '',
       address: e.address || '', desc: e.desc || '', rules: e.rules || '', registration: e.registration || '', capacity: e.capacity === '' || e.capacity == null ? '' : String(e.capacity),
       tags: (e.tags || []).join(', '), seeking: e.seeking || '', feeAmount: e.feeAmount == null ? '' : String(e.feeAmount), biletimgo: e.biletimgo || '',
-      instagram: e.instagram || '', facebook: e.facebook || '', x: e.x || '', youtube: e.youtube || '', hidden: e.visible === false };
+      instagram: e.instagram || '', facebook: e.facebook || '', x: e.x || '', youtube: e.youtube || '', hidden: e.visible === false,
+      speakers: (e.speakers || []).map((s) => ({ name: s.name || '', linkedin: s.linkedin || '' })) };
   };
 
   // Sayfayı açar. Yeni etkinlikte tür seçimiyle başlar; taslak varsa tür seçilince geri yüklenir.
@@ -2995,6 +3010,10 @@
             ${partner ? evField('Nasıl bir ortak arıyorsun?', `<input name="seeking" required maxlength="200" value="${esc(v.seeking)}">`) : ''}
           </section>
 
+          <section class="card evp-sec"><h2>Konuşmacılar</h2><p class="hint">İsteğe bağlı. Sitede madde madde listelenir; LinkedIn bağlantısı eklersen konuşmacının adına tıklayınca profili açılır.</p>
+            <div class="sp-list" data-sp-host>${speakersHtml(v.speakers)}</div>
+          </section>
+
           <section class="card evp-sec"><h2>Sosyal Medya</h2><p class="hint">Etkinliğin kendi sayfaları. Hepsi isteğe bağlı, yalnızca https.</p>
             <div class="field-row">${evField('Instagram', `<input type="url" name="instagram" maxlength="500" value="${esc(v.instagram)}" placeholder="https://instagram.com/...">`)}${evField('Facebook', `<input type="url" name="facebook" maxlength="500" value="${esc(v.facebook)}" placeholder="https://facebook.com/...">`)}</div>
             <div class="field-row">${evField('X / Twitter', `<input type="url" name="x" maxlength="500" value="${esc(v.x)}" placeholder="https://x.com/...">`)}${evField('YouTube', `<input type="url" name="youtube" maxlength="500" value="${esc(v.youtube)}" placeholder="https://youtube.com/...">`)}</div>
@@ -3017,7 +3036,11 @@
 
   const readValues = (form) => {
     const fd = new FormData(form); const out = { ...EMPTY_VALUES };
-    Object.keys(EMPTY_VALUES).forEach((k) => { if (k !== 'hidden') out[k] = String(fd.get(k) ?? (evForm.values?.[k] ?? '')); });
+    Object.keys(EMPTY_VALUES).forEach((k) => { if (k !== 'hidden' && k !== 'speakers') out[k] = String(fd.get(k) ?? (evForm.values?.[k] ?? '')); });
+    const spLinks = fd.getAll('spLink');
+    out.speakers = form.querySelector('[data-sp-host]')
+      ? fd.getAll('spName').map((n, i) => ({ name: String(n), linkedin: String(spLinks[i] ?? '') }))
+      : (evForm.values?.speakers || []);
     out.hidden = !!form.querySelector('[name="hidden"]')?.checked;
     if (!form.querySelector('[name="feeAmount"]')) out.feeAmount = evForm.values?.feeAmount || '';
     if (!form.querySelector('[name="seeking"]')) out.seeking = evForm.values?.seeking || '';
@@ -3036,6 +3059,59 @@
 
   const HTTPS = /^https:\/\/[^\s"'<>]+$/i;
   const BILETIMGO = /^https:\/\/(www\.)?biletimgo\.com\/[^\s"'<>]*$/i;
+  // ---- Konuşmacılar: ad + isteğe bağlı LinkedIn (sitede ada tıklayınca açılır) ----
+  const LINKEDIN = /^https:\/\/([a-z]{2,3}\.)?(www\.)?linkedin\.com\/[^\s"'<>]+$/i;
+  const normLinkedin = (u) => {
+    const s = String(u || '').trim();
+    if (!s) return '';
+    return /^https?:\/\//i.test(s) ? s.replace(/^http:\/\//i, 'https://') : `https://${s.replace(/^\/+/, '')}`;
+  };
+  const cleanSpeakers = (list) => (list || [])
+    .map((s) => ({ name: String(s.name || '').trim(), linkedin: normLinkedin(s.linkedin) }))
+    .filter((s) => s.name || s.linkedin)
+    .map((s) => (s.linkedin ? s : { name: s.name }));
+  const speakersProblem = (list) => {
+    const rows = cleanSpeakers(list);
+    if (rows.length > 30) return 'En fazla 30 konuşmacı eklenebilir.';
+    for (const [i, s] of rows.entries()) {
+      if (!s.name) return `${i + 1}. konuşmacının adını yaz.`;
+      if (s.name.length > 120) return `${i + 1}. konuşmacının adı çok uzun.`;
+      if (s.linkedin && (s.linkedin.length > 300 || !LINKEDIN.test(s.linkedin))) return `“${s.name}” için LinkedIn bağlantısı linkedin.com/in/... biçiminde olmalı.`;
+    }
+    return '';
+  };
+  const speakersHtml = (list) => {
+    const rows = list && list.length ? list : [];
+    return `${rows.map((s, i) => `
+      <div class="sp-row">
+        <span class="sp-n" aria-hidden="true">${i + 1}</span>
+        <input name="spName" maxlength="120" value="${esc(s.name)}" placeholder="Ad soyad" aria-label="${i + 1}. konuşmacının adı">
+        <input name="spLink" maxlength="300" inputmode="url" value="${esc(s.linkedin)}" placeholder="linkedin.com/in/... (isteğe bağlı)" aria-label="${i + 1}. konuşmacının LinkedIn bağlantısı">
+        <span class="sp-tools">
+          <button type="button" class="icon-btn" data-act="sp-move" data-id="${i}" data-sub="-1" ${i === 0 ? 'disabled' : ''} aria-label="Yukarı taşı">↑</button>
+          <button type="button" class="icon-btn" data-act="sp-move" data-id="${i}" data-sub="1" ${i === rows.length - 1 ? 'disabled' : ''} aria-label="Aşağı taşı">↓</button>
+          <button type="button" class="icon-btn" data-act="sp-del" data-id="${i}" aria-label="Konuşmacıyı sil">×</button>
+        </span>
+      </div>`).join('')}
+      ${rows.length < 30 ? '<div><button type="button" class="btn ghost small" data-act="sp-add">+ Konuşmacı ekle</button></div>' : ''}`;
+  };
+  // Liste değişince: formu oku, değiştir, listeyi yeniden çiz, önizleme + taslak için input olayı yolla.
+  const editSpeakers = (change, focusIndex) => {
+    const form = document.getElementById('evpForm'); if (!form) return;
+    const v = readValues(form); const list = v.speakers.slice();
+    change(list);
+    evForm.values = { ...v, speakers: list };
+    const host = form.querySelector('[data-sp-host]');
+    host.innerHTML = speakersHtml(list);
+    form.dispatchEvent(new Event('input', { bubbles: true }));
+    if (focusIndex != null) host.querySelectorAll('[name="spName"]')[focusIndex]?.focus();
+  };
+  const speakerActions = {
+    'sp-add'() { let n = 0; editSpeakers((l) => { l.push({ name: '', linkedin: '' }); n = l.length - 1; }, null); document.querySelectorAll('#evpForm [name="spName"]')[n]?.focus(); },
+    'sp-del'(i) { editSpeakers((l) => l.splice(Number(i), 1)); },
+    'sp-move'(i, dir) { editSpeakers((l) => { const a = Number(i), b = a + Number(dir); if (b >= 0 && b < l.length) [l[a], l[b]] = [l[b], l[a]]; }); },
+  };
+
   const validateEvent = (v) => {
     if (!v.title.trim()) return 'Etkinlik adını yaz.';
     if (!v.category) return 'Kategori seç.';
@@ -3055,6 +3131,8 @@
     for (const [k, label] of [['instagram', 'Instagram'], ['facebook', 'Facebook'], ['x', 'X / Twitter'], ['youtube', 'YouTube']]) {
       if (v[k] && !HTTPS.test(v[k])) return `${label} linki https:// ile başlamalı.`;
     }
+    const speakerProblem = speakersProblem(v.speakers);
+    if (speakerProblem) return speakerProblem;
     return '';
   };
 
@@ -3086,6 +3164,7 @@
           ${socials.length ? row('link', 'Etkinlik sayfaları', `<span class="pv-social">${socials.map((k) => icon(k)).join('')}</span>`) : ''}
           ${row('cap', 'Kontenjan', esc(v.capacity))}
         </div>
+        ${cleanSpeakers(v.speakers).length ? `<div class="pv-card"><h4>Konuşmacılar</h4><ul class="pv-speakers">${cleanSpeakers(v.speakers).map((s) => `<li>${s.linkedin && LINKEDIN.test(s.linkedin) ? `<a href="${esc(s.linkedin)}" target="_blank" rel="noopener noreferrer">${esc(s.name)}</a>` : esc(s.name)}</li>`).join('')}</ul></div>` : ''}
       </div>`;
   };
 
@@ -3184,6 +3263,7 @@
       tags: String(v.tags).split(',').map((x) => x.trim()).filter(Boolean).slice(0, 12),
       registration: v.registration.trim(), feeType: evForm.fee === 'paid' ? 'paid' : 'free', feeAmount: evForm.fee === 'paid' ? v.feeAmount : '',
       biletimgo: v.biletimgo.trim(), instagram: v.instagram.trim(), facebook: v.facebook.trim(), x: v.x.trim(), youtube: v.youtube.trim(), capacity: v.capacity,
+      speakers: cleanSpeakers(v.speakers),
     };
     if (evForm.kind === 'partner') f.seeking = v.seeking.trim();
     const visible = !v.hidden;
@@ -4158,6 +4238,7 @@
 
   const actions = {
     ...regActions,
+    ...speakerActions,
     'mobile-nav-toggle'() { state.navOpen = !state.navOpen; render(); },
     'profile-menu-toggle'() { state.profileMenuOpen = !state.profileMenuOpen; render(); },
     'profile-avatar-remove'() {
