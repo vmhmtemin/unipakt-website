@@ -157,6 +157,7 @@ Deno.serve(async (req) => {
         console.error("grant mail failed", res.status);
         return reply(502, { message: "Yetki e-postası gönderilemedi. Biraz sonra tekrar dene." });
       }
+      await supabase.rpc("log_activity", { p_action: "Görevliye giriş kontrolü yetkisi verdi", p_target: `${staff.full_name} · ${event.title}`, p_actor: user.id }).then(() => {}, () => {});
       return reply(200, { ok: true, expires_at: endsAt });
     }
 

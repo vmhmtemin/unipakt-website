@@ -95,6 +95,9 @@ Deno.serve(async (req) => {
     if (!res.ok) console.error("invite mail failed", res.status, userId);
     return res.ok;
   };
+  // İşlem kaydı (başkanın Ekip sayfasındaki değişiklikler).
+  const log = (action: string, target: string) =>
+    admin.rpc("log_activity", { p_action: action, p_target: target, p_actor: caller.user.id }).then(() => {}, () => {});
   const memberOf = async (id: unknown) => {
     if (!/^[0-9a-f-]{36}$/i.test(String(id ?? ""))) return null;
     const { data } = await admin.from("profiles").select("id, full_name, member_title, permissions")
@@ -143,6 +146,7 @@ Deno.serve(async (req) => {
       await admin.auth.admin.deleteUser(userId);   // davet gitmediyse yarım hesap kalmasın
       return reply(502, { message: "Davet e-postası gönderilemedi. Biraz sonra tekrar dene." });
     }
+    await log("Ekip üyesi davet etti", `${name} · ${title}`);
     return reply(200, { ok: true, id: userId });
   }
 
@@ -155,6 +159,7 @@ Deno.serve(async (req) => {
     if (!perms || !perms.length) return reply(400, { message: "En az bir yetki seç." });
     const { error } = await admin.from("profiles").update({ member_title: title, permissions: perms }).eq("id", member.id);
     if (error) return reply(500, { message: "Kaydedilemedi." });
+    await log("Ekip üyesinin yetkilerini değiştirdi", `${member.full_name || ""} · ${title}`);
     return reply(200, { ok: true });
   }
 
@@ -174,6 +179,7 @@ Deno.serve(async (req) => {
     if (!member) return reply(404, { message: "Ekip üyesi bulunamadı." });
     const { error } = await admin.auth.admin.deleteUser(member.id);   // profil satırı da birlikte silinir
     if (error) return reply(500, { message: "Hesap silinemedi." });
+    await log("Ekip üyesini kaldırdı", `${member.full_name || ""} · ${member.member_title || ""}`);
     return reply(200, { ok: true });
   }
 

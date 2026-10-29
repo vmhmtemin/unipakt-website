@@ -497,14 +497,14 @@
   dialog .lead { opacity: .75; }
   .field { display: grid; gap: 7px; }
   .field > span { font-size: 13px; font-weight: 600; opacity: .8; }
-  .field input, .field textarea, .field select, .toolbar select {
+  .field input, .field textarea, .field select, .toolbar select, .act-filters input, .act-filters select {
     width: 100%; padding: 12px 16px; border-radius: 14px;
     background: color-mix(in srgb, var(--ink) 4%, transparent); border: 1px solid var(--border-strong); outline: none;
     transition: border-color .2s ease, box-shadow .2s ease;
   }
   .toolbar select { width: auto; padding: 9px 14px; border-radius: 999px; }
   .field textarea { min-height: 110px; resize: vertical; }
-  .field input:focus, .field textarea:focus, .field select:focus, .toolbar select:focus {
+  .field input:focus, .field textarea:focus, .field select:focus, .toolbar select:focus, .act-filters input:focus, .act-filters select:focus {
     border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);
   }
   .field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -708,6 +708,19 @@
   .staff-head h3 .tag { margin-left: 6px; vertical-align: middle; }
   .team-perms { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
   .team-checks { max-height: none; }
+  .act-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
+  .act-filters input { flex: 1 1 260px; width: auto; }
+  .act-filters select { width: auto; }
+  .act-filters select { flex: 0 1 280px; }
+  .act-day { margin-bottom: 22px; }
+  .act-day h3 { font-size: 13px; font-weight: 600; opacity: .6; margin: 0 0 8px; text-transform: capitalize; }
+  .act-row { display: grid; grid-template-columns: 52px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .act-row:last-child { border-bottom: 0; }
+  .act-row time { font-variant-numeric: tabular-nums; opacity: .6; font-size: 14px; padding-top: 1px; }
+  .act-row p { margin: 0; }
+  .act-title { opacity: .6; font-size: 13px; }
+  .act-what { margin-top: 3px !important; opacity: .9; }
+  .act-what span { opacity: .75; }
   .team-checks label { align-items: flex-start; }
   .team-checks label input { margin-top: 3px; }
   .team-checks label span { display: grid; gap: 2px; }
@@ -1442,10 +1455,19 @@
      Every call resolves once `db` reflects the change.
      ------------------------------------------------------------------ */
   const local = {
+    // ---- Demo: işlem kaydı ----
+    async activity() {
+      const rows = (db.activity ||= []);
+      return rows.filter((r) => isAdmin() || r.club_id === state.user).sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+    },
     // ---- Demo: kulüp ekibi ----
     async team(action, x = {}) {
       db.team ||= [];
       const clubId = state.user;
+      const log = (act, target) => { (db.activity ||= []).push({ id: uid(), club_id: clubId, actor_name: state.profile.fullName || 'Kulüp başkanı', actor_title: 'Kulüp başkanı', action: act, target, created_at: stamp() }); };
+      if (action === 'invite') log('Ekip üyesi davet etti', `${x.full_name} · ${x.title}`);
+      if (action === 'update') log('Ekip üyesinin yetkilerini değiştirdi', `${db.team.find((m) => m.id === x.id)?.name || ''} · ${x.title}`);
+      if (action === 'remove') log('Ekip üyesini kaldırdı', db.team.find((m) => m.id === x.id)?.name || '');
       const mine = (id) => db.team.find((m) => m.id === id && m.clubId === clubId);
       if (action === 'list') return { members: db.team.filter((m) => m.clubId === clubId).map((m) => ({ id: m.id, email: m.email, full_name: m.name, title: m.title, permissions: m.perms, joined: !!m.joined, invited_at: m.at })) };
       if (action === 'invite') {
@@ -2033,6 +2055,8 @@
       } catch (_) { throw new Error('Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.'); }
       if (!r.ok) throw new Error(data.msg || data.message || 'Şifre değiştirilemedi. Bağlantı süresi dolmuş olabilir.');
     },
+    // İşlem kaydı: başkan kendi kulübünü, UniPakt hepsini görür (RLS).
+    async activity() { return (await rest('activity_log?select=id,club_id,actor_name,actor_title,action,target,created_at&order=created_at.desc&limit=500')) || []; },
     // Kulüp ekibi (Edge Function `club-team`, yalnızca başkan).
     async team(action, extra = {}) {
       return await call('/functions/v1/club-team', { method: 'POST', body: { action, ...extra } });
@@ -2058,7 +2082,7 @@
 
   // Remote writes are followed by a fresh read, so the screen shows what the server kept.
   const api = DEMO ? local : new Proxy(remote, {
-    get: (target, name) => (['refresh', 'proofUrl', 'login', 'logout', 'accounts', 'account', 'recoverPassword', 'resetPassword', 'matrixSession', 'mfa', 'team', 'regSettingsAll', 'regSettings', 'setRegistration', 'registrations', 'setCheckin', 'deleteRegistration', 'staffList', 'addStaff', 'removeStaff', 'grants', 'grantStaff', 'revokeGrant', 'supportCreate', 'supportReply', 'supportUpdate', 'supportDelete', 'siteInbox', 'siteInboxDelete', 'siteInboxDeleteAll', 'siteInboxCount'].includes(name) ? target[name]
+    get: (target, name) => (['refresh', 'proofUrl', 'login', 'logout', 'accounts', 'account', 'recoverPassword', 'resetPassword', 'matrixSession', 'mfa', 'team', 'activity', 'regSettingsAll', 'regSettings', 'setRegistration', 'registrations', 'setCheckin', 'deleteRegistration', 'staffList', 'addStaff', 'removeStaff', 'grants', 'grantStaff', 'revokeGrant', 'supportCreate', 'supportReply', 'supportUpdate', 'supportDelete', 'siteInbox', 'siteInboxDelete', 'siteInboxDeleteAll', 'siteInboxCount'].includes(name) ? target[name]
       : async (...args) => { const result = await target[name](...args); await loadRemote(); return result; }),
   });
 
@@ -2093,6 +2117,7 @@
     inbox: { tab: 'contact', data: null, error: null, loading: false, count: null },   // Site Mesajları (yalnızca yetkili)
     member: null,   // ekip üyesi hesabı: { title, perms }; başkan ve UniPakt için null
     team: { rows: null, loading: false, error: '' },   // Ekip sayfası (yalnızca başkan)
+    activity: { rows: null, loading: false, error: '', club: 'all', q: '' },   // İşlem Kaydı (başkan ve UniPakt)
   };
   let profileLogoPreviewUrl = '';
   if (DEMO) { try { state.user = sessionStorage.getItem(SESSION); } catch (_) {} }
@@ -2197,9 +2222,9 @@
   const can = (perm) => !state.member || state.member.perms.includes(perm);
   const isPresident = () => !!state.user && !isAdmin() && !state.member;
   const VIEW_PERM = { etkinliklerim: 'events', basvuru: 'events', 'etkinlik-olustur': 'events', gorevliler: 'registrations', kayitlar: 'registrations', ims: 'chat', 'destek-taleplerim': 'support', gorevler: 'tasks' };
-  const viewAllowed = (view) => (view === 'ekip' ? isPresident() : view === 'ayarlar' ? !state.member : !VIEW_PERM[view] || can(VIEW_PERM[view]));
+  const viewAllowed = (view) => (view === 'ekip' ? isPresident() : (view === 'ayarlar' || view === 'islem-kaydi') ? !state.member : !VIEW_PERM[view] || can(VIEW_PERM[view]));
   const actPerm = (act) => {
-    if (/^(team-|club-|profile-avatar)/.test(act)) return 'president';
+    if (/^(team-|club-|profile-avatar|activity-)/.test(act)) return 'president';
     if (/^(reg-|staff-|grant-)/.test(act)) return 'registrations';
     if (/^(event-|ev-|app-|notif-app-|partner-|rejected-event)/.test(act)) return 'events';
     if (act === 'ann-new') return 'announcements';
@@ -2523,6 +2548,7 @@
       ...(isAdmin() ? [['kulupler', 'Kulüpler', 0, 'unipakt'], ['site-mesajlari', 'Site Mesajları', siteInboxTotal(), 'unipakt']] : []),
       ['destek-taleplerim', isAdmin() ? 'Destek Talepleri' : 'UniPakt Destek', supportNewCount(), 'unipakt'],
       ...(isPresident() ? [['ekip', 'Ekip', 0, 'unipakt']] : []),
+      ...(state.member ? [] : [['islem-kaydi', 'İşlem Kaydı', 0, 'unipakt']]),
     ];
     return items.filter(([id]) => viewAllowed(id));
   };
@@ -3639,6 +3665,7 @@
 
   const views = {
     ekip: () => teamView(),
+    'islem-kaydi': () => activityView(),
     ims: () => imView(),
     kayitlar: () => regBoardView(),
     gorevliler: () => staffView(),
@@ -4694,6 +4721,7 @@
   };
   const teamActions = {
     'team-reload'() { state.team = freshTeam(); loadTeam(); render(); },
+    'activity-reload'() { state.activity = { ...freshActivity(), club: state.activity.club, q: state.activity.q }; loadActivity(); render(); },
     'team-invite'() {
       openForm({
         title: 'Ekip üyesi davet et',
@@ -4737,6 +4765,56 @@
       }, 'Kaldır');
     },
   };
+  /* İŞLEM KAYDI — kim, ne zaman, ne yaptı (son 6 ay). */
+  const freshActivity = () => ({ rows: null, loading: false, error: '', club: 'all', q: '' });
+  const loadActivity = async () => {
+    const a = state.activity;
+    if (a.loading) return;
+    a.loading = true; a.error = '';
+    try { a.rows = await api.activity(); }
+    catch (error) { a.error = error.message || 'İşlem kaydı yüklenemedi.'; }
+    a.loading = false;
+    if (state.view === 'islem-kaydi' && !busy()) render();
+  };
+  const activityListHtml = () => {
+    const a = state.activity, q = searchKey(a.q);
+    const rows = (a.rows || []).filter((r) => (a.club === 'all' || (a.club === 'unipakt' ? !r.club_id : r.club_id === a.club))
+      && (!q || searchKey(`${r.actor_name} ${r.actor_title} ${r.action} ${r.target} ${club(r.club_id)?.name || ''}`).includes(q)));
+    if (!rows.length) return empty(a.rows?.length ? 'Aramana uyan işlem yok.' : 'Henüz kayıtlı işlem yok. Ekibin panelde bir şey yaptığında burada görünür.');
+    const day = (iso) => new Date(iso).toLocaleDateString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
+    const time = (iso) => new Date(iso).toLocaleTimeString('tr-TR', { timeZone: 'Europe/Istanbul', hour: '2-digit', minute: '2-digit' });
+    const groups = [];
+    rows.forEach((r) => { const d = day(r.created_at); if (!groups.length || groups[groups.length - 1][0] !== d) groups.push([d, []]); groups[groups.length - 1][1].push(r); });
+    return groups.map(([d, list]) => `<div class="act-day"><h3>${esc(d)}</h3><div class="card">${list.map((r) => `
+      <div class="act-row"><time>${esc(time(r.created_at))}</time>
+        <div><p><strong>${esc(r.actor_name)}</strong> <span class="act-title">${r.actor_title !== r.actor_name ? esc(r.actor_title) : ''}${isAdmin() && r.club_id ? ` · ${esc(club(r.club_id)?.name || 'Kulüp')}` : ''}</span></p>
+        <p class="act-what">${esc(r.action)}${r.target ? `: <span>${esc(r.target)}</span>` : ''}</p></div></div>`).join('')}</div></div>`).join('');
+  };
+  const activityView = () => {
+    const a = state.activity;
+    const top = head('İşlem Kaydı', isAdmin() ? 'Panelde kimin, ne zaman, ne yaptığı. Tüm kulüpler; son 6 ay saklanır.' : 'Sen ve ekibinin panelde ne zaman ne yaptığı. Yalnızca sen görürsün; son 6 ay saklanır.',
+      '<button class="btn ghost" data-act="activity-reload">Yenile</button>');
+    if (a.error) return `${top}<section class="card"><p class="body">${esc(a.error)}</p><button class="btn small" data-act="activity-reload">Tekrar dene</button></section>`;
+    if (!a.rows) return `${top}<section class="card"><p class="body">Yükleniyor…</p></section>`;
+    const clubsWithRows = [...new Set(a.rows.map((r) => r.club_id).filter(Boolean))].map(club).filter(Boolean).sort(byLabel);
+    return `${top}
+      <div class="act-filters">
+        <input type="search" data-activity-q value="${esc(a.q)}" placeholder="Kişi, işlem ya da etkinlik ara" aria-label="İşlem kaydında ara">
+        ${isAdmin() ? `<select data-activity-club aria-label="Kulüp"><option value="all">Tüm kulüpler</option><option value="unipakt" ${a.club === 'unipakt' ? 'selected' : ''}>UniPakt</option>${clubsWithRows.map((c) => `<option value="${esc(c.id)}" ${a.club === c.id ? 'selected' : ''}>${esc(clubLabel(c))}</option>`).join('')}</select>` : ''}
+      </div>
+      <div id="activityList">${activityListHtml()}</div>`;
+  };
+  document.addEventListener('input', (e) => {
+    if (!e.target.matches?.('[data-activity-q]')) return;
+    state.activity.q = e.target.value;
+    const list = document.getElementById('activityList'); if (list) list.innerHTML = activityListHtml();
+  });
+  document.addEventListener('change', (e) => {
+    if (!e.target.matches?.('[data-activity-club]')) return;
+    state.activity.club = e.target.value;
+    const list = document.getElementById('activityList'); if (list) list.innerHTML = activityListHtml();
+  });
+
   // Ekip üyesinin göremeyeceği düğme ve bağlantılar sayfadan çıkarılır.
   const pruneForMember = (scope) => {
     scope?.querySelectorAll('[data-act]').forEach((el) => { if (!actAllowed(el.dataset.act) && !el.closest('.profile-menu')) el.remove(); });
@@ -5451,13 +5529,13 @@
       if (!DEMO) return;
       state.user = id; state.view = 'genel';
       try { sessionStorage.setItem(SESSION, id); } catch (_) {}
-      applyDemoUser(); state.team = { rows: null, loading: false, error: '' };
+      applyDemoUser(); state.team = { rows: null, loading: false, error: '' }; state.activity = freshActivity();
       history.replaceState(null, '', `${location.pathname}${location.search}#genel`);
       render(); window.scrollTo(0, 0); startMatrix();
     },
     logout() {
       stopMatrix();
-      state.user = null; state.member = null; state.team = { rows: null, loading: false, error: '' };
+      state.user = null; state.member = null; state.team = { rows: null, loading: false, error: '' }; state.activity = freshActivity();
       if (DEMO) { try { sessionStorage.removeItem(SESSION); } catch (_) {} }
       else { remote.logout(); db = null; }
       state.accounts = null;
@@ -6089,6 +6167,7 @@
     root.querySelector('.nav-item.active')?.scrollIntoView({ block: 'nearest', inline: 'center' });
     if (state.member) pruneForMember(root.querySelector('.main'));
     if (state.view === 'ekip' && !state.team.rows && !state.team.loading && !state.team.error) loadTeam();
+    if (state.view === 'islem-kaydi' && !state.activity.rows && !state.activity.loading && !state.activity.error) loadActivity();
     if (state.view === 'etkinlik-olustur') mountEventPage();
     if (state.view === 'dogrulama') mountMfa();
     if (state.view === 'gorevliler' && !state.staffView.staff && !state.staffView.loading && !state.staffView.error) loadStaffView();
