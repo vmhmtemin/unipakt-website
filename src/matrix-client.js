@@ -115,14 +115,36 @@ const unreadCount = (room, me) => {
   return count;
 };
 
+// Yanıt (Matrix "m.in_reply_to"). Başka istemcilerin eklediği "> <@kişi> alıntı"
+// satırları gövdeden atılır; alıntı, yanıtlanan mesajın kendisinden gösterilir.
+const replyTargetId = (event) => String(event.getContent()?.['m.relates_to']?.['m.in_reply_to']?.event_id || '');
+const stripReplyFallback = (body) => {
+  const lines = String(body).split('\n');
+  if (!lines[0]?.startsWith('> ')) return String(body);
+  let i = 0;
+  while (i < lines.length && lines[i].startsWith('>')) i += 1;
+  if (lines[i] === '') i += 1;
+  return lines.slice(i).join('\n');
+};
+const replyView = (room, eventId, me) => {
+  if (!eventId) return null;
+  const target = room.findEventById?.(eventId);
+  if (!target) return { eventId, sender: '', mine: false, body: '', missing: true };
+  const body = replyTargetId(target) ? stripReplyFallback(target.getContent()?.body || '') : String(target.getContent()?.body || '');
+  return { eventId, sender: target.getSender() || '', mine: target.getSender() === me, body, missing: false };
+};
+
 const messageView = (event, room, me, peerId) => {
   const mine = event.getSender() === me;
   const status = event.getAssociatedStatus?.() || event.status || null;
+  const replyId = replyTargetId(event);
+  const rawBody = String(event.getContent()?.body || '');
   return {
     eventId: event.getId() || '',
     sender: event.getSender() || '',
     mine,
-    body: String(event.getContent()?.body || ''),
+    body: replyId ? stripReplyFallback(rawBody) : rawBody,
+    replyTo: replyView(room, replyId, me),
     timestamp: Number(event.getTs() || Date.now()),
     // 'sending' | 'failed' | 'sent' | 'read'
     state: status === sdk.EventStatus.NOT_SENT ? 'failed'
@@ -201,12 +223,15 @@ export async function openDirect(peerUserId, roomName) {
   return result.room_id;
 }
 
-export async function sendText(roomId, text) {
+// replyToEventId: yanıtlanan mesajın kimliği (isteğe bağlı).
+export async function sendText(roomId, text, replyToEventId = '') {
   if (!client) throw new Error('Sohbet bağlantısı yok.');
   const body = String(text || '').trim();
   if (!body || body.length > 4000) throw new Error('Mesaj 1–4000 karakter arasında olmalı.');
   setTyping(roomId, false);
-  await client.sendTextMessage(roomId, body);
+  const content = { msgtype: 'm.text', body };
+  if (/^\$/.test(String(replyToEventId || ''))) content['m.relates_to'] = { 'm.in_reply_to': { event_id: replyToEventId } };
+  await client.sendMessage(roomId, content);
 }
 
 // "yazıyor…" — tell the other side we are typing. The panel calls this on every

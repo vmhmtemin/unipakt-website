@@ -225,6 +225,38 @@
   .im-tick.read { color: var(--accent); opacity: 1; }
   .im-msg.mine .im-msg-meta:has(.read) { opacity: 1; }
   .im-msg.failed { outline: 1px solid var(--no); }
+  /* Yanıtlama */
+  .im-msg { --swipe: 0px; transform: translateX(var(--swipe)); touch-action: pan-y; }
+  .im-msg.swiping { transition: none; }
+  .im-msg:not(.swiping) { transition: transform .22s ease; }
+  .im-reply-btn { position: absolute; z-index: 1; top: 50%; left: calc(100% + 6px); display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; background: var(--surface); color: var(--ink); opacity: 0; transform: translateY(-50%) scale(.85); transition: opacity .15s ease, transform .15s ease; pointer-events: none; box-shadow: 0 0 0 1px var(--border); }
+  .im-msg.mine .im-reply-btn { left: auto; right: calc(100% + 6px); }
+  .im-reply-btn svg { width: 17px; height: 17px; }
+  .im-reply-btn:hover { color: var(--accent); }
+  @media (hover: hover) and (pointer: fine) {
+    .im-msg:hover .im-reply-btn, .im-reply-btn:focus-visible { opacity: 1; transform: translateY(-50%) scale(1); pointer-events: auto; }
+    .im-msg::after { content: ''; position: absolute; z-index: 0; top: 0; bottom: 0; left: 100%; width: 44px; }
+    .im-msg.mine::after { left: auto; right: 100%; }
+  }
+  .im-reply-btn:focus-visible { opacity: 1; pointer-events: auto; outline: 2px solid var(--accent); }
+  /* Sağa çekerken solda beliren ok (telefon) */
+  .im-msg.swiping::before { content: ''; position: absolute; top: 50%; left: -38px; width: 28px; height: 28px; border-radius: 50%; transform: translateY(-50%) scale(calc(.5 + var(--swipe) / 120px)); opacity: calc(var(--swipe) / 58px); background: var(--surface) center / 16px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 4 4 9l5 5'/%3E%3Cpath d='M4 9h10a6 6 0 0 1 6 6v5'/%3E%3C/svg%3E"); }
+  .im-msg.swiping.armed::before { background-color: var(--accent); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 4 4 9l5 5'/%3E%3Cpath d='M4 9h10a6 6 0 0 1 6 6v5'/%3E%3C/svg%3E"); }
+  .im-quote { display: grid; gap: 1px; width: 100%; min-width: 0; margin: 1px 0 6px; padding: 6px 10px; border: 0; border-left: 3px solid var(--ink); border-radius: 8px; background: color-mix(in srgb, var(--ink) 7%, transparent); color: inherit; font: inherit; text-align: left; cursor: pointer; }
+  .im-quote.is-mine { border-left-color: var(--accent); }
+  .im-quote b { font-size: 12.5px; font-weight: 700; }
+  .im-quote.is-mine b { color: var(--accent); }
+  .im-quote span { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: 13px; opacity: .75; overflow-wrap: anywhere; }
+  .im-quote.is-missing { display: block; cursor: default; font-size: 12.5px; font-style: italic; opacity: .6; }
+  .im-msg.flash { animation: imFlash 1.4s ease; }
+  @keyframes imFlash { 0%, 40% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 60%, transparent); } 100% { box-shadow: 0 0 0 3px transparent; } }
+  .im-composer { flex-wrap: wrap; }
+  .im-reply-slot { flex-basis: 100%; }
+  .im-reply-slot:empty { display: none; }
+  .im-replying { display: flex; align-items: center; gap: 10px; }
+  .im-replying .im-quote { margin: 0; cursor: default; }
+  .im-replying .im-icon-btn { width: 34px; height: 34px; }
+  .im-replying .im-icon-btn svg { width: 16px; height: 16px; }
   .im-typing-bubble { display: inline-flex; gap: 4px; align-self: flex-start; margin-top: 6px; padding: 12px 14px; border-radius: 4px 16px 16px 16px; background: var(--paper-soft); }
   .im-typing-bubble i { width: 7px; height: 7px; border-radius: 50%; background: var(--ink); opacity: .35; animation: imDot 1.2s infinite ease-in-out; }
   .im-typing-bubble i:nth-child(2) { animation-delay: .15s; }
@@ -259,6 +291,12 @@
     .im-head .im-back { display: grid; }
     .im-msg { max-width: 84%; }
     .im-composer { padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px)); }
+    /* Sohbet ekranı görünür alana sabitlenir: altta site alt bilgisi / boşluk kalmaz, klavye açılınca da tam oturur. */
+    html.im-fit, html.im-fit body { overflow: hidden; overscroll-behavior: none; }
+    html.im-fit .flower-credit { display: none; }
+    html.im-fit .im { position: fixed; left: 0; right: 0; top: var(--im-top, 67px); height: var(--im-fit-h, calc(100dvh - 67px)); z-index: 25; }
+    html.im-kb .im { z-index: 45; }
+    html.im-kb .im-composer { padding-bottom: 10px; }
   }
 
   /* ---- App shell ---- */
@@ -1960,7 +1998,7 @@
   const freshMfaState = () => ({ enabled: false, email: '', flow: null, resendAt: 0, busy: false });
   const freshChatState = () => ({
     peer: '', roomId: '', rooms: [], loading: false, error: '',
-    search: '', newChat: false, drafts: {}, noticeAccepted: false,
+    search: '', newChat: false, drafts: {}, replies: {}, noticeAccepted: false,
   });
   const state = {
     user: null,
@@ -5339,6 +5377,8 @@
     send: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10l12.1 2-12.1 2z"/></svg>',
     sent: '<svg class="im-tick" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-label="Gönderildi"><path d="M3.5 5.8 6.4 8.6 12.5 2.4"/></svg>',
     read: '<svg class="im-tick read" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-label="Görüldü"><path d="M1 5.8 3.9 8.6 10 2.4M6.8 8.2l.6.4L13.5 2.4"/></svg>',
+    reply: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 4 9l5 5"/><path d="M4 9h10a6 6 0 0 1 6 6v5"/></svg>',
+    close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
     sending: '<svg class="im-tick" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.4" aria-label="Gönderiliyor"><circle cx="8" cy="5.5" r="4"/><path d="M8 3.3v2.4l1.5 1"/></svg>',
   };
   const imPeerInfo = (peer) => {
@@ -5423,13 +5463,114 @@
     for (const m of room.messages) {
       if (!prev || imDayDiff(prev.timestamp) !== imDayDiff(m.timestamp)) { html += `<p class="im-day">${esc(imDayLabel(m.timestamp))}</p>`; prev = null; }
       const cont = prev && prev.sender === m.sender && m.timestamp - prev.timestamp < 5 * 60000;
-      html += `<div class="im-msg ${m.mine ? 'mine' : ''} ${cont ? 'cont' : ''} ${m.state === 'failed' ? 'failed' : ''}">
-        <span class="im-msg-body">${esc(m.body)}</span><span class="im-msg-meta">${m.state === 'failed' ? 'Gönderilemedi' : esc(imClock(m.timestamp))}${m.mine && m.state !== 'failed' ? IM_ICON[m.state] || '' : ''}</span></div>`;
+      const canReply = /^\$/.test(m.eventId);
+      html += `<div class="im-msg ${m.mine ? 'mine' : ''} ${cont ? 'cont' : ''} ${m.state === 'failed' ? 'failed' : ''}" ${canReply ? `data-eid="${esc(m.eventId)}"` : ''}>
+        ${m.replyTo ? imQuoteHtml(m.replyTo) : ''}<span class="im-msg-body">${esc(m.body)}</span><span class="im-msg-meta">${m.state === 'failed' ? 'Gönderilemedi' : esc(imClock(m.timestamp))}${m.mine && m.state !== 'failed' ? IM_ICON[m.state] || '' : ''}</span>
+        ${canReply ? `<button type="button" class="im-reply-btn" data-im-reply="${esc(m.eventId)}" aria-label="Bu mesajı yanıtla" title="Yanıtla">${IM_ICON.reply}</button>` : ''}</div>`;
       prev = m;
     }
     if (room.peerTyping) html += '<span class="im-typing-bubble" aria-label="yazıyor"><i></i><i></i><i></i></span>';
     return html;
   };
+  // ---- Yanıtlama: mesajın üstüne gelince çıkan ok, telefonda mesajı sağa çekmek ----
+  const imWhoName = (r) => (r.mine ? 'Sen' : imPeerInfo(state.chat.peer).name);
+  const imSnippet = (s) => { const one = String(s || '').replace(/\s+/g, ' ').trim(); return one.length > 140 ? `${one.slice(0, 140)}…` : one; };
+  const imQuoteHtml = (r) => r.missing
+    ? '<span class="im-quote is-missing">Önceki bir mesaj</span>'
+    : `<button type="button" class="im-quote ${r.mine ? 'is-mine' : ''}" data-im-jump="${esc(r.eventId)}"><b>${esc(imWhoName(r))}</b><span>${esc(imSnippet(r.body))}</span></button>`;
+  const imReplyBarHtml = () => {
+    const r = state.chat.replies[state.chat.peer];
+    if (!r) return '';
+    return `<div class="im-replying"><div class="im-quote ${r.mine ? 'is-mine' : ''}"><b>${esc(imWhoName(r))} yanıtlanıyor</b><span>${esc(imSnippet(r.body))}</span></div>
+      <button type="button" class="im-icon-btn ghost" data-im-reply-cancel aria-label="Yanıtlamayı iptal et">${IM_ICON.close}</button></div>`;
+  };
+  const updateImReplyBar = () => { const box = document.getElementById('imReplyBar'); if (box) box.innerHTML = imReplyBarHtml(); };
+  const startImReply = (eventId) => {
+    const room = imRoomFor(state.chat.peer);
+    const m = room?.messages.find((x) => x.eventId === eventId);
+    if (!m) return;
+    state.chat.replies[state.chat.peer] = { eventId, mine: m.mine, body: m.body };
+    updateImReplyBar();
+    const ta = document.querySelector('[data-im-input]');
+    ta?.focus({ preventScroll: true });
+    const msgs = document.getElementById('imMsgs');
+    if (msgs && msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight < 160) msgs.scrollTop = msgs.scrollHeight;
+  };
+  const cancelImReply = () => { delete state.chat.replies[state.chat.peer]; updateImReplyBar(); };
+  document.addEventListener('click', (e) => {
+    const r = e.target.closest?.('[data-im-reply]');
+    if (r) { e.preventDefault(); startImReply(r.dataset.imReply); return; }
+    if (e.target.closest?.('[data-im-reply-cancel]')) { e.preventDefault(); cancelImReply(); document.querySelector('[data-im-input]')?.focus({ preventScroll: true }); return; }
+    const j = e.target.closest?.('[data-im-jump]');
+    if (j) {
+      e.preventDefault();
+      const target = document.querySelector(`.im-msg[data-eid="${CSS.escape(j.dataset.imJump)}"]`);
+      if (!target) { toast('Bu mesaj daha eski mesajlarda; “Daha eski mesajlar” ile yükleyebilirsin.'); return; }
+      target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      target.classList.remove('flash'); void target.offsetWidth; target.classList.add('flash');
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && state.view === 'ims' && state.chat.replies[state.chat.peer]) cancelImReply();
+  });
+  // Telefonda: mesajı parmakla sağa çek → yanıtla (yeterince çekilince titrer ve ok belirir).
+  document.addEventListener('pointerdown', (e) => {
+    if (e.pointerType !== 'touch') return;
+    const msg = e.target.closest?.('.im-msg[data-eid]');
+    if (!msg || e.target.closest('.im-reply-btn, a')) return;
+    const x0 = e.clientX, y0 = e.clientY;
+    let dx = 0, decided = false, swiping = false, armed = false;
+    const move = (ev) => {
+      if (ev.pointerId !== e.pointerId) return;
+      const mx = ev.clientX - x0, my = ev.clientY - y0;
+      if (!decided) {
+        if (Math.abs(mx) < 8 && Math.abs(my) < 8) return;
+        decided = true; swiping = mx > 0 && Math.abs(mx) > Math.abs(my) * 1.4;
+        if (!swiping) return end();
+        msg.classList.add('swiping');
+      }
+      dx = Math.max(0, Math.min(mx, 90));
+      msg.style.setProperty('--swipe', `${dx}px`);
+      const nowArmed = dx > 58;
+      if (nowArmed !== armed) { armed = nowArmed; msg.classList.toggle('armed', armed); if (armed) navigator.vibrate?.(12); }
+    };
+    const end = () => {
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', end);
+      document.removeEventListener('pointercancel', end);
+      if (!swiping) return;
+      msg.classList.remove('swiping', 'armed');
+      msg.style.removeProperty('--swipe');
+      // Kaydırmanın sonunda gelen tıklama (ör. alıntıya atlama) yutulur.
+      const swallow = (ce) => { ce.stopPropagation(); ce.preventDefault(); };
+      document.addEventListener('click', swallow, { capture: true, once: true });
+      setTimeout(() => document.removeEventListener('click', swallow, { capture: true }), 400);
+      if (armed) startImReply(msg.dataset.eid);
+    };
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', end);
+    document.addEventListener('pointercancel', end);
+  });
+
+  // Telefonda klavye açılınca sohbet görünür alana sığar (altta boşluk / sayfa kayması olmaz).
+  const fitImViewport = () => {
+    const html = document.documentElement;
+    const on = state.view === 'ims' && matchMedia('(max-width: 900px)').matches;
+    html.classList.toggle('im-page', state.view === 'ims');
+    html.classList.toggle('im-fit', on);
+    if (!on) { html.classList.remove('im-kb'); return; }
+    const vv = window.visualViewport;
+    const vh = vv ? vv.height : window.innerHeight;
+    const keyboard = vv ? window.innerHeight - vv.height > 120 : false;
+    const bar = keyboard ? 0 : (document.querySelector('.side')?.offsetHeight || 0);
+    html.classList.toggle('im-kb', keyboard);
+    html.style.setProperty('--im-top', `${(vv ? vv.offsetTop : 0) + bar}px`);
+    html.style.setProperty('--im-fit-h', `${vh - bar}px`);
+  };
+  window.visualViewport?.addEventListener('resize', fitImViewport);
+  window.visualViewport?.addEventListener('scroll', fitImViewport);
+  window.addEventListener('resize', fitImViewport);
+
   // Which body the right pane shows; when it changes the page is re-rendered.
   const imMode = () => {
     if (!hasAcceptedChatNotice()) return 'notice';
@@ -5451,6 +5592,7 @@
       </header>
       <div class="im-msgs" id="imMsgs" aria-live="polite">${imMsgsHtml()}</div>
       <form class="im-composer" id="imComposer">
+        <div class="im-reply-slot" id="imReplyBar">${imReplyBarHtml()}</div>
         <textarea name="message" rows="1" maxlength="4000" placeholder="Mesaj yaz" aria-label="Mesaj yaz" data-im-input enterkeyhint="send"></textarea>
         <button class="im-icon-btn" type="submit" aria-label="Gönder">${IM_ICON.send}</button>
       </form>`;
@@ -5547,7 +5689,9 @@
     if (!body) return;
     if (!matrixModule) { toast(state.chat.error || 'Sohbet bağlantısı hazır değil.'); return; }
     const peer = state.chat.peer;
+    const reply = state.chat.replies[peer] || null;
     ta.value = ''; state.chat.drafts[peer] = ''; autosizeIm(ta); ta.focus();
+    if (reply) { delete state.chat.replies[peer]; updateImReplyBar(); }
     try {
       let roomId = state.chat.peer === peer ? state.chat.roomId : '';
       if (!roomId) {
@@ -5555,10 +5699,11 @@
         roomId = await imCreating;
         if (state.chat.peer === peer) state.chat.roomId = roomId;
       }
-      await matrixModule.sendText(roomId, body);
+      await matrixModule.sendText(roomId, body, reply?.eventId || '');
       refreshIm();
     } catch (error) {
       if (state.chat.peer === peer && !ta.value) { ta.value = body; state.chat.drafts[peer] = body; autosizeIm(ta); }
+      if (reply && state.chat.peer === peer && !state.chat.replies[peer]) { state.chat.replies[peer] = reply; updateImReplyBar(); }
       toast(error.message || 'Mesaj gönderilemedi.');
     }
   };
@@ -5627,6 +5772,7 @@
     if (state.view === 'etkinlik-olustur') mountEventPage();
     if (state.view === 'dogrulama') mountMfa();
     if (state.view === 'gorevliler' && !state.staffView.staff && !state.staffView.loading && !state.staffView.error) loadStaffView();
+    fitImViewport();
     if (state.view === 'ims') { mountIm(); if (!document.getElementById('imMsgs')) refreshChatProfiles(); }
   };
 
