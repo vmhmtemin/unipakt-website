@@ -568,7 +568,13 @@
   .regb { display: grid; gap: 14px; }
   [data-regb-host] { display: grid; gap: 14px; }
   .regb-list { display: grid; gap: 10px; }
-  .regb-q { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--border); border-radius: 16px; background: var(--bg); }
+  .regb-q { position: relative; display: grid; gap: 10px; padding: 14px 14px 14px 40px; border: 1px solid var(--border); border-radius: 16px; background: var(--bg); }
+  .regb-handle { position: absolute; left: 0; top: 0; bottom: 0; width: 30px; display: grid; place-items: center; padding: 0; border: 0; border-right: 1px dashed var(--border); border-radius: 16px 0 0 16px; background: transparent; color: var(--ink); opacity: .45; cursor: grab; touch-action: none; transition: opacity .15s ease, background .15s ease; }
+  .regb-handle svg { width: 10px; height: 16px; fill: currentColor; }
+  .regb-handle:hover, .regb-handle:focus-visible { opacity: 1; background: color-mix(in srgb, var(--ink) 5%, transparent); }
+  .regb-q.dragging { z-index: 5; transform: translateY(var(--dy, 0px)) scale(1.015); box-shadow: 0 18px 40px rgba(0, 0, 0, .35); border-color: var(--accent); }
+  .regb-q.dragging .regb-handle { cursor: grabbing; opacity: 1; color: var(--accent); }
+  .regb-sorting { user-select: none; -webkit-user-select: none; }
   .regb-row { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 8px; }
   .regb-q input:not([type=checkbox]), .regb-q select { width: 100%; min-width: 0; padding: 10px 14px; border-radius: 12px; background: color-mix(in srgb, var(--ink) 4%, transparent); border: 1px solid var(--border-strong); outline: none; transition: border-color .2s ease, box-shadow .2s ease; }
   .regb-q input:not([type=checkbox]):focus, .regb-q select:focus { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent); }
@@ -3905,7 +3911,8 @@
   const regBuilderHtml = (d) => {
     if (!d) return '';
     const qs = d.questions.map((q, i) => `
-      <div class="regb-q">
+      <div class="regb-q" data-qi="${i}">
+        <button type="button" class="regb-handle" data-regb-drag aria-label="${i + 1}. soruyu sürükleyerek taşı" title="Sürükleyerek taşı"><svg viewBox="0 0 10 16" aria-hidden="true"><circle cx="2.5" cy="3" r="1.4"/><circle cx="7.5" cy="3" r="1.4"/><circle cx="2.5" cy="8" r="1.4"/><circle cx="7.5" cy="8" r="1.4"/><circle cx="2.5" cy="13" r="1.4"/><circle cx="7.5" cy="13" r="1.4"/></svg></button>
         <div class="regb-row">
           <select data-regb="type" data-i="${i}" aria-label="Soru türü">${REG_TYPES.map(([v, l]) => `<option value="${v}" ${q.type === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
           <input data-regb="label" data-i="${i}" maxlength="200" placeholder="Soru (örn. Bölümün)" value="${esc(q.label)}" aria-label="Soru metni">
@@ -3938,6 +3945,70 @@
     if (host) host.innerHTML = regBuilderHtml(regDraft());
     if (focus) host?.querySelector(focus)?.focus();
   };
+  // Soruları sol kenardaki tutamaçtan sürükleyerek sıralama (fare + dokunmatik).
+  // Sürüklerken kartlar DOM'da yer değiştirir (diğerleri kayarak açılır); bırakınca sıra taslağa yazılır.
+  document.addEventListener('pointerdown', (e) => {
+    const handle = e.target.closest?.('[data-regb-drag]');
+    if (!handle || e.button > 0) return;
+    const card = handle.closest('.regb-q'), list = card?.parentElement;
+    const d = regDraft();
+    if (!card || !list || !d || d.questions.length < 2) return;
+    e.preventDefault();
+    handle.setPointerCapture?.(e.pointerId);
+    const startY = e.clientY;
+    let lastY = e.clientY, scrollTimer = null;
+    const baseTop = card.getBoundingClientRect().top;
+    card.classList.add('dragging'); list.classList.add('regb-sorting');
+    const cards = () => [...list.querySelectorAll(':scope > .regb-q')];
+    const flip = (move) => {
+      const others = cards().filter((c) => c !== card);
+      const before = new Map(others.map((c) => [c, c.getBoundingClientRect().top]));
+      move();
+      others.forEach((c) => {
+        const dy = before.get(c) - c.getBoundingClientRect().top;
+        if (!dy) return;
+        c.style.transition = 'none'; c.style.transform = `translateY(${dy}px)`;
+        requestAnimationFrame(() => { c.style.transition = 'transform .18s ease'; c.style.transform = ''; });
+      });
+    };
+    const follow = () => {
+      // Kart parmağı/imleci takip eder; komşusunun ortasını geçince yer değiştirir.
+      const naturalTop = card.getBoundingClientRect().top - (parseFloat(card.style.getPropertyValue('--dy')) || 0);
+      card.style.setProperty('--dy', `${lastY - startY - (naturalTop - baseTop)}px`);
+      const mid = card.getBoundingClientRect().top + card.offsetHeight / 2;
+      const prev = card.previousElementSibling?.matches('.regb-q') ? card.previousElementSibling : null;
+      const next = card.nextElementSibling?.matches('.regb-q') ? card.nextElementSibling : null;
+      if (prev && mid < prev.getBoundingClientRect().top + prev.offsetHeight / 2) { flip(() => list.insertBefore(card, prev)); follow(); }
+      else if (next && mid > next.getBoundingClientRect().top + next.offsetHeight / 2) { flip(() => list.insertBefore(next, card)); follow(); }
+    };
+    const autoScroll = () => {
+      const edge = 70, h = window.innerHeight;
+      const v = lastY < edge ? -(edge - lastY) / 4 : lastY > h - edge ? (lastY - (h - edge)) / 4 : 0;
+      if (v) { window.scrollBy(0, v); follow(); }
+      scrollTimer = requestAnimationFrame(autoScroll);
+    };
+    scrollTimer = requestAnimationFrame(autoScroll);
+    const onMove = (ev) => { lastY = ev.clientY; follow(); };
+    const onEnd = () => {
+      cancelAnimationFrame(scrollTimer);
+      handle.removeEventListener('pointermove', onMove);
+      handle.removeEventListener('pointerup', onEnd);
+      handle.removeEventListener('pointercancel', onEnd);
+      const order = cards().map((c) => Number(c.dataset.qi));
+      const moved = order.some((n, i) => n !== i);
+      if (moved) {
+        d.questions = order.map((n) => d.questions[n]);
+        if (state.view === 'etkinlik-olustur') evForm.dirty = true;
+      }
+      card.classList.remove('dragging'); list.classList.remove('regb-sorting'); card.style.removeProperty('--dy');
+      rerenderRegb();
+      if (moved) document.querySelector(`.regb-q[data-qi="${order.indexOf(Number(card.dataset.qi))}"] [data-regb-drag]`)?.focus({ preventScroll: true });
+    };
+    handle.addEventListener('pointermove', onMove);
+    handle.addEventListener('pointerup', onEnd);
+    handle.addEventListener('pointercancel', onEnd);
+  });
+
   const validateRegDraft = (d) => {
     if (!d || !d.enabled) return '';
     if (d.deadline && new Date(fromLocalInput(d.deadline)).getTime() < Date.now()) return 'Son kayıt zamanı geçmişte olamaz.';
