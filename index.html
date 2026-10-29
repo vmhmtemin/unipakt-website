@@ -9593,7 +9593,8 @@
         const nextStart = (e) => e.occurrences.find((o) => at(o.date, o.time) > new Date()) || null;
         const feeText = (e) => (e.feeType === 'paid' && e.feeAmount != null ? `${Number(e.feeAmount).toLocaleString('tr-TR', { maximumFractionDigits: 2 })} TL` : 'Ücretsiz');
         const when = (date, time) => `<span>${esc(dayText(date))}</span>${time ? ` · ${esc(time)}` : ''}`;
-        const pageUrl = (e) => `https://unipakt.com/etkinlik/?id=${encodeURIComponent(e.id)}`;
+        // Paylaşım adresi: /etkinlik/<id>/ önizlemede etkinliğin adını ve afişini gösterir (tools/build_pages.py).
+        const pageUrl = (e) => `https://unipakt.com/etkinlik/${encodeURIComponent(String(e.id).toLowerCase())}/`;
         const mapUrl = (e) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([e.place, e.address, e.city].filter(Boolean).join(', '))}`;
 
         function countdownHtml(e) {

@@ -14,9 +14,11 @@ from __future__ import annotations
 import base64
 import hashlib
 import html
+import json
 import re
 import shutil
 import sys
+import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -38,6 +40,15 @@ ROUTES = {
     "mixit": ("HACKFEST27: MIXIT", "6–7 Mart 2027, İstanbul Kongre Merkezi: UniPakt'ın üniversite festivali MIXIT. Hackathon, e-spor, gastronomi ve dans yarışmaları, konuşmalar ve Büyük Final."),
     "kvkk": ("KVKK Aydınlatma Metni", "UniPakt'ın kişisel verileri hangi amaçla, hangi hukuki sebeple işlediği, kimlere aktardığı ve haklarınız."),
 }
+
+# Event share pages (/etkinlik/<id>/): a small page per published event so that link
+# previews (WhatsApp, Instagram, X …) show the event's own title, date and poster.
+# Visitors are sent on to the real event page (/etkinlik/?id=…).
+SUPABASE = "https://hcgotmcbwmleeklbvawb.supabase.co"
+PUBLIC_KEY = "sb_publishable_RcHJDYGkpd-01DPYG9o3HQ_8prlhUQn"   # publishable (browser) key
+MONTHS = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
+UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+SAFE_IMG = re.compile(r"^https://[A-Za-z0-9.-]+\.supabase\.co/storage/v1/object/public/[^\s\"'<>]+$")
 
 # Never published: source-only files.
 SKIP = {".git", ".github", ".gitignore", "_site", "supabase", "tools", "README.md"}
@@ -64,6 +75,85 @@ def page_for(index: str, route: str, title: str, description: str) -> str:
     text = replace_once(text, r'(<meta property="og:description" content=")[^"]*(")', lambda m: m.group(1) + desc + m.group(2), "og:description")
     text = replace_once(text, r'(<meta name="twitter:description" content=")[^"]*(")', lambda m: m.group(1) + desc + m.group(2), "twitter:description")
     return text
+
+
+def fetch_events() -> list[dict]:
+    req = urllib.request.Request(f"{SUPABASE}/rest/v1/rpc/public_events", data=b"{}", method="POST",
+                                 headers={"apikey": PUBLIC_KEY, "Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=20) as res:
+        rows = json.load(res)
+    return rows if isinstance(rows, list) else []
+
+
+def share_page(e: dict) -> str | None:
+    eid = str(e.get("id") or "").lower()
+    title = " ".join(str(e.get("title") or "").split())[:140]
+    if not UUID_RE.match(eid) or not title:
+        return None
+    occ = e.get("occurrences") or [{"date": e.get("event_date"), "time": e.get("event_time")}]
+    first = occ[0] if occ else {}
+    day = ""
+    try:
+        y, m, d = (int(x) for x in str(first.get("date") or e.get("event_date"))[:10].split("-"))
+        day = f"{d} {MONTHS[m - 1]} {y}"
+    except (ValueError, IndexError):
+        pass
+    time = str(first.get("time") or "")[:5]
+    where = ", ".join(x for x in [str(e.get("place") or "").strip(), str(e.get("city") or "").strip()] if x)
+    who = str(e.get("organizer") or "").strip()
+    desc = " · ".join(x for x in [day + (f" {time}" if time else ""), where] if x)
+    if who:
+        desc = f"{desc} — {who}" if desc else who
+    image = next((u for u in [e.get("poster_url"), e.get("banner_url")] if u and SAFE_IMG.match(str(u))), f"{SITE}/og-image.png")
+    url = f"{SITE}/etkinlik/{eid}/"
+    target = f"/etkinlik/?id={eid}"
+    script = f"location.replace({json.dumps(target)} + location.hash);"
+    digest = base64.b64encode(hashlib.sha256(script.encode("utf-8")).digest()).decode()
+    q = lambda v: html.escape(v, quote=True)
+    return f"""<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-{digest}'; style-src 'unsafe-inline'; img-src https:; base-uri 'none'">
+<title>{q(title)} — UniPakt</title>
+<meta name="description" content="{q(desc)}">
+<link rel="canonical" href="{q(url)}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="UniPakt">
+<meta property="og:locale" content="tr_TR">
+<meta property="og:url" content="{q(url)}">
+<meta property="og:title" content="{q(title)}">
+<meta property="og:description" content="{q(desc)}">
+<meta property="og:image" content="{q(image)}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{q(title)}">
+<meta name="twitter:description" content="{q(desc)}">
+<meta name="twitter:image" content="{q(image)}">
+<script>{script}</script>
+<style>body{{margin:0;min-height:100vh;display:grid;place-items:center;background:#0C0C0D;color:#F2F1EE;font:16px/1.5 system-ui,sans-serif;text-align:center;padding:24px}}a{{color:#FF5A1F}}</style>
+</head>
+<body><p><strong>{q(title)}</strong><br>{q(desc)}<br><br><a href="{q(target)}">Etkinlik sayfasını aç →</a></p></body>
+</html>
+"""
+
+
+def write_share_pages() -> int:
+    try:
+        events = fetch_events()
+    except Exception as error:  # the site still builds; old links fall back through 404.html
+        print(f"build_pages: event share pages skipped ({error})")
+        return 0
+    count = 0
+    for e in events:
+        page = share_page(e)
+        if not page:
+            continue
+        folder = OUT / "etkinlik" / str(e["id"]).lower()
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / "index.html").write_text(page, encoding="utf-8")
+        count += 1
+    return count
 
 
 def check_404_csp() -> None:
@@ -99,9 +189,11 @@ def main() -> None:
         (OUT / route).mkdir()
         (OUT / route / "index.html").write_text(page_for(index, route, title, description), encoding="utf-8")
 
+    shares = write_share_pages()
+
     # Serve files as they are (no Jekyll processing).
     (OUT / ".nojekyll").write_text("", encoding="utf-8")
-    print(f"build_pages: {len(ROUTES)} route pages written to {OUT.relative_to(ROOT)}/")
+    print(f"build_pages: {len(ROUTES)} route pages and {shares} event share pages written to {OUT.relative_to(ROOT)}/")
 
 
 if __name__ == "__main__":

@@ -4,6 +4,9 @@ name: Deploy site
 on:
   push:
     branches: [main]
+  # Event share pages (/etkinlik/<id>/) are rebuilt from the live event list every 3 hours.
+  schedule:
+    - cron: "23 */3 * * *"
   workflow_dispatch:
 
 permissions:
