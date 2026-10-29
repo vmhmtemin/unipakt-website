@@ -6578,6 +6578,38 @@
     .ev-count div { border-color: color-mix(in srgb, #fff 35%, transparent); }
     .ev-ended { border-color: currentColor; color: inherit; }
     .ev-fee { color: inherit; font-weight: 700; }
+    /* ---- Kulüp sayfası ---- */
+    .cl-hero { position: relative; isolation: isolate; overflow: hidden; color: #fff; background: #0C0C0D; text-align: center; padding: clamp(70px, 7vw, 100px) 0 clamp(40px, 5vw, 64px); }
+    .cl-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(#ffffff26 1px, transparent 1.3px) 0 0 / 18px 18px; }
+    .cl-hero-in { display: grid; justify-items: center; gap: 10px; position: relative; }
+    .cl-back { position: absolute; left: 0; top: calc(-1 * clamp(50px, 5vw, 76px)); }
+    .cl-logo { position: relative; width: clamp(96px, 12vw, 128px); height: clamp(96px, 12vw, 128px); border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: #1E1E21; border: 1px solid #ffffff2e; font: 900 clamp(40px, 5vw, 54px)/1 'Archivo', sans-serif; color: #F2F1EE; }
+    .cl-logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .cl-hero h1 { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(30px, 4.6vw, 56px); line-height: 1.05; letter-spacing: -0.03em; margin: 8px 0 0; max-width: 22ch; overflow-wrap: anywhere; }
+    .cl-sub { margin: 0; opacity: .8; font-size: clamp(14px, 1.5vw, 17px); }
+    .cl-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: clamp(18px, 3vw, 32px); align-items: start; }
+    .cl-bio { margin: 0; line-height: 1.7; white-space: pre-line; overflow-wrap: anywhere; }
+    .cl-evs { display: grid; gap: 8px; }
+    .cl-ev { display: grid; grid-template-columns: 54px minmax(0, 1fr) auto auto; gap: 14px; align-items: center; padding: 12px 14px; border-radius: 14px; background: var(--paper); color: inherit; text-decoration: none; transition: background .2s ease; }
+    .cl-ev:hover { background: color-mix(in srgb, var(--ink) 6%, var(--paper)); }
+    .cl-ev-date { display: grid; justify-items: center; line-height: 1; }
+    .cl-ev-date b { font: 800 24px/1 'Archivo', sans-serif; }
+    .cl-ev-date small { font-size: 11px; opacity: .6; margin-top: 4px; letter-spacing: .04em; }
+    .cl-ev-text { display: grid; gap: 3px; min-width: 0; }
+    .cl-ev-text strong { overflow-wrap: anywhere; }
+    .cl-ev-text small { font-size: 13px; opacity: .65; }
+    .cl-ev-tag { padding: 3px 9px; border: 1px solid var(--border-strong); border-radius: 999px; font-size: 11.5px; }
+    .cl-ev-go { opacity: .5; }
+    .cl-evs.past .cl-ev { opacity: .75; }
+    .cl-empty { margin: 0; opacity: .6; }
+    .cl-contact .club-contact-tiles { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+    .cl-contact .club-contact-tile { aspect-ratio: auto; flex-direction: row; justify-content: flex-start; text-align: left; gap: 12px; padding: 12px 14px; border-radius: 14px; display: grid; grid-template-columns: 26px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 12px; row-gap: 2px; }
+    .cl-contact .club-contact-icon { width: 24px; height: 24px; grid-row: 1 / 3; align-self: center; }
+    .cl-contact .club-contact-tile .club-contact-label { font-size: 14px; }
+    .cl-contact .club-contact-tile .club-contact-value { font-size: 13px; }
+    .cl-contact .club-contact-tile:hover { transform: none; }
+    .club-page-link { display: inline-flex; gap: 6px; margin-top: 14px; font-weight: 600; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+    @media (max-width: 860px) { .cl-grid { grid-template-columns: minmax(0, 1fr); } }
     /* ---- Etkinlik sayfası tasarımı (kulübün panelde seçtiği; boşsa yukarıdaki varsayılan) ---- */
     .ev-org-line { display: inline-flex; align-items: center; gap: 10px; }
     .ev-org-logo { width: 32px; height: 32px; flex: none; border-radius: 50%; object-fit: cover; background: var(--paper); border: 1px solid var(--border-strong); }
@@ -8133,6 +8165,10 @@
             </div>
         </section>
 
+        <section class="page" id="page-kulup" data-page="kulup">
+            <div class="cl-page" id="clubPage"></div>
+        </section>
+
         <section class="page" id="page-kvkk" data-page="kvkk">
             <div class="section field-alt" style="padding-top: clamp(90px, 12vw, 130px);">
                 <article class="wrap legal">
@@ -8163,7 +8199,7 @@
                                 <tr><td>Etkinlik kayıt formu</td><td>Ad soyad, e-posta adresi, etkinliği düzenleyen kulübün sorduğu sorulara verilen cevaplar ve etkinlik girişinde kontrolün yapıldığı zaman</td></tr>
                                 <tr><td>Etkinlik görevlileri (panel)</td><td>Etkinlik girişinde kontrol yapan görevlinin adı soyadı ve e-posta adresi</td></tr>
                                 <tr><td>The Story bölümü</td><td>Ekip üyelerinin adı soyadı, fotoğrafı, görevi ve iletişim bilgileri (e-posta, LinkedIn)</td></tr>
-                                <tr><td>Ortak Kulüpler listesi</td><td>Kulübün adı, üniversitesi, kategorisi ve kulübün yayınlanmasına izin verdiği iletişim bilgileri (e-posta, sosyal medya hesapları, web sitesi)</td></tr>
+                                <tr><td>Ortak Kulüpler listesi ve kulüp sayfaları</td><td>Kulübün adı, üniversitesi, kategorisi, panelde eklediği logo ve kısa tanıtım yazısı, düzenlediği etkinlikler ve kulübün yayınlanmasına izin verdiği iletişim bilgileri (e-posta, sosyal medya hesapları, web sitesi)</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -8358,6 +8394,7 @@
         if (!Array.isArray(rows))
             return null;
         return rows.filter(r => r && r.visible !== false && clubText(r.name) && clubText(r.university)).slice(0, 500).map(r => ({
+            id: /^[0-9a-f-]{36}$/i.test(String(r.id || '')) ? String(r.id).toLowerCase() : '',
             name: clubText(r.name, 120),
             uni: clubText(r.university, 120),
             cat: clubText(r.category, 40),
@@ -8503,7 +8540,8 @@
             text: UNIPAKT_EMAIL
         }, false);
         const note = rows.length ? '' : '<p class="club-contact-note">Kulübün iletişim bilgileri henüz eklenmedi, UniPakt üzerinden ulaşabilirsin.</p>';
-        return `<div class="club-contact-title">İletişim</div><div class="club-contact-tiles">${tiles}</div>${note}`;
+        const page = c.id ? `<a class="club-page-link" href="/kulup/?id=${esc(c.id)}">Kulüp sayfasına git <span aria-hidden="true">→</span></a>` : '';
+        return `<div class="club-contact-title">İletişim</div><div class="club-contact-tiles">${tiles}</div>${note}${page}`;
     }
 
     function renderClubList(container, list, {placeholder=false, expandable=false}={}) {
@@ -9628,7 +9666,7 @@
             const others = e.occurrences.length > 1 ? e.occurrences.map((o) => `<div>${when(o.date, o.time)}</div>`).join('') : '';
             const orgLogo = e.organizerId ? e.orgLogo : '/apple-touch-icon.png';
             const orgName = e.organizerId
-                ? `<a href="/kulupler/" class="ev-org" data-ev-club="${esc(e.organizerName)}" data-no-i18n>${esc(e.organizerName)}</a>`
+                ? `<a href="/kulup/?id=${esc(e.organizerId)}" class="ev-org" data-no-i18n>${esc(e.organizerName)}</a>`
                 : '<span data-no-i18n>UniPakt</span>';
             const org = orgLogo
                 ? `<span class="ev-org-line"><img class="ev-org-logo" src="${esc(orgLogo)}" alt="" width="32" height="32" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">${orgName}</span>`
@@ -9876,6 +9914,83 @@
             showRoute('etkinlik');
             syncRouteMeta('etkinlik');
         };
+    })();
+
+    /* ---------- Kulüp sayfası (/kulup/?id=…) ----------
+       public_club_page: ad, üniversite, kategori, logo, kısa tanıtım, (KVKK onayı varsa)
+       iletişim ve kulübün düzenlediği / ortak olduğu yayındaki etkinlikler. */
+    (function initClubPage() {
+        const section = document.getElementById('page-kulup');
+        const host = document.getElementById('clubPage');
+        if (!section || !host) return;
+        const RPC_URL = 'https://hcgotmcbwmleeklbvawb.supabase.co/rest/v1/rpc/public_club_page';
+        const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        const LOGO = /^https:\/\/hcgotmcbwmleeklbvawb\.supabase\.co\/storage\/v1\/object\/public\/profile-logos\/[^\s"'<>()\\]+$/;
+        const IMG = /^https:\/\/[a-z0-9.-]+\.supabase\.co\/storage\/v1\/object\/public\/[^\s"'<>()\\]+$/i;
+        const MONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+        const SHORT = ['OCA', 'ŞUB', 'MAR', 'NİS', 'MAY', 'HAZ', 'TEM', 'AĞU', 'EYL', 'EKİ', 'KAS', 'ARA'];
+        const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+        let loadedId = '';
+        const message = (title, text) => `<div class="wrap ev-body ev-msg"><h1>${esc(title)}</h1><p>${esc(text)}</p><a class="btn-pill" href="/kulupler/">Tüm kulüpler</a></div>`;
+        const eventRow = (ev) => {
+            const [y, m, d] = String(ev.date || '').split('-').map(Number);
+            const meta = [y ? `${d} ${MONTHS[m - 1]} ${y}${ev.time ? ` · ${String(ev.time).slice(0, 5)}` : ''}` : '', [ev.place, ev.city].filter(Boolean).join(', ')].filter(Boolean).join(' · ');
+            return `<a class="cl-ev" href="/etkinlik/?id=${esc(ev.id)}">
+                <span class="cl-ev-date"><b>${y ? d : ''}</b><small>${y ? SHORT[m - 1] : ''}</small></span>
+                <span class="cl-ev-text"><strong data-no-i18n>${esc(ev.title)}</strong><small data-no-i18n>${esc(meta)}</small></span>
+                ${ev.role === 'partner' ? '<span class="cl-ev-tag">Ortak</span>' : ''}<span class="cl-ev-go" aria-hidden="true">→</span></a>`;
+        };
+        function render(c) {
+            const contact = c.contact && typeof c.contact === 'object' ? c.contact : null;
+            const fake = { name: c.name, uni: c.university, cat: c.category, contact: contact ? Object.fromEntries(Object.entries(contact).map(([k, v]) => [k, typeof v === 'string' ? v : ''])) : {} };
+            const events = Array.isArray(c.events) ? c.events.filter((ev) => ev && UUID.test(String(ev.id || ''))) : [];
+            const t = today();
+            const upcoming = events.filter((ev) => (ev.end_date || ev.date) >= t).reverse();
+            const past = events.filter((ev) => (ev.end_date || ev.date) < t).slice(0, 12);
+            const logo = typeof c.logo === 'string' && LOGO.test(c.logo) ? c.logo : '';
+            const initial = String(c.name || '?').trim().charAt(0).toLocaleUpperCase('tr-TR');
+            host.innerHTML = `
+                <header class="cl-hero">
+                    <div class="wrap cl-hero-in">
+                        <button type="button" class="ev-back ev-back-top cl-back" data-cl-back>← Kulüpler</button>
+                        <div class="cl-logo">${logo ? `<img src="${esc(logo)}" alt="" width="120" height="120" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}<span aria-hidden="true">${esc(initial)}</span></div>
+                        <h1 data-no-i18n>${esc(c.name)}</h1>
+                        <p class="cl-sub"><span data-no-i18n>${esc(c.university || '')}</span>${c.category ? ` · <span>${esc(c.category)}</span>` : ''}</p>
+                    </div>
+                </header>
+                <div class="wrap ev-body cl-body">
+                    ${c.bio ? `<section class="ev-card"><h2>Hakkında</h2><p class="cl-bio" data-no-i18n>${esc(String(c.bio).slice(0, 500))}</p></section>` : ''}
+                    <div class="cl-grid">
+                        <section class="ev-card"><h2>Yaklaşan etkinlikler</h2>${upcoming.length ? `<div class="cl-evs">${upcoming.map(eventRow).join('')}</div>` : '<p class="cl-empty">Şu an yaklaşan etkinlik yok.</p>'}</section>
+                        <aside class="ev-card cl-contact">${clubContactMarkup(fake)}</aside>
+                    </div>
+                    ${past.length ? `<section class="ev-card"><h2>Geçmiş etkinlikler</h2><div class="cl-evs past">${past.map(eventRow).join('')}</div></section>` : ''}
+                </div>`;
+            document.title = `${c.name} — UniPakt`;
+        }
+        async function load() {
+            const id = (new URLSearchParams(location.search).get('id') || '').toLowerCase();
+            if (id === loadedId && host.childElementCount) return;
+            loadedId = id;
+            if (!UUID.test(id)) { host.innerHTML = message('Kulüp bulunamadı', 'Bu bağlantı bir kulübe ait değil.'); return; }
+            host.innerHTML = '<div class="wrap ev-body ev-msg"><p>Kulüp yükleniyor…</p></div>';
+            try {
+                const res = await fetch(RPC_URL, { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_id: id }) });
+                const c = res.ok ? await res.json() : null;
+                if (loadedId !== id) return;
+                if (!c || !c.name) { host.innerHTML = message('Kulüp bulunamadı', 'Bu kulüp artık listede değil.'); return; }
+                render(c);
+            } catch (_) {
+                if (loadedId === id) { host.innerHTML = message('Kulüp şu an yüklenemedi', 'Biraz sonra tekrar dene.'); loadedId = ''; }
+            }
+        }
+        host.addEventListener('click', (ev) => {
+            if (ev.target.closest('[data-cl-back]')) {
+                if (history.state && history.state.fromSite) history.back(); else navigateTo('kulupler');
+            }
+        });
+        window.addEventListener('unipakt:route', () => { if (section.classList.contains('active')) load(); });
+        if (section.classList.contains('active')) load();
     })();
 
     // Ortak Kulüpler listesindeki satırları sadece bu liste içinde aç/kapat.
@@ -10648,7 +10763,7 @@
     const routeLinks = document.querySelectorAll('[data-route]');
     const menuToggle = document.getElementById('menuToggle');
     const navLinks = document.getElementById('navLinks');
-    const validRoutes = ['ana-sayfa', 'kulupler', 'hakkimizda', 'story', 'takvim', 'iletisim', 'katil', 'kvkk', 'etkinlik', 'sponsorlar', 'hackfest27', 'mixit'];
+    const validRoutes = ['ana-sayfa', 'kulupler', 'hakkimizda', 'story', 'takvim', 'iletisim', 'katil', 'kvkk', 'etkinlik', 'kulup', 'sponsorlar', 'hackfest27', 'mixit'];
 
     function showRoute(route) {
         if (!validRoutes.includes(route))
@@ -10714,12 +10829,13 @@
         katil: 'Bize Katıl',
         kvkk: 'KVKK Aydınlatma Metni',
         etkinlik: 'Etkinlik',
+        kulup: 'Kulüp',
         sponsorlar: 'Sponsorlar',
         hackfest27: 'HACKFEST27: MIXIT · Sponsorluk',
         mixit: 'HACKFEST27: MIXIT'
     };
     function syncRouteMeta(route) {
-        const eventId = route === 'etkinlik' ? new URLSearchParams(location.search).get('id') : '';
+        const eventId = route === 'etkinlik' || route === 'kulup' ? new URLSearchParams(location.search).get('id') : '';
         const url = SITE_ORIGIN + routePath(route) + (eventId ? `?id=${encodeURIComponent(eventId)}` : '');
         document.querySelector('link[rel="canonical"]')?.setAttribute('href', url);
         document.querySelector('meta[property="og:url"]')?.setAttribute('content', url);
@@ -10732,7 +10848,7 @@
             route = 'ana-sayfa';
         // Etkinlik sayfasının ?id= parametresi başka sayfalara taşınmaz.
         const params = new URLSearchParams(location.search);
-        if (route !== 'etkinlik')
+        if (route !== 'etkinlik' && route !== 'kulup')
             params.delete('id');
         const query = params.toString();
         // E-postadaki bilet / yer teklifi bağlantıları (#bilet=… / #teklif=…) etkinlik sayfası okuyana kadar kalır.
@@ -10770,6 +10886,11 @@
         event.preventDefault();
         if (segment === 'etkinlik') {
             openSiteEvent(url.searchParams.get('id') || '');
+            return;
+        }
+        if (segment === 'kulup') {
+            try { history.pushState({ route: 'kulup', fromSite: true }, '', `/kulup/?id=${encodeURIComponent(url.searchParams.get('id') || '')}`); } catch (_) {}
+            showRoute('kulup'); syncRouteMeta('kulup');
             return;
         }
         navigateTo(segment);

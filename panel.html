@@ -3543,7 +3543,7 @@
       const clubInfo = club(state.user);
       return `${head('Profil', 'Kulüp profilinde diğer kulüplerin göreceği bilgileri düzenle.')}
         <section class="card">
-          ${isAdmin() ? `<p class="body">UniPakt <span class="tag ok">✓ Onaylı</span></p>` : `<p class="body">Profilin yalnızca panelde ve kulüpler arası sohbetlerde görünür.</p>
+          ${isAdmin() ? `<p class="body">UniPakt <span class="tag ok">✓ Onaylı</span></p>` : `<p class="body">Logo ve kısa tanıtım, sitedeki kulüp sayfanda ve etkinliklerinin organizatör satırında da herkese açık görünür. Başkanın adı ve iş birliği alanları yalnızca panelde ve kulüpler arası sohbetlerde görünür.</p>
             <form id="profileForm" class="stack" style="margin-top:20px">
               <div class="profile-editor">
                 <div data-profile-avatar>${avatarMarkup(state.profile.avatarUrl, state.profile.fullName || clubInfo?.name || 'Kulüp', 'large')}</div>
