@@ -111,8 +111,9 @@ Deno.serve(async (req) => {
       const { data: authData } = jwt ? await supabase.auth.getUser(jwt) : { data: { user: null } };
       const user = authData.user;
       if (!user) return reply(401, { message: "Oturum geçersiz." });
-      const { data: me } = await supabase.from("profiles").select("role, club_id").eq("id", user.id).maybeSingle();
-      if (!me || !["club", "admin"].includes(me.role)) return reply(403, { message: "Bu işlem için panel yetkisi gerekli." });
+      const { data: me } = await supabase.from("profiles").select("role, club_id, permissions").eq("id", user.id).maybeSingle();
+      const regMember = me?.role === "member" && Array.isArray(me.permissions) && me.permissions.includes("registrations");
+      if (!me || !(["club", "admin"].includes(me.role) || regMember)) return reply(403, { message: "Bu işlem için panel yetkisi gerekli." });
       const { data: mfaOk } = await supabase.rpc("mfa_session_ok", { p_user: user.id, p_session: sessionIdOf(jwt) });
       if (!mfaOk) return reply(403, { message: "Önce iki adımlı doğrulamayı tamamla.", mfa_required: true });
 

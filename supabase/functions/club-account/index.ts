@@ -63,7 +63,8 @@ Deno.serve(async (req) => {
   const { data: existing } = await admin.from("profiles").select("id").eq("club_id", clubId).eq("role", "club");
 
   if (action === "remove") {
-    for (const row of existing ?? []) {
+    const { data: team } = await admin.from("profiles").select("id").eq("club_id", clubId).eq("role", "member");
+    for (const row of [...(team ?? []), ...(existing ?? [])]) {
       const { error } = await admin.auth.admin.deleteUser(row.id);   // profil satırı da birlikte silinir
       if (error) return reply(500, { message: error.message });
     }

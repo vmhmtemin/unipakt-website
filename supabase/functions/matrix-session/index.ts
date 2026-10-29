@@ -43,8 +43,9 @@ Deno.serve(async (req) => {
   const user = authData.user;
   if (!user) return reply(401, { message: "Oturum geçersiz." }, origin);
 
-  const { data: profile, error: profileError } = await supabase.from("profiles").select("role,club_id").eq("id", user.id).maybeSingle();
-  if (profileError || !profile || !["club", "admin"].includes(profile.role)) {
+  const { data: profile, error: profileError } = await supabase.from("profiles").select("role,club_id,permissions").eq("id", user.id).maybeSingle();
+  const chatMember = profile?.role === "member" && Array.isArray(profile.permissions) && profile.permissions.includes("chat");
+  if (profileError || !profile || !(["club", "admin"].includes(profile.role) || chatMember)) {
     return reply(403, { message: "Bu hesap mesajlaşmaya yetkili değil." }, origin);
   }
   const { data: mfaOk } = await supabase.rpc("mfa_session_ok", { p_user: user.id, p_session: sessionIdOf(token) });
@@ -62,7 +63,7 @@ Deno.serve(async (req) => {
     return reply(503, { message: "Mesajlaşma sunucusu henüz yapılandırılmadı." }, origin);
   }
 
-  if (profile.role === "club" && !/^[0-9a-f-]{36}$/i.test(String(profile.club_id ?? ""))) {
+  if (profile.role !== "admin" && !/^[0-9a-f-]{36}$/i.test(String(profile.club_id ?? ""))) {
     return reply(403, { message: "Kulüp hesabının kulüp bağlantısı eksik." }, origin);
   }
   const accountKey = profile.role === "admin" ? "unipakt-support" : `club-${profile.club_id}`;
