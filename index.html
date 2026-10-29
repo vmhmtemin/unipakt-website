@@ -6578,6 +6578,23 @@
     .ev-count div { border-color: color-mix(in srgb, #fff 35%, transparent); }
     .ev-ended { border-color: currentColor; color: inherit; }
     .ev-fee { color: inherit; font-weight: 700; }
+    /* ---- Takvim: geçmiş etkinlikler arşivi ---- */
+    .cal-past { margin-top: clamp(40px, 6vw, 72px); display: grid; gap: 18px; }
+    .cal-past-head { display: flex; align-items: baseline; gap: 12px; }
+    .cal-past-count { font-size: 14px; opacity: .55; }
+    .cal-past-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+    .cal-past-card { display: grid; gap: 10px; color: inherit; text-decoration: none; }
+    .cal-past-img { display: grid; place-items: center; aspect-ratio: 1; border-radius: 16px; overflow: hidden; background: var(--paper-soft); border: 1px solid var(--border); }
+    .cal-past-img img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(.35); transition: filter .3s ease, transform .4s ease; }
+    .cal-past-card:hover .cal-past-img img { filter: none; transform: scale(1.03); }
+    .cal-past-date { display: grid; justify-items: center; line-height: 1; opacity: .6; }
+    .cal-past-date b { font: 900 46px/1 'Archivo', sans-serif; }
+    .cal-past-date small { margin-top: 6px; font-size: 13px; letter-spacing: .06em; }
+    .cal-past-text { display: grid; gap: 3px; }
+    .cal-past-text strong { font-size: 15px; overflow-wrap: anywhere; }
+    .cal-past-text small { font-size: 13px; opacity: .6; }
+    .cal-past-more { justify-self: center; background: transparent; color: var(--ink); border: 1px solid var(--border-strong); }
+    @media (max-width: 520px) { .cal-past-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } }
     /* ---- Kulüp sayfası ---- */
     .cl-hero { position: relative; isolation: isolate; overflow: hidden; color: #fff; background: #0C0C0D; text-align: center; padding: clamp(70px, 7vw, 100px) 0 clamp(40px, 5vw, 64px); }
     .cl-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(#ffffff26 1px, transparent 1.3px) 0 0 / 18px 18px; }
@@ -8904,6 +8921,27 @@
             const msg = `<p class="site-cal-v2-empty">${esc(dayFilter ? ui.noDay() : (searchQuery ? ui.noSearch() : loaded ? ui.empty() : failed ? ui.failed() : ui.load()))}</p>`;
             return (loaded || failed) ? msg + nextBigHtml() : msg;
         }
+        // Geçmiş etkinlikler arşivi: son günü geçmiş etkinlikler, en yenisi önce (afiş, ad, tarih, organizatör).
+        let pastShown = 8;
+        function pastHtml() {
+            if (dayFilter || searchQuery.trim() || !loaded) return '';
+            const t = ymd(new Date());
+            const past = events.filter(e => !e.gridOnly && e.occurrences.length && e.occurrences.every(o => o.date < t))
+                .sort((a, b) => b.occurrences[b.occurrences.length - 1].date.localeCompare(a.occurrences[a.occurrences.length - 1].date));
+            if (!past.length) return '';
+            const card = (e) => {
+                const o = e.occurrences[e.occurrences.length - 1];
+                const img = e.poster_url ? `<img src="${esc(e.poster_url)}" alt="" loading="lazy" referrerpolicy="no-referrer">`
+                    : `<span class="cal-past-date" aria-hidden="true"><b>${parse(o.date).getDate()}</b><small>${esc(shortMonth(o.date))}</small></span>`;
+                return `<a class="cal-past-card" href="${e.href ? esc(e.href) : `/etkinlik/?id=${encodeURIComponent(e.id)}`}"><span class="cal-past-img">${img}</span>
+                    <span class="cal-past-text"><strong data-no-i18n>${esc(e.title)}</strong><small data-no-i18n>${esc([dateTime(o.date, ''), e.by].filter(Boolean).join(' · '))}</small></span></a>`;
+            };
+            return `<section class="cal-past" aria-labelledby="calPastTitle">
+                <div class="cal-past-head"><h2 class="site-cal-sub" id="calPastTitle">Geçmiş etkinlikler</h2><span class="cal-past-count" data-no-i18n>${past.length}</span></div>
+                <div class="cal-past-grid">${past.slice(0, pastShown).map(card).join('')}</div>
+                ${past.length > pastShown ? '<button type="button" class="btn-pill ghost cal-past-more" data-cal-past-more>Daha fazla göster</button>' : ''}
+            </section>`;
+        }
         const monthKey = (y, m) => `${y}-${pad(m + 1)}-`;
         const monthHasEvents = (y, m) => events.some(e => e.occurrences.some(o => o.date.startsWith(monthKey(y, m))));
         // Bugünden sonraki ilk etkinlik günü (gösterilen ay dışında).
@@ -8954,7 +8992,7 @@
                     ${hint}
                 </aside>
                 <div class="cal3-list site-cal-v2-results">${resultsHtml()}</div>
-            </div>`;
+            </div>${pastHtml()}`;
             const input = host.querySelector('#siteCalSearch');
             // Yazarken yalnızca liste yeniden çizilir; imleç ve seçim korunur.
             input?.addEventListener('input', e => {
@@ -8962,9 +9000,16 @@
                 const results = host.querySelector('.site-cal-v2-results');
                 if (results)
                     results.innerHTML = resultsHtml();
+                const pastBox = host.querySelector('.cal-past');
+                if (searchQuery.trim()) pastBox?.remove();
             });
         }
         host.addEventListener('click', event => {
+            if (event.target.closest('[data-cal-past-more]')) {
+                pastShown += 8;
+                renderCalendar();
+                return;
+            }
             const tagBtn = event.target.closest('[data-search-tag]');
             if (tagBtn) {
                 searchOpen = true;
