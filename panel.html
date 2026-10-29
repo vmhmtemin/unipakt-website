@@ -19,14 +19,17 @@
 @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400 600; font-display: swap; src: url(/fonts/inter-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 </style>
 <style>
+  /* Same colour roles as the public site (index.html): charcoal ground and
+     off-white type instead of pure black/white; cards are soft filled
+     surfaces without outlines; orange stays the single signal colour. */
   :root {
     color-scheme: dark;
-    --ink: #FFFFFF;
-    --paper: #000000;
-    --paper-soft: #0A0A0A;
-    --surface: #070707;
-    --border: #FFFFFF20;
-    --border-strong: #FFFFFF35;
+    --ink: #F2F1EE;
+    --paper: #0C0C0D;
+    --paper-soft: #1E1E21;
+    --surface: #161618;
+    --border: #F2F1EE17;
+    --border-strong: #F2F1EE30;
     --accent: #FF5A1F;
     --on-accent: #000;
     --ok: #4ADE80;
@@ -105,35 +108,106 @@
   button.proof { background: transparent; cursor: pointer; text-align: left; }
   .demo-note { margin-top: 22px; font-size: 13px; line-height: 1.6; opacity: .6; }
 
-  /* ---- Encrypted chat launcher ---- */
-  .chat-launcher { position: fixed; z-index: 1200; right: 24px; bottom: 24px; display: grid; place-items: center; width: 60px; height: 60px; border: 0; border-radius: 50%; background: var(--accent); color: #111; box-shadow: 0 12px 36px #0008; cursor: pointer; }
-  .chat-launcher:hover { transform: translateY(-2px); }
-  .chat-launcher svg { width: 28px; height: 28px; }
-  .chat-window { position: fixed; z-index: 1199; right: 24px; bottom: 96px; display: flex; flex-direction: column; width: min(390px, calc(100vw - 24px)); height: min(570px, calc(100dvh - 116px)); overflow: hidden; border: 1px solid var(--border-strong); border-radius: 22px; background: #0b0b0b; box-shadow: 0 20px 70px #000b; }
-  .chat-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border); background: #101010; }
-  .chat-head-main { display: flex; align-items: center; gap: 11px; min-width: 0; }
-  .chat-back { display: grid; flex: 0 0 34px; place-items: center; width: 34px; height: 34px; padding: 0 0 3px; border: 1px solid var(--border-strong); border-radius: 50%; background: transparent; color: inherit; font-size: 27px; line-height: 1; cursor: pointer; }
-  .chat-head strong { display: flex; align-items: center; gap: 7px; font-weight: 700; }
-  .chat-head small { display: block; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: .6; font-size: 12px; }
-  .chat-verified { display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; background: #54a8ff; color: #07121e; font-size: 12px; font-weight: 900; }
-  .chat-close { width: 34px; height: 34px; border: 1px solid var(--border-strong); border-radius: 50%; background: transparent; cursor: pointer; }
-  .chat-body { flex: 1; min-height: 0; overflow: auto; padding: 14px; }
-  .chat-room-list, .chat-peer-list { display: grid; gap: 6px; }
-  .chat-row { display: flex; width: 100%; align-items: center; gap: 10px; padding: 11px; border: 1px solid var(--border); border-radius: 13px; background: #101010; text-align: left; cursor: pointer; }
-  .chat-row:hover { border-color: var(--accent); }
-  .chat-row strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .chat-row small { display: block; opacity: .58; font-size: 12px; }
-  .chat-section-title { margin: 16px 0 8px; font-size: 12px; font-weight: 700; opacity: .55; text-transform: uppercase; letter-spacing: .06em; }
-  .chat-messages { display: flex; flex-direction: column; gap: 8px; }
-  .chat-message { max-width: 86%; align-self: flex-start; padding: 9px 12px; border-radius: 15px 15px 15px 4px; background: #1a1a1a; white-space: pre-wrap; overflow-wrap: anywhere; }
-  .chat-message.mine { align-self: flex-end; border-radius: 15px 15px 4px 15px; background: #fe5c1d; color: #111; }
-  .chat-composer { display: flex; align-items: end; gap: 8px; padding: 12px; border-top: 1px solid var(--border); }
-  .chat-composer textarea { flex: 1; min-width: 0; min-height: 42px; max-height: 120px; resize: vertical; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 14px; background: #111; color: var(--ink); }
-  .chat-status { padding: 22px 12px; text-align: center; opacity: .65; font-size: 13px; }
-  .chat-beta-notice { display: grid; gap: 12px; font-size: 14px; line-height: 1.55; }
+  /* ---- UniPakt Instant Messages (tam sayfa sohbet) ---- */
+  .main.is-im { padding-bottom: clamp(16px, 2vw, 28px); }
+  .main.is-im .main-inner { max-width: none; }
+  .im {
+    --im-h: calc(100dvh - 92px - clamp(24px, 4vw, 56px));
+    display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+    height: var(--im-h); min-height: 460px; overflow: hidden;
+    border: 1px solid var(--border); border-radius: 22px; background: var(--paper-soft);
+  }
+  .im-side { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--border); background: var(--surface); }
+  .im-side-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 18px 12px; }
+  .im-side-head h2 { font: 900 22px/1.05 'Archivo', sans-serif; letter-spacing: -0.03em; }
+  .im-side-head h2 span { display: block; margin-bottom: 4px; font: 700 18px/1 'Caveat', cursive; letter-spacing: 0; color: var(--accent); }
+  .im-icon-btn { display: grid; place-items: center; flex: none; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: var(--accent); color: var(--on-accent); }
+  .im-icon-btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--border-strong); }
+  .im-icon-btn svg { width: 20px; height: 20px; }
+  .im-search { position: relative; margin: 0 14px 10px; }
+  .im-search svg { position: absolute; left: 14px; top: 50%; width: 17px; height: 17px; transform: translateY(-50%); opacity: .5; pointer-events: none; }
+  .im-search input { width: 100%; height: 42px; padding: 0 14px 0 40px; border: 1px solid var(--border); border-radius: 999px; background: var(--paper-soft); color: var(--ink); }
+  .im-search input:focus { outline: none; border-color: var(--border-strong); }
+  .im-list { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 8px 12px; }
+  .im-list-title { margin: 12px 10px 6px; font-size: 12px; font-weight: 600; opacity: .5; }
+  .im-row { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; padding: 10px; border: 0; border-radius: 14px; background: transparent; color: var(--ink); text-align: left; }
+  .im-row:hover { background: var(--paper-soft); }
+  .im-row.active { background: var(--paper-soft); box-shadow: inset 3px 0 0 var(--accent); }
+  .im-row .profile-avatar, .im-head .profile-avatar { width: 48px; height: 48px; }
+  .im-row-main { min-width: 0; }
+  .im-row-main strong { display: flex; align-items: center; gap: 6px; overflow: hidden; font-weight: 600; white-space: nowrap; }
+  .im-row-main strong .im-name { overflow: hidden; text-overflow: ellipsis; }
+  .im-row-main small { display: flex; align-items: center; gap: 4px; overflow: hidden; margin-top: 2px; font-size: 13px; opacity: .6; white-space: nowrap; text-overflow: ellipsis; }
+  .im-row-main small .im-preview { overflow: hidden; text-overflow: ellipsis; }
+  .im-row-main small.is-typing { color: var(--accent); opacity: 1; }
+  .im-row-meta { display: grid; justify-items: end; gap: 6px; font-size: 12px; opacity: .55; }
+  .im-row-meta.has-unread { opacity: 1; color: var(--accent); }
+  .im-unread { min-width: 21px; padding: 2px 6px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-size: 11px; font-weight: 700; text-align: center; }
+  .im-tag { padding: 2px 7px; border: 1px solid var(--border-strong); border-radius: 999px; font-size: 10.5px; font-weight: 600; opacity: .75; }
+  .im-verified { display: inline-grid; flex: none; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: #54a8ff; color: #07121e; font-size: 11px; font-weight: 900; }
+  .im-empty-list { padding: 28px 16px; text-align: center; font-size: 13px; opacity: .55; }
+
+  .im-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .im-head { display: flex; align-items: center; gap: 12px; min-height: 76px; padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--surface); }
+  .im-head .im-back { display: none; }
+  .im-head-text { min-width: 0; }
+  .im-head-text strong { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 16px; }
+  .im-head-text small { display: block; overflow: hidden; font-size: 13px; opacity: .6; white-space: nowrap; text-overflow: ellipsis; }
+  .im-head-text small.is-typing { color: var(--accent); opacity: 1; }
+  .im-msgs {
+    flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; padding: 18px clamp(14px, 3vw, 40px);
+    background-color: var(--paper);
+    background-image: radial-gradient(color-mix(in srgb, var(--ink) 9%, transparent) 1px, transparent 1.3px);
+    background-size: 22px 22px;
+  }
+  .im-older { align-self: center; margin-bottom: 10px; }
+  .im-day { align-self: center; margin: 12px 0 8px; padding: 4px 12px; border-radius: 999px; background: var(--paper-soft); font-size: 12px; font-weight: 600; opacity: .8; }
+  .im-msg { position: relative; max-width: min(75%, 560px); align-self: flex-start; padding: 7px 11px 6px; border-radius: 4px 16px 16px 16px; background: var(--paper-soft); line-height: 1.45; }
+  .im-msg.mine { align-self: flex-end; border-radius: 16px 4px 16px 16px; background: color-mix(in srgb, var(--accent) 24%, var(--paper-soft)); }
+  .im-msg.cont { border-radius: 16px; margin-top: -1px; }
+  .im-msg.mine.cont { border-radius: 16px; }
+  .im-msg + .im-msg:not(.cont) { margin-top: 6px; }
+  .im-msg-body { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .im-msg-meta { float: right; display: inline-flex; align-items: center; gap: 3px; margin: 6px 0 -2px 12px; font-size: 11px; opacity: .6; line-height: 1; }
+  .im-tick { width: 16px; height: 11px; }
+  .im-tick.read { color: var(--accent); opacity: 1; }
+  .im-msg.mine .im-msg-meta:has(.read) { opacity: 1; }
+  .im-msg.failed { outline: 1px solid var(--no); }
+  .im-typing-bubble { display: inline-flex; gap: 4px; align-self: flex-start; margin-top: 6px; padding: 12px 14px; border-radius: 4px 16px 16px 16px; background: var(--paper-soft); }
+  .im-typing-bubble i { width: 7px; height: 7px; border-radius: 50%; background: var(--ink); opacity: .35; animation: imDot 1.2s infinite ease-in-out; }
+  .im-typing-bubble i:nth-child(2) { animation-delay: .15s; }
+  .im-typing-bubble i:nth-child(3) { animation-delay: .3s; }
+  @keyframes imDot { 0%, 60%, 100% { opacity: .35; transform: none; } 30% { opacity: .9; transform: translateY(-3px); } }
+  @media (prefers-reduced-motion: reduce) { .im-typing-bubble i { animation: none; } }
+  .im-composer { display: flex; align-items: flex-end; gap: 10px; padding: 12px 16px; border-top: 1px solid var(--border); background: var(--surface); }
+  .im-composer textarea { flex: 1; min-width: 0; height: 44px; max-height: 160px; padding: 11px 16px; border: 1px solid var(--border); border-radius: 22px; background: var(--paper-soft); color: var(--ink); line-height: 1.4; resize: none; }
+  .im-composer textarea:focus { outline: none; border-color: var(--border-strong); }
+  .im-composer .im-icon-btn { width: 44px; height: 44px; }
+  .im-composer .im-icon-btn:disabled { opacity: .45; }
+  .im-placeholder { flex: 1; display: grid; place-items: center; align-content: center; gap: 10px; padding: 32px; text-align: center; background: var(--paper); }
+  .im-placeholder .kicker { font-size: 28px; }
+  .im-placeholder h3 { font: 900 clamp(28px, 3.4vw, 42px)/1 'Archivo', sans-serif; letter-spacing: -0.04em; }
+  .im-placeholder p { max-width: 42ch; opacity: .6; font-size: 14px; }
+  .im-status { padding: 22px 12px; text-align: center; opacity: .65; font-size: 13px; }
+  .im-notice { overflow-y: auto; }
+  .im-notice-card { width: min(100%, 560px); display: grid; gap: 12px; padding: clamp(20px, 3vw, 32px); border-radius: 20px; background: var(--paper-soft); text-align: left; font-size: 14px; line-height: 1.55; }
+  .im-notice-card h3 { font-size: clamp(24px, 2.6vw, 32px); }
   .chat-beta-consent { display: flex; align-items: flex-start; gap: 10px; margin-top: 4px; font-size: 13px; }
   .chat-beta-consent input { flex: none; margin-top: 4px; accent-color: var(--accent); }
-  @media (max-width: 520px) { .chat-launcher { right: 16px; bottom: 16px; } .chat-window { right: 12px; bottom: 88px; height: min(620px, calc(100dvh - 100px)); } }
+  @media (max-width: 900px) {
+    .main.is-im { padding: 0; }
+    .main.is-im .profile-menu, .main.is-im .demo-bar { display: none; }
+    .im { --im-h: calc(100dvh - 67px); grid-template-columns: minmax(0, 1fr); min-height: 0; border: 0; border-radius: 0; }
+    .im-side { border-right: 0; }
+    .im.has-room .im-side { display: none; }
+    .im:not(.has-room) .im-main { display: none; }
+    .im.is-notice .im-side { display: none; }
+    .im.is-notice .im-main { display: flex; }
+    .im-head { min-height: 64px; padding: 8px 12px; }
+    .im-head .im-back { display: grid; }
+    .im-msg { max-width: 84%; }
+    .im-composer { padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px)); }
+  }
 
   /* ---- App shell ---- */
   .app { display: grid; grid-template-columns: var(--side-w) minmax(0, 1fr); min-height: calc(100vh - 64px); }
@@ -172,10 +246,11 @@
 
   .main { padding: clamp(24px, 4vw, 56px); min-width: 0; }
   .main-inner { max-width: 1080px; }
-  .profile-menu { position: relative; z-index: 30; display: flex; justify-content: flex-end; margin: -10px 0 22px; }
+  /* z-index below the sticky mobile header (20), so the button slides under it on scroll. */
+  .profile-menu { position: relative; z-index: 15; display: flex; justify-content: flex-end; margin: -10px 0 22px; }
   .profile-trigger { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 5px 14px 5px 6px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--ink); font-weight: 650; }
   .profile-trigger:hover, .profile-trigger[aria-expanded="true"] { border-color: var(--accent); }
-  .profile-avatar { width: 36px; height: 36px; flex: none; display: grid; place-items: center; overflow: hidden; border-radius: 50%; background: #222; color: var(--ink); font-weight: 700; }
+  .profile-avatar { width: 36px; height: 36px; flex: none; display: grid; place-items: center; overflow: hidden; border-radius: 50%; background: var(--paper-soft); color: var(--ink); font-weight: 700; }
   .profile-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .profile-caret { width: 8px; height: 8px; margin: -4px 2px 0 4px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg); opacity: .65; }
   .profile-dropdown { position: absolute; top: calc(100% + 8px); right: 0; width: min(230px, calc(100vw - 32px)); padding: 7px; border: 1px solid var(--border-strong); border-radius: 14px; background: var(--surface); box-shadow: 0 16px 42px #0009; }
@@ -205,13 +280,13 @@
   .section-head .link-btn { opacity: .7; }
 
   /* ---- Cards & lists ---- */
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 22px; }
+  .card { background: var(--surface); border: 1px solid transparent; border-radius: 20px; padding: 24px; }
   .stack { display: grid; gap: 12px; }
   .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
   .head-actions { display: flex; flex-wrap: wrap; gap: 8px; }
   .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; align-items: start; }
   .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-  .stat { text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 20px; transition: border-color .2s ease; }
+  .stat { text-align: left; background: var(--surface); border: 1px solid transparent; border-radius: 20px; padding: 22px; transition: border-color .2s ease, background .2s ease; }
   button.stat:hover { border-color: var(--border-strong); }
   .stat b { display: block; font: 900 44px/1 'Archivo', sans-serif; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
   .stat span { display: block; margin-top: 10px; font-size: 13.5px; opacity: .68; }
@@ -325,7 +400,7 @@
   .field input[type="file"] { padding: 10px; font-size: 13px; }
 
   /* ---- Dialog & form ---- */
-  dialog { width: min(100% - 32px, 560px); max-height: calc(100dvh - 32px); padding: 0; border: 1px solid var(--border-strong); border-radius: 22px; background: #0B0B0B; color: var(--ink); }
+  dialog { width: min(100% - 32px, 560px); max-height: calc(100dvh - 32px); padding: 0; border: 1px solid var(--border-strong); border-radius: 22px; background: var(--surface); color: var(--ink); }
   dialog::backdrop { background: rgba(0, 0, 0, .72); }
   dialog form { padding: 26px; display: grid; gap: 16px; }
   dialog h2 { font: 900 26px/1.1 'Archivo', sans-serif; letter-spacing: -0.03em; }
@@ -333,8 +408,8 @@
   .field { display: grid; gap: 7px; }
   .field > span { font-size: 13px; font-weight: 600; opacity: .8; }
   .field input, .field textarea, .field select, .toolbar select {
-    width: 100%; padding: 12px 14px; border-radius: 12px;
-    background: var(--paper-soft); border: 1px solid var(--border-strong); outline: none;
+    width: 100%; padding: 12px 16px; border-radius: 14px;
+    background: color-mix(in srgb, var(--ink) 4%, transparent); border: 1px solid var(--border-strong); outline: none;
     transition: border-color .2s ease, box-shadow .2s ease;
   }
   .toolbar select { width: auto; padding: 9px 14px; border-radius: 999px; }
@@ -345,7 +420,7 @@
   .field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .checks { display: grid; gap: 4px; max-height: 190px; overflow-y: auto; padding: 8px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--paper-soft); }
   .checks label { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 8px; cursor: pointer; }
-  .checks label:hover { background: #151515; }
+  .checks label:hover { background: var(--surface); }
   .checks label[hidden] { display: none; }
   .checks-empty { margin: 6px 8px; font-size: 13px; opacity: .6; }
   .pick-count { font-style: normal; font-weight: 500; opacity: .6; margin-left: 6px; }
@@ -1589,12 +1664,19 @@
      STATE
      ------------------------------------------------------------------ */
   const now = new Date();
+  // UniPakt Instant Messages page state. `peer` is the panel user ('unipakt' or a
+  // club id) of the open conversation; its room is created on the first message.
+  const IM_TITLE = 'UniPakt Instant Messages';
+  const freshChatState = () => ({
+    peer: '', roomId: '', rooms: [], loading: false, error: '',
+    search: '', newChat: false, drafts: {}, noticeAccepted: false,
+  });
   const state = {
     user: null,
     navOpen: false,
     profile: { fullName: '', avatarUrl: '' },
     profileMenuOpen: false,
-    chat: { open: false, roomId: '', roomName: '', rooms: [], loading: false, error: '' },
+    chat: freshChatState(),
     view: 'genel',
     cal: { y: now.getFullYear(), m: now.getMonth(), sel: ymd(now) },
     taskTab: 'open',
@@ -1606,17 +1688,44 @@
   let profileLogoPreviewUrl = '';
   if (DEMO) { try { state.user = sessionStorage.getItem(SESSION); } catch (_) {} }
 
+  /* ------------------------------------------------------------------
+     UNIPAKT INSTANT MESSAGES — Matrix connection
+     The connection starts right after login, so unread counts show up in
+     the menu on every page. Matrix events only patch the chat page (and the
+     menu badge) in place; they never re-render the whole panel, so a form
+     being filled in elsewhere is never wiped.
+     ------------------------------------------------------------------ */
   let matrixModule = null;
   let matrixLoadingPromise = null;
   const matrixSessionKey = (userId) => `unipaktMatrixSession.${userId}`;
   const matrixDeviceKey = (userId) => `unipaktMatrixDevice.${userId}`;
+  // panel.html?demo&hs=http://127.0.0.1:8008 talks to a local test Synapse
+  // (accounts club_<id> / unipakt with password "demo"). Local machine only.
+  const DEMO_HS = DEMO ? (new URLSearchParams(location.search).get('hs') || '') : '';
+  const matrixServerName = () => (DEMO_HS ? 'localhost' : MATRIX_SERVER_NAME);
+  const matrixLocalpart = (panelUser) => (panelUser === ADMIN ? 'unipakt' : `club_${String(panelUser).replaceAll('-', '')}`);
+  const matrixIdFor = (panelUser) => `@${matrixLocalpart(panelUser)}:${matrixServerName()}`;
+  // Matrix user id → panel user ('unipakt' or a club id).
+  const panelUserForMatrixId = (matrixId) => {
+    const localpart = String(matrixId || '').replace(/^@/, '').split(':')[0];
+    if (localpart === 'unipakt') return ADMIN;
+    return db?.clubs.find((c) => `club_${String(c.id).replaceAll('-', '')}` === localpart)?.id || '';
+  };
+  const demoMatrixSession = async (deviceId) => {
+    const r = await fetch(`${DEMO_HS}/_matrix/client/v3/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'm.login.password', user: matrixLocalpart(state.user), password: 'demo', device_id: deviceId }) });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Demo sohbet sunucusuna girilemedi.');
+    return { base_url: DEMO_HS, user_id: data.user_id, device_id: data.device_id, access_token: data.access_token };
+  };
+
   const startMatrix = async () => {
-    if (DEMO || !state.user || !session?.user_id || matrixLoadingPromise) return matrixLoadingPromise;
+    const panelUserId = DEMO ? state.user : session?.user_id;
+    if ((DEMO && !DEMO_HS) || !state.user || !panelUserId || matrixLoadingPromise) return matrixLoadingPromise;
     state.chat.loading = true; state.chat.error = '';
     matrixLoadingPromise = (async () => {
       try {
         matrixModule ||= await import('/assets/matrix/matrix-client.js');
-        const panelUserId = session.user_id;
         const saved = (() => { try { return JSON.parse(localStorage.getItem(matrixSessionKey(panelUserId)) || 'null'); } catch (_) { return null; } })();
         const deviceId = (() => {
           try {
@@ -1634,12 +1743,7 @@
         const connect = async (value) => {
           await matrixModule.connect(value);
           state.chat.rooms = matrixModule.listRooms();
-          matrixModule.onChange((event) => {
-            if (event.type === 'message' || event.type === 'sync' || event.type === 'rooms') {
-              state.chat.rooms = matrixModule.listRooms();
-              if (state.chat.open && state.user && !busy()) render();
-            }
-          });
+          matrixModule.onChange(onMatrixChange);
         };
         if (matrixSession) {
           try { await connect(matrixSession); }
@@ -1650,7 +1754,8 @@
           }
         }
         if (!matrixSession) {
-          matrixSession = { ...(await remote.matrixSession(deviceId)), panel_user_id: panelUserId };
+          const fresh = DEMO ? await demoMatrixSession(deviceId) : await remote.matrixSession(deviceId);
+          matrixSession = { ...fresh, panel_user_id: panelUserId };
           localStorage.setItem(matrixSessionKey(panelUserId), JSON.stringify(matrixSession));
           await connect(matrixSession);
         }
@@ -1664,17 +1769,18 @@
       } finally {
         state.chat.loading = false;
         matrixLoadingPromise = null;
-        if (state.user && !busy()) render();
+        if (state.user && state.view === 'ims' && !busy()) render();
+        else updateImBadge();
       }
     })();
     return matrixLoadingPromise;
   };
   const stopMatrix = async () => {
-    const panelUserId = session?.user_id;
+    const panelUserId = DEMO ? state.user : session?.user_id;
     try { if (matrixModule?.logout) await matrixModule.logout(); else if (matrixModule) await matrixModule.disconnect(); }
     catch (_) {}
     if (panelUserId) { localStorage.removeItem(matrixSessionKey(panelUserId)); localStorage.removeItem(matrixDeviceKey(panelUserId)); }
-    state.chat = { open: false, roomId: '', roomName: '', rooms: [], loading: false, error: '' };
+    state.chat = freshChatState();
   };
 
   const isAdmin = () => state.user === ADMIN;
@@ -1969,6 +2075,7 @@
       ...(isAdmin() ? [['onaylar', 'Onaylamalar', pendingCount(), 'events']] : []),
       ['basvuru', 'Başvurular', 0, 'events'],
       ['genel', 'Genel Bakış', 0, 'unipakt'],
+      ['ims', IM_TITLE, imUnreadTotal(), 'unipakt'],
       ['vanguard', 'UniPakt.Vanguard', 0, 'unipakt'],
       ['duyurular', 'Duyurular', 0, 'unipakt'],
       ['gorevler', 'Görevler', isAdmin() ? 0 : openMine, 'unipakt'],
@@ -2721,6 +2828,7 @@
   };
 
   const views = {
+    ims: () => imView(),
     'etkinlik-olustur': () => eventPageView(),
     ayarlar() {
       const clubInfo = club(state.user);
@@ -3267,31 +3375,23 @@
     title, lead, submit, danger: true,
     onSubmit: async () => { await apply(); toast(/sil$/i.test(submit) ? 'Silindi.' : 'Kaldırıldı.'); },
   });
-  const chatNoticeStorageKey = () => `unipaktChatNoticeAccepted.v1.${session?.user_id || 'unknown'}`;
+  const chatNoticeStorageKey = () => `unipaktChatNoticeAccepted.v1.${session?.user_id || state.user || 'unknown'}`;
   const hasAcceptedChatNotice = () => {
     if (state.chat.noticeAccepted) return true;
     try { state.chat.noticeAccepted = localStorage.getItem(chatNoticeStorageKey()) === '1'; }
     catch (_) { state.chat.noticeAccepted = false; }
     return state.chat.noticeAccepted;
   };
-  const openChatNotice = () => openForm({
-    title: 'UniPakt Instant Messages hakkında',
-    fields: `<div class="chat-beta-notice">
+  const imNoticeHtml = () => `<div class="im-placeholder im-notice"><form class="im-notice-card" id="imNoticeForm">
+      <p class="kicker">Beta</p>
+      <h3 class="title-xl">${esc(IM_TITLE)} hakkında</h3>
       <p>UniPakt Instant Messages beta sürümüdür. Kişisel ve özel bilgilerinizi paylaşmayın.</p>
       <p>Mesajların Oracle sunucularında uçtan uca şifrelenerek aktarılması planlanmaktadır. Sunucu ve şifreleme altyapısı devreye alınıp doğrulanana kadar bu güvenlik özelliği kullanıma açık değildir.</p>
       <p>UniPakt Instant Messages ürününün tüm bölümleri değişime tabi olabilir. Sistem tamamen kaldırılabilir, gizlenebilir veya kullanımı kısıtlanabilir. Mesajlarınızın bir bölümü veya tamamı silinebilir, kaybolabilir veya anonim hale gelebilir.</p>
       <p>Destek bildirimleriniz için UniPakt Destek sekmesini kullanın. UniPakt olarak kişisel sohbetlerinizde WhatsApp, Telegram ya da SMS sağlayıcısı gibi farklı yazılımlar kullanmanızı tavsiye ediyoruz.</p>
       <label class="chat-beta-consent"><input type="checkbox" name="chatNoticeAccepted" required><span>Bilgilendirmeyi okudum ve sohbeti açmayı kabul ediyorum.</span></label>
-    </div>`,
-    submit: 'Kabul et ve sohbeti aç',
-    onSubmit: (fd) => {
-      if (fd.get('chatNoticeAccepted') !== 'on') return 'Sohbeti açmak için bilgilendirmeyi kabul etmelisin.';
-      state.chat.noticeAccepted = true;
-      try { localStorage.setItem(chatNoticeStorageKey(), '1'); } catch (_) {}
-      state.chat.open = true;
-      startMatrix();
-    },
-  });
+      <div><button class="btn" type="submit">Kabul et ve sohbeti aç</button></div>
+    </form></div>`;
 
   const actions = {
     'mobile-nav-toggle'() { state.navOpen = !state.navOpen; render(); },
@@ -3307,25 +3407,20 @@
       if (remove) remove.hidden = true;
       if (profileLogoPreviewUrl) { URL.revokeObjectURL(profileLogoPreviewUrl); profileLogoPreviewUrl = ''; }
     },
-    'chat-toggle'() {
-      if (state.chat.open) { state.chat.open = false; render(); return; }
-      if (!hasAcceptedChatNotice()) { openChatNotice(); return; }
-      state.chat.open = true; startMatrix(); render();
+    'ims-new'() {
+      state.chat.newChat = !state.chat.newChat; state.chat.search = ''; render();
+      if (state.chat.newChat) document.querySelector('[data-im-search]')?.focus();
     },
-    'chat-close'() { state.chat.open = false; render(); },
-    'chat-back'() { state.chat.roomId = ''; state.chat.roomName = ''; render(); },
-    'chat-open-room'(roomId, roomName = '') { state.chat.roomId = roomId; state.chat.roomName = roomName; render(); },
-    'chat-open-peer': async (id) => {
-      if (!matrixModule) await startMatrix();
-      if (!matrixModule || state.chat.error) throw new Error(state.chat.error || 'Sohbet bağlantısı hazır değil.');
-      const peerId = id === 'unipakt' ? `@unipakt:${MATRIX_SERVER_NAME}` : `@club_${String(id).replaceAll('-', '')}:${MATRIX_SERVER_NAME}`;
-      const peerName = id === 'unipakt' ? 'UniPakt' : (club(id)?.name || 'Kulüp');
-      state.chat.loading = true; render();
-      try {
-        state.chat.roomId = await matrixModule.openDirect(peerId, peerName);
-        state.chat.roomName = peerName;
-        state.chat.rooms = matrixModule.listRooms();
-      } finally { state.chat.loading = false; render(); }
+    'ims-open'(peer) { openImPeer(peer); },
+    'ims-back'() { state.chat.peer = ''; state.chat.roomId = ''; render(); },
+    'ims-retry'() { state.chat.error = ''; startMatrix(); render(); },
+    'ims-older': async () => {
+      const msgs = document.getElementById('imMsgs');
+      const before = msgs ? msgs.scrollHeight - msgs.scrollTop : 0;
+      await matrixModule?.loadOlder(state.chat.roomId);
+      refreshIm();
+      const after = document.getElementById('imMsgs');
+      if (after) after.scrollTop = after.scrollHeight - before;
     },
     'forgot-password'() {
       if (DEMO) return toast('Demo hesaplarında şifre yok.');
@@ -3874,7 +3969,7 @@
       state.user = id; state.view = 'genel';
       try { sessionStorage.setItem(SESSION, id); } catch (_) {}
       history.replaceState(null, '', `${location.pathname}${location.search}#genel`);
-      render(); window.scrollTo(0, 0);
+      render(); window.scrollTo(0, 0); startMatrix();
     },
     logout() {
       stopMatrix();
@@ -3918,26 +4013,230 @@
       </div></main>`;
   };
 
-  const chatWidget = () => {
-    if (DEMO || !state.user) return '';
-    const launcher = `<button class="chat-launcher" type="button" data-act="chat-toggle" aria-label="Sohbetleri aç"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H5l-2 2v-6a7.5 7.5 0 1 1 17-3.5Z"/><path d="M8 11h.01M12 11h.01M16 11h.01" stroke-linecap="round"/></svg></button>`;
-    if (!state.chat.open) return launcher;
-    const activeRoom = state.chat.rooms.find((r) => r.roomId === state.chat.roomId);
-    const title = esc(state.chat.roomName || activeRoom?.name || 'Sohbet');
-    const messages = activeRoom?.messages || [];
-    let body = '';
-    if (state.chat.loading) body = '<p class="chat-status">Sohbet yükleniyor…</p>';
-    else if (state.chat.error) body = `<p class="chat-status">${esc(state.chat.error)}</p>`;
-    else if (!matrixModule) body = '<p class="chat-status">Sohbet hazırlanıyor…</p>';
-    else if (state.chat.roomId) body = `<div class="chat-messages">${messages.map((m) => `<div class="chat-message ${m.sender === matrixModule.getCurrentUserId() ? 'mine' : ''}">${esc(m.body)}</div>`).join('') || '<p class="chat-status">Henüz mesaj yok. İlk mesajı gönder.</p>'}</div>`;
-    else {
-      const rooms = state.chat.rooms.map((r) => `<button class="chat-row" type="button" data-act="chat-open-room" data-id="${esc(r.roomId)}" data-sub="${esc(r.name)}"><span><strong>${esc(r.name)}</strong><small>Özel sohbet</small></span></button>`).join('');
-      const clubs = db.clubs.filter((c) => c.id !== state.user).sort(byLabel).map((c) => { const p = db.panelProfiles?.find((x) => x.clubId === c.id); return `<button class="chat-row" type="button" data-act="chat-open-peer" data-id="${esc(c.id)}">${avatarMarkup(p?.avatarUrl, c.name)}<span><strong>${esc(c.name)} <span class="tag">Kulüp</span></strong><small>${esc(c.uni)} · ${esc(c.category || 'Kulüp')}</small></span></button>`; }).join('');
-      body = `${rooms ? `<p class="chat-section-title">Sohbetler</p><div class="chat-room-list">${rooms}</div>` : ''}<p class="chat-section-title">Yeni sohbet</p><div class="chat-peer-list">${!isAdmin() ? '<button class="chat-row" type="button" data-act="chat-open-peer" data-id="unipakt"><span><strong>UniPakt <span class="chat-verified">✓</span></strong><small>Resmî destek hesabı</small></span></button>' : ''}${clubs || '<p class="chat-status">Başka kulüp bulunamadı.</p>'}</div>`;
+  /* ------------------------------------------------------------------
+     UNIPAKT INSTANT MESSAGES — page
+     Two panes like WhatsApp Web: chats on the left, the conversation on the
+     right (one pane at a time on phones). Only #imList, #imHeadText and
+     #imMsgs are patched when messages arrive; the composer is never rebuilt
+     while someone is typing in it.
+     ------------------------------------------------------------------ */
+  const IM_ICON = {
+    plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+    back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>',
+    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
+    send: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10l12.1 2-12.1 2z"/></svg>',
+    sent: '<svg class="im-tick" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-label="Gönderildi"><path d="M3.5 5.8 6.4 8.6 12.5 2.4"/></svg>',
+    read: '<svg class="im-tick read" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-label="Görüldü"><path d="M1 5.8 3.9 8.6 10 2.4M6.8 8.2l.6.4L13.5 2.4"/></svg>',
+    sending: '<svg class="im-tick" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.4" aria-label="Gönderiliyor"><circle cx="8" cy="5.5" r="4"/><path d="M8 3.3v2.4l1.5 1"/></svg>',
+  };
+  const imPeerInfo = (peer) => {
+    if (peer === ADMIN) return { id: ADMIN, name: 'UniPakt', sub: 'Resmî destek hesabı', avatar: '/favicon-192.png', verified: true };
+    const c = club(peer);
+    const p = db.panelProfiles?.find((x) => x.clubId === peer);
+    return { id: peer, name: c?.name || 'Kulüp', sub: c ? [shortUni(c.uni), c.category].filter(Boolean).join(' · ') : '', avatar: p?.avatarUrl || '', club: true };
+  };
+  const imNameMarkup = (info) => `<span class="im-name">${esc(info.name)}</span>${info.verified ? '<span class="im-verified" aria-label="Onaylı hesap">✓</span>' : ''}${info.club ? '<span class="im-tag">Kulüp</span>' : ''}`;
+  // Rooms whose other side is a known panel account, with that account attached.
+  const imRooms = () => state.chat.rooms
+    .map((r) => ({ ...r, peer: panelUserForMatrixId(r.peerUserId) }))
+    .filter((r) => r.peer && r.peer !== state.user);
+  const imRoomFor = (peer) => imRooms().find((r) => r.peer === peer) || null;
+  const imUnreadTotal = () => imRooms().reduce((sum, r) => sum + r.unread, 0);
+  const imMatches = (info) => !state.chat.search.trim() || searchKey(`${info.name} ${info.sub}`).includes(searchKey(state.chat.search));
+
+  const imClock = (ts) => new Date(ts).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+  const imDayDiff = (ts) => {
+    const a = new Date(ts); a.setHours(0, 0, 0, 0);
+    const b = new Date(); b.setHours(0, 0, 0, 0);
+    return Math.round((b - a) / 86400000);
+  };
+  const imListTime = (ts) => {
+    if (!ts) return '';
+    const d = imDayDiff(ts);
+    if (d === 0) return imClock(ts);
+    if (d === 1) return 'Dün';
+    if (d < 7) return new Date(ts).toLocaleDateString('tr-TR', { weekday: 'long' });
+    return new Date(ts).toLocaleDateString('tr-TR');
+  };
+  const imDayLabel = (ts) => {
+    const d = imDayDiff(ts);
+    if (d === 0) return 'Bugün';
+    if (d === 1) return 'Dün';
+    return new Date(ts).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  const imRowHtml = (info, room) => {
+    const last = room?.messages[room.messages.length - 1];
+    const active = state.chat.peer === info.id;
+    const preview = room?.peerTyping
+      ? '<small class="is-typing">yazıyor…</small>'
+      : last
+        ? `<small>${last.mine ? IM_ICON[last.state] || '' : ''}<span class="im-preview">${esc(last.body)}</span></small>`
+        : `<small><span class="im-preview">${esc(info.sub)}</span></small>`;
+    const meta = room
+      ? `<span class="im-row-meta ${room.unread ? 'has-unread' : ''}"><span>${esc(imListTime(last?.timestamp))}</span>${room.unread ? `<span class="im-unread">${room.unread}</span>` : ''}</span>`
+      : '<span></span>';
+    return `<button class="im-row ${active ? 'active' : ''}" type="button" data-act="ims-open" data-id="${esc(info.id)}">
+      ${avatarMarkup(info.avatar, info.name)}
+      <span class="im-row-main"><strong>${imNameMarkup(info)}</strong>${preview}</span>${meta}</button>`;
+  };
+  const imListHtml = () => {
+    if (state.chat.newChat) {
+      const peers = [...(isAdmin() ? [] : [ADMIN]), ...db.clubs.filter((c) => c.id !== state.user).sort(byLabel).map((c) => c.id)]
+        .map(imPeerInfo).filter(imMatches);
+      return `<p class="im-list-title">Yeni sohbet</p>${peers.map((info) => imRowHtml(info, null)).join('') || '<p class="im-empty-list">Eşleşen kulüp yok.</p>'}`;
     }
-    const composer = state.chat.roomId && !state.chat.error && !state.chat.loading
-      ? `<form class="chat-composer" id="chatMessageForm"><textarea name="message" maxlength="4000" required placeholder="Mesajını yaz…" aria-label="Mesajını yaz"></textarea><button class="btn small" type="submit">Gönder</button></form>` : '';
-    return `${launcher}<section class="chat-window" role="dialog" aria-label="UniPakt sohbeti"><header class="chat-head"><div class="chat-head-main">${state.chat.roomId ? '<button class="chat-back" type="button" data-act="chat-back" aria-label="Sohbet listesine dön">‹</button>' : ''}<div><strong>UniPakt <span class="chat-verified" aria-label="Onaylı hesap">✓</span></strong><small>${state.chat.roomId ? `${title}${state.chat.roomName === 'UniPakt' ? '' : ' · Kulüp'}` : 'Kulüpler arası mesajlaşma'}</small></div></div><button class="chat-close" type="button" data-act="chat-close" aria-label="Sohbeti kapat">×</button></header><div class="chat-body">${body}</div>${composer}</section>`;
+    if (state.chat.error) return `<p class="im-empty-list">${esc(state.chat.error)}</p>`;
+    if (!matrixModule && state.chat.loading) return '<p class="im-empty-list">Sohbetler yükleniyor…</p>';
+    const rows = imRooms().map((r) => ({ info: imPeerInfo(r.peer), room: r })).filter(({ info }) => imMatches(info));
+    if (!rows.length) {
+      return state.chat.search.trim()
+        ? '<p class="im-empty-list">Eşleşen sohbet yok.</p>'
+        : '<p class="im-empty-list">Henüz sohbet yok. <b>+</b> ile bir kulübe yazmaya başla.</p>';
+    }
+    return rows.map(({ info, room }) => imRowHtml(info, room)).join('');
+  };
+  const imHeadTextHtml = () => {
+    const info = imPeerInfo(state.chat.peer);
+    const room = imRoomFor(state.chat.peer);
+    return `<strong>${imNameMarkup(info)}</strong>${room?.peerTyping ? '<small class="is-typing">yazıyor…</small>' : `<small>${esc(info.sub)}</small>`}`;
+  };
+  const imMsgsHtml = () => {
+    const room = imRoomFor(state.chat.peer);
+    if (!room || !room.messages.length) {
+      return `<p class="im-status">${room?.peerTyping ? '' : 'Henüz mesaj yok. İlk mesajı sen gönder.'}</p>${room?.peerTyping ? '<span class="im-typing-bubble" aria-label="yazıyor"><i></i><i></i><i></i></span>' : ''}`;
+    }
+    let html = room.canLoadOlder ? '<button class="btn ghost small im-older" type="button" data-act="ims-older">Daha eski mesajlar</button>' : '';
+    let prev = null;
+    for (const m of room.messages) {
+      if (!prev || imDayDiff(prev.timestamp) !== imDayDiff(m.timestamp)) { html += `<p class="im-day">${esc(imDayLabel(m.timestamp))}</p>`; prev = null; }
+      const cont = prev && prev.sender === m.sender && m.timestamp - prev.timestamp < 5 * 60000;
+      html += `<div class="im-msg ${m.mine ? 'mine' : ''} ${cont ? 'cont' : ''} ${m.state === 'failed' ? 'failed' : ''}">
+        <span class="im-msg-body">${esc(m.body)}</span><span class="im-msg-meta">${m.state === 'failed' ? 'Gönderilemedi' : esc(imClock(m.timestamp))}${m.mine && m.state !== 'failed' ? IM_ICON[m.state] || '' : ''}</span></div>`;
+      prev = m;
+    }
+    if (room.peerTyping) html += '<span class="im-typing-bubble" aria-label="yazıyor"><i></i><i></i><i></i></span>';
+    return html;
+  };
+  // Which body the right pane shows; when it changes the page is re-rendered.
+  const imMode = () => {
+    if (!hasAcceptedChatNotice()) return 'notice';
+    if (!state.chat.peer) return 'empty';
+    if (state.chat.error) return 'error';
+    if (!matrixModule) return 'loading';
+    return `room:${state.chat.peer}`;
+  };
+  const imMainHtml = () => {
+    const mode = imMode();
+    if (mode === 'notice') return imNoticeHtml();
+    if (mode === 'empty') return `<div class="im-placeholder"><p class="kicker">UniPakt</p><h3>Instant Messages</h3><p>Soldan bir sohbet seç ya da <b>+</b> ile bir kulübe yazmaya başla.</p></div>`;
+    if (mode === 'error') return `<div class="im-placeholder"><p>${esc(state.chat.error)}</p><button class="btn ghost small" type="button" data-act="ims-retry">Tekrar dene</button></div>`;
+    if (mode === 'loading') return '<div class="im-placeholder"><p>Sohbet yükleniyor…</p></div>';
+    const info = imPeerInfo(state.chat.peer);
+    return `<header class="im-head">
+        <button class="im-icon-btn ghost im-back" type="button" data-act="ims-back" aria-label="Sohbet listesine dön">${IM_ICON.back}</button>
+        ${avatarMarkup(info.avatar, info.name)}
+        <div class="im-head-text" id="imHeadText">${imHeadTextHtml()}</div>
+      </header>
+      <div class="im-msgs" id="imMsgs" aria-live="polite">${imMsgsHtml()}</div>
+      <form class="im-composer" id="imComposer">
+        <textarea name="message" rows="1" maxlength="4000" placeholder="Mesaj yaz" aria-label="Mesaj yaz" data-im-input enterkeyhint="send"></textarea>
+        <button class="im-icon-btn" type="submit" aria-label="Gönder">${IM_ICON.send}</button>
+      </form>`;
+  };
+  const imView = () => `<section class="im ${state.chat.peer ? 'has-room' : ''} ${imMode() === 'notice' ? 'is-notice' : ''}" id="im" data-mode="${esc(imMode())}">
+      <aside class="im-side">
+        <div class="im-side-head">
+          <h2>${esc(IM_TITLE)}</h2>
+          <button class="im-icon-btn ${state.chat.newChat ? 'ghost' : ''}" type="button" data-act="ims-new" aria-label="${state.chat.newChat ? 'Sohbetlere dön' : 'Yeni sohbet'}">${state.chat.newChat ? IM_ICON.back : IM_ICON.plus}</button>
+        </div>
+        <label class="im-search">${IM_ICON.search}<input type="search" placeholder="${state.chat.newChat ? 'Kulüp ara' : 'Ara'}" aria-label="Sohbet ara" value="${esc(state.chat.search)}" data-im-search></label>
+        <div class="im-list" id="imList">${hasAcceptedChatNotice() ? imListHtml() : ''}</div>
+      </aside>
+      <div class="im-main" id="imMain">${imMainHtml()}</div>
+    </section>`;
+
+  const autosizeIm = (ta) => { if (!ta) return; ta.style.height = 'auto'; ta.style.height = `${Math.min(ta.scrollHeight + 2, 160)}px`; };
+  const markOpenRoomRead = () => {
+    if (state.view !== 'ims' || !state.chat.roomId || document.visibilityState !== 'visible') return;
+    matrixModule?.markRead(state.chat.roomId);
+  };
+  // Menu badge: unread messages across all chats.
+  const updateImBadge = () => {
+    const btn = document.querySelector('.nav-item[data-go="ims"]');
+    if (!btn) return;
+    const n = imUnreadTotal();
+    let badge = btn.querySelector('.badge');
+    if (!n) { badge?.remove(); return; }
+    if (!badge) { badge = document.createElement('span'); badge.className = 'badge'; btn.append(badge); }
+    badge.textContent = String(n);
+  };
+  // After a full render of the chat page: scroll, restore the draft, focus.
+  const mountIm = (focus = false) => {
+    const msgs = document.getElementById('imMsgs');
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+    const ta = document.querySelector('[data-im-input]');
+    if (ta) {
+      ta.value = state.chat.drafts[state.chat.peer] || '';
+      autosizeIm(ta);
+      if (focus && matchMedia('(min-width: 901px)').matches) ta.focus();
+    }
+    markOpenRoomRead();
+  };
+  // Matrix changed: patch the chat page in place (batched to one frame).
+  let imRefreshQueued = false;
+  const refreshIm = () => {
+    if (!matrixModule || !state.user || !db) return;
+    state.chat.rooms = matrixModule.listRooms();
+    if (state.chat.peer && !state.chat.roomId) state.chat.roomId = matrixModule.findDirect(matrixIdFor(state.chat.peer));
+    updateImBadge();
+    const im = document.getElementById('im');
+    if (state.view !== 'ims' || !im) return;
+    if (im.dataset.mode !== imMode()) { if (!busy()) render(); return; }
+    const list = document.getElementById('imList');
+    if (list) list.innerHTML = imListHtml();
+    const head = document.getElementById('imHeadText');
+    if (head) head.innerHTML = imHeadTextHtml();
+    const msgs = document.getElementById('imMsgs');
+    if (msgs) {
+      const atBottom = msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight < 120;
+      msgs.innerHTML = imMsgsHtml();
+      if (atBottom) msgs.scrollTop = msgs.scrollHeight;
+    }
+    markOpenRoomRead();
+  };
+  const onMatrixChange = () => {
+    if (imRefreshQueued) return;
+    imRefreshQueued = true;
+    requestAnimationFrame(() => { imRefreshQueued = false; refreshIm(); });
+  };
+  const openImPeer = (peer) => {
+    state.chat.peer = peer; state.chat.newChat = false; state.chat.search = '';
+    state.chat.roomId = matrixModule?.findDirect(matrixIdFor(peer)) || '';
+    render(); mountIm(true);
+  };
+  // Send what is in the composer. The room is created on the first message.
+  let imCreating = null;
+  const sendImMessage = async (form) => {
+    const ta = form.elements.message;
+    const body = ta.value.trim();
+    if (!body) return;
+    if (!matrixModule) { toast(state.chat.error || 'Sohbet bağlantısı hazır değil.'); return; }
+    const peer = state.chat.peer;
+    ta.value = ''; state.chat.drafts[peer] = ''; autosizeIm(ta); ta.focus();
+    try {
+      let roomId = state.chat.peer === peer ? state.chat.roomId : '';
+      if (!roomId) {
+        imCreating ||= matrixModule.openDirect(matrixIdFor(peer), imPeerInfo(peer).name).finally(() => { imCreating = null; });
+        roomId = await imCreating;
+        if (state.chat.peer === peer) state.chat.roomId = roomId;
+      }
+      await matrixModule.sendText(roomId, body);
+      refreshIm();
+    } catch (error) {
+      if (state.chat.peer === peer && !ta.value) { ta.value = body; state.chat.drafts[peer] = body; autosizeIm(ta); }
+      toast(error.message || 'Mesaj gönderilemedi.');
+    }
   };
 
   const renderLogin = (message = '') => {
@@ -3991,15 +4290,15 @@
             ${DEMO ? '<button class="link-btn" data-act="reset">Demo verisini sıfırla</button>' : ''}
           </div>
         </aside>
-        <main class="main"><div class="main-inner">
+        <main class="main ${state.view === 'ims' ? 'is-im' : ''}"><div class="main-inner">
           ${profileMenu()}
           ${DEMO ? '<div class="demo-bar"><span><b>Demo</b> — veriler yalnızca bu tarayıcıda saklanıyor.</span></div>' : ''}
           ${views[state.view]()}
         </div></main>
-        ${chatWidget()}
       </div>`;
     root.querySelector('.nav-item.active')?.scrollIntoView({ block: 'nearest', inline: 'center' });
     if (state.view === 'etkinlik-olustur') mountEventPage();
+    if (state.view === 'ims') mountIm();
   };
 
   // A failed action says why; if it signed the user out, the login screen follows.
@@ -4025,7 +4324,32 @@
       result.catch(fail).finally(() => { btn.disabled = false; });
     }
   });
+  // UniPakt Instant Messages: Enter sends, Shift+Enter starts a new line.
+  document.addEventListener('keydown', (e) => {
+    if (!e.target.matches?.('[data-im-input]')) return;
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) {
+      e.preventDefault();
+      e.target.form?.requestSubmit();
+    }
+  });
+  document.addEventListener('focusout', (e) => {
+    if (e.target.matches?.('[data-im-input]')) matrixModule?.setTyping(state.chat.roomId, false);
+  });
+  // Coming back to the tab marks the open chat as read.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) markOpenRoomRead(); });
   document.addEventListener('input', (e) => {
+    if (e.target.matches('[data-im-search]')) {
+      state.chat.search = e.target.value;
+      const list = document.getElementById('imList');
+      if (list) list.innerHTML = imListHtml();
+      return;
+    }
+    if (e.target.matches('[data-im-input]')) {
+      state.chat.drafts[state.chat.peer] = e.target.value;
+      autosizeIm(e.target);
+      matrixModule?.setTyping(state.chat.roomId, !!e.target.value.trim());
+      return;
+    }
     if (e.target.matches('[data-support-search]')) {
       if (e.isComposing) return;   // wait until an IME word is finished
       const { selectionStart: a, selectionEnd: b } = e.target;
@@ -4058,13 +4382,12 @@
     if (chip) { state.support.status = chip.dataset.supportStatusChip; render(); return; }
   });
   document.addEventListener('submit', async (e) => {
-    if (e.target.id === 'chatMessageForm') {
+    if (e.target.id === 'imComposer') { e.preventDefault(); sendImMessage(e.target); return; }
+    if (e.target.id === 'imNoticeForm') {
       e.preventDefault();
-      const form = e.target, button = form.querySelector('button[type="submit"]'), body = form.elements.message.value;
-      if (!matrixModule || !state.chat.roomId) { toast('Sohbet bağlantısı hazır değil.'); return; }
-      button.disabled = true;
-      try { await matrixModule.sendText(state.chat.roomId, body); form.elements.message.value = ''; state.chat.rooms = matrixModule.listRooms(); render(); }
-      catch (problem) { toast(problem.message || 'Mesaj gönderilemedi.'); button.disabled = false; }
+      state.chat.noticeAccepted = true;
+      try { localStorage.setItem(chatNoticeStorageKey(), '1'); } catch (_) {}
+      startMatrix(); render();
       return;
     }
     if (e.target.id === 'profileForm') {
@@ -4181,7 +4504,7 @@
   const start = async () => {
     if (recoveryToken) { state.user = null; renderPasswordReset(); return; }
     state.view = location.hash.slice(1) || 'genel';
-    if (DEMO) { loadLocal(); render(); return; }
+    if (DEMO) { loadLocal(); render(); startMatrix(); return; }
     state.user = null;
     readSession();
     if (!session) { renderLogin(); return; }
