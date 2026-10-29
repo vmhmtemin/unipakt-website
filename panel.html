@@ -564,6 +564,59 @@
   .evp-toolbar { display: flex; gap: 6px; flex-wrap: wrap; }
   .evp-toolbar button { padding: 6px 11px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--paper-soft); font-size: 13px; }
   .evp-toolbar button:hover { border-color: var(--accent); }
+  /* Kayıt toplama: form kurucu, pano, görevliler */
+  .regb { display: grid; gap: 14px; }
+  [data-regb-host] { display: grid; gap: 14px; }
+  .regb-list { display: grid; gap: 10px; }
+  .regb-q { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--border); border-radius: 16px; background: var(--bg); }
+  .regb-row { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 8px; }
+  .regb-q input:not([type=checkbox]), .regb-q select { width: 100%; min-width: 0; padding: 10px 14px; border-radius: 12px; background: color-mix(in srgb, var(--ink) 4%, transparent); border: 1px solid var(--border-strong); outline: none; transition: border-color .2s ease, box-shadow .2s ease; }
+  .regb-q input:not([type=checkbox]):focus, .regb-q select:focus { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent); }
+  .regb-q select option { background: var(--surface); color: var(--ink); }
+  .stat.rb-status b { font-size: 30px; line-height: 1.05; }
+  .regb-opts { display: grid; gap: 6px; padding-left: 4px; }
+  .regb-opt { display: flex; align-items: center; gap: 8px; }
+  .regb-dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--border-strong); flex: none; }
+  .regb-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .regb-tools .spacer { flex: 1; }
+  .regb-req { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+  .regb-req input { accent-color: var(--accent); width: 16px; height: 16px; }
+  .icon-btn { display: inline-grid; place-items: center; width: 32px; height: 32px; padding: 0; border-radius: 50%; border: 1px solid var(--border-strong); background: transparent; color: var(--ink); font-size: 15px; line-height: 1; flex: none; }
+  .icon-btn:disabled { opacity: .35; cursor: default; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .rb-settings { display: grid; gap: 14px; margin-top: 14px; }
+  .rb-set-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+  .rb-set-row > div small { display: block; opacity: .6; font-size: 12.5px; margin-top: 3px; }
+  .rb-set-row .field { margin: 0; }
+  .rb-links { align-items: center; justify-content: flex-start; }
+  .rb-links .hint { margin: 0; font-size: 12.5px; opacity: .6; }
+  .rb-cols { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .rb-chip { border: 1px solid var(--border-strong); background: transparent; color: var(--ink); border-radius: 999px; padding: 6px 12px; font-size: 12.5px; opacity: .6; }
+  .rb-chip[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); opacity: 1; }
+  .rb-search { margin: 0 0 12px; max-width: 420px; }
+  .rb-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); }
+  .rb-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .rb-table th, .rb-table td { padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; white-space: nowrap; }
+  .rb-table td { white-space: normal; min-width: 90px; }
+  .rb-table th { font-size: 12px; font-weight: 600; opacity: .6; position: sticky; top: 0; background: var(--surface); }
+  .rb-table tr:last-child td { border-bottom: 0; }
+  .rb-n { opacity: .45; width: 1%; min-width: 0 !important; }
+  .rb-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; font-weight: 600; }
+  .rb-act { white-space: nowrap !important; text-align: right !important; }
+  .rb-act .btn + .btn { margin-left: 6px; }
+  .staff-card { padding: 20px 22px; }
+  .staff-head .row, .evp-sec > .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .staff-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .staff-head h3 { margin: 0; }
+  .staff-head small { opacity: .6; }
+  .staff-grants { margin-top: 10px; }
+  .staff-grants .mini-row:last-child { border-bottom: 0; }
+  @media (max-width: 640px) {
+    .regb-row { grid-template-columns: 1fr; }
+    .rb-act .btn { display: block; width: 100%; }
+    .rb-act .btn + .btn { margin: 6px 0 0; }
+    .stat.rb-status b { font-size: 22px; }
+  }
   .evp-check { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
   .evp-check input { width: 17px; height: 17px; margin-top: 3px; accent-color: var(--accent); flex: none; }
   .evp-check small { display: block; opacity: .6; font-size: 12.5px; }
@@ -1204,6 +1257,39 @@
      Every call resolves once `db` reflects the change.
      ------------------------------------------------------------------ */
   const local = {
+    // ---- Demo: kayıt toplama ve görevliler (bu tarayıcıda saklanır) ----
+    async regSettingsAll() { return Object.values(db.regSettings || {}).map((s) => ({ event_id: s.event_id, enabled: s.enabled, is_open: s.is_open, deadline: s.deadline })); },
+    async regSettings(eventId) { return (db.regSettings || {})[eventId] || null; },
+    async setRegistration(eventId, s) {
+      db.regSettings ||= {}; db.registrations ||= [];
+      const old = db.regSettings[eventId];
+      const count = db.registrations.filter((r) => r.event_id === eventId).length;
+      if (s.questions !== undefined && count && JSON.stringify(old?.questions || []) !== JSON.stringify(s.questions)) throw new Error('Kayıt gelmeye başladığı için form soruları artık değiştirilemez.');
+      db.regSettings[eventId] = { event_id: eventId, enabled: s.enabled ?? old?.enabled ?? true, is_open: s.open ?? old?.is_open ?? true, deadline: s.deadline || null,
+        questions: s.questions ?? old?.questions ?? [], board_columns: s.columns ?? old?.board_columns ?? [] };
+      save();
+    },
+    async registrations(eventId) { return (db.registrations || []).filter((r) => r.event_id === eventId); },
+    async setCheckin(id, checked) { const r = (db.registrations || []).find((x) => x.id === id); if (r) { r.checked_in_at = checked ? (r.checked_in_at || stamp()) : null; save(); } },
+    async deleteRegistration(id) { db.registrations = (db.registrations || []).filter((x) => x.id !== id); save(); },
+    async staffList() { const owner = isAdmin() ? null : state.user; return (db.staff || []).filter((s) => (s.club_id ?? null) === owner); },
+    async addStaff({ name, email }) {
+      db.staff ||= [];
+      const owner = isAdmin() ? null : state.user;
+      if (db.staff.some((s) => (s.club_id ?? null) === owner && s.email.toLowerCase() === email.toLowerCase())) throw new Error('Bu e-posta zaten görevli listende.');
+      db.staff.push({ id: uid(), club_id: owner, full_name: name, email, created_at: stamp() }); save();
+    },
+    async removeStaff(id) { db.staff = (db.staff || []).filter((s) => s.id !== id); db.grants = (db.grants || []).filter((g) => g.staff_id !== id); save(); },
+    async grants() { return db.grants || []; },
+    async grantStaff(staffId, eventId) {
+      db.grants ||= [];
+      const e = db.events.find((x) => x.id === eventId);
+      const expires = `${e?.endDate || e?.date || today()}T23:59:59+03:00`;
+      db.grants = db.grants.filter((g) => !(g.staff_id === staffId && g.event_id === eventId));
+      db.grants.push({ id: uid(), staff_id: staffId, event_id: eventId, expires_at: expires, created_at: stamp(), last_used_at: null, failed_attempts: 0 });
+      save(); return { ok: true, expires_at: expires };
+    },
+    async revokeGrant(id) { db.grants = (db.grants || []).filter((g) => g.id !== id); save(); },
     // Demo 2FA: nothing is e-mailed; the code is always 123456.
     async mfa(action, extra = {}) {
       const on = sessionStorage.getItem('unipaktDemoMfa') === '1';
@@ -1253,8 +1339,10 @@
     },
     async addEvent(f) {
       const occurrences = (f.occurrences && f.occurrences.length) ? f.occurrences : [{ date: f.date, time: f.time || '' }];
-      db.events.push({ id: uid(), ...f, address: f.address || '', rules: f.rules || '', poster: f.posterUrl || '', tags: f.tags || [], registration: f.registration || '', ...extraModel(f), date: occurrences[0].date, time: occurrences[0].time || '', occurrences, calendar: isAdmin() ? 'on' : 'none', visible: f.visible !== false, ownerId: state.user, status: isAdmin() ? 'published' : 'pending', createdAt: stamp(), applications: [] });
+      const newId = uid();
+      db.events.push({ id: newId, ...f, address: f.address || '', rules: f.rules || '', poster: f.posterUrl || '', tags: f.tags || [], registration: f.registration || '', ...extraModel(f), date: occurrences[0].date, time: occurrences[0].time || '', occurrences, calendar: isAdmin() ? 'on' : 'none', visible: f.visible !== false, ownerId: state.user, status: isAdmin() ? 'published' : 'pending', createdAt: stamp(), applications: [] });
       save();
+      return newId;
     },
     async requestCalendar(id) {
       const e = db.events.find((x) => x.id === id);
@@ -1446,8 +1534,31 @@
         visible: f.visible !== false, ...extraPayload(f),
         occurrences
       };
-      await rest('rpc/submit_event', { method: 'POST', body: { p_event: payload } });
+      return await rest('rpc/submit_event', { method: 'POST', body: { p_event: payload } });
     },
+    // ---- Kayıt toplama (UniPakt üzerinden) ----
+    async regSettingsAll() { return (await rest('event_registration_settings?select=event_id,enabled,is_open,deadline')) || []; },
+    async regSettings(eventId) { return ((await rest(`event_registration_settings?select=*&event_id=eq.${encodeURIComponent(eventId)}`)) || [])[0] || null; },
+    async setRegistration(eventId, s) {
+      await rest('rpc/set_event_registration', { method: 'POST', body: { p_event: eventId, p_enabled: s.enabled, p_open: s.open, p_deadline: s.deadline || null,
+        p_questions: s.questions === undefined ? null : s.questions, p_columns: s.columns === undefined ? null : s.columns } });
+    },
+    async registrations(eventId) {
+      return (await rest(`event_registrations?select=id,code,full_name,email,answers,created_at,checked_in_at,checked_in_by&event_id=eq.${encodeURIComponent(eventId)}&order=created_at.asc&limit=10000`)) || [];
+    },
+    async setCheckin(id, checked) { await rest('rpc/set_registration_checkin', { method: 'POST', body: { p_registration: id, p_checked: !!checked } }); },
+    async deleteRegistration(id) { await restMust(`event_registrations?${eq(id)}`, { method: 'DELETE' }); },
+    // ---- Görevliler (giriş kontrolü) ----
+    async staffList() { return (await rest('event_staff?select=id,club_id,full_name,email,created_at&order=full_name.asc')) || []; },
+    async addStaff({ name, email }) {
+      await rest('event_staff', { method: 'POST', body: { club_id: isAdmin() ? null : state.user, full_name: name, email } });
+    },
+    async removeStaff(id) { await restMust(`event_staff?${eq(id)}`, { method: 'DELETE' }); },
+    async grants() { return (await rest('event_staff_grants?select=id,staff_id,event_id,expires_at,created_at,last_used_at,failed_attempts')) || []; },
+    async grantStaff(staffId, eventId) {
+      return await call('/functions/v1/event-checkin', { method: 'POST', body: { action: 'grant', staff_id: staffId, event_id: eventId } });
+    },
+    async revokeGrant(id) { await restMust(`event_staff_grants?${eq(id)}`, { method: 'DELETE' }); },
     async decideEvent(id, status, note = '') {
       await restMust(`events?${eq(id)}`, { method: 'PATCH', body: { status, note: note || null, decided_at: stamp() } });
     },
@@ -1739,7 +1850,7 @@
 
   // Remote writes are followed by a fresh read, so the screen shows what the server kept.
   const api = DEMO ? local : new Proxy(remote, {
-    get: (target, name) => (['refresh', 'proofUrl', 'login', 'logout', 'accounts', 'account', 'recoverPassword', 'resetPassword', 'matrixSession', 'mfa', 'supportCreate', 'supportReply', 'supportUpdate', 'supportDelete', 'siteInbox', 'siteInboxDelete', 'siteInboxDeleteAll', 'siteInboxCount'].includes(name) ? target[name]
+    get: (target, name) => (['refresh', 'proofUrl', 'login', 'logout', 'accounts', 'account', 'recoverPassword', 'resetPassword', 'matrixSession', 'mfa', 'regSettingsAll', 'regSettings', 'setRegistration', 'registrations', 'setCheckin', 'deleteRegistration', 'staffList', 'addStaff', 'removeStaff', 'grants', 'grantStaff', 'revokeGrant', 'supportCreate', 'supportReply', 'supportUpdate', 'supportDelete', 'siteInbox', 'siteInboxDelete', 'siteInboxDeleteAll', 'siteInboxCount'].includes(name) ? target[name]
       : async (...args) => { const result = await target[name](...args); await loadRemote(); return result; }),
   });
 
@@ -1763,6 +1874,8 @@
     profileMenuOpen: false,
     chat: freshChatState(),
     mfa: freshMfaState(),
+    regBoard: { eventId: '', settings: null, rows: null, loading: false, error: '', search: '', edit: null },
+    staffView: { staff: null, grants: null, settings: null, loading: false, error: '' },
     view: 'genel',
     cal: { y: now.getFullYear(), m: now.getMonth(), sel: ymd(now) },
     taskTab: 'open',
@@ -2158,6 +2271,7 @@
       ['ortak', 'Ortak Arama', 0, 'events'],
       ['takvim', 'Takvim', 0, 'events'],
       ['etkinliklerim', 'Etkinliklerim', 0, 'events'],
+      ['gorevliler', 'Görevliler', 0, 'events'],
       ...(isAdmin() ? [['onaylar', 'Onaylamalar', pendingCount(), 'events']] : []),
       ['basvuru', 'Başvurular', 0, 'events'],
       ['genel', 'Genel Bakış', 0, 'unipakt'],
@@ -2172,7 +2286,7 @@
     return items;
   };
   // Menüde görünmeyen ama açılabilen sayfalar.
-  const HIDDEN_VIEWS = ['etkinlik-olustur', 'ayarlar', 'hesap', 'dogrulama'];
+  const HIDDEN_VIEWS = ['etkinlik-olustur', 'ayarlar', 'hesap', 'dogrulama', 'kayitlar'];
   const knownView = (view) => HIDDEN_VIEWS.includes(view) || NAV().some(([id]) => id === view);
 
   /* ------------------------------------------------------------------
@@ -2779,7 +2893,7 @@
   // Sayfayı açar. Yeni etkinlikte tür seçimiyle başlar; taslak varsa tür seçilince geri yüklenir.
   const openEventPage = (mode, { kind = 'event', id = '' } = {}) => {
     const back = HIDDEN_VIEWS.includes(state.view) ? evForm.back : state.view;
-    Object.assign(evForm, { mode, kind, id, fee: '', back: back || 'etkinlikler', values: null, images: { poster: null, banner: null }, dirty: false, restored: false });
+    Object.assign(evForm, { mode, kind, id, fee: '', back: back || 'etkinlikler', values: null, images: { poster: null, banner: null }, dirty: false, restored: false, reg: freshRegDraft() });
     if (mode === 'edit') {
       const e = db.events.find((x) => x.id === id);
       evForm.kind = e.kind || 'event';
@@ -2857,6 +2971,10 @@
             ${evForm.fee === 'paid' ? evField('Ücret tutarı (TL)', `<input type="number" name="feeAmount" required min="0.01" step="0.01" inputmode="decimal" value="${esc(v.feeAmount)}" placeholder="Örn. 150">`) : ''}
             ${evField('biletimGO sayfası', `<input type="url" name="biletimgo" maxlength="1000" value="${esc(v.biletimgo)}" placeholder="https://biletimgo.com/...">`, { opt: true, hint: 'Yalnızca biletimgo.com adresleri kabul edilir.' })}
             <div class="field-row">${evField('Kayıt linki', `<input type="url" name="registration" maxlength="1000" value="${esc(v.registration)}" placeholder="https://...">`, { opt: true })}${evField('Kontenjan', `<input type="number" name="capacity" min="1" step="1" inputmode="numeric" value="${esc(v.capacity)}">`, { opt: true })}</div>
+          </section>
+
+          <section class="card evp-sec"><h2>Kayıt toplama</h2>
+            ${editing ? '<p class="hint">Kayıt formunu ve ayarlarını Etkinliklerim → Kayıtlar’dan yönetebilirsin.</p>' : `<div class="regb" data-regb-host>${regBuilderHtml(evForm.reg ||= freshRegDraft())}</div>`}
           </section>
 
           <section class="card evp-sec"><h2>Etkinlik Detayları</h2>
@@ -3070,7 +3188,14 @@
     if (evForm.kind === 'partner') f.seeking = v.seeking.trim();
     const visible = !v.hidden;
     if (evForm.mode === 'new') {
-      await api.addEvent({ ...f, kind: evForm.kind, visible });
+      const reg = evForm.reg;
+      const regProblem = validateRegDraft(reg);
+      if (regProblem) throw new Error(regProblem);
+      const newId = await api.addEvent({ ...f, kind: evForm.kind, visible });
+      if (reg?.enabled && newId) {
+        try { await api.setRegistration(newId, { enabled: true, open: true, deadline: fromLocalInput(reg.deadline), questions: cleanRegQuestions(reg), columns: [] }); }
+        catch (error) { toast(`Etkinlik kaydedildi ama kayıt formu kaydedilemedi: ${error.message}. Etkinliklerim → Kayıtlar’dan tekrar dene.`); }
+      }
       toast(isAdmin() ? (evForm.kind === 'partner' ? 'Ortak Arama’da yayınlandı.' : 'Etkinlik takvime eklendi.') : 'Etkinlik onaya gönderildi.');
       return;
     }
@@ -3089,6 +3214,8 @@
 
   const views = {
     ims: () => imView(),
+    kayitlar: () => regBoardView(),
+    gorevliler: () => staffView(),
     'etkinlik-olustur': () => eventPageView(),
     ayarlar() {
       const clubInfo = club(state.user);
@@ -3281,7 +3408,7 @@
 
     etkinliklerim() {
       const mine = isAdmin() ? db.events.filter(e=>e.status==='published' && (e.ownerId===ADMIN || e.applications.some(p=>p.status==='approved'))) : db.events.filter(e=>e.status==='published' && (e.ownerId===state.user || e.applications.some(p=>p.status==='approved'&&p.clubId===state.user)));
-      const card = (e) => { const partners=e.applications.filter(p=>p.status==='approved'); const host=e.ownerId; const related=!isAdmin()&&host!==state.user; const contact=(id)=>{const c=club(id); if(!c)return ''; return Object.entries(c.contact||{}).filter(([,v])=>v).map(([k,v])=>`<span class="contact-chip"><b>${esc(k)}:</b> ${esc(v)}</span>`).join(' · ')}; return `<article class="card item"><div class="meta top"><span class="tag ${related?'ok':'wait'}">${related?'Ortaksın':'Host'}</span><span>${fmtDay(e.date)}</span></div><h3>${esc(e.title)}</h3><p class="body">Organizatör: ${esc(organizerNames(e).join(', '))}</p><div class="meta"><span><strong>Host iletişim:</strong> ${host===ADMIN?esc('UniPakt'):(contact(host)||esc('İletişim bilgisi yok'))}</span></div><div class="section-head"><h3>Ortaklar</h3></div>${partners.length?`<div class="stack">${partners.map(p=>`<div class="mini-row"><div><strong>${esc(who(p.clubId))}</strong><small>${contact(p.clubId)||esc('İletişim bilgisi yok')}</small></div>${isAdmin()?`<button class="btn danger small" data-act="partner-remove" data-id="${esc(e.id)}" data-sub="${esc(p.clubId)}">Ayır</button>`:''}</div>`).join('')}</div>`:empty('Henüz onaylı ortak yok.')}<div class="actions">${isAdmin()&&host===ADMIN?`<button class="btn small" data-act="event-task" data-id="${esc(e.id)}">Bu etkinlik için görev ata</button>`:''}</div></article>`; };
+      const card = (e) => { const partners=e.applications.filter(p=>p.status==='approved'); const host=e.ownerId; const related=!isAdmin()&&host!==state.user; const contact=(id)=>{const c=club(id); if(!c)return ''; return Object.entries(c.contact||{}).filter(([,v])=>v).map(([k,v])=>`<span class="contact-chip"><b>${esc(k)}:</b> ${esc(v)}</span>`).join(' · ')}; return `<article class="card item"><div class="meta top"><span class="tag ${related?'ok':'wait'}">${related?'Ortaksın':'Host'}</span><span>${fmtDay(e.date)}</span></div><h3>${esc(e.title)}</h3><p class="body">Organizatör: ${esc(organizerNames(e).join(', '))}</p><div class="meta"><span><strong>Host iletişim:</strong> ${host===ADMIN?esc('UniPakt'):(contact(host)||esc('İletişim bilgisi yok'))}</span></div><div class="section-head"><h3>Ortaklar</h3></div>${partners.length?`<div class="stack">${partners.map(p=>`<div class="mini-row"><div><strong>${esc(who(p.clubId))}</strong><small>${contact(p.clubId)||esc('İletişim bilgisi yok')}</small></div>${isAdmin()?`<button class="btn danger small" data-act="partner-remove" data-id="${esc(e.id)}" data-sub="${esc(p.clubId)}">Ayır</button>`:''}</div>`).join('')}</div>`:empty('Henüz onaylı ortak yok.')}<div class="actions">${ownsEventUi(e)&&!related?`<button class="btn small" data-act="reg-open" data-id="${esc(e.id)}">Kayıtlar</button>`:''}${isAdmin()&&host===ADMIN?`<button class="btn small" data-act="event-task" data-id="${esc(e.id)}">Bu etkinlik için görev ata</button>`:''}</div></article>`; };
       return `${head('Etkinliklerim','Host olduğun veya ortak olduğun etkinlikler ve ortakların iletişim bilgileri.')}${mine.length?`<div class="stack">${mine.map(card).join('')}</div>`:empty('Henüz etkinliğin yok.')}`;
     },
 
@@ -3671,7 +3798,366 @@
       <div><button class="btn" type="submit">Kabul et ve sohbeti aç</button></div>
     </form></div>`;
 
+  /* ------------------------------------------------------------------
+     KAYIT TOPLAMA — form builder (new event), registrations board
+     (Etkinliklerim → Kayıtlar) and door staff (Görevliler).
+     Visitors register on the public event page; staff check entries on
+     /kontrol.html with a link + access code e-mailed from here.
+     ------------------------------------------------------------------ */
+  const REG_TYPES = [['text', 'Kısa yanıt'], ['choice', 'Çoktan seçmeli']];
+  const newQid = () => `q${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  const freshRegDraft = () => ({ enabled: false, deadline: '', questions: [] });
+  // <input type="datetime-local"> works in local wall time; the panel is Istanbul (UTC+03:00).
+  const toLocalInput = (iso) => (iso ? new Date(new Date(iso).getTime() + 3 * 3600000).toISOString().slice(0, 16) : '');
+  const fromLocalInput = (v) => (v ? new Date(`${v}:00+03:00`).toISOString() : null);
+  const fmtRegTime = (iso) => (iso ? new Date(iso).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
+  const regDraft = () => (state.view === 'kayitlar' ? state.regBoard.edit : (evForm.reg ||= freshRegDraft()));
+  const ownsEventUi = (e) => !!e && (isAdmin() || e.ownerId === state.user);
+
+  const regBuilderHtml = (d) => {
+    if (!d) return '';
+    const qs = d.questions.map((q, i) => `
+      <div class="regb-q">
+        <div class="regb-row">
+          <select data-regb="type" data-i="${i}" aria-label="Soru türü">${REG_TYPES.map(([v, l]) => `<option value="${v}" ${q.type === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
+          <input data-regb="label" data-i="${i}" maxlength="200" placeholder="Soru (örn. Bölümün)" value="${esc(q.label)}" aria-label="Soru metni">
+        </div>
+        ${q.type === 'choice' ? `<div class="regb-opts">${q.options.map((o, j) => `
+          <div class="regb-opt"><span class="regb-dot" aria-hidden="true"></span><input data-regb="opt" data-i="${i}" data-j="${j}" maxlength="100" placeholder="Seçenek ${j + 1}" value="${esc(o)}" aria-label="Seçenek ${j + 1}">
+            <button type="button" class="icon-btn" data-act="regb-opt-del" data-id="${i}" data-sub="${j}" aria-label="Seçeneği sil" ${q.options.length <= 2 ? 'disabled' : ''}>×</button></div>`).join('')}
+          ${q.options.length < 20 ? `<button type="button" class="link-btn" data-act="regb-opt-add" data-id="${i}">+ Seçenek ekle</button>` : ''}</div>` : ''}
+        <div class="regb-tools">
+          <label class="regb-req"><input type="checkbox" data-regb="req" data-i="${i}" ${q.required ? 'checked' : ''}> Zorunlu</label>
+          <span class="spacer"></span>
+          <button type="button" class="icon-btn" data-act="regb-move" data-id="${i}" data-sub="-1" ${i === 0 ? 'disabled' : ''} aria-label="Yukarı taşı">↑</button>
+          <button type="button" class="icon-btn" data-act="regb-move" data-id="${i}" data-sub="1" ${i === d.questions.length - 1 ? 'disabled' : ''} aria-label="Aşağı taşı">↓</button>
+          <button type="button" class="btn danger small" data-act="regb-del" data-id="${i}">Sil</button>
+        </div>
+      </div>`).join('');
+    return `
+      <label class="evp-check"><input type="checkbox" data-regb="enabled" ${d.enabled ? 'checked' : ''}><span>UniPakt üzerinden kayıt topla<small>Etkinlik sayfasında “Kayıt ol” düğmesi çıkar. Ad soyad ve e-posta her formda sorulur; kayıt olan kişiye QR ve 6 karakterli giriş kodu gösterilir.</small></span></label>
+      ${d.enabled ? `
+        ${evField('Son kayıt zamanı', `<input type="datetime-local" data-regb="deadline" value="${esc(d.deadline)}">`, { opt: true, hint: 'Boş bırakırsan kayıtlar etkinlik bitene kadar açık kalır. Kontenjan girdiysen kontenjan dolunca da kapanır.' })}
+        <div class="regb-list">${qs || '<p class="hint">Henüz ek soru yok. Ad soyad ve e-posta zaten soruluyor.</p>'}</div>
+        ${d.questions.length < 30 ? '<div><button type="button" class="btn ghost small" data-act="regb-add">+ Soru ekle</button></div>' : ''}` : ''}`;
+  };
+  const rerenderRegb = (focus) => {
+    const host = document.querySelector('[data-regb-host]');
+    if (host) host.innerHTML = regBuilderHtml(regDraft());
+    if (focus) host?.querySelector(focus)?.focus();
+  };
+  const validateRegDraft = (d) => {
+    if (!d || !d.enabled) return '';
+    if (d.deadline && new Date(fromLocalInput(d.deadline)).getTime() < Date.now()) return 'Son kayıt zamanı geçmişte olamaz.';
+    for (const [i, q] of d.questions.entries()) {
+      if (!q.label.trim()) return `${i + 1}. sorunun metnini yaz.`;
+      if (q.type === 'choice') {
+        const opts = q.options.map((o) => o.trim());
+        if (opts.some((o) => !o)) return `“${q.label.trim()}” sorusunda boş seçenek var.`;
+        if (new Set(opts.map((o) => o.toLocaleLowerCase('tr-TR'))).size !== opts.length) return `“${q.label.trim()}” sorusunda aynı seçenek iki kez yazılmış.`;
+      }
+    }
+    return '';
+  };
+  const cleanRegQuestions = (d) => d.questions.map((q) => ({
+    id: q.id, type: q.type, label: q.label.trim(), required: !!q.required,
+    ...(q.type === 'choice' ? { options: q.options.map((o) => o.trim()) } : {}),
+  }));
+  document.addEventListener('input', (e) => {
+    const el = e.target;
+    if (!el.matches?.('[data-regb]')) return;
+    const d = regDraft(); if (!d) return;
+    const k = el.dataset.regb, i = Number(el.dataset.i), j = Number(el.dataset.j);
+    if (k === 'deadline') d.deadline = el.value;
+    else if (k === 'label') d.questions[i].label = el.value;
+    else if (k === 'opt') d.questions[i].options[j] = el.value;
+    if (state.view === 'etkinlik-olustur') evForm.dirty = true;
+  });
+  document.addEventListener('change', (e) => {
+    const el = e.target;
+    if (!el.matches?.('[data-regb]')) return;
+    const d = regDraft(); if (!d) return;
+    const k = el.dataset.regb, i = Number(el.dataset.i);
+    if (k === 'enabled') { d.enabled = el.checked; rerenderRegb(); }
+    else if (k === 'req') d.questions[i].required = el.checked;
+    else if (k === 'type') {
+      const q = d.questions[i]; q.type = el.value;
+      if (q.type === 'choice' && (!q.options || q.options.length < 2)) q.options = ['', ''];
+      rerenderRegb(`[data-regb="label"][data-i="${i}"]`);
+    }
+    if (state.view === 'etkinlik-olustur') evForm.dirty = true;
+  });
+
+  // ---- Board: Etkinliklerim → Kayıtlar ----
+  const freshRegBoard = (eventId = '') => ({ eventId, settings: null, rows: null, loading: false, error: '', search: '', edit: null });
+  const loadRegBoard = async () => {
+    const b = state.regBoard;
+    b.loading = true; b.error = '';
+    try {
+      const [settings, rows] = await Promise.all([api.regSettings(b.eventId), api.registrations(b.eventId)]);
+      if (state.regBoard !== b) return;
+      b.settings = settings; b.rows = rows;
+    } catch (error) { b.error = error.message || 'Kayıtlar yüklenemedi.'; }
+    b.loading = false;
+    if (state.view === 'kayitlar' && !busy()) render();
+  };
+  const openRegBoard = (eventId) => { state.regBoard = freshRegBoard(eventId); go('kayitlar'); loadRegBoard(); };
+  const boardColumns = (s) => {
+    const qs = s?.questions || [];
+    const all = [['code', 'Kod'], ['email', 'E-posta'], ['created', 'Kayıt zamanı'], ['checkin', 'Giriş'], ...qs.map((q) => [q.id, q.label])];
+    const chosen = Array.isArray(s?.board_columns) && s.board_columns.length ? s.board_columns : ['code', 'email', 'checkin', ...qs.map((q) => q.id)];
+    return { all, chosen: chosen.filter((k) => all.some(([id]) => id === k)) };
+  };
+  const eventEnd = (e) => (e.endDate && e.endDate > e.date ? e.endDate : e.date);
+  const regReason = (e, s, n) => {
+    if (eventEnd(e) < today()) return 'Etkinlik bitti';
+    if (!s?.is_open) return 'Kapalı';
+    if (s.deadline && new Date(s.deadline).getTime() <= Date.now()) return 'Süresi doldu';
+    if (e.capacity && n >= Number(e.capacity)) return 'Kontenjan doldu';
+    return 'Açık';
+  };
+  const regTableHtml = () => {
+    const b = state.regBoard, s = b.settings, rows = b.rows || [];
+    const { all, chosen } = boardColumns(s);
+    const label = Object.fromEntries(all);
+    const q = searchKey(b.search);
+    const list = q ? rows.filter((r) => searchKey(`${r.full_name} ${r.email} ${r.code}`).includes(q)) : rows;
+    if (!rows.length) return empty('Henüz kayıt yok. Etkinlik sayfasındaki “Kayıt ol” düğmesiyle gelen kayıtlar burada görünür.');
+    if (!list.length) return empty('Aramaya uyan kayıt yok.');
+    const cell = (r, k) => {
+      if (k === 'code') return `<code class="rb-code">${esc(r.code)}</code>`;
+      if (k === 'email') return esc(r.email);
+      if (k === 'created') return esc(fmtRegTime(r.created_at));
+      if (k === 'checkin') return r.checked_in_at ? `<span class="tag ok">✓ ${esc(fmtRegTime(r.checked_in_at))}</span>` : '<span class="tag">Gelmedi</span>';
+      return esc(r.answers?.[k] ?? '');
+    };
+    return `<div class="rb-wrap"><table class="rb-table"><thead><tr><th>#</th><th>Ad soyad</th>${chosen.map((k) => `<th>${esc(label[k])}</th>`).join('')}<th><span class="sr-only">İşlem</span></th></tr></thead>
+      <tbody>${list.map((r) => `<tr><td class="rb-n">${rows.indexOf(r) + 1}</td><td><strong>${esc(r.full_name)}</strong></td>${chosen.map((k) => `<td>${cell(r, k)}</td>`).join('')}
+        <td class="rb-act"><button class="btn small ${r.checked_in_at ? 'ghost' : ''}" data-act="reg-checkin" data-id="${esc(r.id)}" data-sub="${r.checked_in_at ? '0' : '1'}">${r.checked_in_at ? 'Girişi geri al' : 'Giriş yaptı'}</button>
+          <button class="btn danger small" data-act="reg-del" data-id="${esc(r.id)}" aria-label="Kaydı sil">Sil</button></td></tr>`).join('')}</tbody></table></div>`;
+  };
+  const regBoardView = () => {
+    const b = state.regBoard;
+    const e = db.events.find((x) => x.id === b.eventId);
+    if (!e || !ownsEventUi(e)) { setTimeout(() => go('etkinliklerim')); return ''; }
+    const top = head('Kayıtlar', `${e.title} · ${fmtDay(e.date)}`, `<div class="head-actions"><button class="btn ghost" data-go="gorevliler">Görevliler</button>${b.rows?.length ? '<button class="btn" data-act="reg-csv">CSV indir</button>' : ''}</div>`);
+    if (b.error) return `${top}<section class="card"><p class="body">${esc(b.error)}</p><button class="btn small" data-act="reg-reload">Tekrar dene</button></section>`;
+    if (!b.rows) return `${top}<section class="card"><p class="body">Kayıtlar yükleniyor…</p></section>`;
+    const s = b.settings, rows = b.rows;
+    if (b.edit) {
+      return `${top}<section class="card evp-sec"><h2>${s?.enabled ? 'Kayıt formunu düzenle' : 'Kayıt toplamayı aç'}</h2>
+        <div data-regb-host>${regBuilderHtml(b.edit)}</div>
+        <p class="form-error" data-reg-edit-error hidden></p>
+        <div class="row"><button class="btn" data-act="reg-edit-save">Kaydet</button><button class="btn ghost" data-act="reg-edit-cancel">Vazgeç</button></div></section>`;
+    }
+    if (!s || !s.enabled) {
+      return `${top}<section class="card"><p class="body">Bu etkinlik UniPakt üzerinden kayıt toplamıyor.</p><button class="btn small" data-act="reg-edit">Kayıt toplamayı aç</button></section>`;
+    }
+    const checked = rows.filter((r) => r.checked_in_at).length;
+    const status = regReason(e, s, rows.length);
+    const { all, chosen } = boardColumns(s);
+    return `${top}
+      <div class="stats">
+        <div class="stat"><b>${rows.length}</b><span>Kayıt${e.capacity ? ` · kontenjan ${esc(e.capacity)}` : ''}</span></div>
+        <div class="stat"><b>${checked}</b><span>Giriş yaptı</span></div>
+        <div class="stat"><b>${rows.length - checked}</b><span>Henüz gelmedi</span></div>
+        <div class="stat rb-status ${status === 'Açık' ? 'hot' : ''}"><b>${esc(status)}</b><span>Kayıt durumu</span></div>
+      </div>
+      <section class="card rb-settings">
+        <div class="rb-set-row">
+          <div><strong>Kayıtlar ${s.is_open ? 'açık' : 'kapalı'}</strong><small>${s.is_open ? 'Etkinlik sayfasında “Kayıt ol” düğmesi görünüyor.' : 'Etkinlik sayfasında “Kayıtlar kapalı” yazıyor.'}</small></div>
+          <button class="btn small ${s.is_open ? 'ghost' : ''}" data-act="reg-toggle">${s.is_open ? 'Kayıtları kapat' : 'Kayıtları aç'}</button>
+        </div>
+        <div class="rb-set-row">
+          <label class="field" style="flex:1;max-width:320px"><span>Son kayıt zamanı</span><input type="datetime-local" data-reg-deadline value="${esc(toLocalInput(s.deadline))}"></label>
+          <button class="btn small ghost" data-act="reg-deadline-save">Kaydet</button>
+        </div>
+        <div class="rb-set-row rb-links">
+          <a class="link-btn" href="https://unipakt.com/etkinlik/?id=${esc(e.id)}" target="_blank" rel="noopener">Etkinlik sayfasını aç ↗</a>
+          ${rows.length ? '<span class="hint">Kayıt geldiği için form soruları artık değiştirilemez.</span>' : '<button class="link-btn" data-act="reg-edit">Formu düzenle</button>'}
+        </div>
+      </section>
+      <div class="section-head"><h2>Pano</h2></div>
+      <div class="rb-cols" role="group" aria-label="Panoda görünecek bilgiler">${all.map(([k, l]) => `<button type="button" class="rb-chip" data-act="reg-col" data-id="${esc(k)}" aria-pressed="${chosen.includes(k)}">${esc(l)}</button>`).join('')}</div>
+      <label class="im-search rb-search">${IM_ICON.search}<input type="search" placeholder="Ad, e-posta ya da kod ara" value="${esc(b.search)}" data-reg-search aria-label="Kayıt ara"></label>
+      <div id="rbTable">${regTableHtml()}</div>`;
+  };
+  const saveRegSettings = async (patch) => {
+    const b = state.regBoard, s = b.settings || {};
+    await api.setRegistration(b.eventId, { enabled: s.enabled ?? true, open: s.is_open ?? true, deadline: s.deadline || null, ...patch });
+    b.settings = await api.regSettings(b.eventId);
+  };
+  document.addEventListener('input', (e) => {
+    if (!e.target.matches?.('[data-reg-search]')) return;
+    state.regBoard.search = e.target.value;
+    const box = document.getElementById('rbTable');
+    if (box) box.innerHTML = regTableHtml();
+  });
+  const downloadRegCsv = () => {
+    const b = state.regBoard, e = db.events.find((x) => x.id === b.eventId);
+    const qs = b.settings?.questions || [];
+    const head = ['Ad soyad', 'E-posta', 'Kod', 'Kayıt zamanı', 'Giriş zamanı', ...qs.map((q) => q.label)];
+    const cellOf = (v) => { const s = String(v ?? ''); return /[;"\n\r]/.test(s) || /^[=+\-@]/.test(s) ? `"${(/^[=+\-@]/.test(s) ? `'${s}` : s).replace(/"/g, '""')}"` : s; };
+    const lines = [head, ...(b.rows || []).map((r) => [r.full_name, r.email, r.code, fmtRegTime(r.created_at), fmtRegTime(r.checked_in_at), ...qs.map((q) => r.answers?.[q.id] ?? '')])]
+      .map((row) => row.map(cellOf).join(';'));
+    const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${String(e?.title || 'kayitlar').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '')}-kayitlar.csv`;
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  };
+
+  // ---- Görevliler ----
+  const freshStaffView = () => ({ staff: null, grants: null, settings: null, loading: false, error: '' });
+  const loadStaffView = async () => {
+    const v = state.staffView;
+    if (v.loading) return;
+    v.loading = true; v.error = '';
+    try {
+      const [staff, grants, settings] = await Promise.all([api.staffList(), api.grants(), api.regSettingsAll()]);
+      Object.assign(v, { staff, grants, settings });
+    } catch (error) { v.error = error.message || 'Görevliler yüklenemedi.'; }
+    v.loading = false;
+    if (state.view === 'gorevliler' && !busy()) render();
+  };
+  const grantableEvents = () => {
+    const on = new Set((state.staffView.settings || []).filter((s) => s.enabled).map((s) => s.event_id));
+    return db.events.filter((e) => on.has(e.id) && e.status === 'published' && ownsEventUi(e) && eventEnd(e) >= today())
+      .sort((a, b) => a.date.localeCompare(b.date));
+  };
+  const staffView = () => {
+    const v = state.staffView;
+    const top = head('Görevliler', 'Etkinlik girişinde QR ve kod kontrolü yapacak kişiler. Panel hesabı gerekmez: etkinlik yetkisi verdiğinde e-postalarına kontrol sayfasının bağlantısı ve 6 haneli erişim kodu gider. Yetki, etkinliğin son günü bitince kendiliğinden kapanır.',
+      '<button class="btn" data-act="staff-add">Görevli ekle</button>');
+    if (v.error) return `${top}<section class="card"><p class="body">${esc(v.error)}</p><button class="btn small" data-act="staff-reload">Tekrar dene</button></section>`;
+    if (!v.staff) return `${top}<section class="card"><p class="body">Yükleniyor…</p></section>`;
+    if (!v.staff.length) return `${top}${empty('Henüz görevli eklemedin. “Görevli ekle” ile bir kez ekle; sonra her etkinlik için tek tıkla yetki verirsin.')}`;
+    const now = Date.now();
+    return `${top}<div class="stack">${v.staff.map((s) => {
+      const gs = (v.grants || []).filter((g) => g.staff_id === s.id && new Date(g.expires_at).getTime() > now);
+      return `<article class="card staff-card">
+        <div class="staff-head"><div><h3>${esc(s.full_name)}</h3><small>${esc(s.email)}</small></div>
+          <div class="row"><button class="btn small" data-act="staff-grant" data-id="${esc(s.id)}">Etkinlik yetkisi ver</button><button class="btn danger small" data-act="staff-del" data-id="${esc(s.id)}">Sil</button></div></div>
+        ${gs.length ? `<div class="staff-grants">${gs.map((g) => {
+          const ev = db.events.find((x) => x.id === g.event_id);
+          return `<div class="mini-row"><div><strong>${esc(ev?.title || 'Etkinlik')}</strong><small>${esc(fmtRegTime(g.expires_at))}’e kadar${g.last_used_at ? ` · son kullanım ${esc(fmtRegTime(g.last_used_at))}` : ' · henüz açılmadı'}</small></div>
+            <button class="btn ghost small" data-act="grant-revoke" data-id="${esc(g.id)}">Yetkiyi geri al</button></div>`;
+        }).join('')}</div>` : '<p class="hint" style="margin:10px 0 0">Aktif etkinlik yetkisi yok.</p>'}
+      </article>`;
+    }).join('')}</div>`;
+  };
+
+  const regActions = {
+    'reg-open'(id) { openRegBoard(id); },
+    'reg-reload'() { loadRegBoard(); render(); },
+    'reg-edit'() {
+      const s = state.regBoard.settings;
+      state.regBoard.edit = { enabled: true, deadline: toLocalInput(s?.deadline), questions: JSON.parse(JSON.stringify(s?.questions || [])).map((q) => ({ options: [], ...q })) };
+      render();
+    },
+    'reg-edit-cancel'() { state.regBoard.edit = null; render(); },
+    async 'reg-edit-save'() {
+      const d = state.regBoard.edit;
+      const problem = validateRegDraft({ ...d, enabled: true });
+      const err = document.querySelector('[data-reg-edit-error]');
+      if (problem) { if (err) { err.textContent = problem; err.hidden = false; } return; }
+      await saveRegSettings({ enabled: d.enabled, deadline: fromLocalInput(d.deadline), questions: cleanRegQuestions(d) });
+      state.regBoard.edit = null; toast(d.enabled ? 'Kayıt formu kaydedildi.' : 'Kayıt toplama kapatıldı.'); render();
+    },
+    async 'reg-toggle'() {
+      const s = state.regBoard.settings;
+      await saveRegSettings({ open: !s.is_open });
+      toast(state.regBoard.settings.is_open ? 'Kayıtlar açıldı.' : 'Kayıtlar kapatıldı.'); render();
+    },
+    async 'reg-deadline-save'() {
+      const v = document.querySelector('[data-reg-deadline]')?.value || '';
+      if (v && new Date(fromLocalInput(v)).getTime() < Date.now() && !confirm('Bu zaman geçmişte; kayıtlar hemen kapanır. Devam edilsin mi?')) return;
+      await saveRegSettings({ deadline: fromLocalInput(v) });
+      toast(v ? 'Son kayıt zamanı kaydedildi.' : 'Son kayıt zamanı kaldırıldı.'); render();
+    },
+    async 'reg-col'(key) {
+      const b = state.regBoard;
+      const { chosen } = boardColumns(b.settings);
+      const next = chosen.includes(key) ? chosen.filter((k) => k !== key) : [...chosen, key];
+      b.settings.board_columns = next.length ? next : ['code'];
+      render();
+      try { await saveRegSettings({ columns: b.settings.board_columns }); } catch (_) {}
+    },
+    async 'reg-checkin'(id, on) {
+      await api.setCheckin(id, on === '1');
+      const r = state.regBoard.rows.find((x) => x.id === id);
+      if (r) r.checked_in_at = on === '1' ? (r.checked_in_at || new Date().toISOString()) : null;
+      render();
+    },
+    'reg-del'(id) {
+      const r = state.regBoard.rows.find((x) => x.id === id);
+      confirmRemove('Kaydı sil', `${r?.full_name || 'Bu kişi'} kaydı silinsin mi? Giriş kodu da geçersiz olur.`, async () => {
+        await api.deleteRegistration(id);
+        state.regBoard.rows = state.regBoard.rows.filter((x) => x.id !== id);
+      }, 'Sil');
+    },
+    'reg-csv'() { downloadRegCsv(); },
+    'staff-reload'() { state.staffView = freshStaffView(); loadStaffView(); render(); },
+    'staff-add'() {
+      openForm({
+        title: 'Görevli ekle', lead: 'Bir kez eklersin; sonra her etkinlik için tek tıkla yetki verirsin. Panel hesabı açılmaz.',
+        fields: field('Ad soyad', '<input name="name" required maxlength="120" autocomplete="off">') + field('E-posta', '<input type="email" name="email" required maxlength="254" autocomplete="off">'),
+        submit: 'Ekle',
+        onSubmit: async (fd) => {
+          const name = val(fd, 'name').trim(), email = val(fd, 'email').trim().toLowerCase();
+          if (name.length < 2) return 'Ad soyadı yaz.';
+          if (!EMAIL_RE.test(email)) return 'Geçerli bir e-posta yaz.';
+          try { await api.addStaff({ name, email }); }
+          catch (error) { return /duplicate|unique/i.test(error.message) ? 'Bu e-posta zaten görevli listende.' : error.message; }
+          toast('Görevli eklendi.'); state.staffView = freshStaffView(); loadStaffView();
+        },
+      });
+    },
+    'staff-del'(id) {
+      const s = state.staffView.staff?.find((x) => x.id === id);
+      confirmRemove('Görevliyi sil', `${s?.full_name || 'Görevli'} listeden silinsin mi? Verilmiş tüm etkinlik yetkileri de kapanır.`, async () => {
+        await api.removeStaff(id); state.staffView = freshStaffView(); loadStaffView();
+      }, 'Sil');
+    },
+    'staff-grant'(id) {
+      const s = state.staffView.staff?.find((x) => x.id === id);
+      const events = grantableEvents();
+      if (!events.length) { toast('Önce bir etkinlikte UniPakt üzerinden kayıt toplamayı aç (yalnızca yayındaki, bitmemiş etkinlikler).'); return; }
+      openForm({
+        title: 'Etkinlik yetkisi ver',
+        lead: `${s?.full_name || 'Görevli'} (${s?.email || ''}) adresine kontrol sayfasının bağlantısı ve 6 haneli erişim kodu gönderilir. Aynı etkinliğe tekrar verirsen eski bağlantı geçersiz olur.`,
+        fields: field('Etkinlik', `<select name="event" required>${events.map((e) => `<option value="${esc(e.id)}">${esc(e.title)} · ${esc(fmtDay(e.date))}</option>`).join('')}</select>`),
+        submit: 'Yetki e-postasını gönder',
+        onSubmit: async (fd) => {
+          await api.grantStaff(id, val(fd, 'event'));
+          toast(`${s?.full_name || 'Görevli'} kişisine yetki e-postası gönderildi.`);
+          state.staffView = freshStaffView(); loadStaffView();
+        },
+      });
+    },
+    'grant-revoke'(id) {
+      confirmRemove('Yetkiyi geri al', 'Bu görevlinin bu etkinlikteki kontrol bağlantısı hemen geçersiz olur.', async () => {
+        await api.revokeGrant(id); state.staffView = freshStaffView(); loadStaffView();
+      }, 'Geri al');
+    },
+    // builder
+    'regb-add'() {
+      const d = regDraft(); d.questions.push({ id: newQid(), type: 'text', label: '', required: false, options: [] });
+      rerenderRegb(`[data-regb="label"][data-i="${d.questions.length - 1}"]`);
+    },
+    'regb-del'(i) { regDraft().questions.splice(Number(i), 1); rerenderRegb(); },
+    'regb-move'(i, dir) {
+      const qs = regDraft().questions, a = Number(i), b = a + Number(dir);
+      if (b < 0 || b >= qs.length) return;
+      [qs[a], qs[b]] = [qs[b], qs[a]]; rerenderRegb();
+    },
+    'regb-opt-add'(i) { const q = regDraft().questions[Number(i)]; if (q.options.length < 20) q.options.push(''); rerenderRegb(`[data-regb="opt"][data-i="${i}"][data-j="${q.options.length - 1}"]`); },
+    'regb-opt-del'(i, j) { const q = regDraft().questions[Number(i)]; if (q.options.length > 2) q.options.splice(Number(j), 1); rerenderRegb(); },
+  };
+
   const actions = {
+    ...regActions,
     'mobile-nav-toggle'() { state.navOpen = !state.navOpen; render(); },
     'profile-menu-toggle'() { state.profileMenuOpen = !state.profileMenuOpen; render(); },
     'profile-avatar-remove'() {
@@ -4262,6 +4748,7 @@
       state.accounts = null;
       // The 30-day trusted-browser token stays, so this browser is not asked again.
       state.mfa = freshMfaState();
+      state.regBoard = freshRegBoard(); state.staffView = freshStaffView();
       state.inbox = { tab: 'contact', data: null, error: null, loading: false, count: null };
       history.replaceState(null, '', location.pathname + location.search);
       render(); window.scrollTo(0, 0);
@@ -4779,6 +5266,7 @@
     root.querySelector('.nav-item.active')?.scrollIntoView({ block: 'nearest', inline: 'center' });
     if (state.view === 'etkinlik-olustur') mountEventPage();
     if (state.view === 'dogrulama') mountMfa();
+    if (state.view === 'gorevliler' && !state.staffView.staff && !state.staffView.loading && !state.staffView.error) loadStaffView();
     if (state.view === 'ims') { mountIm(); if (!document.getElementById('imMsgs')) refreshChatProfiles(); }
   };
 

@@ -28,8 +28,10 @@ jobs:
           version: 11
       - name: Install chat SDK dependencies
         run: pnpm install --no-frozen-lockfile
-      - name: Build encrypted chat SDK bundle
+      - name: Build chat SDK bundle
         run: pnpm run build:matrix
+      - name: Build QR helpers (event page QR, kontrol.html scanner)
+        run: pnpm run build:qr
       - name: Build _site (one copy of index.html per page path)
         run: python3 tools/build_pages.py
       - uses: actions/configure-pages@v6

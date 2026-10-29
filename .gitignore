@@ -16,3 +16,4 @@ _site/
 # Build output (generated in CI by pnpm run build:matrix)
 node_modules/
 assets/matrix/
+assets/qr/

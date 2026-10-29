@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:matrix": "vite build --config vite.matrix.config.js"
+    "build:matrix": "vite build --config vite.matrix.config.js",
+    "build:qr": "vite build --config vite.qr.config.js"
   },
   "dependencies": {
     "@zxing/browser": "0.2.1",

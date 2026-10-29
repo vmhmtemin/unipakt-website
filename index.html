@@ -6195,6 +6195,39 @@
     .ev-fee { font-family: 'Archivo', sans-serif; font-size: clamp(20px, 2.6vw, 26px); color: var(--accent); }
     .ev-ticket-act { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
     .ev-cta { text-decoration: none; }
+    /* ---- UniPakt kayıt formu (etkinlik sayfası) ---- */
+    .ev-reg-note { flex-basis: 100%; margin: 0; font-size: 13px; color: color-mix(in srgb, var(--ink) 62%, transparent); }
+    .ev-reg-closed { font-size: 14px; font-weight: 600; color: color-mix(in srgb, var(--ink) 70%, transparent); }
+    .reg-dialog { width: min(560px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); padding: 0; border: 1px solid var(--border-strong); border-radius: 22px; background: var(--paper); color: var(--ink); overflow: auto; overscroll-behavior: contain; }
+    .reg-dialog::backdrop { background: rgba(0, 0, 0, .62); backdrop-filter: blur(3px); }
+    .reg-in { display: grid; gap: 16px; padding: clamp(20px, 4vw, 30px); }
+    .reg-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+    .reg-head h2 { margin: 0; font-size: clamp(24px, 4vw, 30px); line-height: 1.1; }
+    .reg-head small { display: block; margin-top: 6px; font-size: 14px; color: color-mix(in srgb, var(--ink) 62%, transparent); }
+    .reg-x { flex: none; width: 38px; height: 38px; border: 1px solid var(--border-strong); border-radius: 50%; background: transparent; color: var(--ink); font-size: 20px; line-height: 1; cursor: pointer; }
+    .reg-field { display: grid; gap: 7px; }
+    .reg-field > span { font-size: 14px; font-weight: 600; }
+    .reg-field > span em { font-style: normal; font-weight: 500; color: color-mix(in srgb, var(--ink) 55%, transparent); }
+    .reg-field input[type="text"], .reg-field input[type="email"], .reg-field textarea {
+        box-sizing: border-box; width: 100%; padding: 13px 16px; border: 1px solid var(--border-strong); border-radius: 14px;
+        background: color-mix(in srgb, var(--ink) 4%, transparent); color: var(--ink); font: inherit; font-size: 16px; }
+    .reg-field textarea { min-height: 90px; resize: vertical; }
+    .reg-field input:focus, .reg-field textarea:focus { outline: none; border-color: var(--accent); }
+    .reg-choices { display: flex; flex-wrap: wrap; gap: 8px; }
+    .reg-choices label { position: relative; }
+    .reg-choices input { position: absolute; opacity: 0; pointer-events: none; }
+    .reg-choices span { display: inline-block; padding: 9px 16px; border: 1px solid var(--border-strong); border-radius: 999px; font-size: 14.5px; cursor: pointer; }
+    .reg-choices input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--on-accent, #000); }
+    .reg-choices input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .reg-error { margin: 0; min-height: 20px; font-size: 14px; color: #F87171; }
+    .reg-done { text-align: center; }
+    .reg-qr { width: min(240px, 70vw); margin: 4px auto 0; padding: 12px; border-radius: 18px; background: #fff; }
+    .reg-qr svg { display: block; width: 100%; height: auto; }
+    .reg-code { margin: 6px 0 0; font: 800 clamp(34px, 9vw, 44px)/1 'Archivo', sans-serif; letter-spacing: .18em; padding-left: .18em; }
+    .reg-done p { margin: 0; color: color-mix(in srgb, var(--ink) 70%, transparent); }
+    .reg-done .reg-name { color: var(--ink); font-weight: 600; font-size: 17px; }
+    .reg-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .reg-actions .btn-pill.ghost { background: transparent; color: var(--ink); border: 1px solid var(--border-strong); }
     .ev-biletimgo { display: inline-flex; align-items: center; padding: 8px 4px; }
     .ev-biletimgo img { display: block; height: 26px; width: auto; transition: opacity .2s ease; }
     .ev-biletimgo:hover img { opacity: .75; }
@@ -8976,6 +9009,144 @@
         let timer = null;
         let loadingId = '';
 
+        /* ---- UniPakt üzerinden kayıt ----
+           public_event_registration(p_event) formu ve durumunu verir; kayıt
+           register_for_event() ile yapılır ve 6 karakterli giriş kodunu döndürür.
+           Kod ve QR yalnızca ekranda gösterilir; aynı tarayıcıda tekrar açılabilsin
+           diye bu tarayıcıya da kaydedilir. QR içeriği: UP1:<etkinlik id>:<KOD>. */
+        const REG_KEY = (id) => `unipakt-reg.${id}`;
+        const savedReg = (id) => { try { const v = JSON.parse(localStorage.getItem(REG_KEY(id)) || 'null'); return v && /^[A-Z0-9]{6}$/.test(v.code) ? v : null; } catch (_) { return null; } };
+        const REG_REASON = { closed: 'Kayıtlar kapalı', deadline: 'Kayıt süresi doldu', full: 'Kontenjan doldu', ended: 'Etkinlik sona erdi' };
+        function regButtonHtml(e) {
+            const reg = e.reg && e.reg.enabled ? e.reg : null;
+            if (!reg) return e.registration ? `<a class="btn-pill ev-cta" href="${esc(e.registration)}" target="_blank" rel="noopener noreferrer">Kayıt ol ↗</a>` : '';
+            if (savedReg(e.id)) return '<button type="button" class="btn-pill ev-cta" data-ev-myreg>Kaydını göster</button>';
+            if (reg.open) return '<button type="button" class="btn-pill ev-cta" data-ev-register>Kayıt ol</button>';
+            return `<span class="ev-reg-closed">${esc(REG_REASON[reg.reason] || 'Kayıtlar kapalı')}</span>`;
+        }
+        function regNoteHtml(e) {
+            const reg = e.reg && e.reg.enabled && e.reg.open ? e.reg : null;
+            if (!reg || savedReg(e.id)) return '';
+            const parts = [];
+            if (reg.deadline) {
+                const d = new Date(reg.deadline);
+                parts.push(`Son kayıt: <span data-no-i18n>${esc(d.toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }))}</span>`);
+            }
+            if (Number.isInteger(reg.remaining) && reg.remaining <= 30) parts.push(`Kalan kontenjan: <span data-no-i18n>${reg.remaining}</span>`);
+            return parts.length ? `<p class="ev-reg-note">${parts.join(' · ')}</p>` : '';
+        }
+        let qrModule = null;
+        const qrFor = async (eventId, code) => {
+            try { qrModule ||= await import('/assets/qr/qr-make.js'); return await qrModule.qrSvg(`UP1:${eventId}:${code}`); }
+            catch (_) { return ''; }
+        };
+        const regDialog = (inner) => {
+            document.querySelector('.reg-dialog')?.remove();
+            const dlg = document.createElement('dialog');
+            dlg.className = 'reg-dialog';
+            dlg.setAttribute('aria-labelledby', 'regTitle');
+            dlg.innerHTML = inner;
+            document.body.append(dlg);
+            dlg.addEventListener('close', () => dlg.remove());
+            dlg.addEventListener('click', (ev) => { if (ev.target === dlg || ev.target.closest('[data-reg-close]')) dlg.close(); });
+            dlg.showModal();
+            return dlg;
+        };
+        // Code + QR after registering (or "Kaydını göster").
+        async function showRegDone(e, saved, dlg) {
+            const html = `<div class="reg-in reg-done">
+                <div class="reg-head"><div style="text-align:left"><h2 id="regTitle">Kaydın tamam</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                <div class="reg-qr" data-reg-qr aria-label="Giriş QR kodu"></div>
+                <div class="reg-code" data-no-i18n aria-label="Giriş kodu">${esc(saved.code)}</div>
+                <p class="reg-name" data-no-i18n>${esc(saved.name)}</p>
+                <p>Girişte bu QR kodu ya da 6 karakterli kodu göstereceksin. Bu ekranın görüntüsünü al; kod e-postayla gönderilmez.</p>
+                <div class="reg-actions"><button type="button" class="btn-pill" data-reg-png>QR’ı indir</button><button type="button" class="btn-pill ghost" data-reg-close>Kapat</button></div>
+            </div>`;
+            if (dlg) dlg.innerHTML = html; else dlg = regDialog(html);
+            const svg = await qrFor(e.id, saved.code);
+            const box = dlg.querySelector('[data-reg-qr]');
+            if (box) { if (svg) box.innerHTML = svg; else box.hidden = true; }
+            dlg.querySelector('[data-reg-png]')?.addEventListener('click', () => downloadQrPng(svg, `${e.title}-${saved.code}`));
+        }
+        // QR as a PNG with the code underneath, for the phone's photo gallery.
+        function downloadQrPng(svg, name) {
+            if (!svg) return;
+            const img = new Image();
+            img.onload = () => {
+                const c = document.createElement('canvas'); c.width = 720; c.height = 840;
+                const x = c.getContext('2d');
+                x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+                x.drawImage(img, 60, 60, 600, 600);
+                x.fillStyle = '#0C0C0D'; x.font = '800 78px Archivo, Arial, sans-serif'; x.textAlign = 'center';
+                x.fillText(name.split('-').pop(), 360, 770);
+                c.toBlob((blob) => {
+                    if (!blob) return;
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `UniPakt-${name.replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '')}.png`;
+                    document.body.append(a); a.click(); a.remove();
+                    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+                }, 'image/png');
+            };
+            img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+        }
+        function openRegForm(e) {
+            const qs = Array.isArray(e.reg?.questions) ? e.reg.questions : [];
+            const qHtml = qs.map((q, i) => {
+                const label = `<span data-no-i18n>${esc(q.label)}</span>${q.required ? '' : ' <em>(isteğe bağlı)</em>'}`;
+                if (q.type === 'choice') {
+                    const opts = (q.options || []).map((o) => `<label><input type="radio" name="q_${esc(q.id)}" value="${esc(o)}" ${q.required ? 'required' : ''}><span data-no-i18n>${esc(o)}</span></label>`).join('');
+                    return `<fieldset class="reg-field" style="border:0;padding:0;margin:0"><span>${label}</span><div class="reg-choices">${opts}</div></fieldset>`;
+                }
+                return `<label class="reg-field"><span>${label}</span><input type="text" name="q_${esc(q.id)}" maxlength="1000" ${q.required ? 'required' : ''}></label>`;
+            }).join('');
+            const dlg = regDialog(`<form class="reg-in" novalidate>
+                <div class="reg-head"><div><h2 id="regTitle">Kayıt ol</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                <label class="reg-field"><span>Ad soyad</span><input type="text" name="name" required maxlength="120" autocomplete="name"></label>
+                <label class="reg-field"><span>E-posta</span><input type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email"></label>
+                ${qHtml}
+                <label class="kvkk-consent" style="margin:2px 0 0"><input type="checkbox" name="kvkk" required data-reg-kvkk><span><a href="/kvkk/" data-reg-kvkk-link>KVKK Aydınlatma Metni</a>'ni okudum.</span></label>
+                <p class="reg-error" data-reg-error role="alert"></p>
+                <button type="submit" class="btn-pill">Kaydı tamamla</button>
+            </form>`);
+            const form = dlg.querySelector('form');
+            const box = form.querySelector('[data-reg-kvkk]');
+            const openKvkk = () => { if (typeof window.unipaktKvkkOpen === 'function') { window.unipaktKvkkOpen(box); return true; } return false; };
+            box.addEventListener('click', (ev) => { if (box.checked && openKvkk()) ev.preventDefault(); });
+            form.querySelector('[data-reg-kvkk-link]').addEventListener('click', (ev) => { if (openKvkk()) ev.preventDefault(); });
+            form.querySelector('[name="name"]').focus();
+            form.addEventListener('submit', async (ev) => {
+                ev.preventDefault();
+                const err = form.querySelector('[data-reg-error]');
+                const button = form.querySelector('button[type="submit"]');
+                const fd = new FormData(form);
+                const name = String(fd.get('name') || '').trim(), email = String(fd.get('email') || '').trim();
+                if (name.length < 2) { err.textContent = 'Ad soyadını yaz.'; return; }
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Geçerli bir e-posta adresi yaz.'; return; }
+                const answers = {};
+                for (const q of qs) {
+                    const v = String(fd.get(`q_${q.id}`) || '').trim();
+                    if (!v && q.required) { err.textContent = `“${q.label}” sorusu zorunlu.`; return; }
+                    if (v) answers[q.id] = v;
+                }
+                if (!box.checked) { err.textContent = 'Devam etmek için KVKK Aydınlatma Metni’ni okuduğunu işaretle.'; return; }
+                err.textContent = ''; button.disabled = true; button.classList.add('is-loading'); button.setAttribute('aria-busy', 'true');
+                try {
+                    const res = await fetch(RPC + 'register_for_event', { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ p_event: e.id, p_full_name: name, p_email: email, p_answers: answers, p_consent: true }) });
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) throw new Error(data.message || 'Kayıt yapılamadı.');
+                    const saved = { code: data.code, name: data.full_name || name, at: new Date().toISOString() };
+                    try { localStorage.setItem(REG_KEY(e.id), JSON.stringify(saved)); } catch (_) {}
+                    await showRegDone(e, saved, dlg);
+                    render(e);   // the button becomes "Kaydını göster"
+                } catch (error) {
+                    err.textContent = error.message === 'Failed to fetch' ? 'Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.' : error.message;
+                    button.disabled = false; button.classList.remove('is-loading'); button.removeAttribute('aria-busy');
+                }
+            });
+        }
+
         function normalize(r) {
             let occ = [];
             try { occ = Array.isArray(r.occurrences) ? r.occurrences : JSON.parse(r.occurrences || '[]'); } catch (_) {}
@@ -9064,9 +9235,10 @@
                     <div class="ev-ticket">
                         <b class="ev-fee">${e.feeType === 'paid' && e.feeAmount != null ? `<span data-no-i18n>${esc(feeText(e))}</span>` : 'Ücretsiz'}</b>
                         <div class="ev-ticket-act">
-                            ${e.registration ? `<a class="btn-pill ev-cta" href="${esc(e.registration)}" target="_blank" rel="noopener noreferrer">Kayıt ol ↗</a>` : ''}
+                            ${regButtonHtml(e)}
                             ${e.biletimgo ? `<a class="ev-biletimgo" href="${esc(e.biletimgo)}" target="_blank" rel="noopener noreferrer sponsored" aria-label="biletimGO'da aç"><img src="/sponsors/biletimgo.png" alt="biletimGO" width="754" height="120"></a>` : ''}
                         </div>
+                        ${regNoteHtml(e)}
                     </div>
                     <div class="ev-grid">
                         <div class="ev-main">
@@ -9213,6 +9385,8 @@
             loadingId = id;
             host.innerHTML = '<div class="wrap ev-body ev-msg"><p>Etkinlik yükleniyor…</p></div>';
             try {
+                const regInfo = fetch(RPC + 'public_event_registration', { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_event: id }) })
+                    .then((r) => (r.ok ? r.json() : null)).catch(() => null);
                 const res = await fetch(RPC + 'public_event', { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_id: id }) });
                 const rows = res.ok ? await res.json() : null;
                 if (loadingId !== id) return;
@@ -9220,6 +9394,8 @@
                 const r = Array.isArray(rows) ? rows[0] : null;
                 if (!r || !txt(r.title, 120)) { host.innerHTML = messageHtml('Etkinlik bulunamadı'); return; }
                 current = normalize(r);
+                current.reg = await regInfo;
+                if (loadingId !== id) return;
                 render(current);
                 document.title = `${current.title} — UniPakt`;
                 if (commentWrap) commentWrap.hidden = false;
@@ -9245,6 +9421,8 @@
                 return;
             }
             if (!current) return;
+            if (ev.target.closest('[data-ev-register]')) { openRegForm(current); return; }
+            if (ev.target.closest('[data-ev-myreg]')) { const saved = savedReg(current.id); if (saved) showRegDone(current, saved); return; }
             if (ev.target.closest('[data-ev-ics]')) { downloadIcs(current); return; }
             if (ev.target.closest('[data-ev-copy]')) {
                 const out = host.querySelector('[data-ev-copied]');
@@ -11557,6 +11735,8 @@
             requestAnimationFrame(update);   // metin kısa kalırsa (kaydırma yoksa) hemen açılır
         };
 
+        // The event registration form is built later, so it opens the text through this.
+        window.unipaktKvkkOpen = open;
         body.addEventListener('scroll', update, { passive: true });
         window.addEventListener('resize', () => { if (dlg.open) update(); });
         ok.addEventListener('click', () => {
