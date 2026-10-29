@@ -705,6 +705,13 @@
   .rb-act { white-space: nowrap !important; text-align: right !important; }
   .rb-act .btn + .btn { margin-left: 6px; }
   .staff-card { padding: 20px 22px; }
+  .staff-head h3 .tag { margin-left: 6px; vertical-align: middle; }
+  .team-perms { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .team-checks { max-height: none; }
+  .team-checks label { align-items: flex-start; }
+  .team-checks label input { margin-top: 3px; }
+  .team-checks label span { display: grid; gap: 2px; }
+  .team-checks small { opacity: .6; font-size: 12.5px; }
   .staff-head .row, .evp-sec > .row { display: flex; gap: 8px; flex-wrap: wrap; }
   .staff-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   .staff-head h3 { margin: 0; }
@@ -1333,7 +1340,7 @@
   };
 
   const loadRemote = async () => {
-    const profiles = await rest(`profiles?select=role,club_id,full_name,bio,collaboration_interests,avatar_url&id=eq.${encodeURIComponent(session.user_id)}`);
+    const profiles = await rest(`profiles?select=role,club_id,full_name,bio,collaboration_interests,avatar_url,member_title,permissions&id=eq.${encodeURIComponent(session.user_id)}`);
     const profile = profiles && profiles[0];
     if (!profile) {
       // A 2FA account whose session is not verified yet sees no rows at all; that
@@ -1410,6 +1417,8 @@
       })(),
     };
     state.user = profile.role === 'admin' ? ADMIN : profile.club_id;
+    state.member = profile.role === 'member'
+      ? { title: profile.member_title || 'Ekip üyesi', perms: Array.isArray(profile.permissions) ? profile.permissions : [] } : null;
     state.profile = { fullName: profile.full_name || '', bio: profile.bio || '', collaborationInterests: Array.isArray(profile.collaboration_interests) ? profile.collaboration_interests : [], avatarUrl: profile.avatar_url || '' };
     try { await loadSupportRemote(); }
     catch (error) {
@@ -1433,6 +1442,21 @@
      Every call resolves once `db` reflects the change.
      ------------------------------------------------------------------ */
   const local = {
+    // ---- Demo: kulüp ekibi ----
+    async team(action, x = {}) {
+      db.team ||= [];
+      const clubId = state.user;
+      const mine = (id) => db.team.find((m) => m.id === id && m.clubId === clubId);
+      if (action === 'list') return { members: db.team.filter((m) => m.clubId === clubId).map((m) => ({ id: m.id, email: m.email, full_name: m.name, title: m.title, permissions: m.perms, joined: !!m.joined, invited_at: m.at })) };
+      if (action === 'invite') {
+        const email = String(x.email || '').trim().toLowerCase();
+        if (db.team.some((m) => m.email === email)) throw new Error('Bu e-posta adresiyle zaten bir UniPakt hesabı var.');
+        db.team.push({ id: uid(), clubId, name: x.full_name, email, title: x.title, perms: x.permissions, joined: false, at: stamp() });
+      } else if (action === 'update') { const m = mine(x.id); if (!m) throw new Error('Ekip üyesi bulunamadı.'); m.title = x.title; m.perms = x.permissions; }
+      else if (action === 'remove') { db.team = db.team.filter((m) => !(m.id === x.id && m.clubId === clubId)); }
+      else if (action === 'resend') { if (!mine(x.id)) throw new Error('Ekip üyesi bulunamadı.'); }
+      save(); return { ok: true };
+    },
     // ---- Demo: kayıt toplama ve görevliler (bu tarayıcıda saklanır) ----
     async regSettingsAll() { return Object.values(db.regSettings || {}).map((s) => ({ event_id: s.event_id, enabled: s.enabled, is_open: s.is_open, deadline: s.deadline })); },
     async regSettings(eventId) { return (db.regSettings || {})[eventId] || null; },
@@ -2009,6 +2033,10 @@
       } catch (_) { throw new Error('Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.'); }
       if (!r.ok) throw new Error(data.msg || data.message || 'Şifre değiştirilemedi. Bağlantı süresi dolmuş olabilir.');
     },
+    // Kulüp ekibi (Edge Function `club-team`, yalnızca başkan).
+    async team(action, extra = {}) {
+      return await call('/functions/v1/club-team', { method: 'POST', body: { action, ...extra } });
+    },
     // Two-step verification by e-mail code (Edge Function `mfa`).
     async mfa(action, extra = {}) {
       return await call('/functions/v1/mfa', { method: 'POST', body: { action, ...extra } });
@@ -2030,7 +2058,7 @@
 
   // Remote writes are followed by a fresh read, so the screen shows what the server kept.
   const api = DEMO ? local : new Proxy(remote, {
-    get: (target, name) => (['refresh', 'proofUrl', 'login', 'logout', 'accounts', 'account', 'recoverPassword', 'resetPassword', 'matrixSession', 'mfa', 'regSettingsAll', 'regSettings', 'setRegistration', 'registrations', 'setCheckin', 'deleteRegistration', 'staffList', 'addStaff', 'removeStaff', 'grants', 'grantStaff', 'revokeGrant', 'supportCreate', 'supportReply', 'supportUpdate', 'supportDelete', 'siteInbox', 'siteInboxDelete', 'siteInboxDeleteAll', 'siteInboxCount'].includes(name) ? target[name]
+    get: (target, name) => (['refresh', 'proofUrl', 'login', 'logout', 'accounts', 'account', 'recoverPassword', 'resetPassword', 'matrixSession', 'mfa', 'team', 'regSettingsAll', 'regSettings', 'setRegistration', 'registrations', 'setCheckin', 'deleteRegistration', 'staffList', 'addStaff', 'removeStaff', 'grants', 'grantStaff', 'revokeGrant', 'supportCreate', 'supportReply', 'supportUpdate', 'supportDelete', 'siteInbox', 'siteInboxDelete', 'siteInboxDeleteAll', 'siteInboxCount'].includes(name) ? target[name]
       : async (...args) => { const result = await target[name](...args); await loadRemote(); return result; }),
   });
 
@@ -2063,6 +2091,8 @@
     accounts: null,   // { clubId: login e-mail } once loaded, 'loading', or 'unavailable'
     support: { q: '', category: 'all', status: 'all' },
     inbox: { tab: 'contact', data: null, error: null, loading: false, count: null },   // Site Mesajları (yalnızca yetkili)
+    member: null,   // ekip üyesi hesabı: { title, perms }; başkan ve UniPakt için null
+    team: { rows: null, loading: false, error: '' },   // Ekip sayfası (yalnızca başkan)
   };
   let profileLogoPreviewUrl = '';
   if (DEMO) { try { state.user = sessionStorage.getItem(SESSION); } catch (_) {} }
@@ -2100,7 +2130,7 @@
 
   const startMatrix = async () => {
     const panelUserId = DEMO ? state.user : session?.user_id;
-    if ((DEMO && !DEMO_HS) || !state.user || !panelUserId || matrixLoadingPromise) return matrixLoadingPromise;
+    if ((DEMO && !DEMO_HS) || !state.user || !panelUserId || !can('chat') || matrixLoadingPromise) return matrixLoadingPromise;
     state.chat.loading = true; state.chat.error = '';
     matrixLoadingPromise = (async () => {
       try {
@@ -2163,6 +2193,33 @@
   };
 
   const isAdmin = () => state.user === ADMIN;
+  // Ekip üyesi yalnızca başkanın verdiği yetkileri kullanır (sunucu da aynısını zorlar).
+  const can = (perm) => !state.member || state.member.perms.includes(perm);
+  const isPresident = () => !!state.user && !isAdmin() && !state.member;
+  const VIEW_PERM = { etkinliklerim: 'events', basvuru: 'events', 'etkinlik-olustur': 'events', gorevliler: 'registrations', kayitlar: 'registrations', ims: 'chat', 'destek-taleplerim': 'support', gorevler: 'tasks' };
+  const viewAllowed = (view) => (view === 'ekip' ? isPresident() : view === 'ayarlar' ? !state.member : !VIEW_PERM[view] || can(VIEW_PERM[view]));
+  const actPerm = (act) => {
+    if (/^(team-|club-|profile-avatar)/.test(act)) return 'president';
+    if (/^(reg-|staff-|grant-)/.test(act)) return 'registrations';
+    if (/^(event-|ev-|app-|notif-app-|partner-|rejected-event)/.test(act)) return 'events';
+    if (act === 'ann-new') return 'announcements';
+    if (act === 'task-done') return 'tasks';
+    if (/^support-ticket-new/.test(act)) return 'support';
+    if (/^ims-new/.test(act)) return 'chat';
+    return '';
+  };
+  const actAllowed = (act) => { const p = actPerm(act); return !p || (p === 'president' ? !state.member : can(p)); };
+  const NO_PERM = 'Bu işlem için yetkin yok. Kulüp başkanından yetki iste.';
+  // Demo: ekip üyesi olarak giriş "member:<id>" diye saklanır.
+  const applyDemoUser = () => {
+    state.member = null;
+    const raw = String(state.user || '');
+    if (!raw.startsWith('member:')) return;
+    const m = (db.team || []).find((x) => x.id === raw.slice(7));
+    if (!m) { state.user = null; return; }
+    m.joined = true; save();
+    state.user = m.clubId; state.member = { title: m.title, perms: m.perms };
+  };
   const club = (id) => db.clubs.find((c) => c.id === id);
   const avatarMarkup = (url, label, extraClass = '') => url
     ? `<span class="profile-avatar ${extraClass}"><img src="${esc(url)}" alt="${esc(label || 'Profil görseli')}" loading="lazy"></span>`
@@ -2174,7 +2231,8 @@
         ${avatarMarkup(state.profile.avatarUrl, label)}<span>Profil</span><i class="profile-caret" aria-hidden="true"></i>
       </button>
       <div class="profile-dropdown" role="menu" ${state.profileMenuOpen ? '' : 'hidden'}>
-        <button type="button" role="menuitem" data-go="ayarlar">Profil</button>
+        ${state.member ? '' : '<button type="button" role="menuitem" data-go="ayarlar">Profil</button>'}
+        ${isPresident() ? '<button type="button" role="menuitem" data-go="ekip">Ekip</button>' : ''}
         <button type="button" role="menuitem" data-go="hesap">Hesap</button>
       </div>
     </div>`;
@@ -2452,6 +2510,8 @@
       ['takvim', 'Takvim', 0, 'events'],
       ['etkinliklerim', 'Etkinliklerim', 0, 'events'],
       ['gorevliler', 'Görevliler', 0, 'events'],
+      // Etkinlik yetkisi olmayan kayıt sorumlusu Kayıtlar'a doğrudan girer.
+      ...(state.member && !can('events') ? [['kayitlar', 'Kayıtlar', 0, 'events']] : []),
       ...(isAdmin() ? [['onaylar', 'Onaylamalar', pendingCount(), 'events']] : []),
       ['basvuru', 'Başvurular', 0, 'events'],
       ['genel', 'Genel Bakış', 0, 'unipakt'],
@@ -2462,12 +2522,13 @@
       ['bildirimler', 'Bildirimler', (db.notifications || []).filter(n => !n.readAt).length, 'unipakt'],
       ...(isAdmin() ? [['kulupler', 'Kulüpler', 0, 'unipakt'], ['site-mesajlari', 'Site Mesajları', siteInboxTotal(), 'unipakt']] : []),
       ['destek-taleplerim', isAdmin() ? 'Destek Talepleri' : 'UniPakt Destek', supportNewCount(), 'unipakt'],
+      ...(isPresident() ? [['ekip', 'Ekip', 0, 'unipakt']] : []),
     ];
-    return items;
+    return items.filter(([id]) => viewAllowed(id));
   };
   // Menüde görünmeyen ama açılabilen sayfalar.
   const HIDDEN_VIEWS = ['etkinlik-olustur', 'ayarlar', 'hesap', 'dogrulama', 'kayitlar'];
-  const knownView = (view) => HIDDEN_VIEWS.includes(view) || NAV().some(([id]) => id === view);
+  const knownView = (view) => (HIDDEN_VIEWS.includes(view) && viewAllowed(view)) || NAV().some(([id]) => id === view);
 
   /* ------------------------------------------------------------------
      SMALL UI HELPERS
@@ -3158,7 +3219,7 @@
           </section>
 
           <section class="card evp-sec"><h2>Kayıt toplama</h2>
-            ${editing ? '<p class="hint">Kayıt formunu ve ayarlarını Etkinliklerim → Kayıtlar’dan yönetebilirsin.</p>' : `<div class="regb" data-regb-host>${regBuilderHtml(evForm.reg ||= freshRegDraft())}</div>`}
+            ${editing ? '<p class="hint">Kayıt formunu ve ayarlarını Etkinliklerim → Kayıtlar’dan yönetebilirsin.</p>' : !can('registrations') ? '<p class="hint">Kayıt toplamak için “Kayıtlar ve giriş” yetkisi gerekir. Etkinlik kaydedildikten sonra bu yetkiye sahip biri ya da kulüp başkanı kayıt formunu açabilir.</p>' : `<div class="regb" data-regb-host>${regBuilderHtml(evForm.reg ||= freshRegDraft())}</div>`}
           </section>
 
           <section class="card evp-sec"><h2>Etkinlik Detayları</h2>
@@ -3552,8 +3613,8 @@
     if (evForm.kind === 'partner') f.seeking = v.seeking.trim();
     const visible = !v.hidden;
     if (evForm.mode === 'new') {
-      const reg = evForm.reg;
-      const regProblem = validateRegDraft(reg);
+      const reg = can('registrations') ? evForm.reg : null;
+      const regProblem = reg ? validateRegDraft(reg) : '';
       if (regProblem) throw new Error(regProblem);
       const newId = await api.addEvent({ ...f, kind: evForm.kind, visible });
       if (reg?.enabled && newId) {
@@ -3577,6 +3638,7 @@
   };
 
   const views = {
+    ekip: () => teamView(),
     ims: () => imView(),
     kayitlar: () => regBoardView(),
     gorevliler: () => staffView(),
@@ -3610,7 +3672,7 @@
       return `${head('Hesap', 'Giriş bilgilerini ve şifreni yönet.')}
         <section class="card">
           <h2>Hesap bilgileri</h2>
-          <div class="account-summary"><strong>${esc(session?.email || 'E-posta bilgisi yüklenemedi')}</strong><br><small>${esc(isAdmin() ? 'UniPakt yöneticisi' : 'Kulüp hesabı')}</small></div>
+          <div class="account-summary"><strong>${esc(session?.email || 'E-posta bilgisi yüklenemedi')}</strong><br><small>${esc(isAdmin() ? 'UniPakt yöneticisi' : state.member ? `${state.member.title} · ${club(state.user)?.name || 'Kulüp'} ekibi` : 'Kulüp başkanı hesabı')}</small></div>
           <h2>Şifre değiştir</h2>
           <form id="passwordForm" class="stack" style="margin-top:18px;max-width:520px">
             ${field('Mevcut şifre', '<input type="password" name="currentPassword" required autocomplete="current-password">')}
@@ -4386,8 +4448,14 @@
   const regBoardView = () => {
     const b = state.regBoard;
     const e = db.events.find((x) => x.id === b.eventId);
+    if ((!e || !ownsEventUi(e)) && !can('events')) {
+      // Etkinliklerim'i göremeyen kayıt sorumlusu etkinliği buradan seçer.
+      const list = db.events.filter((x) => ownsEventUi(x) && x.status === 'published').sort((x, y) => y.date.localeCompare(x.date));
+      return `${head('Kayıtlar', 'Kayıt listesini görmek istediğin etkinliği seç.')}
+        ${list.length ? `<div class="card">${list.map((x) => `<div class="mini-row"><div><strong>${esc(x.title)}</strong><small>${fmtDay(x.date)}${x.time ? ` · ${esc(x.time)}` : ''}</small></div><button class="btn small" data-act="reg-open" data-id="${esc(x.id)}">Kayıtlar</button></div>`).join('')}</div>` : empty('Kulübünün yayında bir etkinliği yok.')}`;
+    }
     if (!e || !ownsEventUi(e)) { setTimeout(() => go('etkinliklerim')); return ''; }
-    const top = head('Kayıtlar', `${e.title} · ${fmtDay(e.date)}`, `<div class="head-actions"><button class="btn ghost" data-go="gorevliler">Görevliler</button>${b.rows?.length ? '<button class="btn" data-act="reg-csv">CSV indir</button>' : ''}</div>`);
+    const top = head('Kayıtlar', `${e.title} · ${fmtDay(e.date)}`, `<div class="head-actions">${can('events') ? '' : '<button class="btn ghost" data-act="reg-pick">Etkinlik değiştir</button>'}<button class="btn ghost" data-go="gorevliler">Görevliler</button>${b.rows?.length ? '<button class="btn" data-act="reg-csv">CSV indir</button>' : ''}</div>`);
     if (b.error) return `${top}<section class="card"><p class="body">${esc(b.error)}</p><button class="btn small" data-act="reg-reload">Tekrar dene</button></section>`;
     if (!b.rows) return `${top}<section class="card"><p class="body">Kayıtlar yükleniyor…</p></section>`;
     const s = b.settings, rows = b.rows;
@@ -4553,8 +4621,134 @@
     }).join('')}</div>`;
   };
 
+  /* ------------------------------------------------------------------
+     KULÜP EKİBİ (yalnızca başkan)
+     Başkan ekip üyesini davet eder; kişi e-postadaki bağlantıyla şifresini
+     belirler ve yalnızca seçilen yetkilerle panele girer.
+     ------------------------------------------------------------------ */
+  const TEAM_PERMS = [
+    ['events', 'Etkinlikler', 'Etkinlik oluşturma, düzenleme, Ortak Arama ve başvurular'],
+    ['registrations', 'Kayıtlar ve giriş', 'Kayıt listeleri, özet, görevliler ve giriş kontrolü'],
+    ['announcements', 'Duyurular', 'Duyuru gönderme'],
+    ['tasks', 'Görevler', 'UniPakt görevlerini tamamlama'],
+    ['support', 'Destek', 'UniPakt Destek talepleri'],
+    ['chat', 'Mesajlar', 'Kulüpler arası sohbetler (kulübün adıyla)'],
+  ];
+  const TEAM_ROLES = [
+    ['Başkan Yardımcısı', TEAM_PERMS.map(([k]) => k)],
+    ['Etkinlik Sorumlusu', ['events', 'registrations']],
+    ['Kayıt & Giriş Sorumlusu', ['registrations']],
+    ['İletişim Sorumlusu', ['chat', 'announcements', 'support']],
+  ];
+  const freshTeam = () => ({ rows: null, loading: false, error: '' });
+  const loadTeam = async () => {
+    const t = state.team;
+    if (t.loading) return;
+    t.loading = true; t.error = '';
+    try { t.rows = (await api.team('list')).members || []; }
+    catch (error) { t.error = error.message || 'Ekip yüklenemedi.'; }
+    t.loading = false;
+    if (state.view === 'ekip' && !busy()) render();
+  };
+  const permLabel = (k) => (TEAM_PERMS.find(([p]) => p === k) || [k, k])[1];
+  const teamView = () => {
+    const t = state.team;
+    const top = head('Ekip', 'Kulübünün panelini seninle birlikte kullananlar. Her kişi kendi e-postası ve şifresiyle girer, yalnızca senin seçtiğin bölümleri görür. Ekip yönetimi ve kulüp profili yalnızca sende kalır.',
+      '<button class="btn" data-act="team-invite">Ekip üyesi davet et</button>');
+    if (t.error) return `${top}<section class="card"><p class="body">${esc(t.error)}</p><button class="btn small" data-act="team-reload">Tekrar dene</button></section>`;
+    if (!t.rows) return `${top}<section class="card"><p class="body">Yükleniyor…</p></section>`;
+    if (!t.rows.length) return `${top}${empty('Henüz ekip üyesi yok. “Ekip üyesi davet et” ile rolünü ve yetkilerini seçip davet gönder.')}`;
+    return `${top}<div class="stack">${t.rows.map((m) => `<article class="card staff-card">
+        <div class="staff-head"><div><h3>${esc(m.full_name || m.email)} <span class="tag ${m.joined ? 'ok' : 'wait'}">${m.joined ? 'Aktif' : 'Davet bekliyor'}</span></h3><small>${esc(m.title)} · ${esc(m.email)}</small></div>
+          <div class="row"><button class="btn ghost small" data-act="team-edit" data-id="${esc(m.id)}">Yetkileri düzenle</button>${m.joined ? '' : `<button class="btn ghost small" data-act="team-resend" data-id="${esc(m.id)}">Daveti yeniden gönder</button>`}<button class="btn danger small" data-act="team-remove" data-id="${esc(m.id)}">Kaldır</button></div></div>
+        <div class="team-perms">${(m.permissions || []).map((p) => `<span class="tag">${esc(permLabel(p))}</span>`).join('')}</div>
+      </article>`).join('')}</div>`;
+  };
+  // Rol + yetki alanları; hazır rol seçilince yetkiler ona göre işaretlenir, sonra tek tek değiştirilebilir.
+  const teamRoleFields = (title = '', perms = null) => {
+    const preset = TEAM_ROLES.find(([r]) => r === title);
+    const other = !!title && !preset;
+    const on = new Set(perms || (preset ? preset[1] : TEAM_ROLES[1][1]));
+    return field('Rol', `<select name="role" data-team-role>${TEAM_ROLES.map(([r]) => `<option ${r === (title || TEAM_ROLES[1][0]) ? 'selected' : ''}>${esc(r)}</option>`).join('')}<option value="__other" ${other ? 'selected' : ''}>Başka bir rol (kendin yaz)</option></select>`)
+      + `<label class="field" data-team-custom ${other ? '' : 'hidden'}><span>Rol adı</span><input name="customTitle" maxlength="60" value="${other ? esc(title) : ''}" placeholder="Örn. Sosyal Medya Sorumlusu"></label>`
+      + `<div class="field"><span>Yetkiler</span><div class="checks team-checks">${TEAM_PERMS.map(([k, label, hint]) => `<label><input type="checkbox" name="perm" value="${k}" ${on.has(k) ? 'checked' : ''}> <span><strong>${esc(label)}</strong><small>${esc(hint)}</small></span></label>`).join('')}</div>
+        <small class="hint">Ekip yönetimi ve kulüp profili her zaman yalnızca başkanda kalır.</small></div>`;
+  };
+  const mountTeamRoleFields = () => {
+    const sel = dlgForm.querySelector('[data-team-role]');
+    sel?.addEventListener('change', () => {
+      const custom = dlgForm.querySelector('[data-team-custom]');
+      custom.hidden = sel.value !== '__other';
+      if (!custom.hidden) { custom.querySelector('input').focus(); return; }
+      const preset = TEAM_ROLES.find(([r]) => r === sel.value);
+      if (preset) dlgForm.querySelectorAll('input[name="perm"]').forEach((box) => { box.checked = preset[1].includes(box.value); });
+    });
+  };
+  const teamRoleFrom = (fd) => {
+    const role = val(fd, 'role');
+    const title = role === '__other' ? val(fd, 'customTitle').replace(/\s+/g, ' ') : role;
+    const permissions = fd.getAll('perm').map(String);
+    if (!title) return { problem: 'Rol adını yaz.' };
+    if (!permissions.length) return { problem: 'En az bir yetki seç.' };
+    return { title, permissions };
+  };
+  const teamActions = {
+    'team-reload'() { state.team = freshTeam(); loadTeam(); render(); },
+    'team-invite'() {
+      openForm({
+        title: 'Ekip üyesi davet et',
+        lead: 'Kişiye panelde şifresini belirleyeceği bir davet e-postası gider. Rolünü ve yetkilerini şimdi seç; sonra istediğin zaman değiştirebilirsin.',
+        fields: field('Ad soyad', '<input name="name" required maxlength="120" autocomplete="off">')
+          + field('E-posta', '<input type="email" name="email" required maxlength="254" autocomplete="off">')
+          + teamRoleFields(),
+        submit: 'Daveti gönder',
+        onSubmit: async (fd) => {
+          const name = val(fd, 'name').replace(/\s+/g, ' '), email = val(fd, 'email').toLowerCase();
+          if (name.length < 2) return 'Ad soyadı yaz.';
+          if (!EMAIL_RE.test(email)) return 'Geçerli bir e-posta yaz.';
+          const r = teamRoleFrom(fd);
+          if (r.problem) return r.problem;
+          await api.team('invite', { email, full_name: name, title: r.title, permissions: r.permissions });
+          toast(`Davet ${email} adresine gönderildi.`); state.team = freshTeam(); loadTeam();
+        },
+      });
+      mountTeamRoleFields();
+    },
+    'team-edit'(id) {
+      const m = state.team.rows?.find((x) => x.id === id);
+      if (!m) return;
+      openForm({
+        title: 'Yetkileri düzenle', lead: `${m.full_name || m.email} · değişiklik bir sonraki sayfa yenilemesinde geçerli olur.`,
+        fields: teamRoleFields(m.title, m.permissions),
+        onSubmit: async (fd) => {
+          const r = teamRoleFrom(fd);
+          if (r.problem) return r.problem;
+          await api.team('update', { id, title: r.title, permissions: r.permissions });
+          toast('Yetkiler kaydedildi.'); state.team = freshTeam(); loadTeam();
+        },
+      });
+      mountTeamRoleFields();
+    },
+    async 'team-resend'(id) { await api.team('resend', { id }); toast('Davet yeniden gönderildi.'); },
+    'team-remove'(id) {
+      const m = state.team.rows?.find((x) => x.id === id);
+      confirmRemove('Ekip üyesini kaldır', `${m?.full_name || 'Bu kişi'} ekipten çıkarılsın mı? Hesabı silinir ve panele bir daha giremez.`, async () => {
+        await api.team('remove', { id }); state.team = freshTeam(); loadTeam();
+      }, 'Kaldır');
+    },
+  };
+  // Ekip üyesinin göremeyeceği düğme ve bağlantılar sayfadan çıkarılır.
+  const pruneForMember = (scope) => {
+    scope?.querySelectorAll('[data-act]').forEach((el) => { if (!actAllowed(el.dataset.act) && !el.closest('.profile-menu')) el.remove(); });
+    scope?.querySelectorAll('[data-go]').forEach((el) => {
+      if (viewAllowed(el.dataset.go)) return;
+      if (el.classList.contains('stat')) { el.removeAttribute('data-go'); el.disabled = true; } else el.remove();
+    });
+  };
+
   const regActions = {
     'reg-open'(id) { openRegBoard(id); },
+    'reg-pick'() { state.regBoard = freshRegBoard(); render(); },
     'reg-reload'() { loadRegBoard(); render(); },
     'reg-edit'() {
       const s = state.regBoard.settings;
@@ -4674,6 +4868,7 @@
   };
 
   const actions = {
+    ...teamActions,
     ...regActions,
     ...speakerActions,
     ...designActions,
@@ -5256,12 +5451,13 @@
       if (!DEMO) return;
       state.user = id; state.view = 'genel';
       try { sessionStorage.setItem(SESSION, id); } catch (_) {}
+      applyDemoUser(); state.team = { rows: null, loading: false, error: '' };
       history.replaceState(null, '', `${location.pathname}${location.search}#genel`);
       render(); window.scrollTo(0, 0); startMatrix();
     },
     logout() {
       stopMatrix();
-      state.user = null;
+      state.user = null; state.member = null; state.team = { rows: null, loading: false, error: '' };
       if (DEMO) { try { sessionStorage.removeItem(SESSION); } catch (_) {} }
       else { remote.logout(); db = null; }
       state.accounts = null;
@@ -5854,7 +6050,8 @@
         <h2>Demo girişi: bir hesap seç</h2>
         <div class="account-list">
           <button class="account is-admin" data-act="login" data-id="${ADMIN}"><span><strong>UniPakt</strong><small>Tüm panelleri yönetir</small></span><span class="role">UniPakt yetkilisi</span></button>
-          ${db.clubs.map((c) => `<button class="account" data-act="login" data-id="${esc(c.id)}"><span><strong>${esc(c.name)}</strong><small>${esc(c.uni)}</small></span><span class="role">Kulüp başkanı</span></button>`).join('')}
+          ${db.clubs.map((c) => `<button class="account" data-act="login" data-id="${esc(c.id)}"><span><strong>${esc(c.name)}</strong><small>${esc(c.uni)}</small></span><span class="role">Kulüp başkanı</span></button>`
+            + (db.team || []).filter((m) => m.clubId === c.id).map((m) => `<button class="account" data-act="login" data-id="member:${esc(m.id)}"><span><strong>${esc(m.name)}</strong><small>${esc(c.name)} ekibi</small></span><span class="role">${esc(m.title)}</span></button>`).join('')).join('')}
         </div>
         <p class="demo-note">Bu bir demo. Şifre yok ve veriler yalnızca bu tarayıcıda saklanıyor.</p>
       </div></main>`;
@@ -5864,7 +6061,7 @@
     if (!db || !state.user || (state.user !== ADMIN && !club(state.user))) { state.user = null; renderLogin(); return; }
     const nav = NAV();
     if (!knownView(state.view)) state.view = 'genel';
-    const me = isAdmin() ? { name: 'UniPakt', role: 'UniPakt yetkilisi' } : { name: club(state.user).name, role: 'Kulüp başkanı' };
+    const me = isAdmin() ? { name: 'UniPakt', role: 'UniPakt yetkilisi' } : { name: club(state.user).name, role: state.member ? esc(state.member.title) : 'Kulüp başkanı' };
     root.innerHTML = `
       <div class="app">
         <aside class="side ${state.navOpen ? 'nav-open' : ''}">
@@ -5890,6 +6087,8 @@
       </div>`;
     document.documentElement.classList.toggle('nav-lock', !!state.navOpen && matchMedia('(max-width: 900px)').matches);
     root.querySelector('.nav-item.active')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+    if (state.member) pruneForMember(root.querySelector('.main'));
+    if (state.view === 'ekip' && !state.team.rows && !state.team.loading && !state.team.error) loadTeam();
     if (state.view === 'etkinlik-olustur') mountEventPage();
     if (state.view === 'dogrulama') mountMfa();
     if (state.view === 'gorevliler' && !state.staffView.staff && !state.staffView.loading && !state.staffView.error) loadStaffView();
@@ -5913,6 +6112,7 @@
     if (!btn || dlg.contains(btn) || btn.disabled) return;
     const run = actions[btn.dataset.act];
     if (!run) return;
+    if (!actAllowed(btn.dataset.act)) { toast(NO_PERM); return; }
     let result;
     try { result = run(btn.dataset.id, btn.dataset.sub); } catch (error) { fail(error); return; }
     if (result && typeof result.then === 'function') {
@@ -6134,7 +6334,7 @@
   const start = async () => {
     if (recoveryToken) { state.user = null; renderPasswordReset(); return; }
     state.view = location.hash.slice(1) || 'genel';
-    if (DEMO) { loadLocal(); render(); startMatrix(); return; }
+    if (DEMO) { loadLocal(); applyDemoUser(); render(); startMatrix(); return; }
     state.user = null;
     readSession();
     if (!session) { renderLogin(); return; }
