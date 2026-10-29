@@ -1635,7 +1635,7 @@
           await matrixModule.connect(value);
           state.chat.rooms = matrixModule.listRooms();
           matrixModule.onChange((event) => {
-            if (event.type === 'message' || event.type === 'sync') {
+            if (event.type === 'message' || event.type === 'sync' || event.type === 'rooms') {
               state.chat.rooms = matrixModule.listRooms();
               if (state.chat.open && state.user && !busy()) render();
             }
@@ -1668,7 +1668,7 @@
     const panelUserId = session?.user_id;
     try { if (matrixModule?.logout) await matrixModule.logout(); else if (matrixModule) await matrixModule.disconnect(); }
     catch (_) {}
-    if (panelUserId) localStorage.removeItem(matrixSessionKey(panelUserId));
+    if (panelUserId) { localStorage.removeItem(matrixSessionKey(panelUserId)); localStorage.removeItem(matrixDeviceKey(panelUserId)); }
     state.chat = { open: false, roomId: '', roomName: '', rooms: [], loading: false, error: '' };
   };
 
