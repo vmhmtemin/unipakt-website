@@ -627,6 +627,13 @@
     .side-user, .side-foot .link-btn { display: none; }
     .side-nav { display: none; grid-column: 1 / -1; width: auto; margin: 0; padding: 12px 0 2px; gap: 4px; }
     .side-nav.is-open { display: grid; }
+    /* An open menu is never taller than the screen: it scrolls on its own while
+       the page behind it stays put, and the logo + close button stay on top. */
+    .side.nav-open { position: fixed; inset: 0; z-index: 40; height: 100dvh; overflow-y: auto; overscroll-behavior: contain; align-content: start; padding-top: 0; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+    .side.nav-open .side-brand, .side.nav-open .mobile-nav-toggle { position: sticky; top: 0; z-index: 1; }
+    .side.nav-open .side-brand { align-self: stretch; align-items: center; margin-left: -16px; padding: 12px 0 12px 16px; background: var(--paper); }
+    .side.nav-open .mobile-nav-toggle { box-shadow: 0 0 0 12px var(--paper); background: var(--paper); }
+    html.nav-lock, html.nav-lock body { overflow: hidden; }
     .nav-group { margin: 10px 12px 2px; font-size: 11px; letter-spacing: .02em; opacity: .5; }
     .nav-group:first-child { margin-top: 0; }
     .nav-item { width: 100%; padding: 10px 12px; border-radius: 10px; border-color: transparent; gap: 12px; }
@@ -4710,6 +4717,8 @@
   };
 
   const renderLogin = (message = '') => {
+    document.documentElement.classList.remove('nav-lock');
+    state.navOpen = false;
     if (!DEMO) {
       root.innerHTML = `
         <main class="login"><div class="login-box">
@@ -4766,6 +4775,7 @@
           ${views[state.view]()}
         </div></main>
       </div>`;
+    document.documentElement.classList.toggle('nav-lock', !!state.navOpen && matchMedia('(max-width: 900px)').matches);
     root.querySelector('.nav-item.active')?.scrollIntoView({ block: 'nearest', inline: 'center' });
     if (state.view === 'etkinlik-olustur') mountEventPage();
     if (state.view === 'dogrulama') mountMfa();
