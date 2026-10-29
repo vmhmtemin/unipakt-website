@@ -8829,19 +8829,23 @@
         function searchHtml() {
             return `<div class="cal3-search"><input class="site-cal-v2-search-input" id="siteCalSearch" data-no-i18n type="search" value="${esc(searchQuery)}" placeholder="${esc(ui.searchPlaceholder())}" aria-label="${esc(ui.search())}" autocomplete="off"></div>`;
         }
-        function resultsHtml() {
-            const list = filteredEvents();
-            if (list.length)
-                return `<div class="cal3-items">${list.map(eventRow).join('')}</div>`;
-            const msg = `<p class="site-cal-v2-empty">${esc(dayFilter ? ui.noDay() : (searchQuery ? ui.noSearch() : loaded ? ui.empty() : failed ? ui.failed() : ui.load()))}</p>`;
-            // Hiç etkinlik yokken (ya da yüklenemediğinde) boş liste yerine sıradaki büyük etkinlik gösterilir.
-            const bare = !dayFilter && !searchQuery && (loaded || failed) && !events.some(e => !e.gridOnly);
-            return bare ? msg + `<a class="cal-next" href="/mixit/" data-route="mixit">
+        // Sıradaki büyük etkinlik (MIXIT) kartı: gün seçili ya da arama yapılmıyorken listenin altında hep durur;
+        // festival bitince kendiliğinden kalkar.
+        function nextBigHtml() {
+            if (dayFilter || searchQuery.trim() || ymd(new Date()) > '2027-03-07') return '';
+            return `<a class="cal-next" href="/mixit/" data-route="mixit">
                     <span class="cal-next-kick">Sıradaki büyük etkinlik</span>
                     <strong class="cal-next-title" data-no-i18n>HACKFEST27: MIXIT</strong>
                     <span class="cal-next-meta">6–7 Mart 2027 · İstanbul Kongre Merkezi</span>
                     <span class="cal-next-go">Festivali incele <b aria-hidden="true">→</b></span>
-                </a>` : msg;
+                </a>`;
+        }
+        function resultsHtml() {
+            const list = filteredEvents();
+            if (list.length)
+                return `<div class="cal3-items">${list.map(eventRow).join('')}</div>` + nextBigHtml();
+            const msg = `<p class="site-cal-v2-empty">${esc(dayFilter ? ui.noDay() : (searchQuery ? ui.noSearch() : loaded ? ui.empty() : failed ? ui.failed() : ui.load()))}</p>`;
+            return (loaded || failed) ? msg + nextBigHtml() : msg;
         }
         const monthKey = (y, m) => `${y}-${pad(m + 1)}-`;
         const monthHasEvents = (y, m) => events.some(e => e.occurrences.some(o => o.date.startsWith(monthKey(y, m))));
