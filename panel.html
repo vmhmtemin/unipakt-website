@@ -577,6 +577,13 @@
   .regb-opts { display: grid; gap: 6px; padding-left: 4px; }
   .regb-opt { display: flex; align-items: center; gap: 8px; }
   .regb-dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--border-strong); flex: none; }
+  .regb-dot.sq { border-radius: 3px; }
+  .regb-mode { display: inline-flex; width: fit-content; padding: 3px; gap: 2px; border: 1px solid var(--border-strong); border-radius: 999px; }
+  .regb-mode label { position: relative; cursor: pointer; }
+  .regb-mode input { position: absolute; opacity: 0; pointer-events: none; }
+  .regb-mode span { display: block; padding: 6px 14px; border-radius: 999px; font-size: 12.5px; opacity: .65; transition: background .2s ease, opacity .2s ease; }
+  .regb-mode input:checked + span { background: var(--accent); color: var(--on-accent); opacity: 1; }
+  .regb-mode input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
   .regb-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .regb-tools .spacer { flex: 1; }
   .regb-req { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
@@ -3891,6 +3898,7 @@
   const toLocalInput = (iso) => (iso ? new Date(new Date(iso).getTime() + 3 * 3600000).toISOString().slice(0, 16) : '');
   const fromLocalInput = (v) => (v ? new Date(`${v}:00+03:00`).toISOString() : null);
   const fmtRegTime = (iso) => (iso ? new Date(iso).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
+  const answerText = (v) => (Array.isArray(v) ? v.join(', ') : (v ?? ''));
   const regDraft = () => (state.view === 'kayitlar' ? state.regBoard.edit : (evForm.reg ||= freshRegDraft()));
   const ownsEventUi = (e) => !!e && (isAdmin() || e.ownerId === state.user);
 
@@ -3902,8 +3910,12 @@
           <select data-regb="type" data-i="${i}" aria-label="Soru türü">${REG_TYPES.map(([v, l]) => `<option value="${v}" ${q.type === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
           <input data-regb="label" data-i="${i}" maxlength="200" placeholder="Soru (örn. Bölümün)" value="${esc(q.label)}" aria-label="Soru metni">
         </div>
+        ${q.type === 'choice' ? `<div class="regb-mode" role="radiogroup" aria-label="Cevap sayısı">
+          <label><input type="radio" name="regb-mode-${i}" data-regb="multi" data-i="${i}" value="0" ${q.multiple ? '' : 'checked'}><span>Tek cevap</span></label>
+          <label><input type="radio" name="regb-mode-${i}" data-regb="multi" data-i="${i}" value="1" ${q.multiple ? 'checked' : ''}><span>Çok cevap</span></label>
+        </div>` : ''}
         ${q.type === 'choice' ? `<div class="regb-opts">${q.options.map((o, j) => `
-          <div class="regb-opt"><span class="regb-dot" aria-hidden="true"></span><input data-regb="opt" data-i="${i}" data-j="${j}" maxlength="100" placeholder="Seçenek ${j + 1}" value="${esc(o)}" aria-label="Seçenek ${j + 1}">
+          <div class="regb-opt"><span class="regb-dot ${q.multiple ? 'sq' : ''}" aria-hidden="true"></span><input data-regb="opt" data-i="${i}" data-j="${j}" maxlength="100" placeholder="Seçenek ${j + 1}" value="${esc(o)}" aria-label="Seçenek ${j + 1}">
             <button type="button" class="icon-btn" data-act="regb-opt-del" data-id="${i}" data-sub="${j}" aria-label="Seçeneği sil" ${q.options.length <= 2 ? 'disabled' : ''}>×</button></div>`).join('')}
           ${q.options.length < 20 ? `<button type="button" class="link-btn" data-act="regb-opt-add" data-id="${i}">+ Seçenek ekle</button>` : ''}</div>` : ''}
         <div class="regb-tools">
@@ -3941,7 +3953,7 @@
   };
   const cleanRegQuestions = (d) => d.questions.map((q) => ({
     id: q.id, type: q.type, label: q.label.trim(), required: !!q.required,
-    ...(q.type === 'choice' ? { options: q.options.map((o) => o.trim()) } : {}),
+    ...(q.type === 'choice' ? { options: q.options.map((o) => o.trim()), multiple: !!q.multiple } : {}),
   }));
   document.addEventListener('input', (e) => {
     const el = e.target;
@@ -3960,6 +3972,7 @@
     const k = el.dataset.regb, i = Number(el.dataset.i);
     if (k === 'enabled') { d.enabled = el.checked; rerenderRegb(); }
     else if (k === 'req') d.questions[i].required = el.checked;
+    else if (k === 'multi') { d.questions[i].multiple = el.value === '1'; rerenderRegb(); }
     else if (k === 'type') {
       const q = d.questions[i]; q.type = el.value;
       if (q.type === 'choice' && (!q.options || q.options.length < 2)) q.options = ['', ''];
@@ -4009,7 +4022,7 @@
       if (k === 'email') return esc(r.email);
       if (k === 'created') return esc(fmtRegTime(r.created_at));
       if (k === 'checkin') return r.checked_in_at ? `<span class="tag ok">✓ ${esc(fmtRegTime(r.checked_in_at))}</span>` : '<span class="tag">Gelmedi</span>';
-      return esc(r.answers?.[k] ?? '');
+      return esc(answerText(r.answers?.[k]));
     };
     return `<div class="rb-wrap"><table class="rb-table"><thead><tr><th>#</th><th>Ad soyad</th>${chosen.map((k) => `<th>${esc(label[k])}</th>`).join('')}<th><span class="sr-only">İşlem</span></th></tr></thead>
       <tbody>${list.map((r) => `<tr><td class="rb-n">${rows.indexOf(r) + 1}</td><td><strong>${esc(r.full_name)}</strong></td>${chosen.map((k) => `<td>${cell(r, k)}</td>`).join('')}
@@ -4078,7 +4091,7 @@
     const qs = b.settings?.questions || [];
     const head = ['Ad soyad', 'E-posta', 'Kod', 'Kayıt zamanı', 'Giriş zamanı', ...qs.map((q) => q.label)];
     const cellOf = (v) => { const s = String(v ?? ''); return /[;"\n\r]/.test(s) || /^[=+\-@]/.test(s) ? `"${(/^[=+\-@]/.test(s) ? `'${s}` : s).replace(/"/g, '""')}"` : s; };
-    const lines = [head, ...(b.rows || []).map((r) => [r.full_name, r.email, r.code, fmtRegTime(r.created_at), fmtRegTime(r.checked_in_at), ...qs.map((q) => r.answers?.[q.id] ?? '')])]
+    const lines = [head, ...(b.rows || []).map((r) => [r.full_name, r.email, r.code, fmtRegTime(r.created_at), fmtRegTime(r.checked_in_at), ...qs.map((q) => answerText(r.answers?.[q.id]))])]
       .map((row) => row.map(cellOf).join(';'));
     const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a');

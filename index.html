@@ -9097,9 +9097,10 @@
         function openRegForm(e) {
             const qs = Array.isArray(e.reg?.questions) ? e.reg.questions : [];
             const qHtml = qs.map((q, i) => {
-                const label = `<span data-no-i18n>${esc(q.label)}</span>${q.required ? '' : ' <em>(isteğe bağlı)</em>'}`;
+                const multi = q.type === 'choice' && q.multiple === true;
+                const label = `<span data-no-i18n>${esc(q.label)}</span>${q.required ? '' : ' <em>(isteğe bağlı)</em>'}${multi ? ' <em>(birden fazla seçebilirsin)</em>' : ''}`;
                 if (q.type === 'choice') {
-                    const opts = (q.options || []).map((o) => `<label><input type="radio" name="q_${esc(q.id)}" value="${esc(o)}" ${q.required ? 'required' : ''}><span data-no-i18n>${esc(o)}</span></label>`).join('');
+                    const opts = (q.options || []).map((o) => `<label><input type="${multi ? 'checkbox' : 'radio'}" name="q_${esc(q.id)}" value="${esc(o)}" ${q.required && !multi ? 'required' : ''}><span data-no-i18n>${esc(o)}</span></label>`).join('');
                     return `<fieldset class="reg-field" style="border:0;padding:0;margin:0"><span>${label}</span><div class="reg-choices">${opts}</div></fieldset>`;
                 }
                 return `<label class="reg-field"><span>${label}</span><input type="text" name="q_${esc(q.id)}" maxlength="1000" ${q.required ? 'required' : ''}></label>`;
@@ -9129,6 +9130,12 @@
                 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Geçerli bir e-posta adresi yaz.'; return; }
                 const answers = {};
                 for (const q of qs) {
+                    if (q.type === 'choice' && q.multiple === true) {
+                        const picked = fd.getAll(`q_${q.id}`).map(String);
+                        if (!picked.length && q.required) { err.textContent = `“${q.label}” sorusu zorunlu.`; return; }
+                        if (picked.length) answers[q.id] = picked;
+                        continue;
+                    }
                     const v = String(fd.get(`q_${q.id}`) || '').trim();
                     if (!v && q.required) { err.textContent = `“${q.label}” sorusu zorunlu.`; return; }
                     if (v) answers[q.id] = v;
