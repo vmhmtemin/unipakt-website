@@ -6220,6 +6220,9 @@
     .reg-choices input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--on-accent, #000); }
     .reg-choices input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
     .reg-error { margin: 0; min-height: 20px; font-size: 14px; color: #F87171; }
+    .reg-danger { background: #E5484D; border-color: #E5484D; color: #fff; }
+    .ev-reg-cancel { font-size: 13px; padding: 0; opacity: .7; }
+    .reg-done > .reg-link { justify-self: center; font-size: 13.5px; opacity: .65; }
     .reg-hint { font-size: 12.5px; color: color-mix(in srgb, var(--ink) 55%, transparent); }
     .reg-lead { margin: 0; line-height: 1.55; color: color-mix(in srgb, var(--ink) 75%, transparent); }
     .reg-lead b { color: var(--ink); }
@@ -8193,7 +8196,7 @@
                     <p>Verileriniz yalnızca hizmetin sunulması için gerektiği kadar aşağıdaki hizmet sağlayıcılara aktarılır:</p>
                     <ul>
                         <li><strong>Supabase (veri tabanı, kimlik doğrulama ve dosya depolama):</strong> Verileriniz Supabase'in Almanya'nın Frankfurt şehrindeki sunucularında saklanır.</li>
-                        <li><strong>Resend (bildirim e-postaları):</strong> Bildirim gönderilen kulüp ve yönetici hesaplarının e-posta adresleri ile bildirimlerin içeriği Resend'e iletilir. Resend, Amerika Birleşik Devletleri merkezli bir şirkettir; bu veriler AWS altyapısıyla korunan ABD, İrlanda, Brezilya ve Japonya'daki sunucularda saklanır. İletişim ve Bize Katıl formlarına girdiğiniz bilgiler Resend'e aktarılmaz; yalnızca yeni bir mesaj geldiğini bildiren, kişisel veri içermeyen bir e-posta gönderilir. Etkinlik görevlilerine, giriş kontrol sayfasının bağlantısını ve erişim kodunu içeren e-posta da Resend üzerinden gönderilir; bu e-postada görevlinin adı, e-posta adresi ve etkinliğin bilgileri bulunur.</li>
+                        <li><strong>Resend (bildirim e-postaları):</strong> Bildirim gönderilen kulüp ve yönetici hesaplarının e-posta adresleri ile bildirimlerin içeriği Resend'e iletilir. Resend, Amerika Birleşik Devletleri merkezli bir şirkettir; bu veriler AWS altyapısıyla korunan ABD, İrlanda, Brezilya ve Japonya'daki sunucularda saklanır. İletişim ve Bize Katıl formlarına girdiğiniz bilgiler Resend'e aktarılmaz; yalnızca yeni bir mesaj geldiğini bildiren, kişisel veri içermeyen bir e-posta gönderilir. Etkinlik görevlilerine, giriş kontrol sayfasının bağlantısını ve erişim kodunu içeren e-posta da Resend üzerinden gönderilir; bu e-postada görevlinin adı, e-posta adresi ve etkinliğin bilgileri bulunur. Etkinliğe kayıt olanlara gönderilen doğrulama kodu, bilet (giriş kodu ve QR), bekleme listesi, yer teklifi ve kayıt iptali e-postaları için de kişinin adı, e-posta adresi ve etkinliğin bilgileri Resend'e iletilir.</li>
                         <li><strong>GitHub Pages (site barındırma):</strong> Site, GitHub'ın ABD merkezli GitHub Pages hizmetiyle yayınlanır. Siteyi açtığınızda IP adresi ve tarayıcı bilgisi gibi bağlantı verileri, sayfanın size iletilmesi için GitHub tarafından işlenir.</li>
                     </ul>
                     <p>Sitenin yazı tipleri sitenin kendisinden yüklenir; Google Fonts gibi üçüncü taraf bir yazı tipi hizmeti kullanılmaz.</p>
@@ -9086,7 +9089,15 @@
                 return (Array.isArray(v) ? v : []).filter((r) => r && /^[A-Z0-9]{6}$/.test(r.code));
             } catch (_) { return []; }
         };
+        const WAIT_KEY = (id) => `unipakt-wait.${id}`;
+        const savedWaits = (id) => { try { const v = JSON.parse(localStorage.getItem(WAIT_KEY(id)) || '[]'); return Array.isArray(v) ? v.filter((w) => w && w.email) : []; } catch (_) { return []; } };
+        const setSavedWaits = (id, list) => { try { localStorage.setItem(WAIT_KEY(id), JSON.stringify(list.slice(-20))); } catch (_) {} };
+        const removeSaved = (id, match) => {
+            try { localStorage.setItem(REG_KEY(id), JSON.stringify(savedRegs(id).filter((r) => !match(r)))); } catch (_) {}
+            setSavedWaits(id, savedWaits(id).filter((w) => !match(w)));
+        };
         const addSavedReg = (id, reg) => {
+            setSavedWaits(id, savedWaits(id).filter((w) => w.email !== reg.email));   // listeden bilete geçti
             const list = savedRegs(id).filter((r) => r.code !== reg.code);
             list.push(reg);
             try { localStorage.setItem(REG_KEY(id), JSON.stringify(list.slice(-20))); } catch (_) {}
@@ -9096,20 +9107,26 @@
             const reg = e.reg && e.reg.enabled ? e.reg : null;
             if (!reg) return e.registration ? `<a class="btn-pill ev-cta" href="${esc(e.registration)}" target="_blank" rel="noopener noreferrer">Kayıt ol ↗</a>` : '';
             const mine = savedRegs(e.id);
-            const show = mine.length ? `<button type="button" class="btn-pill ${reg.open ? 'ghost ev-reg-mine' : 'ev-cta'}" data-ev-myreg>${mine.length > 1 ? `Kayıtlarım (<span data-no-i18n>${mine.length}</span>)` : 'Kaydını göster'}</button>` : '';
-            if (reg.open) return `${show}<button type="button" class="btn-pill ev-cta" data-ev-register>${mine.length ? 'Yeni kayıt oluştur' : 'Kayıt ol'}</button>`;
+            const waits = savedWaits(e.id);
+            const show = (mine.length ? `<button type="button" class="btn-pill ${reg.open ? 'ghost ev-reg-mine' : 'ev-cta'}" data-ev-myreg>${mine.length > 1 ? `Kayıtlarım (<span data-no-i18n>${mine.length}</span>)` : 'Kaydını göster'}</button>` : '')
+                + (waits.length ? '<button type="button" class="btn-pill ghost ev-reg-mine" data-ev-mywait>Bekleme listesindesin</button>' : '');
+            const label = reg.full ? 'Bekleme listesine katıl' : mine.length || waits.length ? 'Yeni kayıt oluştur' : 'Kayıt ol';
+            if (reg.open) return `${show}<button type="button" class="btn-pill ev-cta" data-ev-register>${label}</button>`;
             return `${show}<span class="ev-reg-closed">${esc(REG_REASON[reg.reason] || 'Kayıtlar kapalı')}</span>`;
         }
         function regNoteHtml(e) {
             const reg = e.reg && e.reg.enabled && e.reg.open ? e.reg : null;
-            if (!reg) return '';
+            const cancel = e.reg && e.reg.enabled ? '<button type="button" class="reg-link ev-reg-cancel" data-ev-cancel>Kaydını iptal etmek mi istiyorsun?</button>' : '';
+            if (!reg) return cancel ? `<p class="ev-reg-note">${cancel}</p>` : '';
             const parts = [];
+            if (reg.full) parts.push(`Kontenjan doldu${reg.waiting ? ` · bekleme listesinde <span data-no-i18n>${reg.waiting}</span> kişi` : ''}. Yer açılırsa sıradakine e-posta gider.`);
             if (reg.deadline) {
                 const d = new Date(reg.deadline);
                 parts.push(`Son kayıt: <span data-no-i18n>${esc(d.toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }))}</span>`);
             }
-            if (Number.isInteger(reg.remaining) && reg.remaining <= 30) parts.push(`Kalan kontenjan: <span data-no-i18n>${reg.remaining}</span>`);
-            return parts.length ? `<p class="ev-reg-note">${parts.join(' · ')}</p>` : '';
+            if (!reg.full && Number.isInteger(reg.remaining) && reg.remaining <= 30) parts.push(`Kalan kontenjan: <span data-no-i18n>${reg.remaining}</span>`);
+            parts.push(cancel);
+            return `<p class="ev-reg-note">${parts.filter(Boolean).join(' · ')}</p>`;
         }
         let qrModule = null;
         const qrFor = async (eventId, code) => {
@@ -9145,35 +9162,82 @@
                 <div class="reg-qr" data-reg-qr aria-label="Giriş QR kodu"></div>
                 <div class="reg-code" data-no-i18n aria-label="Giriş kodu">${esc(saved.code)}</div>
                 <p class="reg-name" data-no-i18n>${esc(saved.name)}</p>
-                <p>Girişte bu QR kodu ya da 6 karakterli kodu göstereceksin. Bu ekranın görüntüsünü al ya da QR’ı indir.</p>
-                <div class="reg-actions"><button type="button" class="btn-pill" data-reg-png>QR’ı indir</button>${e.reg?.open ? '<button type="button" class="btn-pill ghost" data-reg-new>Başka biri için kayıt oluştur</button>' : ''}<button type="button" class="btn-pill ghost" data-reg-close>Kapat</button></div>
+                <p>Girişte bu QR kodu ya da 6 karakterli kodu göstereceksin. Biletin e-postana da gönderildi.</p>
+                <div class="reg-actions"><button type="button" class="btn-pill" data-reg-png>Bileti indir</button>${e.reg?.open ? '<button type="button" class="btn-pill ghost" data-reg-new>Başka biri için kayıt oluştur</button>' : ''}<button type="button" class="btn-pill ghost" data-reg-close>Kapat</button></div>
+                <button type="button" class="reg-link" data-reg-cancel>Kaydımı iptal et</button>
             </div>`;
             if (dlg) dlg.innerHTML = html; else dlg = regDialog(html);
             const svg = await qrFor(e.id, saved.code);
             const box = dlg.querySelector('[data-reg-qr]');
             if (box) { if (svg) box.innerHTML = svg; else box.hidden = true; }
-            dlg.querySelector('[data-reg-png]')?.addEventListener('click', () => downloadQrPng(svg, `${e.title}-${saved.code}`));
+            dlg.querySelector('[data-reg-png]')?.addEventListener('click', () => downloadTicketPng(e, saved, svg));
+            dlg.querySelector('[data-reg-cancel]')?.addEventListener('click', () => openRegCancel(e, { code: saved.code, name: saved.name }, dlg));
             dlg.querySelector('[data-reg-new]')?.addEventListener('click', () => openRegForm(e, null, dlg));
             dlg.querySelectorAll('[data-reg-pick]').forEach((b) => b.addEventListener('click', () => {
                 const r = all.find((x) => x.code === b.dataset.regPick); if (r) showRegDone(e, r, dlg);
             }));
         }
-        // QR as a PNG with the code underneath, for the phone's photo gallery.
-        function downloadQrPng(svg, name) {
+        // Bilet (PNG): e-postadaki biletle aynı görünüm — koyu kart, turuncu nokta, delikli ayraç,
+        // beyaz QR kutusu, büyük kod ve katılımcı adı. Telefon galerisine kaydedilir.
+        function downloadTicketPng(e, saved, svg) {
             if (!svg) return;
             const img = new Image();
-            img.onload = () => {
-                const c = document.createElement('canvas'); c.width = 720; c.height = 840;
+            img.onload = async () => {
+                try { await document.fonts?.load('800 40px Archivo'); } catch (_) {}
+                const W = 1080, H = 1720, c = document.createElement('canvas'); c.width = W; c.height = H;
                 const x = c.getContext('2d');
-                x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
-                x.drawImage(img, 60, 60, 600, 600);
-                x.fillStyle = '#0C0C0D'; x.font = '800 78px Archivo, Arial, sans-serif'; x.textAlign = 'center';
-                x.fillText(name.split('-').pop(), 360, 770);
+                const round = (px, py, w, h, r) => { x.beginPath(); x.moveTo(px + r, py); x.arcTo(px + w, py, px + w, py + h, r); x.arcTo(px + w, py + h, px, py + h, r); x.arcTo(px, py + h, px, py, r); x.arcTo(px, py, px + w, py, r); x.closePath(); };
+                const wrap = (text, maxW, font, maxLines) => {
+                    x.font = font; const words = String(text).split(/\s+/); const lines = []; let line = '';
+                    for (const w of words) { const test = line ? `${line} ${w}` : w; if (x.measureText(test).width > maxW && line) { lines.push(line); line = w; } else line = test; }
+                    if (line) lines.push(line);
+                    if (lines.length > maxLines) { lines.length = maxLines; lines[maxLines - 1] = lines[maxLines - 1].replace(/.{0,2}$/, '…'); }
+                    return lines;
+                };
+                x.fillStyle = '#0C0C0D'; x.fillRect(0, 0, W, H);
+                // dotted background
+                x.fillStyle = 'rgba(255,255,255,.07)';
+                for (let py = 12; py < H; py += 30) for (let px = 12; px < W; px += 30) { x.beginPath(); x.arc(px, py, 1.6, 0, Math.PI * 2); x.fill(); }
+                const M = 70, CW = W - M * 2, CY = 70, CH = H - 140;
+                round(M, CY, CW, CH, 44); x.fillStyle = '#161618'; x.fill();
+                x.strokeStyle = '#2a2a2d'; x.lineWidth = 2; x.stroke();
+                const L = M + 70;
+                x.fillStyle = '#F2F1EE'; x.font = '800 64px Archivo, Arial, sans-serif'; x.textBaseline = 'alphabetic';
+                x.fillText('UniPakt', L, CY + 130); const lw = x.measureText('UniPakt').width;
+                x.fillStyle = '#FF5A1F'; x.fillRect(L + lw + 6, CY + 116, 14, 14);
+                x.font = '700 26px Arial, sans-serif'; x.fillStyle = '#FF5A1F';
+                x.fillText('ETKİNLİK BİLETİ', L, CY + 178);
+                let y = CY + 270;
+                x.fillStyle = '#F2F1EE';
+                for (const ln of wrap(e.title, CW - 140, '800 58px Archivo, Arial, sans-serif', 3)) { x.font = '800 58px Archivo, Arial, sans-serif'; x.fillText(ln, L, y); y += 68; }
+                const first = (e.occurrences || [])[0];
+                const meta = [first ? `${dayText(first.date)}${first.time ? ` · ${first.time}` : ''}` : '', [e.place, e.city].filter(Boolean).join(', ')].filter(Boolean);
+                x.font = '400 32px Inter, Arial, sans-serif'; x.fillStyle = '#C9C8C4';
+                for (const ln of meta) { y += 6; for (const part of wrap(ln, CW - 140, '400 32px Inter, Arial, sans-serif', 2)) { x.fillText(part, L, y); y += 44; } }
+                // perforation
+                const PY = Math.max(y + 40, CY + 560);
+                x.fillStyle = '#0C0C0D';
+                x.beginPath(); x.arc(M, PY, 34, 0, Math.PI * 2); x.fill();
+                x.beginPath(); x.arc(M + CW, PY, 34, 0, Math.PI * 2); x.fill();
+                x.strokeStyle = '#3a3a3e'; x.lineWidth = 4; x.setLineDash([18, 14]);
+                x.beginPath(); x.moveTo(M + 52, PY); x.lineTo(M + CW - 52, PY); x.stroke(); x.setLineDash([]);
+                // QR
+                const QS = 560, QX = (W - QS) / 2, QY = PY + 70;
+                round(QX - 30, QY - 30, QS + 60, QS + 60, 36); x.fillStyle = '#FFFFFF'; x.fill();
+                x.drawImage(img, QX, QY, QS, QS);
+                // code
+                x.textAlign = 'center'; x.fillStyle = '#F2F1EE'; x.font = '800 96px Archivo, Arial, sans-serif';
+                const code = saved.code.split('').join(' ');
+                x.fillText(code, W / 2, QY + QS + 150);
+                x.font = '600 36px Inter, Arial, sans-serif'; x.fillStyle = '#F2F1EE';
+                x.fillText(String(saved.name || ''), W / 2, QY + QS + 214);
+                x.font = '400 26px Inter, Arial, sans-serif'; x.fillStyle = '#9A9995';
+                x.fillText('Girişte bu QR’ı ya da kodu göster · unipakt.com', W / 2, CY + CH - 60);
                 c.toBlob((blob) => {
                     if (!blob) return;
                     const a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
-                    a.download = `UniPakt-${name.replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '')}.png`;
+                    a.download = `UniPakt-bilet-${String(e.title).replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '')}-${saved.code}.png`;
                     document.body.append(a); a.click(); a.remove();
                     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
                 }, 'image/png');
@@ -9196,7 +9260,8 @@
                 return `<label class="reg-field"><span>${label}</span><input type="text" name="q_${esc(q.id)}" maxlength="1000" value="${esc(typeof had === 'string' ? had : '')}"></label>`;
             }).join('');
             const html = `<form class="reg-in" novalidate>
-                <div class="reg-head"><div><h2 id="regTitle">${savedRegs(e.id).length ? 'Yeni kayıt' : 'Kayıt ol'}</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                <div class="reg-head"><div><h2 id="regTitle">${e.reg?.full ? 'Bekleme listesine katıl' : savedRegs(e.id).length ? 'Yeni kayıt' : 'Kayıt ol'}</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                ${e.reg?.full ? '<p class="reg-lead">Kontenjan dolu. Bekleme listesine katılırsan yer açıldığında e-postana süreli bir onay bağlantısı gelir.</p>' : ''}
                 <label class="reg-field"><span>Ad soyad</span><input type="text" name="name" required maxlength="120" autocomplete="name" value="${esc(pv.name)}"></label>
                 <label class="reg-field"><span>E-posta</span><input type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email" value="${esc(pv.email)}"><small class="reg-hint">Bu adrese 6 haneli bir doğrulama kodu göndereceğiz.</small></label>
                 ${qHtml}
@@ -9248,7 +9313,7 @@
             const pendingId = started.pending_id;
             dlg.innerHTML = `<form class="reg-in reg-verify" novalidate>
                 <div class="reg-head"><div><h2 id="regTitle">E-postanı doğrula</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
-                <p class="reg-lead"><b data-no-i18n>${esc(started.email || typed.email)}</b> adresine 6 haneli bir kod gönderdik. Kodu buraya yaz; gelmediyse gereksiz (spam) klasörüne de bak.</p>
+                <p class="reg-lead">${started.waitlist ? 'Kontenjan dolu; doğrulayınca bekleme listesine alınacaksın. ' : ''}<b data-no-i18n>${esc(started.email || typed.email)}</b> adresine 6 haneli bir kod gönderdik. Kodu buraya yaz; gelmediyse gereksiz (spam) klasörüne de bak.</p>
                 <label class="reg-field"><span>Doğrulama kodu</span><input class="reg-otp" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" placeholder="••••••" aria-describedby="regVerifyErr"></label>
                 <p class="reg-error" id="regVerifyErr" data-reg-error role="alert"></p>
                 <button type="submit" class="btn-pill">Kaydı tamamla</button>
@@ -9293,7 +9358,14 @@
                 try {
                     const data = await regCall({ action: 'verify', pending_id: pendingId, code });
                     clearInterval(timer);
-                    const saved = { code: data.code, name: data.full_name || typed.name, at: new Date().toISOString() };
+                    if (data.status === 'waitlist') {
+                        setSavedWaits(e.id, [...savedWaits(e.id).filter((w) => w.email !== typed.email), { name: data.full_name || typed.name, email: typed.email, at: new Date().toISOString() }]);
+                        showWaitDone(e, { name: data.full_name || typed.name, email: typed.email, position: data.position }, dlg);
+                        if (e.reg) e.reg.waiting = (e.reg.waiting || 0) + 1;
+                        render(e);
+                        return;
+                    }
+                    const saved = { code: data.code, name: data.full_name || typed.name, email: typed.email, at: new Date().toISOString() };
                     addSavedReg(e.id, saved);
                     await showRegDone(e, saved, dlg, true);
                     render(e);   // the buttons become "Kaydını göster" + "Yeni kayıt oluştur"
@@ -9303,6 +9375,136 @@
                     if (error.data?.error === 'gone') setTimeout(() => openRegForm(e, typed, dlg), 1600);
                     button.disabled = false; button.classList.remove('is-loading'); button.removeAttribute('aria-busy');
                 }
+            });
+        }
+
+        function showWaitDone(e, w, dlg) {
+            const html = `<div class="reg-in reg-done">
+                <div class="reg-head"><div style="text-align:left"><h2 id="regTitle">Bekleme listesindesin</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                <p class="reg-name" data-no-i18n>${esc(w.name)}</p>
+                <p>${w.position ? `Sıran: <b data-no-i18n>${esc(w.position)}</b>. ` : ''}Yer açılınca <b data-no-i18n>${esc(w.email)}</b> adresine süreli bir onay bağlantısı gelecek; onaylayınca biletin e-postayla gönderilir.</p>
+                <div class="reg-actions"><button type="button" class="btn-pill ghost" data-reg-close>Tamam</button></div>
+                <button type="button" class="reg-link" data-reg-cancel>Bekleme listesinden çık</button>
+            </div>`;
+            if (dlg && dlg.open) dlg.innerHTML = html; else dlg = regDialog(html);
+            dlg.querySelector('[data-reg-cancel]').addEventListener('click', () => openRegCancel(e, { email: w.email, name: w.name }, dlg));
+        }
+        // İptal: kayıtlı e-postaya kod gider, kodla onaylanır. who = { code } (bu tarayıcıdaki kayıt) ya da { email }.
+        function openRegCancel(e, who, dlg) {
+            const ask = !who || (!who.code && !who.email);
+            const html = `<form class="reg-in" novalidate>
+                <div class="reg-head"><div><h2 id="regTitle">Kaydı iptal et</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                ${ask ? `<p class="reg-lead">Kayıtlı e-posta adresini yaz; kaydın varsa iptal kodu bu adrese gelir.</p>
+                <label class="reg-field"><span>E-posta</span><input type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email"></label>`
+                : `<p class="reg-lead"><b data-no-i18n>${esc(who.name || '')}</b> kaydını iptal etmek için kayıtlı e-postaya bir kod göndereceğiz. İptal edilince giriş kodu geçersiz olur${e.reg?.waiting ? ', yerin bekleme listesindeki sıradakine geçer' : ''}.</p>`}
+                <p class="reg-error" data-reg-error role="alert"></p>
+                <button type="submit" class="btn-pill">İptal kodu gönder</button>
+            </form>`;
+            if (dlg && dlg.open) dlg.innerHTML = html; else dlg = regDialog(html);
+            const form = dlg.querySelector('form');
+            form.querySelector('input')?.focus();
+            form.addEventListener('submit', async (ev) => {
+                ev.preventDefault();
+                const err = form.querySelector('[data-reg-error]'), button = form.querySelector('button[type="submit"]');
+                const email = ask ? String(new FormData(form).get('email') || '').trim() : (who.email || '');
+                if (ask && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Geçerli bir e-posta adresi yaz.'; return; }
+                button.disabled = true; err.textContent = '';
+                try {
+                    const d = await regCall({ action: 'cancel_start', event_id: e.id, ...(who?.code ? { code: who.code } : { email }) });
+                    openCancelVerify(e, who || { email }, email, d, dlg);
+                } catch (error) { err.textContent = netError(error); button.disabled = false; }
+            });
+        }
+        function openCancelVerify(e, who, email, started, dlg) {
+            dlg.innerHTML = `<form class="reg-in" novalidate>
+                <div class="reg-head"><div><h2 id="regTitle">İptal kodunu gir</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                <p class="reg-lead">${started.email ? `<b data-no-i18n>${esc(started.email)}</b> adresine` : 'Kayıtlı e-postana'} 6 haneli bir iptal kodu gönderdik${who.code ? '' : ' (bu adresle bir kayıt varsa)'}.</p>
+                <label class="reg-field"><span>İptal kodu</span><input class="reg-otp" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"></label>
+                <p class="reg-error" data-reg-error role="alert"></p>
+                <button type="submit" class="btn-pill reg-danger">Kaydımı iptal et</button>
+                <div class="reg-links"><button type="button" class="reg-link" data-reg-resend disabled>Kodu tekrar gönder</button><button type="button" class="reg-link" data-reg-close>Vazgeç</button></div>
+            </form>`;
+            const form = dlg.querySelector('form'), input = form.querySelector('[name="code"]'), err = form.querySelector('[data-reg-error]'), resend = form.querySelector('[data-reg-resend]');
+            let timer = null;
+            const countdown = (s) => { clearInterval(timer); let left = Math.max(0, Number(s) || 0); const draw = () => { resend.disabled = left > 0; resend.textContent = left > 0 ? `Kodu tekrar gönder (${left})` : 'Kodu tekrar gönder'; }; draw(); timer = setInterval(() => { left -= 1; draw(); if (left <= 0) clearInterval(timer); }, 1000); };
+            countdown(started.resend_in || 60);
+            dlg.addEventListener('close', () => clearInterval(timer), { once: true });
+            input.focus();
+            input.addEventListener('input', () => { input.value = input.value.replace(/\D/g, '').slice(0, 6); });
+            resend.addEventListener('click', async () => {
+                resend.disabled = true;
+                try { const d = await regCall({ action: 'cancel_resend', cancel_id: started.cancel_id }); countdown(d.resend_in || 60); err.textContent = 'Yeni kod gönderildi.'; }
+                catch (error) { if (error.data?.error === 'wait') countdown(error.data.resend_in); else { err.textContent = netError(error); resend.disabled = false; } }
+            });
+            form.addEventListener('submit', async (ev) => {
+                ev.preventDefault();
+                const button = form.querySelector('button[type="submit"]');
+                const code = input.value.replace(/\D/g, '');
+                if (code.length !== 6) { err.textContent = 'E-postadaki 6 haneli kodu yaz.'; return; }
+                button.disabled = true; err.textContent = '';
+                try {
+                    await regCall({ action: 'cancel_verify', cancel_id: started.cancel_id, code });
+                    clearInterval(timer);
+                    removeSaved(e.id, (r) => (who.code && r.code === who.code) || (email && r.email && r.email.toLowerCase() === email.toLowerCase()));
+                    dlg.innerHTML = `<div class="reg-in reg-done"><div class="reg-head"><div style="text-align:left"><h2 id="regTitle">Kaydın iptal edildi</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                        <p>Giriş kodun artık geçersiz. Fikrini değiştirirsen kayıtlar açıkken yeniden kayıt olabilirsin.</p><div class="reg-actions"><button type="button" class="btn-pill ghost" data-reg-close>Kapat</button></div></div>`;
+                    reloadReg(e);
+                } catch (error) { err.textContent = netError(error); button.disabled = false; input.select(); }
+            });
+        }
+        async function reloadReg(e) {
+            try {
+                const res = await fetch(RPC + 'public_event_registration', { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_event: e.id }) });
+                if (res.ok) e.reg = await res.json();
+            } catch (_) {}
+            if (current === e) render(e);
+        }
+        // E-postadaki bağlantılar: #bilet=… (bileti her cihazda açar) ve #teklif=… (bekleme listesinde yer teklifi).
+        async function handleRegHash(e) {
+            const m = (location.hash || '').match(/^#(bilet|teklif)=([A-Za-z0-9_-]{10,100})$/);
+            if (!m) return;
+            history.replaceState(history.state, '', location.pathname + location.search);
+            const [, kind, token] = m;
+            if (kind === 'bilet') {
+                try {
+                    const d = await regCall({ action: 'ticket', token });
+                    if (d.event_id !== e.id) return;
+                    if (d.status !== 'confirmed') { regDialog(`<div class="reg-in reg-done"><div class="reg-head"><div style="text-align:left"><h2 id="regTitle">Kaydın kesinleşmedi</h2></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div><p>Bu kayıt şu an bekleme listesinde.</p></div>`); return; }
+                    const saved = { code: d.code, name: d.full_name, at: new Date().toISOString() };
+                    addSavedReg(e.id, saved); render(e); showRegDone(e, saved);
+                } catch (error) { regDialog(`<div class="reg-in reg-done"><div class="reg-head"><div style="text-align:left"><h2 id="regTitle">Bilet açılamadı</h2></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div><p>${esc(netError(error))}</p></div>`); }
+                return;
+            }
+            let offer;
+            try { offer = await regCall({ action: 'offer', token }); }
+            catch (error) { regDialog(`<div class="reg-in reg-done"><div class="reg-head"><div style="text-align:left"><h2 id="regTitle">Teklif geçerli değil</h2></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div><p>${esc(netError(error))}</p></div>`); return; }
+            const until = new Date(offer.expires_at).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+            const dlg = regDialog(`<div class="reg-in reg-done">
+                <div class="reg-head"><div style="text-align:left"><h2 id="regTitle">Yer açıldı!</h2><small data-no-i18n>${esc(offer.event_title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                <p class="reg-name" data-no-i18n>${esc(offer.full_name)}</p>
+                <p>Bekleme listesinde sıra sana geldi. Yerini <b data-no-i18n>${esc(until)}</b> tarihine kadar onaylarsan biletin hemen hazır olur.</p>
+                <p class="reg-error" data-reg-error role="alert"></p>
+                <div class="reg-actions"><button type="button" class="btn-pill" data-offer-yes>Yerimi onayla</button><button type="button" class="btn-pill ghost" data-offer-no>Yeri bırak</button></div>
+            </div>`);
+            const err = dlg.querySelector('[data-reg-error]');
+            dlg.querySelector('[data-offer-yes]').addEventListener('click', async (ev) => {
+                ev.target.disabled = true;
+                try {
+                    const d = await regCall({ action: 'offer_accept', token });
+                    const saved = { code: d.code, name: d.full_name, at: new Date().toISOString() };
+                    setSavedWaits(e.id, savedWaits(e.id).filter((w) => w.name !== d.full_name));
+                    addSavedReg(e.id, saved); await showRegDone(e, saved, dlg, true); reloadReg(e);
+                } catch (error) { err.textContent = netError(error); ev.target.disabled = false; }
+            });
+            dlg.querySelector('[data-offer-no]').addEventListener('click', async (ev) => {
+                if (!confirm('Yerini bırakırsan sıradaki kişiye geçer ve bu teklif geri gelmez. Emin misin?')) return;
+                ev.target.disabled = true;
+                try {
+                    await regCall({ action: 'offer_decline', token });
+                    setSavedWaits(e.id, savedWaits(e.id).filter((w) => w.name !== offer.full_name));
+                    dlg.innerHTML = `<div class="reg-in reg-done"><div class="reg-head"><div style="text-align:left"><h2 id="regTitle">Yerini bıraktın</h2></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div><p>Yer sıradaki kişiye teklif edildi. Teşekkürler!</p></div>`;
+                    reloadReg(e);
+                } catch (error) { err.textContent = netError(error); ev.target.disabled = false; }
             });
         }
 
@@ -9619,6 +9821,7 @@
                 current.orgLogo = typeof extra.organizer_logo === 'string' && LOGO_RE.test(extra.organizer_logo) ? extra.organizer_logo : '';
                 if (loadingId !== id) return;
                 render(current);
+                handleRegHash(current);
                 document.title = `${current.title} — UniPakt`;
                 if (commentWrap) commentWrap.hidden = false;
                 loadComments(current.id);
@@ -9645,6 +9848,8 @@
             if (!current) return;
             if (ev.target.closest('[data-ev-register]')) { openRegForm(current); return; }
             if (ev.target.closest('[data-ev-myreg]')) { const mine = savedRegs(current.id); if (mine.length) showRegDone(current, mine[mine.length - 1]); return; }
+            if (ev.target.closest('[data-ev-mywait]')) { const w = savedWaits(current.id); if (w.length) showWaitDone(current, w[w.length - 1]); return; }
+            if (ev.target.closest('[data-ev-cancel]')) { openRegCancel(current, null); return; }
             if (ev.target.closest('[data-ev-ics]')) { downloadIcs(current); return; }
             if (ev.target.closest('[data-ev-copy]')) {
                 const out = host.querySelector('[data-ev-copied]');
@@ -10529,7 +10734,9 @@
         if (route !== 'etkinlik')
             params.delete('id');
         const query = params.toString();
-        const url = routePath(route) + (query ? `?${query}` : '');
+        // E-postadaki bilet / yer teklifi bağlantıları (#bilet=… / #teklif=…) etkinlik sayfası okuyana kadar kalır.
+        const keepHash = route === 'etkinlik' && /^#(bilet|teklif)=/.test(location.hash) ? location.hash : '';
+        const url = routePath(route) + (query ? `?${query}` : '') + keepHash;
         const current = location.pathname + location.search + location.hash;
         try {
             if (options.replace)

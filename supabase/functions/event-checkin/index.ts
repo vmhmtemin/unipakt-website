@@ -88,8 +88,8 @@ const grantEmail = (staffName: string, eventTitle: string, ownerName: string, li
 };
 
 const stats = async (eventId: string) => {
-  const { count: total } = await supabase.from("event_registrations").select("id", { count: "exact", head: true }).eq("event_id", eventId);
-  const { count: checked } = await supabase.from("event_registrations").select("id", { count: "exact", head: true }).eq("event_id", eventId).not("checked_in_at", "is", null);
+  const { count: total } = await supabase.from("event_registrations").select("id", { count: "exact", head: true }).eq("event_id", eventId).eq("status", "confirmed");
+  const { count: checked } = await supabase.from("event_registrations").select("id", { count: "exact", head: true }).eq("event_id", eventId).eq("status", "confirmed").not("checked_in_at", "is", null);
   return { total: total ?? 0, checked: checked ?? 0 };
 };
 
@@ -205,13 +205,16 @@ Deno.serve(async (req) => {
     const now = new Date().toISOString();
     const { data: updated } = await supabase.from("event_registrations")
       .update({ checked_in_at: now, checked_in_by: grant.staff_id })
-      .eq("event_id", grant.event_id).eq("code", code).is("checked_in_at", null)
+      .eq("event_id", grant.event_id).eq("code", code).eq("status", "confirmed").is("checked_in_at", null)
       .select("full_name, email, code, checked_in_at").maybeSingle();
     if (updated) {
       return reply(200, { result: "ok", person: { name: updated.full_name, email: maskEmail(updated.email), code: updated.code }, checked_in_at: updated.checked_in_at, stats: await stats(grant.event_id) });
     }
     const { data: existing } = await supabase.from("event_registrations")
-      .select("full_name, email, code, checked_in_at").eq("event_id", grant.event_id).eq("code", code).maybeSingle();
+      .select("full_name, email, code, checked_in_at, status").eq("event_id", grant.event_id).eq("code", code).maybeSingle();
+    if (existing && existing.status !== "confirmed") {
+      return reply(200, { result: "waitlist", person: { name: existing.full_name, email: maskEmail(existing.email), code: existing.code }, message: "Bu kişi bekleme listesinde; kaydı kesinleşmemiş.", stats: await stats(grant.event_id) });
+    }
     if (existing) {
       return reply(200, { result: "already", person: { name: existing.full_name, email: maskEmail(existing.email), code: existing.code }, checked_in_at: existing.checked_in_at, stats: await stats(grant.event_id) });
     }

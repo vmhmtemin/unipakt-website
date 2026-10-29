@@ -264,10 +264,11 @@ h1 { margin: 26px 0 8px; font: 900 clamp(30px, 8vw, 40px)/1.04 'Archivo', sans-s
   };
   const showResult = (r) => {
     const tone = r.result === 'ok' ? 'ok' : r.result === 'already' ? 'already' : 'bad';
-    const title = { ok: 'Giriş onaylandı', already: 'Daha önce giriş yaptı', other_event: 'Başka etkinlik', not_found: 'Kayıt bulunamadı', error: 'Kontrol edilemedi' }[r.result] || 'Kayıt bulunamadı';
+    const title = { ok: 'Giriş onaylandı', already: 'Daha önce giriş yaptı', other_event: 'Başka etkinlik', waitlist: 'Bekleme listesinde', not_found: 'Kayıt bulunamadı', error: 'Kontrol edilemedi' }[r.result] || 'Kayıt bulunamadı';
     const at = r.checked_in_at ? new Date(r.checked_in_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '';
     const who = r.person ? `<p class="who">${esc(r.person.name)}</p><p class="sub">${esc(r.person.code)} · ${esc(r.person.email)}</p>` : `<p class="sub">${esc(r.message || '')}</p>`;
-    const extra = r.result === 'already' && at ? `<p class="sub">İlk giriş: ${esc(at)}</p>` : '';
+    const extra = r.result === 'already' && at ? `<p class="sub">İlk giriş: ${esc(at)}</p>`
+      : r.result === 'waitlist' ? '<p class="sub">Kaydı kesinleşmemiş, girişe alınmaz.</p>' : '';
     const box = document.createElement('div');
     box.className = `result ${tone}`;
     box.setAttribute('role', 'alertdialog');

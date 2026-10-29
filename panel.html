@@ -1678,10 +1678,14 @@
         p_questions: s.questions === undefined ? null : s.questions, p_columns: s.columns === undefined ? null : s.columns } });
     },
     async registrations(eventId) {
-      return (await rest(`event_registrations?select=id,code,full_name,email,answers,created_at,checked_in_at,checked_in_by&event_id=eq.${encodeURIComponent(eventId)}&order=created_at.asc&limit=10000`)) || [];
+      return (await rest(`event_registrations?select=id,code,full_name,email,answers,created_at,checked_in_at,checked_in_by,status,offered_at,offer_expires_at&event_id=eq.${encodeURIComponent(eventId)}&order=created_at.asc&limit=10000`)) || [];
     },
     async setCheckin(id, checked) { await rest('rpc/set_registration_checkin', { method: 'POST', body: { p_registration: id, p_checked: !!checked } }); },
-    async deleteRegistration(id) { await restMust(`event_registrations?${eq(id)}`, { method: 'DELETE' }); },
+    async deleteRegistration(id, eventId) {
+      await restMust(`event_registrations?${eq(id)}`, { method: 'DELETE' });
+      // Boşalan yer bekleme listesindeki sıradakine teklif edilir (e-postayı fonksiyon gönderir).
+      if (eventId) fetch(`${SUPABASE_URL}/functions/v1/event-register`, { method: 'POST', headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'sweep', event_id: eventId }) }).catch(() => {});
+    },
     // ---- Görevliler (giriş kontrolü) ----
     async staffList() { return (await rest('event_staff?select=id,club_id,full_name,email,created_at&order=full_name.asc')) || []; },
     async addStaff({ name, email }) {
@@ -4301,8 +4305,8 @@
   const openRegBoard = (eventId) => { state.regBoard = freshRegBoard(eventId); go('kayitlar'); loadRegBoard(); };
   const boardColumns = (s) => {
     const qs = s?.questions || [];
-    const all = [['code', 'Kod'], ['email', 'E-posta'], ['created', 'Kayıt zamanı'], ['checkin', 'Giriş'], ...qs.map((q) => [q.id, q.label])];
-    const chosen = Array.isArray(s?.board_columns) && s.board_columns.length ? s.board_columns : ['code', 'email', 'checkin', ...qs.map((q) => q.id)];
+    const all = [['status', 'Durum'], ['code', 'Kod'], ['email', 'E-posta'], ['created', 'Kayıt zamanı'], ['checkin', 'Giriş'], ...qs.map((q) => [q.id, q.label])];
+    const chosen = Array.isArray(s?.board_columns) && s.board_columns.length ? s.board_columns : ['status', 'code', 'email', 'checkin', ...qs.map((q) => q.id)];
     return { all, chosen: chosen.filter((k) => all.some(([id]) => id === k)) };
   };
   const eventEnd = (e) => (e.endDate && e.endDate > e.date ? e.endDate : e.date);
@@ -4310,9 +4314,11 @@
     if (eventEnd(e) < today()) return 'Etkinlik bitti';
     if (!s?.is_open) return 'Kapalı';
     if (s.deadline && new Date(s.deadline).getTime() <= Date.now()) return 'Süresi doldu';
-    if (e.capacity && n >= Number(e.capacity)) return 'Kontenjan doldu';
+    if (e.capacity && n >= Number(e.capacity)) return 'Dolu · bekleme listesi';
     return 'Açık';
   };
+  const regStatus = (r) => r.status || 'confirmed';
+  const waitPos = (r) => (state.regBoard.rows || []).filter((x) => regStatus(x) === 'waitlist' && x.created_at <= r.created_at).length;
   const regTableHtml = () => {
     const b = state.regBoard, s = b.settings, rows = b.rows || [];
     const { all, chosen } = boardColumns(s);
@@ -4325,12 +4331,14 @@
       if (k === 'code') return `<code class="rb-code">${esc(r.code)}</code>`;
       if (k === 'email') return esc(r.email);
       if (k === 'created') return esc(fmtRegTime(r.created_at));
-      if (k === 'checkin') return r.checked_in_at ? `<span class="tag ok">✓ ${esc(fmtRegTime(r.checked_in_at))}</span>` : '<span class="tag">Gelmedi</span>';
+      if (k === 'checkin') return regStatus(r) !== 'confirmed' ? '—' : r.checked_in_at ? `<span class="tag ok">✓ ${esc(fmtRegTime(r.checked_in_at))}</span>` : '<span class="tag">Gelmedi</span>';
+      if (k === 'status') return regStatus(r) === 'waitlist' ? `<span class="tag wait">Bekleme listesi · ${waitPos(r)}.</span>`
+        : regStatus(r) === 'offered' ? `<span class="tag wait">Yer teklif edildi · ${esc(fmtRegTime(r.offer_expires_at))}’e kadar</span>` : '<span class="tag ok">Kesin</span>';
       return esc(answerText(r.answers?.[k]));
     };
     return `<div class="rb-wrap"><table class="rb-table"><thead><tr><th>#</th><th>Ad soyad</th>${chosen.map((k) => `<th>${esc(label[k])}</th>`).join('')}<th><span class="sr-only">İşlem</span></th></tr></thead>
       <tbody>${list.map((r) => `<tr><td class="rb-n">${rows.indexOf(r) + 1}</td><td><strong>${esc(r.full_name)}</strong></td>${chosen.map((k) => `<td>${cell(r, k)}</td>`).join('')}
-        <td class="rb-act"><button class="btn small ${r.checked_in_at ? 'ghost' : ''}" data-act="reg-checkin" data-id="${esc(r.id)}" data-sub="${r.checked_in_at ? '0' : '1'}">${r.checked_in_at ? 'Girişi geri al' : 'Giriş yaptı'}</button>
+        <td class="rb-act">${regStatus(r) === 'confirmed' ? `<button class="btn small ${r.checked_in_at ? 'ghost' : ''}" data-act="reg-checkin" data-id="${esc(r.id)}" data-sub="${r.checked_in_at ? '0' : '1'}">${r.checked_in_at ? 'Girişi geri al' : 'Giriş yaptı'}</button>` : ''}
           <button class="btn danger small" data-act="reg-del" data-id="${esc(r.id)}" aria-label="Kaydı sil">Sil</button></td></tr>`).join('')}</tbody></table></div>`;
   };
   const regBoardView = () => {
@@ -4350,14 +4358,16 @@
     if (!s || !s.enabled) {
       return `${top}<section class="card"><p class="body">Bu etkinlik UniPakt üzerinden kayıt toplamıyor.</p><button class="btn small" data-act="reg-edit">Kayıt toplamayı aç</button></section>`;
     }
-    const checked = rows.filter((r) => r.checked_in_at).length;
-    const status = regReason(e, s, rows.length);
+    const seated = rows.filter((r) => regStatus(r) === 'confirmed');
+    const waiting = rows.filter((r) => regStatus(r) !== 'confirmed').length;
+    const checked = seated.filter((r) => r.checked_in_at).length;
+    const status = regReason(e, s, rows.filter((r) => regStatus(r) !== 'waitlist').length);
     const { all, chosen } = boardColumns(s);
     return `${top}
       <div class="stats">
-        <div class="stat"><b>${rows.length}</b><span>Kayıt${e.capacity ? ` · kontenjan ${esc(e.capacity)}` : ''}</span></div>
-        <div class="stat"><b>${checked}</b><span>Giriş yaptı</span></div>
-        <div class="stat"><b>${rows.length - checked}</b><span>Henüz gelmedi</span></div>
+        <div class="stat"><b>${seated.length}</b><span>Kesin kayıt${e.capacity ? ` · kontenjan ${esc(e.capacity)}` : ''}</span></div>
+        <div class="stat"><b>${checked}</b><span>Giriş yaptı · ${seated.length - checked} gelmedi</span></div>
+        <div class="stat"><b>${waiting}</b><span>Bekleme listesi</span></div>
         <div class="stat rb-status ${status === 'Açık' ? 'hot' : ''}"><b>${esc(status)}</b><span>Kayıt durumu</span></div>
       </div>
       <section class="card rb-settings">
@@ -4393,9 +4403,10 @@
   const downloadRegCsv = () => {
     const b = state.regBoard, e = db.events.find((x) => x.id === b.eventId);
     const qs = b.settings?.questions || [];
-    const head = ['Ad soyad', 'E-posta', 'Kod', 'Kayıt zamanı', 'Giriş zamanı', ...qs.map((q) => q.label)];
+    const head = ['Ad soyad', 'E-posta', 'Durum', 'Kod', 'Kayıt zamanı', 'Giriş zamanı', ...qs.map((q) => q.label)];
+    const stLabel = (r) => ({ waitlist: 'Bekleme listesi', offered: 'Yer teklif edildi' }[regStatus(r)] || 'Kesin');
     const cellOf = (v) => { const s = String(v ?? ''); return /[;"\n\r]/.test(s) || /^[=+\-@]/.test(s) ? `"${(/^[=+\-@]/.test(s) ? `'${s}` : s).replace(/"/g, '""')}"` : s; };
-    const lines = [head, ...(b.rows || []).map((r) => [r.full_name, r.email, r.code, fmtRegTime(r.created_at), fmtRegTime(r.checked_in_at), ...qs.map((q) => answerText(r.answers?.[q.id]))])]
+    const lines = [head, ...(b.rows || []).map((r) => [r.full_name, r.email, stLabel(r), r.code, fmtRegTime(r.created_at), fmtRegTime(r.checked_in_at), ...qs.map((q) => answerText(r.answers?.[q.id]))])]
       .map((row) => row.map(cellOf).join(';'));
     const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a');
@@ -4490,8 +4501,8 @@
     },
     'reg-del'(id) {
       const r = state.regBoard.rows.find((x) => x.id === id);
-      confirmRemove('Kaydı sil', `${r?.full_name || 'Bu kişi'} kaydı silinsin mi? Giriş kodu da geçersiz olur.`, async () => {
-        await api.deleteRegistration(id);
+      confirmRemove('Kaydı sil', `${r?.full_name || 'Bu kişi'} kaydı silinsin mi? Giriş kodu da geçersiz olur.${regStatus(r || {}) === 'waitlist' ? '' : ' Bekleme listesinde biri varsa yer ona teklif edilir.'}`, async () => {
+        await api.deleteRegistration(id, state.regBoard.eventId);
         state.regBoard.rows = state.regBoard.rows.filter((x) => x.id !== id);
       }, 'Sil');
     },
