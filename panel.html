@@ -669,6 +669,7 @@
   .staff-head small { opacity: .6; }
   .staff-grants { margin-top: 10px; }
   .staff-grants .mini-row:last-child { border-bottom: 0; }
+  .staff-grants .mini-row .row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
   @media (max-width: 640px) {
     .regb-row { grid-template-columns: 1fr; }
     .rb-act .btn { display: block; width: 100%; }
@@ -4437,8 +4438,9 @@
           <div class="row"><button class="btn small" data-act="staff-grant" data-id="${esc(s.id)}">Etkinlik yetkisi ver</button><button class="btn danger small" data-act="staff-del" data-id="${esc(s.id)}">Sil</button></div></div>
         ${gs.length ? `<div class="staff-grants">${gs.map((g) => {
           const ev = db.events.find((x) => x.id === g.event_id);
-          return `<div class="mini-row"><div><strong>${esc(ev?.title || 'Etkinlik')}</strong><small>${esc(fmtRegTime(g.expires_at))}’e kadar${g.last_used_at ? ` · son kullanım ${esc(fmtRegTime(g.last_used_at))}` : ' · henüz açılmadı'}</small></div>
-            <button class="btn ghost small" data-act="grant-revoke" data-id="${esc(g.id)}">Yetkiyi geri al</button></div>`;
+          const locked = Number(g.failed_attempts) >= 10;
+          return `<div class="mini-row"><div><strong>${esc(ev?.title || 'Etkinlik')}${locked ? ' <span class="tag no">Kilitli</span>' : ''}</strong><small>${locked ? 'Erişim kodu 10 kez yanlış girildi · ' : ''}${esc(fmtRegTime(g.expires_at))}’e kadar${g.last_used_at ? ` · son kullanım ${esc(fmtRegTime(g.last_used_at))}` : ' · henüz açılmadı'}</small></div>
+            <div class="row"><button class="btn small ${locked ? '' : 'ghost'}" data-act="grant-resend" data-id="${esc(g.id)}">Kodu yeniden gönder</button><button class="btn ghost small" data-act="grant-revoke" data-id="${esc(g.id)}">Yetkiyi geri al</button></div></div>`;
         }).join('')}</div>` : '<p class="hint" style="margin:10px 0 0">Aktif etkinlik yetkisi yok.</p>'}
       </article>`;
     }).join('')}</div>`;
@@ -4531,6 +4533,16 @@
           state.staffView = freshStaffView(); loadStaffView();
         },
       });
+    },
+    'grant-resend'(id) {
+      const g = state.staffView.grants?.find((x) => x.id === id);
+      const s = state.staffView.staff?.find((x) => x.id === g?.staff_id);
+      if (!g || !s) return;
+      confirmRemove('Kodu yeniden gönder', `${s.full_name} kişisine yeni bir kontrol bağlantısı ve erişim kodu gönderilir; eski bağlantı geçersiz olur, kilit açılır.`, async () => {
+        await api.grantStaff(g.staff_id, g.event_id);
+        toast(`${s.full_name} kişisine yeni bağlantı ve kod gönderildi.`);
+        state.staffView = freshStaffView(); loadStaffView();
+      }, 'Gönder');
     },
     'grant-revoke'(id) {
       confirmRemove('Yetkiyi geri al', 'Bu görevlinin bu etkinlikteki kontrol bağlantısı hemen geçersiz olur.', async () => {
