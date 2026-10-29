@@ -12,3 +12,7 @@ _site/
 
 # Local Matrix server secrets
 .env
+
+# Build output (generated in CI by pnpm run build:matrix)
+node_modules/
+assets/matrix/
