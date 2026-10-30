@@ -4340,12 +4340,12 @@
     }
 
     :root[data-theme="light"] {
-        --accent: #F04A0F;
+        --accent: #19C7B5;
     }
 
     @media (prefers-color-scheme: light) {
         :root:not([data-theme="dark"]) {
-            --accent: #F04A0F;
+            --accent: #19C7B5;
         }
     }
 
@@ -6403,7 +6403,7 @@
        SPONSORLAR — sitenin geri kalanından ayrışan, beyaz zeminli kurumsal sayfa.
        Girişte noktalar düşer, çizgilerle ağa bağlanır, sponsor logosu ağın merkezinde belirir.
        ============================================================ */
-    .sp-page { background: #fff; color: #0a0a0a; --sp-accent: #F04A0F; }
+    .sp-page { background: #fff; color: #0a0a0a; --sp-accent: #19C7B5; }
     .sp-hero { position: relative; min-height: calc(100svh - var(--nav-h, 86px)); overflow: hidden; display: flex; align-items: flex-start; }
     .sp-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
     /* Yazının arkasındaki ağı yumuşatan beyaz geçiş. */
@@ -6465,7 +6465,7 @@
 
     /* ---- Sponsorlar "ayrı dünya": sitenin üst menüsü ve footer'ı gizlenir, sayfanın kendi menüsü ve alt kısmı gelir ---- */
     /* Sponsorlar sayfasında site menüsü ve footer aynı kalır ama beyaz paletle: zemin beyaz, yazı siyah, turuncu vurgu. */
-    html.sp-mode[data-theme] { --ink: #0a0a0a; --paper: #FFFFFF; --paper-soft: #F6F6F4; --border: #0000001a; --border-strong: #00000030; --dot: #00000070; --dot-soft: #00000030; --accent: #F04A0F; color-scheme: light; }
+    html.sp-mode[data-theme] { --ink: #0a0a0a; --paper: #FFFFFF; --paper-soft: #F6F6F4; --border: #0000001a; --border-strong: #00000030; --dot: #00000070; --dot-soft: #00000030; --accent: #19C7B5; color-scheme: light; }
     html.sp-mode .logo-img, html.sp-mode .site-footer .footer-wordmark, html.sp-mode .site-footer .footer-brand-logo { filter: none !important; }
     /* Menü yazıları açılışta karışık karakterlerden çözülür; asıl metin altta durur, üstte geçici bir katman oynar. */
     .nav-scramble { position: relative; }
@@ -6481,7 +6481,7 @@
     .nav-scramble-layer { position: absolute; left: 0; top: 0; display: flex; align-items: center; justify-content: center; white-space: nowrap; pointer-events: none; font-variant-numeric: tabular-nums; }
     .nav-scramble > .nav-scramble-text { display: inline-block; }
     html.sp-mode, html.sp-mode body { background: #fff; }
-    html.sp-mode .scroll-progress { background: #F04A0F; }
+    html.sp-mode .scroll-progress { background: #19C7B5; }
     .sp-nav { position: sticky; top: 0; z-index: 40; background: #ffffffe6; backdrop-filter: blur(10px); border-bottom: 1px solid #0a0a0a14; }
     .sp-nav-in { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 64px; }
     .sp-brand { display: inline-flex; align-items: center; gap: 12px; color: #0a0a0a; text-decoration: none; }
@@ -11575,7 +11575,7 @@
         const ctx = canvas.getContext('2d');
         const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         let nodes = [], links = [], raf = 0, t0 = 0, w = 0, h = 0, dpr = 1, maxDraw = 120;
-        const ACCENT = '#F04A0F';
+        const ACCENT = '#19C7B5';
         const ease = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
         const hubPoint = () => (w <= 720 ? { x: w * 0.5, y: h * 0.74 } : { x: w * 0.72, y: h * 0.58 });
 
@@ -11668,9 +11668,9 @@
             });
             if (ptr) {
                 const near = nodes.map((n) => ({ n, d: Math.hypot(n.px - cursor.x, n.py - cursor.y) })).sort((x, y) => x.d - y.d).slice(0, 2);
-                ctx.strokeStyle = 'rgba(240,74,15,.75)'; ctx.lineWidth = 1.5;
+                ctx.strokeStyle = 'rgba(25,199,181,.75)'; ctx.lineWidth = 1.5;
                 near.forEach(({ n, d }) => { if (d > 260) return; ctx.beginPath(); ctx.moveTo(cursor.x, cursor.y); ctx.lineTo(n.px, n.py); ctx.stroke(); });
-                ctx.strokeStyle = 'rgba(240,74,15,.35)'; ctx.lineWidth = 1.2;
+                ctx.strokeStyle = 'rgba(25,199,181,.35)'; ctx.lineWidth = 1.2;
                 ctx.beginPath(); ctx.arc(cursor.x, cursor.y, 13 + Math.sin(t * 3) * 3, 0, Math.PI * 2); ctx.stroke();
                 ctx.fillStyle = ACCENT;
                 ctx.beginPath(); ctx.arc(cursor.x, cursor.y, 5, 0, Math.PI * 2); ctx.fill();
@@ -11832,7 +11832,7 @@
             if (still) { kicker.classList.add('is-word'); return; }
             const STEPS = 22, STEP = 50;
             let n = 0;
-            const split = (amt) => `drop-shadow(${-amt}px 0 rgba(240,74,15,.85)) drop-shadow(${amt}px 0 rgba(0,200,255,.75))`;
+            const split = (amt) => `drop-shadow(${-amt}px 0 rgba(25,199,181,.85)) drop-shadow(${amt}px 0 rgba(10,10,10,.45))`;
             const tick = () => {
                 if (!active()) { kickReset(); return; }
                 if (n >= STEPS) { kickReset(); kicker.classList.add('is-word'); return; }
