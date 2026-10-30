@@ -74,8 +74,8 @@ const codeEmail = (name: string, eventTitle: string, code: string) => {
 <body style="margin:0;padding:0;background:#0C0C0D;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0C0C0D;"><tr><td align="center" style="padding:40px 16px;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:540px;background:#161618;border:1px solid #2a2a2d;border-radius:22px;"><tr><td style="padding:36px 32px;font-family:Arial,Helvetica,sans-serif;color:#F2F1EE;">
-  <div style="font:800 34px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:#FF5A1F;">.</span></div>
-  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#FF5A1F;">ETKİNLİK KAYDI</div>
+  <div style="font:800 34px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:#19C7B5;">.</span></div>
+  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#19C7B5;">ETKİNLİK KAYDI</div>
   <h1 style="margin:32px 0 10px;font:800 25px/1.25 Arial,Helvetica,sans-serif;color:#F2F1EE;">Merhaba ${esc(name)},</h1>
   <p style="margin:0 0 22px;font:400 16px/1.6 Arial,Helvetica,sans-serif;color:#C9C8C4;"><b style="color:#F2F1EE;">${esc(eventTitle)}</b> kaydını tamamlamak için bu kodu kayıt ekranına yaz.</p>
   <table role="presentation" cellspacing="0" cellpadding="0"><tr>${digits}</tr></table>
@@ -139,13 +139,13 @@ const frame = (kicker: string, inner: string) => `<!doctype html><html lang="tr"
 <body style="margin:0;padding:0;background:#0C0C0D;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0C0C0D;"><tr><td align="center" style="padding:40px 16px;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:540px;background:#161618;border:1px solid #2a2a2d;border-radius:22px;"><tr><td style="padding:34px 32px;font-family:Arial,Helvetica,sans-serif;color:#F2F1EE;">
-  <div style="font:800 32px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:#FF5A1F;">.</span></div>
-  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#FF5A1F;">${esc(kicker)}</div>
+  <div style="font:800 32px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:#19C7B5;">.</span></div>
+  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#19C7B5;">${esc(kicker)}</div>
   ${inner}
 </td></tr></table>
 <p style="margin:18px 0 0;font:400 12px/1.6 Arial,Helvetica,sans-serif;color:#6f6e6a;">Bu e-posta UniPakt üzerinden gönderildi. Sorun olursa etkinliği düzenleyen kulüple iletişime geç.</p>
 </td></tr></table></body></html>`;
-const button = (href: string, label: string) => `<a href="${esc(href)}" style="display:inline-block;padding:15px 28px;border-radius:999px;background:#FF5A1F;color:#0C0C0D;font:700 16px/1 Arial,Helvetica,sans-serif;text-decoration:none;">${esc(label)}</a>`;
+const button = (href: string, label: string) => `<a href="${esc(href)}" style="display:inline-block;padding:15px 28px;border-radius:999px;background:#19C7B5;color:#0C0C0D;font:700 16px/1 Arial,Helvetica,sans-serif;text-decoration:none;">${esc(label)}</a>`;
 const eventBlock = (ev: Ev) => `<h1 style="margin:28px 0 8px;font:800 26px/1.2 Arial,Helvetica,sans-serif;color:#F2F1EE;">${esc(ev.title)}</h1>
   <p style="margin:0;font:400 15px/1.6 Arial,Helvetica,sans-serif;color:#C9C8C4;">${whenWhere(ev).map(esc).join("<br>")}</p>`;
 
@@ -230,7 +230,7 @@ const sendReminder = async (r: { id: string; event_id: string; kind: string; cod
   <p style="margin:22px 0 18px;font:400 16px/1.6 Arial,Helvetica,sans-serif;color:#C9C8C4;">Merhaba ${esc(r.full_name)}, kaydın hazır. Girişte QR'ı (ekte) ya da bu kodu göster.</p>
   <table role="presentation" cellspacing="0" cellpadding="0"><tr>${letters}</tr></table>
   <p style="margin:26px 0 0;">${button(page, "Etkinlik sayfası")}</p>
-  <p style="margin:22px 0 0;font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#9A9995;">Gelemeyeceksen <a href="${esc(cancel)}" style="color:#FF5A1F;">kaydını iptal et</a>; yerin bekleyen birine geçsin.</p>`);
+  <p style="margin:22px 0 0;font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#9A9995;">Gelemeyeceksen <a href="${esc(cancel)}" style="color:#19C7B5;">kaydını iptal et</a>; yerin bekleyen birine geçsin.</p>`);
   const text = `${ev.title}\n${whenWhere(ev).join("\n")}\n\nMerhaba ${r.full_name}, girişte QR'ı (ekte) ya da bu kodu göster: ${r.code}\n\nEtkinlik sayfası: ${page}\nGelemeyeceksen kaydını iptal et: ${cancel}`;
   return mail(r.email, `${soon}: ${ev.title}`, html, text, attachments);
 };

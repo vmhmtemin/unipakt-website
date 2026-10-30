@@ -46,13 +46,13 @@ const inviteMail = (clubName: string, inviter: string, name: string, title: stri
 <body style="margin:0;padding:0;background:#0C0C0D;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0C0C0D;"><tr><td align="center" style="padding:40px 16px;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:540px;background:#161618;border:1px solid #2a2a2d;border-radius:22px;"><tr><td style="padding:34px 32px;font-family:Arial,Helvetica,sans-serif;color:#F2F1EE;">
-  <div style="font:800 32px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:#FF5A1F;">.</span></div>
-  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#FF5A1F;">PANEL DAVETİ</div>
+  <div style="font:800 32px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:#19C7B5;">.</span></div>
+  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#19C7B5;">PANEL DAVETİ</div>
   <h1 style="margin:28px 0 10px;font:800 25px/1.25 Arial,Helvetica,sans-serif;color:#F2F1EE;">Merhaba ${esc(name)}, ${esc(clubName)} ekibine davet edildin.</h1>
   <p style="margin:0;font:400 15px/1.6 Arial,Helvetica,sans-serif;color:#C9C8C4;">${esc(inviter)} seni UniPakt Panel'e <b style="color:#F2F1EE;">${esc(title)}</b> olarak ekledi.</p>
   <p style="margin:16px 0 0;font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#9A9995;">Yetkilerin: ${esc(list)}</p>
-  <p style="margin:26px 0 0;"><a href="${esc(link)}" style="display:inline-block;padding:15px 28px;border-radius:999px;background:#FF5A1F;color:#0C0C0D;font:700 16px/1 Arial,Helvetica,sans-serif;text-decoration:none;">Şifremi belirle</a></p>
-  <p style="margin:22px 0 0;font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#9A9995;">Şifreni belirledikten sonra bu e-posta adresi ve şifrenle <a href="${PANEL}" style="color:#FF5A1F;">unipakt.com/panel.html</a> adresinden giriş yaparsın. Bağlantının süresi geçerse giriş ekranındaki “Şifremi unuttum” ile yenisini alabilirsin.</p>
+  <p style="margin:26px 0 0;"><a href="${esc(link)}" style="display:inline-block;padding:15px 28px;border-radius:999px;background:#19C7B5;color:#0C0C0D;font:700 16px/1 Arial,Helvetica,sans-serif;text-decoration:none;">Şifremi belirle</a></p>
+  <p style="margin:22px 0 0;font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#9A9995;">Şifreni belirledikten sonra bu e-posta adresi ve şifrenle <a href="${PANEL}" style="color:#19C7B5;">unipakt.com/panel.html</a> adresinden giriş yaparsın. Bağlantının süresi geçerse giriş ekranındaki “Şifremi unuttum” ile yenisini alabilirsin.</p>
 </td></tr></table>
 <p style="margin:18px 0 0;font:400 12px/1.6 Arial,Helvetica,sans-serif;color:#6f6e6a;">Bu daveti beklemiyorsan e-postayı yok sayabilirsin; şifre belirlemedikçe hesap kullanılamaz.</p>
 </td></tr></table></body></html>`;

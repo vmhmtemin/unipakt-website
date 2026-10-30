@@ -132,7 +132,7 @@ def share_page(e: dict) -> str | None:
 <meta name="twitter:description" content="{q(desc)}">
 <meta name="twitter:image" content="{q(image)}">
 <script>{script}</script>
-<style>body{{margin:0;min-height:100vh;display:grid;place-items:center;background:#0C0C0D;color:#F2F1EE;font:16px/1.5 system-ui,sans-serif;text-align:center;padding:24px}}a{{color:#FF5A1F}}</style>
+<style>body{{margin:0;min-height:100vh;display:grid;place-items:center;background:#0C0C0D;color:#F2F1EE;font:16px/1.5 system-ui,sans-serif;text-align:center;padding:24px}}a{{color:#19C7B5}}</style>
 </head>
 <body><p><strong>{q(title)}</strong><br>{q(desc)}<br><br><a href="{q(target)}">Etkinlik sayfasını aç →</a></p></body>
 </html>

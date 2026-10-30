@@ -82,8 +82,8 @@ const emailHtml = (purpose: string, code: string) => {
 <body style="margin:0;padding:0;background:#0C0C0D;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0C0C0D;"><tr><td align="center" style="padding:40px 16px;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background:#161618;border:1px solid #2a2a2d;border-radius:22px;"><tr><td style="padding:36px 32px;font-family:Arial,Helvetica,sans-serif;color:#F2F1EE;">
-  <div style="font:800 34px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:#FF5A1F;">.</span></div>
-  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#FF5A1F;">PANEL</div>
+  <div style="font:800 34px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:#19C7B5;">.</span></div>
+  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#19C7B5;">PANEL</div>
   <h1 style="margin:32px 0 10px;font:800 26px/1.2 Arial,Helvetica,sans-serif;color:#F2F1EE;">Doğrulama kodun</h1>
   <p style="margin:0 0 26px;font:400 16px/1.6 Arial,Helvetica,sans-serif;color:#C9C8C4;">${esc(t.lead)}</p>
   <table role="presentation" cellspacing="0" cellpadding="0"><tr>${digits}</tr></table>

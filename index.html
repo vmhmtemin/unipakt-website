@@ -3752,7 +3752,7 @@
 
     /* ---------- KVKK onay kutusu ve penceresi ---------- */
     .kvkk-consent { display: flex; gap: 12px; align-items: flex-start; margin: 6px 0 22px; font-size: 14.5px; line-height: 1.5; cursor: pointer; color: color-mix(in srgb, var(--ink) 80%, transparent); }
-    .kvkk-consent input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; cursor: pointer; accent-color: var(--accent, #FF5A1F); }
+    .kvkk-consent input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; cursor: pointer; accent-color: var(--accent, #19C7B5); }
     .kvkk-consent a { color: inherit; text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 3px; }
     .kvkk-consent a:hover { text-decoration-color: currentColor; }
     .kvkk-dialog { width: min(1040px, calc(100vw - 40px)); height: min(90dvh, 1000px); max-height: 90dvh; padding: 0; border: 1px solid var(--border-strong); border-radius: 20px; background: var(--paper); color: var(--ink); overflow: hidden; }
@@ -4335,7 +4335,7 @@
                  ============================================================ */
 
     :root {
-        --accent: #FF5A1F;
+        --accent: #19C7B5;
         --on-accent: #000;
     }
 
@@ -6538,11 +6538,11 @@
        Açılışta logo jenerik gibi kurulur: önce Hackfest27, sonra UniPakt (saydamdan opağa),
        sonra el yazısı Mixit (~2,1 sn). Katmanlar aynı kareden kesildi; sonunda tam logoya geçilir.
        ============================================================ */
-    html.hf-mode[data-theme] { --ink: #F2F1EE; --paper: #0C0C0D; --paper-soft: #161618; --border: #FFFFFF1F; --border-strong: #FFFFFF33; --dot: #FFFFFF80; --dot-soft: #FFFFFF40; --accent: #FF5A1F; color-scheme: dark; }
+    html.hf-mode[data-theme] { --ink: #F2F1EE; --paper: #0C0C0D; --paper-soft: #161618; --border: #FFFFFF1F; --border-strong: #FFFFFF33; --dot: #FFFFFF80; --dot-soft: #FFFFFF40; --accent: #19C7B5; color-scheme: dark; }
     html.hf-mode, html.hf-mode body { background: #0C0C0D; }
     html.hf-mode .logo-img:not(.logo-alt), html.hf-mode .site-footer .footer-brand-logo { filter: invert(1) !important; }
     html.hf-mode .site-footer .footer-wordmark { filter: invert(1) hue-rotate(180deg) !important; }
-    html.hf-mode .scroll-progress { background: #FF5A1F; }
+    html.hf-mode .scroll-progress { background: #19C7B5; }
     /* ================= Tutarlılık (Ekim 2026) =================
        Taste Skill renk/çizgi kuralları: turuncu yalnız eylemde (buton, aktif menü noktası, el yazısı notlar,
        seçili/üzerine gelinen kontroller); süs amaçlı turuncu mürekkebe döner. Bölücü 1px çizgiler kalkar,
@@ -6707,7 +6707,7 @@
        ad (jenerik logo) anıt gibi büyük, sonrası sakin; etiket/numara/çizgi/gradyan/gölge yok,
        bölümler zemin tonuyla ayrılır, her bölüm kendi başlığıyla açılır ve komşusundan farklı dizilir. */
     .hf-page {
-        --hf-acc: #FF5A1F; --hf-dark: #0C0C0D; --hf-dark-2: #161618; --hf-light: #F2F1EE; --hf-ink: #0C0C0D;
+        --hf-acc: #19C7B5; --hf-dark: #0C0C0D; --hf-dark-2: #161618; --hf-light: #F2F1EE; --hf-ink: #0C0C0D;
         --hf-soft-d: #FFFFFFB8; --hf-soft-l: #0A0A0BB3;
         --hf-m: clamp(20px, 5vw, 64px);
         --hf-gap: clamp(28px, 5vw, 96px);
@@ -6738,11 +6738,11 @@
     .hf-stage.hf-done .hf-l-hack, .hf-stage.hf-done .hf-l-uni, .hf-stage.hf-done .hf-l-mix, .hf-stage.hf-done .hf-l-star { opacity: 0; animation: hfPartsOut .7s ease-out both; }
     /* Yıldız 27'nin arkasından, görünmezden görünüre süzülerek çıkar (katman olarak 27'nin altında). */
     @keyframes hfStar {
-        0% { opacity: 0; transform: translateX(-7%) scale(.7); filter: drop-shadow(0 0 0 #ff5a1f00); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
-        60% { opacity: 1; filter: drop-shadow(0 0 14px #ff5a1f99); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
-        100% { opacity: 1; transform: none; filter: drop-shadow(0 0 4px #ff5a1f55); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+        0% { opacity: 0; transform: translateX(-7%) scale(.7); filter: drop-shadow(0 0 0 #19C7B500); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+        60% { opacity: 1; filter: drop-shadow(0 0 14px #19C7B599); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+        100% { opacity: 1; transform: none; filter: drop-shadow(0 0 4px #19C7B555); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
     }
-    @keyframes hfFullIn { 0% { opacity: 0; filter: drop-shadow(0 0 0 #ff5a1f00) brightness(1.12); } 45% { opacity: 1; filter: drop-shadow(0 0 22px #ff5a1f55) brightness(1.06); } 100% { opacity: 1; filter: drop-shadow(0 0 0 #ff5a1f00) brightness(1); } } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+    @keyframes hfFullIn { 0% { opacity: 0; filter: drop-shadow(0 0 0 #19C7B500) brightness(1.12); } 45% { opacity: 1; filter: drop-shadow(0 0 22px #19C7B555) brightness(1.06); } 100% { opacity: 1; filter: drop-shadow(0 0 0 #19C7B500) brightness(1); } } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
     @keyframes hfPartsOut { from { opacity: 1; } to { opacity: 0; } }
     @media (prefers-reduced-motion: reduce) { .hf-stage.hf-done .hf-l { animation: none; } }
     @keyframes hfHack {
@@ -7564,7 +7564,7 @@
             <div class="sp-hero" id="spHero">
                 <canvas class="sp-canvas" id="spCanvas" aria-hidden="true"></canvas>
                 <div class="wrap sp-hero-text">
-                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><img class="sp-logo-img sp-wordmark" src="/unipakt-logo-bg.png?v=3" alt="" aria-hidden="true"></p>
+                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><img class="sp-logo-img sp-wordmark" src="/unipakt-logo-bg.png?v=4" alt="" aria-hidden="true"></p>
                     <h1>Sponsorlar</h1>
                     <p class="sp-lead">UniPakt ağındaki etkinlikleri destekleyen kurumlar.</p>
                     <button type="button" class="sp-down" data-sp-down>Sponsor ol ↓</button>
@@ -7614,11 +7614,11 @@
             <div class="hf-hero" id="hfHero">
                 <a class="hf-back" href="/sponsorlar/" data-route="sponsorlar">← Sponsorlar</a>
                 <div class="hf-stage" id="hfStage" role="img" aria-label="UniPakt HACKFEST27 MIXIT">
-                    <img class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp?v=2" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp?v=2" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp?v=2" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp?v=2" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp?v=2" alt="" width="1375" height="505" decoding="async">
                 </div>
                 <div class="hf-strip">
                     <div class="hf-wrap hf-strip-in">
@@ -7844,7 +7844,7 @@
                     </div>
                     <div class="hf-close" data-reveal>
                         <a class="hf-btn" href="mailto:sponsorluk@unipakt.com?subject=HACKFEST27%3A%20MIXIT%20Sponsorlu%C4%9Fu">Sponsor olmak için yaz</a>
-                        <p><img src="/unipakt-logo-bg-white.png?v=3" alt="UniPakt" width="885" height="208" loading="lazy"><span>6–7 Mart 2027 · İstanbul Kongre Merkezi</span></p>
+                        <p><img src="/unipakt-logo-bg-white.png?v=4" alt="UniPakt" width="885" height="208" loading="lazy"><span>6–7 Mart 2027 · İstanbul Kongre Merkezi</span></p>
                     </div>
                 </div>
             </section>
@@ -7858,11 +7858,11 @@
         <section class="page hf-page mx-page" id="page-mixit" data-page="mixit">
             <div class="hf-hero mx-hero">
                 <div class="hf-stage" role="img" aria-label="UniPakt HACKFEST27 MIXIT">
-                    <img class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp?v=2" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp?v=2" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp?v=2" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp?v=2" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp?v=2" alt="" width="1375" height="505" decoding="async">
                 </div>
                 <h1 class="mx-sr">HACKFEST27: MIXIT, 6–7 Mart 2027, İstanbul Kongre Merkezi</h1>
                 <p class="mx-cue" aria-hidden="true">Kaydır <b>↓</b></p>
@@ -7873,8 +7873,8 @@
                     <div class="mx-end" id="mxEnd">
                         <div class="mx-end-top">
                             <span class="mx-end-logo" role="img" aria-label="HACKFEST27 MIXIT">
-                                <img src="/hackfest-media/logo-full-nostar.webp" alt="" width="1375" height="505" decoding="async">
-                                <img class="mx-end-star" src="/hackfest-media/logo-star.webp" alt="" width="1375" height="505" decoding="async">
+                                <img src="/hackfest-media/logo-full-nostar.webp?v=2" alt="" width="1375" height="505" decoding="async">
+                                <img class="mx-end-star" src="/hackfest-media/logo-star.webp?v=2" alt="" width="1375" height="505" decoding="async">
                             </span>
                             <p class="mx-end-meta">6–7 Mart 2027<br>İstanbul Kongre Merkezi</p>
                         </div>
@@ -9297,8 +9297,8 @@
                 const L = M + 70;
                 x.fillStyle = '#F2F1EE'; x.font = '800 64px Archivo, Arial, sans-serif'; x.textBaseline = 'alphabetic';
                 x.fillText('UniPakt', L, CY + 130); const lw = x.measureText('UniPakt').width;
-                x.fillStyle = '#FF5A1F'; x.fillRect(L + lw + 6, CY + 116, 14, 14);
-                x.font = '700 26px Arial, sans-serif'; x.fillStyle = '#FF5A1F';
+                x.fillStyle = '#19C7B5'; x.fillRect(L + lw + 6, CY + 116, 14, 14);
+                x.font = '700 26px Arial, sans-serif'; x.fillStyle = '#19C7B5';
                 x.fillText('ETKİNLİK BİLETİ', L, CY + 178);
                 let y = CY + 270;
                 x.fillStyle = '#F2F1EE';
@@ -9634,7 +9634,7 @@
             if (d.accent) vars.push(`--ev-acc:${d.accent}`, `--ev-on-acc:${inkOn(d.accent)}`);
             let ink = '#FFFFFF';
             if (d.bg === 'color' || d.bg === 'gradient') {
-                const second = d.bg === 'gradient' ? (d.accent || '#FF5A1F') : d.bgColor;
+                const second = d.bg === 'gradient' ? (d.accent || '#19C7B5') : d.bgColor;
                 ink = (luminance(d.bgColor) + luminance(second)) / 2 > 0.42 ? '#0C0C0D' : '#FFFFFF';
                 vars.push(`--ev-bgc:${d.bgColor}`, `--ev-grad2:${second}`);
             }
@@ -11773,7 +11773,7 @@
         if (logoLink && logoBase) {
             logoAlt = document.createElement('img');
             logoAlt.className = 'logo-img logo-alt';
-            logoAlt.src = '/unipakt-logo-bg.png?v=3';
+            logoAlt.src = '/unipakt-logo-bg.png?v=4';
             logoAlt.alt = '';
             logoAlt.setAttribute('aria-hidden', 'true');
             logoLink.appendChild(logoAlt);
@@ -11886,7 +11886,7 @@
         if (navLogo && !navLogo.querySelector('.logo-mx')) {
             const mx = document.createElement('img');
             mx.className = 'logo-img logo-mx'; mx.alt = ''; mx.setAttribute('aria-hidden', 'true');
-            mx.src = '/hackfest-media/logo-hf27.webp'; mx.width = 680; mx.height = 106; mx.decoding = 'async';
+            mx.src = '/hackfest-media/logo-hf27.webp?v=2'; mx.width = 680; mx.height = 106; mx.decoding = 'async';
             navLogo.appendChild(mx);
         }
         let swapTimer = 0;

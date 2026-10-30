@@ -19,7 +19,7 @@
   color-scheme: dark;
   --ink: #F2F1EE; --paper: #0C0C0D; --surface: #161618; --soft: #1E1E21;
   --border: #F2F1EE17; --border-strong: #F2F1EE30;
-  --accent: #FF5A1F; --on-accent: #000; --ok: #4ADE80; --warn: #FACC15; --no: #F87171;
+  --accent: #19C7B5; --on-accent: #000; --ok: #4ADE80; --warn: #FACC15; --no: #F87171;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--paper); color: var(--ink); }
@@ -89,7 +89,7 @@ h1 { margin: 26px 0 8px; font: 900 clamp(30px, 8vw, 40px)/1.04 'Archivo', sans-s
   const KEY = 'sb_publishable_RcHJDYGkpd-01DPYG9o3HQ_8prlhUQn';
   const app = document.getElementById('app');
   const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const BRAND = '<div class="brand"><img src="/unipakt-logo-bg-white.png?v=3" alt="UniPakt"><span>Giriş kontrolü</span></div>';
+  const BRAND = '<div class="brand"><img src="/unipakt-logo-bg-white.png?v=4" alt="UniPakt"><span>Giriş kontrolü</span></div>';
   const ICON = {
     ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     already: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
