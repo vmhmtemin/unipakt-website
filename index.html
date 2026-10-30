@@ -9086,6 +9086,15 @@
         });
     })();
 
+    // Etkinlik adresi: /etkinlik/<id>/ (paylaşılabilir, önizlemesi afişli) ya da eski /etkinlik/?id=<id>.
+    const EVENT_PATH_RE = /^\/etkinlik\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/?$/i;
+    window.unipaktEventId = (loc = location) => {
+        const q = new URLSearchParams(loc.search).get('id');
+        if (q) return q;
+        const m = String(loc.pathname || '').match(EVENT_PATH_RE);
+        return m ? m[1].toLowerCase() : '';
+    };
+    const eventPath = (id) => `/etkinlik/${encodeURIComponent(String(id).toLowerCase())}/`;
     /* ---------- Etkinlik sayfası: /etkinlik/?id=<uuid> ----------
                  Veri public_event(p_id) fonksiyonundan gelir: yalnızca yayındaki etkinlik,
                  gizli (takvimde görünmeyen) olsa da linkle açılır. Onay bekleyen ya da
@@ -9886,7 +9895,7 @@
 
         /* ---- Yükleme ---- */
         async function load() {
-            const id = new URLSearchParams(location.search).get('id') || '';
+            const id = window.unipaktEventId();
             if (current && current.id === id) { render(current); return; }
             if (loadingId === id) return;
             current = null;
@@ -9963,7 +9972,7 @@
 
         // Sitedeki bir linkten açılış: adres /etkinlik/?id=… olur, geri tuşu önceki sayfaya döner.
         return (id) => {
-            try { history.pushState({ route: 'etkinlik', fromSite: true }, '', `/etkinlik/?id=${encodeURIComponent(id)}`); } catch (_) {}
+            try { history.pushState({ route: 'etkinlik', fromSite: true }, '', `/etkinlik/${encodeURIComponent(String(id).toLowerCase())}/`); } catch (_) {}
             showRoute('etkinlik');
             syncRouteMeta('etkinlik');
         };
@@ -10888,8 +10897,9 @@
         mixit: 'HACKFEST27: MIXIT'
     };
     function syncRouteMeta(route) {
-        const eventId = route === 'etkinlik' || route === 'kulup' ? new URLSearchParams(location.search).get('id') : '';
-        const url = SITE_ORIGIN + routePath(route) + (eventId ? `?id=${encodeURIComponent(eventId)}` : '');
+        const eventId = route === 'etkinlik' ? window.unipaktEventId() : route === 'kulup' ? new URLSearchParams(location.search).get('id') : '';
+        const url = route === 'etkinlik' && eventId ? SITE_ORIGIN + eventPath(eventId)
+            : SITE_ORIGIN + routePath(route) + (eventId ? `?id=${encodeURIComponent(eventId)}` : '');
         document.querySelector('link[rel="canonical"]')?.setAttribute('href', url);
         document.querySelector('meta[property="og:url"]')?.setAttribute('content', url);
         // The language switcher reads syncRouteMeta.title and translates it (see initLanguages).
@@ -10906,7 +10916,9 @@
         const query = params.toString();
         // E-postadaki bilet / yer teklifi bağlantıları (#bilet=… / #teklif=…) etkinlik sayfası okuyana kadar kalır.
         const keepHash = route === 'etkinlik' && /^#(bilet|teklif|iptal)=/.test(location.hash) ? location.hash : '';
-        const url = routePath(route) + (query ? `?${query}` : '') + keepHash;
+        const evId = route === 'etkinlik' ? window.unipaktEventId() : '';
+        // Adres çubuğu her zaman paylaşılabilir biçimde: /etkinlik/<id>/ (bağlantı önizlemesinde afiş görünür).
+        const url = evId ? eventPath(evId) + keepHash : routePath(route) + (query ? `?${query}` : '') + keepHash;
         const current = location.pathname + location.search + location.hash;
         try {
             if (options.replace)
@@ -10933,12 +10945,13 @@
         }
         if (url.origin !== location.origin || url.hash)
             return;
-        const segment = url.pathname.replace(/^\/+|\/+$/g, '') || 'ana-sayfa';
+        const evMatch = url.pathname.match(EVENT_PATH_RE);
+        const segment = evMatch ? 'etkinlik' : url.pathname.replace(/^\/+|\/+$/g, '') || 'ana-sayfa';
         if (!validRoutes.includes(segment))
             return;
         event.preventDefault();
         if (segment === 'etkinlik') {
-            openSiteEvent(url.searchParams.get('id') || '');
+            openSiteEvent(evMatch ? evMatch[1].toLowerCase() : url.searchParams.get('id') || '');
             return;
         }
         if (segment === 'kulup') {
