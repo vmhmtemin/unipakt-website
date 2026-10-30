@@ -3707,7 +3707,7 @@
       return `${head('Hesap', 'Giriş bilgilerini ve şifreni yönet.')}
         <section class="card">
           <h2>Hesap bilgileri</h2>
-          <div class="account-summary"><strong>${esc(session?.email || 'E-posta bilgisi yüklenemedi')}</strong><br><small>${esc(isAdmin() ? 'UniPakt yöneticisi' : state.member ? `${state.member.title} · ${club(state.user)?.name || 'Kulüp'} ekibi` : 'Kulüp başkanı hesabı')}</small></div>
+          <div class="account-summary"><strong>${esc(session?.email || (DEMO ? club(state.user)?.account || '' : '') || 'E-posta bilgisi yüklenemedi')}</strong><br><small>${esc(isAdmin() ? 'UniPakt yöneticisi' : state.member ? `${state.member.title} · ${club(state.user)?.name || 'Kulüp'} ekibi` : 'Kulüp başkanı hesabı')}</small></div>
           <h2>Şifre değiştir</h2>
           <form id="passwordForm" class="stack" style="margin-top:18px;max-width:520px">
             ${field('Mevcut şifre', '<input type="password" name="currentPassword" required autocomplete="current-password">')}
