@@ -1531,7 +1531,17 @@
         });
       })(),
     };
-    state.user = profile.role === 'admin' ? ADMIN : profile.club_id;
+    state.user = profile.role === 'admin' ? ADMIN : profile.role === 'unit' ? `unit:${session.user_id}` : profile.club_id;
+    // Birim hesabı: yalnızca Birimler, Profil, Hesap ve (yetkisi varsa) mesajlar.
+    state.unitAcc = null;
+    if (profile.role === 'unit') {
+      const dir = await rest('rpc/unit_directory', { method: 'POST', body: {} }).catch(() => null);
+      const u = dir?.units?.find((x) => x.id === dir.me?.unit_id);
+      if (!u) throw signedOut('Birim üyeliğin pasif ya da kaldırılmış. Birim başkanına ya da UniPakt Merkez Yönetim’e yaz.');
+      const m = u.members.find((x) => x.id === session.user_id);
+      state.unitAcc = { id: session.user_id, unitId: u.id, unitName: u.name, roleName: m?.is_head ? 'Birim Başkanı' : (u.roles.find((r) => r.id === m?.role_id)?.name || 'Üye'), chat: (dir.me.perms || []).includes('chat') };
+      state.units = { ...state.units, data: dir, open: state.units.open || u.id };
+    }
     // Merkez Yönetim: kişisel yönetici hesabı (yetkileri UniPakt ile aynı; mesajlaşmada kendi adıyla görünür).
     state.meId = session.user_id;
     state.staff = profile.role === 'admin' && profile.staff_title ? { id: session.user_id, title: profile.staff_title, username: profile.username || '' } : null;
@@ -1862,6 +1872,7 @@
     async uploadProfileLogo(file) { return await readDataUrl(file); },
     async updateMyProfile(fields) { if (!String(fields.fullName || '').trim()) throw new Error('Kulüp başkanının adını yaz.'); state.profile.fullName = String(fields.fullName).trim(); state.profile.bio = String(fields.bio || '').trim(); state.profile.collaborationInterests = String(fields.collaborationInterests || '').split(/[\n,;]/).map(x => x.trim()).filter(Boolean).slice(0, 12); state.profile.avatarUrl = fields.avatarUrl || ''; },
     async changePassword() { throw new Error('Demo hesaplarında giriş şifresi yok.'); },
+    async changeEmail() { throw new Error('Demo hesaplarında e-posta değiştirilemez.'); },
     async supportCreate({subject,category,categoryLabel,body,eventId,attachmentName,attachmentPath}) { const t={id:uid(),number:'#UP-'+String(Date.now()).slice(-6),clubId:state.user,subject,category,categoryLabel:categoryLabel||category,eventId:eventId||'',attachmentName:attachmentName||'',attachmentPath:attachmentPath||'',status:'open',createdAt:stamp(),updatedAt:stamp(),messages:[{id:uid(),authorRole:'club',authorLabel:'Kulüp',body,createdAt:stamp()}]}; db.supportTickets.unshift(t); save(); },
     async supportReply(id,body) { const t=db.supportTickets.find(x=>x.id===id); if(!t) throw new Error('Talep bulunamadı.'); if(!isAdmin()&&t.status==='closed') throw new Error('Bu talep kapatıldı; yanıt verilemez.'); t.messages.push({id:uid(),authorRole:isAdmin()?'admin':'club',authorLabel:isAdmin()?'UniPakt Destek':'Kulüp',body,createdAt:stamp()}); t.status=isAdmin()?'answered':'open'; t.updatedAt=stamp(); save(); },
     async supportUpdate(id, fields) { const t=db.supportTickets.find(x=>x.id===id); if(!t) throw new Error('Talep bulunamadı.'); Object.assign(t, fields, {updatedAt:stamp()}); save(); },
@@ -2200,8 +2211,8 @@
       return `${SUPABASE_URL}/storage/v1${data.signedURL}`;
     },
     async updateMyProfile(fields) {
-      if (!String(fields.fullName || '').trim()) throw new Error('Kulüp başkanının adını yaz.');
-      if (isAdmin()) {   // yönetici: yalnızca ad ve profil fotoğrafı
+      if (!String(fields.fullName || '').trim()) throw new Error(isAdmin() || state.unitAcc ? 'Adını yaz.' : 'Kulüp başkanının adını yaz.');
+      if (isAdmin() || state.unitAcc) {   // yönetici: yalnızca ad ve profil fotoğrafı
         await restMust(`profiles?id=eq.${encodeURIComponent(session.user_id)}`, { method: 'PATCH', body: { full_name: String(fields.fullName).trim(), avatar_url: fields.avatarUrl || null } });
         state.profile.fullName = String(fields.fullName).trim(); state.profile.avatarUrl = fields.avatarUrl || '';
         return;
@@ -2218,6 +2229,10 @@
       const path = `${session.user_id}/logo`;
       await call(`/storage/v1/object/profile-logos/${path}`, { method: 'POST', body: file, raw: true, headers: { 'Content-Type': file.type, 'x-upsert': 'true' } });
       return `${SUPABASE_URL}/storage/v1/object/public/profile-logos/${path}?v=${Date.now()}`;
+    },
+    async changeEmail(email) {
+      try { await call('/auth/v1/user', { method: 'PUT', body: { email } }); }
+      catch (e) { throw new Error(/registered|exists|already/i.test(e.message || '') ? 'Bu e-posta başka bir hesapta kayıtlı.' : (e.message || 'E-posta değiştirilemedi.')); }
     },
     async changePassword(currentPassword, newPassword) {
       if (newPassword.length < 8) throw new Error('Yeni şifre en az 8 karakter olmalı.');
@@ -2265,7 +2280,7 @@
     // Only signs in; enterPanel() does 2FA and loads the data afterwards.
     async login(email, password) {
       try { await authCall('password', { email, password }); }
-      catch (e) { throw e.status === 400 ? new Error('E-posta ya da şifre hatalı.') : e; }
+      catch (e) { throw /banned/i.test(e.message || '') ? new Error('Bu hesap pasife alınmış. Birim başkanına ya da UniPakt Merkez Yönetim’e yaz.') : e.status === 400 ? new Error('E-posta ya da şifre hatalı.') : e; }
     },
     async logout() {
       const auth = session && session.access_token;
@@ -2422,12 +2437,15 @@
 
   const isAdmin = () => state.user === ADMIN;
   // Ekip üyesi yalnızca başkanın verdiği yetkileri kullanır (sunucu da aynısını zorlar).
-  const can = (perm) => !state.member || state.member.perms.includes(perm);
-  const isPresident = () => !!state.user && !isAdmin() && !state.member;
+  const can = (perm) => state.unitAcc ? (perm === 'chat' && state.unitAcc.chat) : (!state.member || state.member.perms.includes(perm));
+  const isPresident = () => !!state.user && !isAdmin() && !state.member && !state.unitAcc;
+  const UNIT_VIEWS = ['birimler', 'ims', 'ayarlar', 'hesap', 'dogrulama'];
+  const homeView = () => (state.unitAcc ? 'birimler' : 'genel');
   const VIEW_PERM = { etkinliklerim: 'events', basvuru: 'events', 'etkinlik-olustur': 'events', gorevliler: 'registrations', kayitlar: 'registrations', ims: 'chat', 'destek-taleplerim': 'support', gorevler: 'tasks' };
-  const viewAllowed = (view) => (view === 'marka' ? isAdmin() : view === 'birimler' ? (isAdmin() || !!state.unitAcc) : view === 'kulup-sayfasi' ? isPresident() : view === 'ekip' ? isPresident() : (view === 'ayarlar' || view === 'islem-kaydi') ? !state.member : !VIEW_PERM[view] || can(VIEW_PERM[view]));
+  const viewAllowed = (view) => state.unitAcc ? (UNIT_VIEWS.includes(view) && (view !== 'ims' || state.unitAcc.chat)) : (view === 'marka' ? isAdmin() : view === 'birimler' ? (isAdmin() || !!state.unitAcc) : view === 'kulup-sayfasi' ? isPresident() : view === 'ekip' ? isPresident() : (view === 'ayarlar' || view === 'islem-kaydi') ? !state.member : !VIEW_PERM[view] || can(VIEW_PERM[view]));
   const actPerm = (act) => {
-    if (/^(team-|club-|profile-avatar|activity-)/.test(act)) return 'president';
+    if (/^profile-avatar/.test(act)) return '';
+    if (/^(team-|club-|activity-)/.test(act)) return 'president';
     if (/^(reg-|staff-|grant-)/.test(act)) return 'registrations';
     if (/^(event-|ev-|app-|notif-app-|partner-|rejected-event)/.test(act)) return 'events';
     if (act === 'ann-new') return 'announcements';
@@ -2436,12 +2454,22 @@
     if (/^ims-new/.test(act)) return 'chat';
     return '';
   };
-  const actAllowed = (act) => { const p = actPerm(act); return !p || (p === 'president' ? !state.member : can(p)); };
+  const actAllowed = (act) => { const p = actPerm(act); return !p || (p === 'president' ? isPresident() : can(p)); };
   const NO_PERM = 'Bu işlem için yetkin yok. Kulüp başkanından yetki iste.';
   // Demo: ekip üyesi olarak giriş "member:<id>" diye saklanır.
   const applyDemoUser = () => {
-    state.member = null;
+    state.member = null; state.unitAcc = null;
     const raw = String(state.user || '');
+    if (raw.startsWith('unit:')) {   // demo birim hesabı: "unit:<kişi id>"
+      const u = (db.units || []).find((x) => x.members.some((m) => m.id === raw.slice(5) && m.status === 'active'));
+      const m = u?.members.find((x) => x.id === raw.slice(5));
+      if (!m) { state.user = null; return; }
+      const perms = m.is_head ? ['team', 'roles', 'chat'] : [...new Set([...(u.roles.find((r) => r.id === m.role_id)?.permissions || []), ...m.permissions])];
+      state.unitAcc = { id: m.id, unitId: u.id, unitName: u.name, roleName: m.is_head ? 'Birim Başkanı' : (u.roles.find((r) => r.id === m.role_id)?.name || 'Üye'), chat: perms.includes('chat') };
+      state.profile = { ...state.profile, fullName: m.full_name, avatarUrl: m.avatar_url || '' };
+      state.meId = m.id;
+      return;
+    }
     if (!raw.startsWith('member:')) return;
     const m = (db.team || []).find((x) => x.id === raw.slice(7));
     if (!m) { state.user = null; return; }
@@ -2453,7 +2481,7 @@
     ? `<span class="profile-avatar ${extraClass}"><img src="${esc(url)}" alt="${esc(label || 'Profil görseli')}" loading="lazy"></span>`
     : `<span class="profile-avatar ${extraClass}" aria-hidden="true">${esc(String(label || 'U').trim().charAt(0).toLocaleUpperCase('tr-TR') || 'U')}</span>`;
   const profileMenu = () => {
-    const label = state.staff ? (state.profile.username || state.profile.fullName || 'Merkez Yönetim') : isAdmin() ? 'UniPakt' : (club(state.user)?.name || 'Kulüp');
+    const label = state.unitAcc ? (state.profile.fullName || 'Birim üyesi') : state.staff ? (state.profile.username || state.profile.fullName || 'Merkez Yönetim') : isAdmin() ? 'UniPakt' : (club(state.user)?.name || 'Kulüp');
     return `<div class="profile-menu">
       <button class="profile-trigger" type="button" data-act="profile-menu-toggle" aria-haspopup="menu" aria-expanded="${state.profileMenuOpen ? 'true' : 'false'}">
         ${avatarMarkup(state.profile.avatarUrl, label)}<span>Profil</span><i class="profile-caret" aria-hidden="true"></i>
@@ -3880,10 +3908,10 @@
     'etkinlik-olustur': () => eventPageView(),
     ayarlar() {
       const clubInfo = club(state.user);
-      return `${head('Profil', 'Kulüp profilinde diğer kulüplerin göreceği bilgileri düzenle.')}
+      return `${head('Profil', state.unitAcc ? 'Adın ve profil fotoğrafın Birimler sayfasında ve mesajlarda görünür.' : 'Kulüp profilinde diğer kulüplerin göreceği bilgileri düzenle.')}
         <section class="card">
-          ${isAdmin() ? `<p class="body">UniPakt <span class="tag ok">✓ Onaylı</span></p>
-            <p class="body">Adın ve profil fotoğrafın panelde görünür. Hesabın @unipakt.com adresliyse fotoğrafın sitedeki The Story bölümündeki ekip kartında da görünür; değiştirince sitede de değişir.</p>
+          ${isAdmin() || state.unitAcc ? `${state.unitAcc ? `<p class="body">UniPakt ${esc(state.unitAcc.unitName)} <span class="tag ok">${esc(state.unitAcc.roleName)}</span></p>` : `<p class="body">UniPakt <span class="tag ok">✓ Onaylı</span></p>
+            <p class="body">Adın ve profil fotoğrafın panelde görünür. Hesabın @unipakt.com adresliyse fotoğrafın sitedeki The Story bölümündeki ekip kartında da görünür; değiştirince sitede de değişir.</p>`}
             <form id="profileForm" class="stack" style="margin-top:20px">
               <div class="profile-editor">
                 <div data-profile-avatar>${avatarMarkup(state.profile.avatarUrl, state.profile.fullName || 'UniPakt', 'large')}</div>
@@ -3924,6 +3952,13 @@
         <section class="card">
           <h2>Hesap bilgileri</h2>
           <div class="account-summary"><strong>${esc(session?.email || (DEMO ? club(state.user)?.account || '' : '') || 'E-posta bilgisi yüklenemedi')}</strong><br><small>${esc(state.staff ? `${state.staff.title}${state.profile.username ? ` · ${state.profile.username}` : ''}` : isAdmin() ? 'UniPakt yöneticisi' : state.member ? `${state.member.title} · ${club(state.user)?.name || 'Kulüp'} ekibi` : 'Kulüp başkanı hesabı')}</small></div>
+          ${state.unitAcc ? `<h2>E-postanı değiştir</h2>
+          <form id="emailForm" class="stack" style="margin:18px 0 28px;max-width:520px">
+            ${field('Yeni e-posta', '<input type="email" name="email" required maxlength="254" autocomplete="email">')}
+            <small class="hint">Yeni adresine bir onay bağlantısı gider; onaylayınca girişin yeni adresle olur.</small>
+            <button class="btn small" type="submit">E-postayı değiştir</button>
+            <p class="form-error" data-email-error hidden></p>
+          </form>` : ''}
           <h2>Şifre değiştir</h2>
           <form id="passwordForm" class="stack" style="margin-top:18px;max-width:520px">
             ${field('Mevcut şifre', '<input type="password" name="currentPassword" required autocomplete="current-password">')}
@@ -5487,7 +5522,7 @@
         if (team && (!m.is_head || headOk)) btns.push(`<button class="btn ghost small" data-act="unit-member-edit" data-id="${esc(m.id)}">Rol ve yetkiler</button>`);
         if (headOk && !m.is_head) btns.push(`<button class="btn ghost small" data-act="unit-head-set" data-id="${esc(m.id)}">Başkan yap</button>`);
         if (team && (!m.is_head || me.admin) && !isMe) btns.push(`<button class="btn danger small" data-act="unit-member-off" data-id="${esc(m.id)}">Pasife al</button>`);
-        if (team && emails[m.id] !== undefined) btns.push(`<button class="btn ghost small" data-act="unit-member-resend" data-id="${esc(m.id)}">Daveti yeniden gönder</button>`);
+        if (team && (!m.is_head || headOk) && emails[m.id] !== undefined) btns.push(`<button class="btn ghost small" data-act="unit-member-resend" data-id="${esc(m.id)}">Daveti yeniden gönder</button>`);
         if (me.admin) btns.push(`<button class="btn ghost small" data-act="unit-member-email" data-id="${esc(m.id)}">E-postayı değiştir</button>`);
       } else if (team) btns.push(`<button class="btn ghost small" data-act="unit-member-on" data-id="${esc(m.id)}">Yeniden aktif et</button>`);
       return `<article class="unit-member ${m.status === 'passive' ? 'is-passive' : ''}">
@@ -6491,7 +6526,7 @@
     try {
       if (!DEMO && !(await passMfaGate())) return;
       await loadRemote(); lastSync = Date.now();
-      if (!knownView(state.view)) state.view = 'genel';
+      if (!knownView(state.view)) state.view = homeView();
       render(); window.scrollTo(0, 0);
       loadSiteInboxCount(); startMatrix();
     } catch (error) {
@@ -6504,7 +6539,7 @@
      RENDER
      ------------------------------------------------------------------ */
   const go = (view) => {
-    if (!knownView(view)) view = 'genel';
+    if (!knownView(view)) view = homeView();
     if (view !== state.view && !leaveEventPage()) return;
     if (view !== state.view && state.view === 'marka') brandLeave();
     state.view = view; state.profileMenuOpen = false; state.navOpen = false;
@@ -6946,11 +6981,11 @@
     },
   });
   const render = () => {
-    if (!db || !state.user || (state.user !== ADMIN && !club(state.user))) { state.user = null; renderLogin(); return; }
+    if (!db || !state.user || (state.user !== ADMIN && !state.unitAcc && !club(state.user))) { state.user = null; renderLogin(); return; }
     if (state.staff && !state.profile.username && !state.usernameAsked && !dlg.open) { state.usernameAsked = true; setTimeout(askUsername, 0); }
     const nav = NAV();
-    if (!knownView(state.view)) state.view = 'genel';
-    const me = state.staff ? { name: state.profile.username || state.profile.fullName || 'Merkez Yönetim', role: esc(state.staff.title) } : isAdmin() ? { name: 'UniPakt', role: 'UniPakt yetkilisi' } : { name: club(state.user).name, role: state.member ? esc(state.member.title) : 'Kulüp başkanı' };
+    if (!knownView(state.view)) state.view = homeView();
+    const me = state.unitAcc ? { name: state.profile.fullName || 'Birim üyesi', role: `${esc(state.unitAcc.unitName)} · ${esc(state.unitAcc.roleName)}` } : state.staff ? { name: state.profile.username || state.profile.fullName || 'Merkez Yönetim', role: esc(state.staff.title) } : isAdmin() ? { name: 'UniPakt', role: 'UniPakt yetkilisi' } : { name: club(state.user).name, role: state.member ? esc(state.member.title) : 'Kulüp başkanı' };
     root.innerHTML = `
       <div class="app">
         <aside class="side ${state.navOpen ? 'nav-open' : ''}">
@@ -6960,7 +6995,7 @@
           </div>
           <button class="mobile-nav-toggle" type="button" data-act="mobile-nav-toggle" aria-label="Menüyü aç" aria-expanded="${state.navOpen ? 'true' : 'false'}" aria-controls="panel-navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
           <nav class="side-nav ${state.navOpen ? 'is-open' : ''}" id="panel-navigation" aria-label="Panel">
-            ${NAV_GROUPS.map(([g, title]) => `<p class="nav-group">${esc(title)}</p>${nav.filter((n) => n[3] === g).map(([id, label, count]) => `<button class="nav-item ${state.view === id ? 'active' : ''}" data-go="${id}" ${state.view === id ? 'aria-current="page"' : ''}>${esc(label)}${count ? `<span class="badge">${count}</span>` : ''}</button>`).join('')}`).join('')}
+            ${NAV_GROUPS.filter(([g]) => nav.some((n) => n[3] === g)).map(([g, title]) => `<p class="nav-group">${esc(title)}</p>${nav.filter((n) => n[3] === g).map(([id, label, count]) => `<button class="nav-item ${state.view === id ? 'active' : ''}" data-go="${id}" ${state.view === id ? 'aria-current="page"' : ''}>${esc(label)}${count ? `<span class="badge">${count}</span>` : ''}</button>`).join('')}`).join('')}
           </nav>
           <div class="side-foot">
             <div class="side-user"><strong>${esc(me.name)}</strong><small>${me.role}</small></div>
@@ -7129,6 +7164,18 @@
         render();
       }
       catch (problem) { error.textContent = problem.message || 'Profil kaydedilemedi.'; error.hidden = false; }
+      finally { button.disabled = false; }
+      return;
+    }
+    if (e.target.id === 'emailForm') {
+      e.preventDefault();
+      const form = e.target, error = form.querySelector('[data-email-error]'), button = form.querySelector('button[type="submit"]');
+      const email = form.elements.email.value.trim().toLowerCase();
+      error.hidden = true;
+      if (!EMAIL_RE.test(email)) { error.textContent = 'Geçerli bir e-posta yaz.'; error.hidden = false; return; }
+      button.disabled = true;
+      try { await api.changeEmail(email); toast(`Onay bağlantısı ${email} adresine gönderildi.`); form.reset(); }
+      catch (problem) { error.textContent = problem.message || 'E-posta değiştirilemedi.'; error.hidden = false; }
       finally { button.disabled = false; }
       return;
     }
