@@ -1423,7 +1423,7 @@
       if (mfa && mfa.enabled && !mfa.verified) { const e = new Error('Bu tarayıcı için iki adımlı doğrulama gerekli.'); e.mfa = true; throw e; }
       throw signedOut('Bu hesaba panel yetkisi verilmemiş. UniPakt ile iletişime geç.');
     }
-    const [clubs, anns, events, apps, tasks, points, eventVisibilityRequests, eventEditRequests, notifications, board, eventComments, panelProfiles] = await Promise.all([
+    const [clubs, anns, events, apps, tasks, points, eventVisibilityRequests, eventEditRequests, notifications, board, eventComments, panelProfiles, notificationStates] = await Promise.all([
       rest('clubs?select=*&order=name'), rest('announcements?select=*'), rest('events?select=*,event_occurrences(date,time)&order=event_date'),
       rest('event_applications?select=*&order=created_at'), rest('tasks?select=*'), rest('point_entries?select=*'),
       rest('event_visibility_requests?select=*&order=created_at.desc'),
@@ -1433,7 +1433,10 @@
       rest('profiles?select=id,role,club_id,full_name,bio,collaboration_interests,avatar_url'),
       // Yorumları yalnızca yetkili okuyabilir (RLS); kulüp hesabı hiç istemez.
       profile.role === 'admin' ? rest('event_comments?select=id,event_id,name,email,body,status,created_at&status=eq.pending&order=created_at') : [],
+      // Okundu / sil her hesap için ayrı (yalnızca kendi satırların gelir).
+      rest('notification_states?select=notification_id,read_at,hidden_at').catch(() => []),
     ]);
+    const myNotif = new Map((notificationStates || []).map((r) => [r.notification_id, r]));
     const owner = (clubId) => clubId || ADMIN;
     db = {
       panelProfiles: (panelProfiles || []).map(mapPanelProfile),
@@ -1449,7 +1452,7 @@
       eventVisibilityRequests: (eventVisibilityRequests || []).map((r) => ({ id: r.id, eventId: r.event_id, clubId: r.club_id, desiredVisible: !!r.desired_visible, note: r.note || '', status: r.status, createdAt: r.created_at, decidedAt: r.decided_at })),
       eventComments: (eventComments || []).map((c) => ({ id: c.id, eventId: c.event_id, name: c.name, email: c.email || '', body: c.body, status: c.status, createdAt: c.created_at })),
       eventEdits: (eventEditRequests || []).map((r) => ({ id:r.id, eventId:r.event_id, clubId:r.club_id, changes:r.changes || {}, note:r.note || '', status:r.status, createdAt:r.created_at, decidedAt:r.decided_at })),
-      notifications: (notifications || []).map((n) => ({ id:n.id, type:n.type, title:n.title, body:n.body || '', eventId:n.event_id || '', applicationId:n.application_id || '', taskId:n.task_id || '', actionable: !!n.actionable, resolved: !!n.resolved, createdAt:n.created_at, readAt:n.read_at })),
+      notifications: (notifications || []).filter((n) => !myNotif.get(n.id)?.hidden_at).map((n) => ({ id:n.id, type:n.type, title:n.title, body:n.body || '', eventId:n.event_id || '', applicationId:n.application_id || '', taskId:n.task_id || '', actionable: !!n.actionable, resolved: !!n.resolved, createdAt:n.created_at, readAt: myNotif.get(n.id)?.read_at || n.read_at })),
       supportCreators: [],
       supportTickets: [],
       tasks: tasks.map((t) => ({ id: t.id, title: t.title, desc: t.description || '', due: t.due_date || '', clubId: t.club_id, status: t.status,
@@ -1928,8 +1931,15 @@
     async removeEventPartner(eventId, clubId, note='') {
       await rest('rpc/remove_event_partner', { method:'POST', body:{ p_event:eventId, p_club:clubId, p_note:note } });
     },
-    async markNotificationRead(id) { await rest(`notifications?${eq(id)}`, {method:'PATCH',body:{read_at:stamp()}}); },
-    async deleteNotification(id) { await restMust(`notifications?${eq(id)}`, {method:'DELETE'}); },
+    // Okundu / sil yalnızca bu hesap için (notification_states); diğer yöneticilerin ve ekip üyelerinin listesi değişmez.
+    async markNotificationRead(id) {
+      await rest('notification_states?on_conflict=notification_id,user_id', { method: 'POST', body: { notification_id: id, read_at: stamp() }, headers: { Prefer: 'resolution=merge-duplicates' } });
+    },
+    async deleteNotification(id) {
+      const n = (db.notifications || []).find((x) => x.id === id);
+      if (n && n.actionable && !n.resolved) throw new Error('Sonuçlandırılmamış talep silinemez.');
+      await rest('notification_states?on_conflict=notification_id,user_id', { method: 'POST', body: { notification_id: id, read_at: n?.readAt || stamp(), hidden_at: stamp() }, headers: { Prefer: 'resolution=merge-duplicates' } });
+    },
     async reviewTask(id, status, note='') { await rest('rpc/review_task', {method:'POST',body:{p_task:id,p_status:status,p_note:note}}); },
     async addTasks(clubIds, { title, desc, due }) {
       await rest('tasks', { method: 'POST', body: clubIds.map((club_id) => ({ club_id, title, description: desc || null, due_date: due || null })) });
