@@ -79,6 +79,11 @@
   .cpv-ev i { font-style: normal; opacity: .7; }
   .cpv-btn { justify-self: start; padding: 8px 16px; border-radius: 999px; background: var(--accent-grad); color: var(--on-accent); font-weight: 700; font-size: 13px; }
   .cpv.has-acc .cpv-btn { background: var(--cp-acc); color: #fff; }
+  /* Vanguard: ıslak zemin levhası */
+  .wet-floor { display: grid; justify-items: center; gap: 10px; padding: clamp(32px, 6vw, 64px) 20px; text-align: center; }
+  .wet-sign { width: clamp(150px, 22vw, 210px); height: auto; filter: drop-shadow(0 18px 30px #0008); }
+  .wet-text { margin: 18px 0 0; font: 800 clamp(20px, 2.6vw, 28px)/1.25 'Archivo', sans-serif; }
+  .wet-sub { margin: 0; opacity: .65; font-size: 15px; }
   /* Marka rengi sayfası */
   .brand-presets { display: flex; flex-wrap: wrap; gap: 8px; }
   .brand-presets .chip { display: inline-flex; align-items: center; gap: 8px; }
@@ -3780,6 +3785,7 @@
     }
   };
 
+  const VANGUARD_OPEN = false;   // UniPakt.Vanguard yenilenirken kapalı
   const views = {
     marka: () => brandView(),
     'kulup-sayfasi': () => clubPageView(),
@@ -4190,6 +4196,27 @@
     },
 
     vanguard() {
+      // Vanguard yenileniyor: şimdilik "ıslak zemin" levhası. Eski sayfa aşağıda duruyor; VANGUARD_OPEN = true ile geri açılır.
+      if (!VANGUARD_OPEN) return `${head('UniPakt.Vanguard', '')}
+        <section class="card wet-floor" role="status">
+          <svg class="wet-sign" viewBox="0 0 200 270" aria-hidden="true">
+            <path d="M28 258 L64 26 Q66 14 78 14 L122 14 Q134 14 136 26 L172 258 Z" fill="#FACC15" stroke="#0C0C0D" stroke-width="6" stroke-linejoin="round"/>
+            <rect x="86" y="22" width="28" height="9" rx="4.5" fill="#0C0C0D"/>
+            <path d="M100 46 L142 126 L58 126 Z" fill="#FACC15" stroke="#0C0C0D" stroke-width="5.5" stroke-linejoin="round"/>
+            <g stroke="#0C0C0D" stroke-linecap="round" stroke-linejoin="round" fill="none" transform="translate(100 104) scale(.74) translate(-100 -112)">
+              <circle cx="84" cy="94" r="6.5" fill="#0C0C0D" stroke="none"/>
+              <path d="M88 101 L100 120" stroke-width="7"/>
+              <path d="M100 120 L116 108 L123 112" stroke-width="5.5"/>
+              <path d="M100 120 L110 131" stroke-width="5.5"/>
+              <path d="M92 107 L78 113 M93 105 L101 96" stroke-width="4.5"/>
+              <path d="M66 136 L134 136" stroke-width="3.5"/>
+            </g>
+            <text x="100" y="170" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="900" font-size="22" fill="#0C0C0D">DİKKAT</text>
+            <text x="100" y="194" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="800" font-size="12.5" fill="#0C0C0D">KAYGAN ZEMİN</text>
+          </svg>
+          <p class="wet-text">Şu an yerler biraz ıslak, kuruyunca uğra.</p>
+          <p class="wet-sub">(Önerilerinizi dinliyoruz)</p>
+        </section>`;
       const list = ranking();
       const max = Math.max(1, ...list.map((c) => c.points));
       const newest = (a, b) => String(b.at).localeCompare(String(a.at));
