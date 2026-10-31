@@ -74,13 +74,13 @@ const grantEmail = (staffName: string, eventTitle: string, ownerName: string, li
 <body style="margin:0;padding:0;background:#0C0C0D;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0C0C0D;"><tr><td align="center" style="padding:40px 16px;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:540px;background:#161618;border:1px solid #2a2a2d;border-radius:22px;"><tr><td style="padding:36px 32px;font-family:Arial,Helvetica,sans-serif;color:#F2F1EE;">
-  <div style="font:800 34px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:#19C7B5;">.</span></div>
-  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#19C7B5;">GİRİŞ KONTROLÜ</div>
+  <div style="font:800 34px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:#A94B86;">.</span></div>
+  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#A94B86;">GİRİŞ KONTROLÜ</div>
   <h1 style="margin:32px 0 10px;font:800 25px/1.25 Arial,Helvetica,sans-serif;color:#F2F1EE;">Merhaba ${esc(staffName)},</h1>
   <p style="margin:0 0 22px;font:400 16px/1.6 Arial,Helvetica,sans-serif;color:#C9C8C4;"><b style="color:#F2F1EE;">${esc(ownerName)}</b>, seni <b style="color:#F2F1EE;">${esc(eventTitle)}</b> etkinliğinde giriş kontrolü görevlisi olarak ekledi. Katılımcıların QR kodunu ya da 6 haneli kayıt kodunu kontrol edeceksin.</p>
   <p style="margin:0 0 10px;font:600 14px/1.4 Arial,Helvetica,sans-serif;color:#9A9995;">Erişim kodun</p>
   <table role="presentation" cellspacing="0" cellpadding="0"><tr>${digits}</tr></table>
-  <p style="margin:26px 0 0;"><a href="${esc(link)}" style="display:inline-block;padding:15px 28px;border-radius:999px;background:#19C7B5;color:#0C0C0D;font:700 16px/1 Arial,Helvetica,sans-serif;text-decoration:none;">Kontrol sayfasını aç</a></p>
+  <p style="margin:26px 0 0;"><a href="${esc(link)}" style="display:inline-block;padding:15px 28px;border-radius:999px;background:#8F244D;background-image:linear-gradient(135deg,#8F244D,#A94B86);color:#FFFFFF;font:700 16px/1 Arial,Helvetica,sans-serif;text-decoration:none;">Kontrol sayfasını aç</a></p>
   <p style="margin:24px 0 0;font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#9A9995;">Bağlantıyı açınca erişim kodunu isteyecek. Yetkin ${esc(trDate(expiresAt))} tarihine kadar geçerli. Bu bağlantıyı ve kodu kimseyle paylaşma.</p>
 </td></tr></table>
 <p style="margin:18px 0 0;font:400 12px/1.6 Arial,Helvetica,sans-serif;color:#6f6e6a;">Bu e-posta UniPakt üzerinden gönderildi. Bir hata olduğunu düşünüyorsan etkinliği düzenleyen kulüple iletişime geç.</p>

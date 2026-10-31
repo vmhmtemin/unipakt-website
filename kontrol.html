@@ -19,7 +19,7 @@
   color-scheme: dark;
   --ink: #F2F1EE; --paper: #0C0C0D; --surface: #161618; --soft: #1E1E21;
   --border: #F2F1EE17; --border-strong: #F2F1EE30;
-  --accent: #19C7B5; --on-accent: #000; --ok: #4ADE80; --warn: #FACC15; --no: #F87171;
+  --accent: #A94B86; --accent-grad: linear-gradient(135deg, #8F244D, #A94B86); --on-accent: #fff; --ok: #4ADE80; --warn: #FACC15; --no: #F87171;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--paper); color: var(--ink); }
@@ -34,7 +34,7 @@ button { cursor: pointer; }
 .brand span { font: 700 13px/1 'Inter', sans-serif; letter-spacing: .14em; color: var(--accent); text-transform: uppercase; }
 h1 { margin: 26px 0 8px; font: 900 clamp(30px, 8vw, 40px)/1.04 'Archivo', sans-serif; letter-spacing: -0.04em; }
 .lead { margin: 0 0 24px; opacity: .72; }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; border-radius: 999px; border: 1.5px solid var(--accent); background: var(--accent); color: var(--on-accent); font-weight: 700; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; border-radius: 999px; border: 1.5px solid var(--accent); background: var(--accent-grad); color: var(--on-accent); font-weight: 700; }
 .btn.ghost { background: transparent; color: var(--ink); border-color: var(--border-strong); }
 .btn.block { width: 100%; }
 .btn:disabled { opacity: .55; cursor: progress; }

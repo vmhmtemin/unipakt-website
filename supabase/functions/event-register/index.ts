@@ -20,6 +20,8 @@
 //   Cancelling (code e-mailed to the registered address):
 //   { action: "cancel_start", event_id, email | code } -> { cancel_id, email (masked) }
 //   { action: "cancel_resend", cancel_id } / { action: "cancel_verify", cancel_id, code }
+//   { action: "no_reminders", registration_id, sig } -> hatırlatma e-postalarını kapatır (hatırlatma e-postasındaki bağlantı)
+//   start ayrıca no_reminders: true alabilir (formdaki "hatırlatma istemiyorum" kutusu)
 //   { action: "sweep", event_id? }  expired offers out, freed seats offered (cron every 10 min);
 //        without event_id also sends the due reminder e-mails (1 day / 2 hours before, per club setting)
 //
@@ -60,6 +62,9 @@ const randomDigits = () => {
 };
 const codeHash = (pendingId: string, code: string) => sha256(`unipakt-reg:${pendingId}:${code}`);
 const esc = (v: unknown) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+// Hatırlatma e-postasındaki "hatırlatma istemiyorum" bağlantısı: kayıt kimliği + sunucu sırrıyla imza.
+const noRemindSig = async (regId: string) =>
+  (await sha256(`unipakt-noremind:${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}:${regId}`)).slice(0, 32);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const maskEmail = (email: string) => {
   const [name, domain] = String(email || "").split("@");
@@ -74,8 +79,8 @@ const codeEmail = (name: string, eventTitle: string, code: string) => {
 <body style="margin:0;padding:0;background:#0C0C0D;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0C0C0D;"><tr><td align="center" style="padding:40px 16px;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:540px;background:#161618;border:1px solid #2a2a2d;border-radius:22px;"><tr><td style="padding:36px 32px;font-family:Arial,Helvetica,sans-serif;color:#F2F1EE;">
-  <div style="font:800 34px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:#19C7B5;">.</span></div>
-  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#19C7B5;">ETKİNLİK KAYDI</div>
+  <div style="font:800 34px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:#A94B86;">.</span></div>
+  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#A94B86;">ETKİNLİK KAYDI</div>
   <h1 style="margin:32px 0 10px;font:800 25px/1.25 Arial,Helvetica,sans-serif;color:#F2F1EE;">Merhaba ${esc(name)},</h1>
   <p style="margin:0 0 22px;font:400 16px/1.6 Arial,Helvetica,sans-serif;color:#C9C8C4;"><b style="color:#F2F1EE;">${esc(eventTitle)}</b> kaydını tamamlamak için bu kodu kayıt ekranına yaz.</p>
   <table role="presentation" cellspacing="0" cellpadding="0"><tr>${digits}</tr></table>
@@ -139,13 +144,13 @@ const frame = (kicker: string, inner: string) => `<!doctype html><html lang="tr"
 <body style="margin:0;padding:0;background:#0C0C0D;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0C0C0D;"><tr><td align="center" style="padding:40px 16px;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:540px;background:#161618;border:1px solid #2a2a2d;border-radius:22px;"><tr><td style="padding:34px 32px;font-family:Arial,Helvetica,sans-serif;color:#F2F1EE;">
-  <div style="font:800 32px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:#19C7B5;">.</span></div>
-  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#19C7B5;">${esc(kicker)}</div>
+  <div style="font:800 32px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:#A94B86;">.</span></div>
+  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#A94B86;">${esc(kicker)}</div>
   ${inner}
 </td></tr></table>
 <p style="margin:18px 0 0;font:400 12px/1.6 Arial,Helvetica,sans-serif;color:#6f6e6a;">Bu e-posta UniPakt üzerinden gönderildi. Sorun olursa etkinliği düzenleyen kulüple iletişime geç.</p>
 </td></tr></table></body></html>`;
-const button = (href: string, label: string) => `<a href="${esc(href)}" style="display:inline-block;padding:15px 28px;border-radius:999px;background:#19C7B5;color:#0C0C0D;font:700 16px/1 Arial,Helvetica,sans-serif;text-decoration:none;">${esc(label)}</a>`;
+const button = (href: string, label: string) => `<a href="${esc(href)}" style="display:inline-block;padding:15px 28px;border-radius:999px;background:#8F244D;background-image:linear-gradient(135deg,#8F244D,#A94B86);color:#FFFFFF;font:700 16px/1 Arial,Helvetica,sans-serif;text-decoration:none;">${esc(label)}</a>`;
 const eventBlock = (ev: Ev) => `<h1 style="margin:28px 0 8px;font:800 26px/1.2 Arial,Helvetica,sans-serif;color:#F2F1EE;">${esc(ev.title)}</h1>
   <p style="margin:0;font:400 15px/1.6 Arial,Helvetica,sans-serif;color:#C9C8C4;">${whenWhere(ev).map(esc).join("<br>")}</p>`;
 
@@ -224,14 +229,16 @@ const sendReminder = async (r: { id: string; event_id: string; kind: string; cod
   } catch (error) { console.error("qr failed", error); }
   const page = `${SITE}/etkinlik/?id=${ev.id}`;
   const cancel = `${page}#iptal=${r.code}`;
+  const stop = `${page}#hatirlatma=${r.id}.${await noRemindSig(r.id)}`;
   const letters = r.code.split("").map((c) =>
     `<td style="width:46px;height:58px;background:#F2F1EE;border-radius:10px;text-align:center;vertical-align:middle;font:800 28px/58px Arial,Helvetica,sans-serif;color:#0C0C0D;">${esc(c)}</td><td style="width:6px;"></td>`).join("");
   const html = frame(soon.toLocaleUpperCase("tr-TR"), `${eventBlock(ev)}
   <p style="margin:22px 0 18px;font:400 16px/1.6 Arial,Helvetica,sans-serif;color:#C9C8C4;">Merhaba ${esc(r.full_name)}, kaydın hazır. Girişte QR'ı (ekte) ya da bu kodu göster.</p>
   <table role="presentation" cellspacing="0" cellpadding="0"><tr>${letters}</tr></table>
   <p style="margin:26px 0 0;">${button(page, "Etkinlik sayfası")}</p>
-  <p style="margin:22px 0 0;font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#9A9995;">Gelemeyeceksen <a href="${esc(cancel)}" style="color:#19C7B5;">kaydını iptal et</a>; yerin bekleyen birine geçsin.</p>`);
-  const text = `${ev.title}\n${whenWhere(ev).join("\n")}\n\nMerhaba ${r.full_name}, girişte QR'ı (ekte) ya da bu kodu göster: ${r.code}\n\nEtkinlik sayfası: ${page}\nGelemeyeceksen kaydını iptal et: ${cancel}`;
+  <p style="margin:22px 0 0;font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#9A9995;">Gelemeyeceksen <a href="${esc(cancel)}" style="color:#A94B86;">kaydını iptal et</a>; yerin bekleyen birine geçsin.</p>
+  <p style="margin:10px 0 0;font:400 13px/1.6 Arial,Helvetica,sans-serif;color:#7C7A75;">Bu etkinlik için hatırlatma almak istemiyorsan <a href="${esc(stop)}" style="color:#9A9995;">hatırlatmaları kapat</a>.</p>`);
+  const text = `${ev.title}\n${whenWhere(ev).join("\n")}\n\nMerhaba ${r.full_name}, girişte QR'ı (ekte) ya da bu kodu göster: ${r.code}\n\nEtkinlik sayfası: ${page}\nGelemeyeceksen kaydını iptal et: ${cancel}\nHatırlatmaları kapat: ${stop}`;
   return mail(r.email, `${soon}: ${ev.title}`, html, text, attachments);
 };
 const runReminders = async () => {
@@ -284,6 +291,7 @@ Deno.serve(async (req) => {
         p_event: eventId, p_full_name: String(body.full_name ?? ""), p_email: String(body.email ?? ""),
         p_answers: body.answers && typeof body.answers === "object" ? body.answers : {}, p_consent: body.consent === true,
         p_ip_hash: ip ? await sha256(`unipakt-reg-ip:${ip}`) : null,
+        p_no_reminders: body.no_reminders === true,
       });
       if (error) return reply(400, { message: error.message });
       const p = { id: data.pending_id as string, email: data.email as string, full_name: data.full_name as string, sends: 0 };
@@ -292,6 +300,15 @@ Deno.serve(async (req) => {
         return reply(502, { message: "Doğrulama e-postası gönderilemedi. E-posta adresini kontrol edip tekrar dene." });
       }
       return reply(200, { pending_id: p.id, email: maskEmail(p.email), resend_in: RESEND_SECONDS });
+    }
+
+    if (action === "no_reminders") {
+      const id = String(body.registration_id ?? ""), sig = String(body.sig ?? "");
+      if (!UUID.test(id) || !/^[0-9a-f]{32}$/.test(sig) || sig !== await noRemindSig(id)) return reply(400, { message: "Bağlantı geçersiz." });
+      const { data, error } = await supabase.from("event_registrations").update({ no_reminders: true }).eq("id", id).select("event_id").maybeSingle();
+      if (error || !data) return reply(404, { message: "Kayıt bulunamadı." });
+      const ev = await eventOf(data.event_id);
+      return reply(200, { event_id: data.event_id, event_title: ev.title });
     }
 
     if (action === "sweep") {
