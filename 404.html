@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- The inline script at the bottom is allowed by its sha256 hash. After editing it, run
      python3 tools/build_pages.py: it prints the new hash to put here. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; script-src 'sha256-BVI+OvOI+7wiUDAKulv1F+HX3Yec5MMJSUCp7lbAQT4='; base-uri 'self'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src https://hcgotmcbwmleeklbvawb.supabase.co; script-src 'self' 'sha256-BVI+OvOI+7wiUDAKulv1F+HX3Yec5MMJSUCp7lbAQT4='; base-uri 'self'; object-src 'none'; frame-src 'none'">
 <meta name="robots" content="noindex">
 <title>Sayfa bulunamadı — UniPakt</title>
 <!-- GitHub Pages serves this file for any missing path, so every link here is absolute. -->
@@ -20,7 +20,8 @@
   @font-face { font-family: 'Caveat'; font-style: normal; font-weight: 600 700; font-display: swap; src: url(/fonts/caveat-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
   @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400 600; font-display: swap; src: url(/fonts/inter-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
   @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400 600; font-display: swap; src: url(/fonts/inter-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-  :root { color-scheme: dark; --ink: #fff; --paper: #000; --border: #FFFFFF20; --border-strong: #FFFFFF35; --accent: #A94B86; --accent-grad: linear-gradient(135deg, #8F244D, #A94B86); --on-accent: #fff; }
+  :root { color-scheme: dark; --ink: #fff; --paper: #000; --border: #FFFFFF20; --border-strong: #FFFFFF35; /*brand:start*/ --brand-grad: linear-gradient(135deg, #8F244D, #A94B86); --brand-on-dark: #A94B86; --brand-on-light: #8F244D; --brand-on-accent: #FFFFFF; /*brand:end*/
+    --accent: var(--brand-on-dark); --accent-grad: var(--brand-grad); --on-accent: var(--brand-on-accent); }
   * { box-sizing: border-box; }
   html { -webkit-tap-highlight-color: transparent; }
   body {
@@ -59,9 +60,11 @@
   .line::after { left: 62%; background: var(--accent-grad); animation: drift 3.2s ease-in-out infinite; }
   @keyframes drift { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -170%); } }
 </style>
+    <meta name="unipakt-theme-baked" content="#8F244D,#A94B86|135">
+    <script src="/theme.js?v=1"></script>
 </head>
 <body>
-  <header><a class="wordmark" href="/" aria-label="UniPakt"><img class="wordmark-img" src="/unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a></header>
+  <header><a class="wordmark" href="/" aria-label="UniPakt"><img data-tint="unipakt-logo-bg-white" class="wordmark-img" src="/unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a></header>
   <main>
     <p class="kicker">Bu nokta ağda yok.</p>
     <h1>404<span>.</span></h1>

@@ -30,7 +30,8 @@
     --surface: #161618;
     --border: #F2F1EE17;
     --border-strong: #F2F1EE30;
-    --accent: #A94B86; --accent-grad: linear-gradient(135deg, #8F244D, #A94B86); --on-accent: #fff;
+    /*brand:start*/ --brand-grad: linear-gradient(135deg, #8F244D, #A94B86); --brand-on-dark: #A94B86; --brand-on-light: #8F244D; --brand-on-accent: #FFFFFF; /*brand:end*/
+    --accent: var(--brand-on-dark); --accent-grad: var(--brand-grad); --on-accent: var(--brand-on-accent);
     --ok: #4ADE80;
     --no: #F87171;
     --side-w: 264px;
@@ -686,7 +687,7 @@
     html.print-report #rbReport { position: absolute; inset: 0 auto auto 0; width: 100%; color: #000; }
     html.print-report #rbReport [data-act="reg-print"] { display: none; }
     html.print-report .rs-stats > div, html.print-report .rs-card { background: #f4f4f4; }
-    html.print-report .rs-bar-track i { background: #A94B86; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    html.print-report .rs-bar-track i { background: var(--brand-on-dark); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     html.print-report .flower-credit { display: none; }
     html.print-report, html.print-report body { background: #fff !important; color-scheme: light !important; }
     html.print-report #rbReport, html.print-report #rbReport * { color: #111 !important; }
@@ -822,7 +823,7 @@
   .evd-sw:hover { transform: scale(1.08); }
   .evd-sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--bg, #0c0c0d), 0 0 0 4px var(--ink); }
   .evd-sw-none { background: transparent; display: grid; place-items: center; font-size: 14px; opacity: .75; }
-  .evd-custom { position: relative; width: 32px; height: 32px; border-radius: 50%; border: 1px dashed var(--border-strong); display: grid; place-items: center; cursor: pointer; overflow: hidden; background: conic-gradient(from 0deg, #A94B86, #fbbc05, #34a853, #06b6d4, #4285f4, #8b5cf6, #ec4899, #A94B86); }
+  .evd-custom { position: relative; width: 32px; height: 32px; border-radius: 50%; border: 1px dashed var(--border-strong); display: grid; place-items: center; cursor: pointer; overflow: hidden; background: conic-gradient(from 0deg, var(--brand-on-dark), #fbbc05, #34a853, #06b6d4, #4285f4, #8b5cf6, #ec4899, #A94B86); }
   .evd-custom span { width: 18px; height: 18px; border-radius: 50%; background: var(--bg, #0c0c0d); color: var(--ink); display: grid; place-items: center; font-size: 14px; line-height: 1; }
   .evd-custom input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; border: 0; padding: 0; }
   .evd-hex { width: 108px; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border-strong); background: color-mix(in srgb, var(--ink) 4%, transparent); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; text-transform: uppercase; outline: none; }
@@ -842,7 +843,7 @@
   .evd-thumb.bg-blur { background: linear-gradient(135deg, #b35b7a, #5b6fb3, #3e9b8a); filter: saturate(1.1); }
   .evd-thumb.bg-blur i { filter: none; }
   .evd-thumb.bg-color { background: #1E3A8A; }
-  .evd-thumb.bg-gradient { background: linear-gradient(135deg, #1E3A8A, #A94B86); }
+  .evd-thumb.bg-gradient { background: linear-gradient(135deg, #1E3A8A, var(--brand-on-dark)); }
   .evd-cards.titles { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
   .evd-aa { display: grid; place-items: center; height: 44px; border-radius: 9px; background: color-mix(in srgb, var(--ink) 6%, transparent); font: 900 22px/1 'Archivo', sans-serif; letter-spacing: -0.02em; }
   .evd-aa.t-left { justify-items: start; padding-left: 10px; font-size: 26px; }
@@ -974,11 +975,11 @@
     .hf-stage.hf-done .hf-l-hack, .hf-stage.hf-done .hf-l-uni, .hf-stage.hf-done .hf-l-mix, .hf-stage.hf-done .hf-l-star { opacity: 0; animation: hfPartsOut .7s ease-out both; }
     /* Yıldız 27'nin arkasından, görünmezden görünüre süzülerek çıkar (katman olarak 27'nin altında). */
     @keyframes hfStar {
-        0% { opacity: 0; transform: translateX(-7%) scale(.7); filter: drop-shadow(0 0 0 #A94B8600); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
-        60% { opacity: 1; filter: drop-shadow(0 0 14px #A94B8699); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
-        100% { opacity: 1; transform: none; filter: drop-shadow(0 0 4px #A94B8655); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+        0% { opacity: 0; transform: translateX(-7%) scale(.7); filter: drop-shadow(0 0 0 color-mix(in srgb, var(--brand-on-dark) 0%, transparent)); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+        60% { opacity: 1; filter: drop-shadow(0 0 14px color-mix(in srgb, var(--brand-on-dark) 60%, transparent)); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+        100% { opacity: 1; transform: none; filter: drop-shadow(0 0 4px color-mix(in srgb, var(--brand-on-dark) 33%, transparent)); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
     }
-    @keyframes hfFullIn { 0% { opacity: 0; filter: drop-shadow(0 0 0 #A94B8600) brightness(1.12); } 45% { opacity: 1; filter: drop-shadow(0 0 22px #A94B8655) brightness(1.06); } 100% { opacity: 1; filter: drop-shadow(0 0 0 #A94B8600) brightness(1); } } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+    @keyframes hfFullIn { 0% { opacity: 0; filter: drop-shadow(0 0 0 color-mix(in srgb, var(--brand-on-dark) 0%, transparent)) brightness(1.12); } 45% { opacity: 1; filter: drop-shadow(0 0 22px color-mix(in srgb, var(--brand-on-dark) 33%, transparent)) brightness(1.06); } 100% { opacity: 1; filter: drop-shadow(0 0 0 color-mix(in srgb, var(--brand-on-dark) 0%, transparent)) brightness(1); } } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
     @keyframes hfPartsOut { from { opacity: 1; } to { opacity: 0; } }
     @media (prefers-reduced-motion: reduce) { .hf-stage.hf-done .hf-l { animation: none; } }
     @keyframes hfHack {
@@ -993,15 +994,17 @@
     }
 @media (prefers-reduced-motion: reduce) { .pf-intro { display: none; } }
 </style>
+    <meta name="unipakt-theme-baked" content="#8F244D,#A94B86|135">
+    <script src="/theme.js?v=1"></script>
 </head>
 <body>
 <div class="pf-intro" id="pfIntro" aria-hidden="true" hidden>
     <div class="hf-stage" id="pfStage">
-        <img class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp?v=3" alt="" width="1375" height="505" decoding="async">
-        <img class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp?v=3" alt="" width="1375" height="505" decoding="async">
-        <img class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp?v=3" alt="" width="1375" height="505" decoding="async">
-        <img class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp?v=3" alt="" width="1375" height="505" decoding="async">
-        <img class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp?v=3" alt="" width="1375" height="505" decoding="async">
+        <img data-tint="logo-full" class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp?v=3" alt="" width="1375" height="505" decoding="async">
+        <img data-tint="logo-star" class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp?v=3" alt="" width="1375" height="505" decoding="async">
+        <img data-tint="logo-hackfest" class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp?v=3" alt="" width="1375" height="505" decoding="async">
+        <img data-tint="logo-unipakt" class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp?v=3" alt="" width="1375" height="505" decoding="async">
+        <img data-tint="logo-mixit" class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp?v=3" alt="" width="1375" height="505" decoding="async">
     </div>
 </div>
 <script>
@@ -3331,7 +3334,7 @@
   const BILETIMGO = /^https:\/\/(www\.)?biletimgo\.com\/[^\s"'<>]*$/i;
   // ---- Sayfa tasarımı: vurgu rengi, üst alan arka planı, başlık stili (boş = varsayılan) ----
   const HEX6 = /^#[0-9a-f]{6}$/i;
-  const ACCENT_SWATCHES = [['#A94B86', 'UniPakt rengi'], ['#EA4335', 'Kırmızı'], ['#FBBC05', 'Sarı'], ['#34A853', 'Yeşil'], ['#4285F4', 'Mavi'], ['#06B6D4', 'Turkuaz'], ['#8B5CF6', 'Mor'], ['#EC4899', 'Pembe'], ['#F2F1EE', 'Kırık beyaz']];
+  const ACCENT_SWATCHES = [[brandColor(), 'UniPakt rengi'], ['#EA4335', 'Kırmızı'], ['#FBBC05', 'Sarı'], ['#34A853', 'Yeşil'], ['#4285F4', 'Mavi'], ['#06B6D4', 'Turkuaz'], ['#8B5CF6', 'Mor'], ['#EC4899', 'Pembe'], ['#F2F1EE', 'Kırık beyaz']];
   const BG_SWATCHES = [['#0C0C0D', 'Siyah'], ['#1F2937', 'Antrasit'], ['#1E3A8A', 'Lacivert'], ['#14532D', 'Koyu yeşil'], ['#7C2D12', 'Kiremit'], ['#4C1D95', 'Koyu mor'], ['#F5F5F4', 'Açık gri'], ['#FDE68A', 'Krem sarı'], ['#FFFFFF', 'Beyaz']];
   const DESIGN_BGS = [['default', 'Varsayılan', 'Görsel, koyu katman ve noktalar'], ['clear', 'Görsel net', 'Banner daha belirgin'], ['blur', 'Afişten bulanık', 'Afişin renkleri yumuşak bir zemin olur'], ['color', 'Düz renk', 'Seçtiğin renk'], ['gradient', 'Renk geçişi', 'Arka plan renginden vurgu rengine']];
   const DESIGN_TITLES = [['default', 'Varsayılan'], ['left', 'Sola yaslı, büyük'], ['compact', 'Kompakt'], ['outline', 'Çizgili (içi boş)'], ['caps', 'BÜYÜK HARF'], ['hand', 'El yazısı']];
@@ -3355,7 +3358,7 @@
     <div class="evd-colors" data-evd-colors="${name}">
       ${allowDefault ? `<button type="button" class="evd-sw evd-sw-none" data-evd-sw="${name}" data-v="" aria-pressed="${!value}" title="Varsayılan"><span>Ø</span></button>` : ''}
       ${swatches.map(([hex, label]) => `<button type="button" class="evd-sw" data-evd-sw="${name}" data-v="${hex}" aria-pressed="${String(value).toUpperCase() === hex}" title="${esc(label)}" aria-label="${esc(label)}" style="--sw:${hex}"></button>`).join('')}
-      <label class="evd-custom" title="Özel renk"><input type="color" data-evd-pick="${name}" value="${HEX6.test(value) ? esc(value) : '#A94B86'}" aria-label="Özel renk seç"><span>+</span></label>
+      <label class="evd-custom" title="Özel renk"><input type="color" data-evd-pick="${name}" value="${HEX6.test(value) ? esc(value) : brandColor()}" aria-label="Özel renk seç"><span>+</span></label>
       <input class="evd-hex" name="${name}" value="${esc(value)}" maxlength="7" placeholder="${allowDefault ? 'Varsayılan' : '#RRGGBB'}" spellcheck="false" autocomplete="off" aria-label="Renk kodu">
     </div>`;
   const designHtml = (v) => `
@@ -3514,7 +3517,7 @@
     let heroInk = '#FFFFFF';
     if (d.bg === 'color' || d.bg === 'gradient') {
       d.bgColor = d.bgColor || '#0C0C0D';
-      const second = d.bg === 'gradient' ? (d.accent || '#A94B86') : d.bgColor;
+      const second = d.bg === 'gradient' ? (d.accent || brandColor()) : d.bgColor;
       heroInk = (lum(d.bgColor) + lum(second)) / 2 > 0.42 ? '#0C0C0D' : '#FFFFFF';
       pvVars.push(`--pv-bgc:${d.bgColor}`, `--pv-grad2:${second}`);
     }
@@ -5712,7 +5715,7 @@
   const renderMfaGate = () => {
     root.innerHTML = `
       <main class="login"><div class="login-box mfa-box">
-        <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a>
+        <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img data-tint="unipakt-logo-bg-white" class="wordmark-img" src="unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a>
         <p class="kicker">Panel</p>
         <h1 class="mfa-title">Bu tarayıcıyı doğrula</h1>
         <p class="mfa-lead" data-mfa-lead>İki adımlı doğrulama açık. ${mfaLead()}</p>
@@ -5773,7 +5776,7 @@
   const renderPasswordReset = (message = '') => {
     root.innerHTML = `
       <main class="login"><div class="login-box">
-        <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a>
+        <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img data-tint="unipakt-logo-bg-white" class="wordmark-img" src="unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a>
         <p class="kicker">Panel</p><h2>Yeni şifre belirle</h2>
         <form class="login-form" id="passwordResetForm" novalidate>
           ${field('Yeni şifre', '<input type="password" name="password" required minlength="8" autocomplete="new-password">')}
@@ -6135,7 +6138,7 @@
     if (!DEMO) {
       root.innerHTML = `
         <main class="login"><div class="login-box">
-          <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a>
+          <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img data-tint="unipakt-logo-bg-white" class="wordmark-img" src="unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a>
           <p class="kicker">Panel</p>
           <form class="login-form" id="loginForm" novalidate>
             ${field('E-posta', '<input type="email" name="email" required autocomplete="username">')}
@@ -6149,7 +6152,7 @@
     }
     root.innerHTML = `
       <main class="login"><div class="login-box">
-        <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a>
+        <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img data-tint="unipakt-logo-bg-white" class="wordmark-img" src="unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a>
         <p class="kicker">Panel</p>
         <h2>Demo girişi: bir hesap seç</h2>
         <div class="account-list">
@@ -6170,7 +6173,7 @@
       <div class="app">
         <aside class="side ${state.navOpen ? 'nav-open' : ''}">
           <div class="side-brand">
-            <a class="wordmark" href="https://unipakt.com/" title="unipakt.com’a git" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a>
+            <a class="wordmark" href="https://unipakt.com/" title="unipakt.com’a git" aria-label="UniPakt"><img data-tint="unipakt-logo-bg-white" class="wordmark-img" src="unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a>
             <p class="kicker">Panel</p>
           </div>
           <button class="mobile-nav-toggle" type="button" data-act="mobile-nav-toggle" aria-label="Menüyü aç" aria-expanded="${state.navOpen ? 'true' : 'false'}" aria-controls="panel-navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>

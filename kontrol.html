@@ -19,7 +19,8 @@
   color-scheme: dark;
   --ink: #F2F1EE; --paper: #0C0C0D; --surface: #161618; --soft: #1E1E21;
   --border: #F2F1EE17; --border-strong: #F2F1EE30;
-  --accent: #A94B86; --accent-grad: linear-gradient(135deg, #8F244D, #A94B86); --on-accent: #fff; --ok: #4ADE80; --warn: #FACC15; --no: #F87171;
+  /*brand:start*/ --brand-grad: linear-gradient(135deg, #8F244D, #A94B86); --brand-on-dark: #A94B86; --brand-on-light: #8F244D; --brand-on-accent: #FFFFFF; /*brand:end*/
+    --accent: var(--brand-on-dark); --accent-grad: var(--brand-grad); --on-accent: var(--brand-on-accent); --ok: #4ADE80; --warn: #FACC15; --no: #F87171;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--paper); color: var(--ink); }
@@ -78,6 +79,8 @@ h1 { margin: 26px 0 8px; font: 900 clamp(30px, 8vw, 40px)/1.04 'Archivo', sans-s
 .foot { margin-top: 26px; display: flex; justify-content: space-between; gap: 12px; font-size: 12.5px; opacity: .5; }
 .linkbtn { background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: 3px; }
 </style>
+    <meta name="unipakt-theme-baked" content="#8F244D,#A94B86|135">
+    <script src="/theme.js?v=1"></script>
 </head>
 <body>
 <main class="wrap" id="app" aria-live="polite"><p class="lead" style="margin-top:40px">Yükleniyor…</p></main>
@@ -89,7 +92,7 @@ h1 { margin: 26px 0 8px; font: 900 clamp(30px, 8vw, 40px)/1.04 'Archivo', sans-s
   const KEY = 'sb_publishable_RcHJDYGkpd-01DPYG9o3HQ_8prlhUQn';
   const app = document.getElementById('app');
   const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const BRAND = '<div class="brand"><img src="/unipakt-logo-bg-white.png?v=5" alt="UniPakt"><span>Giriş kontrolü</span></div>';
+  const BRAND = '<div class="brand"><img data-tint="unipakt-logo-bg-white" src="/unipakt-logo-bg-white.png?v=5" alt="UniPakt"><span>Giriş kontrolü</span></div>';
   const ICON = {
     ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     already: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
