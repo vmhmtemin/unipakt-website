@@ -2104,7 +2104,11 @@
     },
     async updateMyProfile(fields) {
       if (!String(fields.fullName || '').trim()) throw new Error('Kulüp başkanının adını yaz.');
-      if (isAdmin()) throw new Error('UniPakt profili bu ekrandan değiştirilemez.');
+      if (isAdmin()) {   // yönetici: yalnızca ad ve profil fotoğrafı
+        await restMust(`profiles?id=eq.${encodeURIComponent(session.user_id)}`, { method: 'PATCH', body: { full_name: String(fields.fullName).trim(), avatar_url: fields.avatarUrl || null } });
+        state.profile.fullName = String(fields.fullName).trim(); state.profile.avatarUrl = fields.avatarUrl || '';
+        return;
+      }
       const interests = String(fields.collaborationInterests || '').split(/[\n,;]/).map(x => x.trim()).filter(Boolean).slice(0, 12);
       await restMust(`profiles?id=eq.${encodeURIComponent(session.user_id)}`, { method: 'PATCH', body: {
         full_name: String(fields.fullName).trim(), bio: String(fields.bio || '').trim() || null,
@@ -2112,7 +2116,6 @@
       } });
     },
     async uploadProfileLogo(file) {
-      if (isAdmin()) throw new Error('UniPakt profiline logo eklenemez.');
       if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) throw new Error('Logo JPG, PNG veya WebP olmalı.');
       if (file.size > MAX_IMAGE) throw new Error('Logo 1 MB’tan küçük olmalı.');
       const path = `${session.user_id}/logo`;
@@ -3765,7 +3768,22 @@
       const clubInfo = club(state.user);
       return `${head('Profil', 'Kulüp profilinde diğer kulüplerin göreceği bilgileri düzenle.')}
         <section class="card">
-          ${isAdmin() ? `<p class="body">UniPakt <span class="tag ok">✓ Onaylı</span></p>` : `<p class="body">Logo ve kısa tanıtım, sitedeki kulüp sayfanda ve etkinliklerinin organizatör satırında da herkese açık görünür. Başkanın adı ve iş birliği alanları yalnızca panelde ve kulüpler arası sohbetlerde görünür.</p>
+          ${isAdmin() ? `<p class="body">UniPakt <span class="tag ok">✓ Onaylı</span></p>
+            <p class="body">Adın ve profil fotoğrafın panelde görünür. Hesabın @unipakt.com adresliyse fotoğrafın sitedeki The Story bölümündeki ekip kartında da görünür; değiştirince sitede de değişir.</p>
+            <form id="profileForm" class="stack" style="margin-top:20px">
+              <div class="profile-editor">
+                <div data-profile-avatar>${avatarMarkup(state.profile.avatarUrl, state.profile.fullName || 'UniPakt', 'large')}</div>
+                <div class="profile-logo-actions">
+                  <label class="field"><span>Profil fotoğrafı</span><input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" data-profile-logo></label>
+                  <small class="hint">JPG, PNG veya WebP · seçince yuvarlağa göre hizalarsın</small>
+                  <input type="checkbox" name="removeAvatar" hidden>
+                  <button class="btn ghost small profile-remove-logo" type="button" data-act="profile-avatar-remove" ${state.profile.avatarUrl ? '' : 'hidden'}>Fotoğrafı kaldır</button>
+                </div>
+              </div>
+              ${field('Adın', `<input name="fullName" maxlength="120" required value="${esc(state.profile.fullName)}" autocomplete="name">`)}
+              <button class="btn small" type="submit">Profili kaydet</button>
+              <p class="form-error" data-profile-error hidden></p>
+            </form>` : `<p class="body">Logo ve kısa tanıtım, sitedeki kulüp sayfanda ve etkinliklerinin organizatör satırında da herkese açık görünür. Başkanın adı ve iş birliği alanları yalnızca panelde ve kulüpler arası sohbetlerde görünür.</p>
             <form id="profileForm" class="stack" style="margin-top:20px">
               <div class="profile-editor">
                 <div data-profile-avatar>${avatarMarkup(state.profile.avatarUrl, state.profile.fullName || clubInfo?.name || 'Kulüp', 'large')}</div>
@@ -6639,7 +6657,7 @@
           const { file: optimizedLogo } = await shrinkImage(selectedLogo);
           avatarUrl = await api.uploadProfileLogo(optimizedLogo);
         }
-        await api.updateMyProfile({ fullName: form.elements.fullName.value, bio: form.elements.bio.value, collaborationInterests: form.elements.collaborationInterests.value, avatarUrl });
+        await api.updateMyProfile({ fullName: form.elements.fullName.value, bio: form.elements.bio?.value || '', collaborationInterests: form.elements.collaborationInterests?.value || '', avatarUrl });
         toast('Profil kaydedildi.');
         if (profileLogoPreviewUrl) { URL.revokeObjectURL(profileLogoPreviewUrl); profileLogoPreviewUrl = ''; }
         render();

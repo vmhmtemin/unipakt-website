@@ -10637,6 +10637,35 @@
         goToUniversityInClubList(university);
     });
 
+    /* ---------- The Story ekip fotoğrafları ----------
+       Ekip üyesinin @unipakt.com adresli panel hesabında profil fotoğrafı varsa kartta o görünür
+       (panel › Profil'den değiştirince sitede de değişir). Yoksa sayfadaki fotoğraf kalır. */
+    (function initTeamPhotos() {
+        const PHOTO = /^https:\/\/hcgotmcbwmleeklbvawb\.supabase\.co\/storage\/v1\/object\/public\/profile-logos\/[0-9a-f-]{36}\/logo(\?v=\d+)?$/;
+        let done = false;
+        const load = async () => {
+            if (done || !document.getElementById('storyTeam')) return;
+            done = true;
+            try {
+                const res = await fetch('https://hcgotmcbwmleeklbvawb.supabase.co/rest/v1/rpc/public_team_photos', { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: '{}' });
+                const rows = res.ok ? await res.json() : [];
+                const byEmail = new Map((Array.isArray(rows) ? rows : []).filter((r) => r && PHOTO.test(String(r.photo || ''))).map((r) => [String(r.email).toLowerCase(), r.photo]));
+                document.querySelectorAll('#storyTeam .story-card').forEach((card) => {
+                    const mail = card.querySelector('a[href^="mailto:"]')?.getAttribute('href').slice(7).toLowerCase();
+                    const img = card.querySelector('.story-person img');
+                    const photo = mail && byEmail.get(mail);
+                    if (!img || !photo) return;
+                    const next = new Image();
+                    next.onload = () => { img.src = photo; };   // yalnızca yüklenince değiştir; hata olursa eski fotoğraf kalır
+                    next.src = photo;
+                });
+            } catch (_) { done = false; }
+        };
+        const maybe = () => { if (document.getElementById('page-story')?.classList.contains('active') || document.querySelector('#storyTeam')?.getBoundingClientRect().height) load(); };
+        window.addEventListener('unipakt:route', maybe);
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', maybe); else maybe();
+    })();
+
     /* ---------- The Story interaction ---------- */
     (function initStoryPage() {
         const stage = document.getElementById('storyStage');
