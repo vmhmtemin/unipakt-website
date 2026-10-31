@@ -996,11 +996,11 @@
 <body>
 <div class="pf-intro" id="pfIntro" aria-hidden="true" hidden>
     <div class="hf-stage" id="pfStage">
-        <img class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp?v=2" alt="" width="1375" height="505" decoding="async">
-        <img class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp?v=2" alt="" width="1375" height="505" decoding="async">
-        <img class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp?v=2" alt="" width="1375" height="505" decoding="async">
-        <img class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp?v=2" alt="" width="1375" height="505" decoding="async">
-        <img class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp?v=2" alt="" width="1375" height="505" decoding="async">
+        <img class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp?v=3" alt="" width="1375" height="505" decoding="async">
+        <img class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp?v=3" alt="" width="1375" height="505" decoding="async">
+        <img class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp?v=3" alt="" width="1375" height="505" decoding="async">
+        <img class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp?v=3" alt="" width="1375" height="505" decoding="async">
+        <img class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp?v=3" alt="" width="1375" height="505" decoding="async">
     </div>
 </div>
 <script>
@@ -5711,7 +5711,7 @@
   const renderMfaGate = () => {
     root.innerHTML = `
       <main class="login"><div class="login-box mfa-box">
-        <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=4" alt="UniPakt"></a>
+        <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a>
         <p class="kicker">Panel</p>
         <h1 class="mfa-title">Bu tarayıcıyı doğrula</h1>
         <p class="mfa-lead" data-mfa-lead>İki adımlı doğrulama açık. ${mfaLead()}</p>
@@ -5772,7 +5772,7 @@
   const renderPasswordReset = (message = '') => {
     root.innerHTML = `
       <main class="login"><div class="login-box">
-        <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=4" alt="UniPakt"></a>
+        <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a>
         <p class="kicker">Panel</p><h2>Yeni şifre belirle</h2>
         <form class="login-form" id="passwordResetForm" novalidate>
           ${field('Yeni şifre', '<input type="password" name="password" required minlength="8" autocomplete="new-password">')}
@@ -6134,7 +6134,7 @@
     if (!DEMO) {
       root.innerHTML = `
         <main class="login"><div class="login-box">
-          <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=4" alt="UniPakt"></a>
+          <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a>
           <p class="kicker">Panel</p>
           <form class="login-form" id="loginForm" novalidate>
             ${field('E-posta', '<input type="email" name="email" required autocomplete="username">')}
@@ -6148,7 +6148,7 @@
     }
     root.innerHTML = `
       <main class="login"><div class="login-box">
-        <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=4" alt="UniPakt"></a>
+        <a class="wordmark" href="https://unipakt.com/" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a>
         <p class="kicker">Panel</p>
         <h2>Demo girişi: bir hesap seç</h2>
         <div class="account-list">
@@ -6169,7 +6169,7 @@
       <div class="app">
         <aside class="side ${state.navOpen ? 'nav-open' : ''}">
           <div class="side-brand">
-            <a class="wordmark" href="https://unipakt.com/" title="unipakt.com’a git" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=4" alt="UniPakt"></a>
+            <a class="wordmark" href="https://unipakt.com/" title="unipakt.com’a git" aria-label="UniPakt"><img class="wordmark-img" src="unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a>
             <p class="kicker">Panel</p>
           </div>
           <button class="mobile-nav-toggle" type="button" data-act="mobile-nav-toggle" aria-label="Menüyü aç" aria-expanded="${state.navOpen ? 'true' : 'false'}" aria-controls="panel-navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>

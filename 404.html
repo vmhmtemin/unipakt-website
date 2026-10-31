@@ -20,7 +20,7 @@
   @font-face { font-family: 'Caveat'; font-style: normal; font-weight: 600 700; font-display: swap; src: url(/fonts/caveat-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
   @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400 600; font-display: swap; src: url(/fonts/inter-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
   @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400 600; font-display: swap; src: url(/fonts/inter-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-  :root { color-scheme: dark; --ink: #fff; --paper: #000; --border: #FFFFFF20; --border-strong: #FFFFFF35; --accent: #19C7B5; --on-accent: #000; }
+  :root { color-scheme: dark; --ink: #fff; --paper: #000; --border: #FFFFFF20; --border-strong: #FFFFFF35; --accent: #A94B86; --accent-grad: linear-gradient(135deg, #8F244D, #A94B86); --on-accent: #fff; }
   * { box-sizing: border-box; }
   html { -webkit-tap-highlight-color: transparent; }
   body {
@@ -38,11 +38,12 @@
   .kicker { margin: 0 0 10px; font: 700 clamp(24px, 3vw, 32px)/1 'Caveat', cursive; color: var(--accent); }
   h1 { margin: 0; font: 900 clamp(96px, 22vw, 260px)/.85 'Archivo', sans-serif; letter-spacing: -0.06em; }
   h1 span { color: var(--accent); }
+  .wordmark span, .kicker, h1 span { background: var(--accent-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
   .lead { margin: clamp(22px, 3vw, 34px) 0 0; max-width: 46ch; font-size: clamp(17px, 1.6vw, 20px); opacity: .8; }
   .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 24px; margin-top: clamp(28px, 4vw, 44px); }
   .btn {
     display: inline-flex; align-items: center; padding: 15px 28px; border-radius: 999px;
-    background: var(--accent); color: var(--on-accent); border: 1.5px solid var(--accent);
+    background: var(--accent-grad); color: var(--on-accent); border: 1.5px solid var(--accent);
     font-weight: 600; text-decoration: none; transition: background .2s ease, color .2s ease;
   }
   .btn:hover, .btn:focus-visible { background: transparent; color: var(--accent); }
@@ -55,12 +56,12 @@
   .line { position: relative; height: 2px; margin-top: clamp(40px, 6vw, 70px); max-width: 520px; background: linear-gradient(90deg, var(--border-strong), transparent); }
   .line::before, .line::after { content: ''; position: absolute; top: 50%; width: 12px; height: 12px; border-radius: 50%; transform: translate(-50%, -50%); }
   .line::before { left: 0; background: var(--ink); }
-  .line::after { left: 62%; background: var(--accent); animation: drift 3.2s ease-in-out infinite; }
+  .line::after { left: 62%; background: var(--accent-grad); animation: drift 3.2s ease-in-out infinite; }
   @keyframes drift { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -170%); } }
 </style>
 </head>
 <body>
-  <header><a class="wordmark" href="/" aria-label="UniPakt"><img class="wordmark-img" src="/unipakt-logo-bg-white.png?v=4" alt="UniPakt"></a></header>
+  <header><a class="wordmark" href="/" aria-label="UniPakt"><img class="wordmark-img" src="/unipakt-logo-bg-white.png?v=5" alt="UniPakt"></a></header>
   <main>
     <p class="kicker">Bu nokta ağda yok.</p>
     <h1>404<span>.</span></h1>

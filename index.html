@@ -2913,6 +2913,15 @@
                  tighter type scale, clearer actions and small motion details.
                  ============================================================ */
 
+    /* Marka gradyanı: büyük vurgulu yazılarda yazının kendisi gradyan */
+    .eyebrow-split .b, .section-title .impact-slogan, .site-footer .footer-kicker, .hero .note,
+    .ev-fee, .sp-count, .sp-brand b span, .hf-day h3, .mx-days h3, .mx-p-lead .mx-hl, .mx-d-acc, .hf-months li:last-child {
+        background: var(--accent-grad, linear-gradient(135deg, #8F244D, #A94B86));
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent; color: transparent;
+        -webkit-box-decoration-break: clone; box-decoration-break: clone;
+    }
+
     ::selection {
         background: var(--ink);
         color: var(--paper);
@@ -3752,7 +3761,7 @@
 
     /* ---------- KVKK onay kutusu ve penceresi ---------- */
     .kvkk-consent { display: flex; gap: 12px; align-items: flex-start; margin: 6px 0 22px; font-size: 14.5px; line-height: 1.5; cursor: pointer; color: color-mix(in srgb, var(--ink) 80%, transparent); }
-    .kvkk-consent input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; cursor: pointer; accent-color: var(--accent, #19C7B5); }
+    .kvkk-consent input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; cursor: pointer; accent-color: var(--accent, #A94B86); }
     .kvkk-consent a { color: inherit; text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 3px; }
     .kvkk-consent a:hover { text-decoration-color: currentColor; }
     .kvkk-dialog { width: min(1040px, calc(100vw - 40px)); height: min(90dvh, 1000px); max-height: 90dvh; padding: 0; border: 1px solid var(--border-strong); border-radius: 20px; background: var(--paper); color: var(--ink); overflow: hidden; }
@@ -4335,17 +4344,18 @@
                  ============================================================ */
 
     :root {
-        --accent: #19C7B5;
-        --on-accent: #000;
+        --accent: #A94B86;
+        --accent-grad: linear-gradient(135deg, #8F244D, #A94B86);
+        --on-accent: #fff;
     }
 
     :root[data-theme="light"] {
-        --accent: #19C7B5;
+        --accent: #8F244D;
     }
 
     @media (prefers-color-scheme: light) {
         :root:not([data-theme="dark"]) {
-            --accent: #19C7B5;
+            --accent: #8F244D;
         }
     }
 
@@ -4355,11 +4365,11 @@
     }
 
     .scroll-progress {
-        background: var(--accent);
+        background: var(--accent-grad);
     }/* Actions */
 
     .btn-pill, .minimal-form .btn-pill {
-        background: var(--accent);
+        background: var(--accent-grad);
         border-color: var(--accent);
         color: var(--on-accent);
     }
@@ -4371,7 +4381,7 @@
     }
 
     nav.links a[data-route="katil"] {
-        background: var(--accent);
+        background: var(--accent-grad);
         color: var(--on-accent);
         box-shadow: inset 0 0 0 1.5px var(--accent);
     }
@@ -4386,7 +4396,7 @@
     }
 
     .club-chip.active {
-        background: var(--accent);
+        background: var(--accent-grad);
         border-color: var(--accent);
         color: var(--on-accent);
     }
@@ -4425,7 +4435,7 @@
     }/* Hero orbit: an opened club lights up */
 
     .orbit-club.open {
-        background: var(--accent);
+        background: var(--accent-grad);
         color: var(--on-accent);
         box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 22%, transparent);
     }/* Campus network: the cursor node is the accent */
@@ -4439,7 +4449,7 @@
     }/* Hakkımızda: the very first club is the accent dot */
 
     .grow-row:first-child .dots i {
-        background: var(--accent);
+        background: var(--accent-grad);
     }/* The Story: pull quote rule */
 
     .story-after-copy p:has( > strong:only-child) {
@@ -4447,7 +4457,7 @@
     }/* Club list: the dot marker lights up on hover / open */
 
     .club-row:hover .dotmark, .club-item.expanded .club-row .dotmark {
-        background: var(--accent);
+        background: var(--accent-grad);
     }/* Spam trap: invisible to people, filled in by bots. */
 
     .hp-field {
@@ -4952,7 +4962,7 @@
         width: 10px;
         height: 10px;
         border-radius: 50%;
-        background: var(--accent);
+        background: var(--accent-grad);
     }
 
     .story-hint-dot::after {
@@ -5245,7 +5255,7 @@
         display: block;
         padding: 3px 8px;
         border-radius: 7px;
-        background: var(--accent);
+        background: var(--accent-grad);
         color: var(--on-accent);
         font-size: 12px;
         font-weight: 600;
@@ -6175,7 +6185,7 @@
     .ev-hero.is-placeholder::after { background: radial-gradient(#ffffff30 1px, transparent 1.3px) 0 0 / 18px 18px, rgba(0, 0, 0, .78); }
     .ev-hero-in { display: grid; justify-items: center; gap: 12px; }
     .ev-hero h1 { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(30px, 4.6vw, 60px); line-height: 1.05; letter-spacing: -0.03em; max-width: 22ch; overflow-wrap: anywhere; margin: 0; }
-    .ev-bar { display: block; width: 56px; height: 4px; border-radius: 2px; background: var(--accent); margin: 6px 0 2px; }
+    .ev-bar { display: block; width: 56px; height: 4px; border-radius: 2px; background: var(--accent-grad); margin: 6px 0 2px; }
     .ev-hero-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; font-size: clamp(14px, 1.5vw, 17px); margin: 0; }
     .ev-hero-meta > span { display: inline-flex; align-items: center; gap: 8px; opacity: .92; }
     .ev-hero-meta svg { width: 18px; height: 18px; color: var(--accent); flex: none; }
@@ -6217,7 +6227,7 @@
     .reg-choices label { position: relative; }
     .reg-choices input { position: absolute; opacity: 0; pointer-events: none; }
     .reg-choices span { display: inline-block; padding: 9px 16px; border: 1px solid var(--border-strong); border-radius: 999px; font-size: 14.5px; cursor: pointer; }
-    .reg-choices input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--on-accent, #000); }
+    .reg-choices input:checked + span { background: var(--accent-grad); border-color: var(--accent); color: var(--on-accent, #000); }
     .reg-choices input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
     .reg-error { margin: 0; min-height: 20px; font-size: 14px; color: #F87171; }
     .reg-danger { background: #E5484D; border-color: #E5484D; color: #fff; }
@@ -6251,7 +6261,7 @@
     .ev-main { display: grid; gap: clamp(18px, 3vw, 26px); min-width: 0; }
     .ev-poster { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 20px; border: 1px solid var(--border); background: var(--paper-soft); }
     .ev-detail h2, .ev-card h2 { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(20px, 2.2vw, 24px); letter-spacing: -0.02em; margin: 0 0 14px; display: flex; align-items: center; gap: 10px; }
-    .ev-detail h2::before, .ev-card h2::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; }
+    .ev-detail h2::before, .ev-card h2::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-grad); flex: none; }
     .ev-md { line-height: 1.7; overflow-wrap: anywhere; }
     .ev-md p { margin: 0 0 12px; }
     .ev-md ul { margin: 0 0 12px; padding-left: 20px; }
@@ -6345,8 +6355,8 @@
     .cal3-day:hover { background: var(--paper); }
     .cal3-day.out { opacity: .3; }
     .cal3-day.today { box-shadow: inset 0 0 0 1.5px var(--accent); }
-    .cal3-day.selected { background: var(--accent); color: var(--on-accent, #000); }
-    .cal3-day.has::after { content: ''; position: absolute; left: 50%; bottom: 4px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--accent); }
+    .cal3-day.selected { background: var(--accent-grad); color: var(--on-accent, #000); }
+    .cal3-day.has::after { content: ''; position: absolute; left: 50%; bottom: 4px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--accent-grad); }
     .cal3-day.selected.has::after { background: var(--on-accent, #000); }
     .cal3-hint { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: var(--paper); font-size: 13px; opacity: .9; }
     .cal3-hint button { border: 0; background: none; padding: 0; color: var(--accent); font: inherit; cursor: pointer; }
@@ -6392,7 +6402,7 @@
     .story-stage.story-complete .story-switch { display: flex; width: max-content; margin: clamp(28px, 4vw, 44px) auto 0; padding: 4px; gap: 4px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--paper-soft); position: relative; z-index: 3; }
     .story-switch-btn { border: 0; border-radius: 999px; padding: 10px 26px; background: transparent; color: inherit; font: inherit; font-size: 15px; font-weight: 600; opacity: .7; cursor: pointer; transition: background .2s ease, color .2s ease, opacity .2s ease; }
     .story-switch-btn:hover { opacity: 1; }
-    .story-switch-btn.is-active { background: var(--accent); color: var(--on-accent, #000); opacity: 1; }
+    .story-switch-btn.is-active { background: var(--accent-grad); color: var(--on-accent, #000); opacity: 1; }
     .story-stage.story-complete .story-switch ~ .story-team { padding-top: 48px; }
     .story-stage.show-mission .story-team, .story-stage.show-mission .story-after-content { display: none !important; }
     .story-mission { padding-top: clamp(40px, 6vw, 80px); padding-bottom: clamp(80px, 10vw, 140px); }
@@ -6403,7 +6413,7 @@
        SPONSORLAR — sitenin geri kalanından ayrışan, beyaz zeminli kurumsal sayfa.
        Girişte noktalar düşer, çizgilerle ağa bağlanır, sponsor logosu ağın merkezinde belirir.
        ============================================================ */
-    .sp-page { background: #fff; color: #0a0a0a; --sp-accent: #19C7B5; }
+    .sp-page { background: #fff; color: #0a0a0a; --sp-accent: #8F244D; --sp-grad: linear-gradient(135deg, #8F244D, #A94B86); }
     .sp-hero { position: relative; min-height: calc(100svh - var(--nav-h, 86px)); overflow: hidden; display: flex; align-items: flex-start; }
     .sp-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
     /* Yazının arkasındaki ağı yumuşatan beyaz geçiş. */
@@ -6434,12 +6444,12 @@
     .sp-hero h1 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(54px, 10vw, 150px); line-height: .92; letter-spacing: -0.05em; }
     .sp-lead { margin: 14px 0 0; max-width: 34ch; font-size: clamp(16px, 1.6vw, 20px); color: #0a0a0aa6; }
     .sp-down { pointer-events: auto; margin-top: 26px; padding: 13px 24px; border-radius: 999px; border: 1.5px solid #0a0a0a; background: #0a0a0a; color: #fff; font: inherit; font-weight: 600; cursor: pointer; transition: background .2s ease, color .2s ease, border-color .2s ease; }
-    .sp-down:hover { background: var(--sp-accent); border-color: var(--sp-accent); color: #0a0a0a; }
+    .sp-down:hover { background: var(--sp-grad); border-color: var(--sp-accent); color: #fff; }
     /* Sıradaki büyük etkinlik kartı: hero'nun sol altındaki boşluğu doldurur, sponsorluk mailine götürür. */
     .sp-next { pointer-events: auto; display: grid; gap: 8px; width: min(400px, 100%); margin-top: clamp(48px, 12vh, 140px); padding: 22px 24px; border: 1px solid #0a0a0a1f; border-radius: 18px; background: #fff; color: #0a0a0a; text-decoration: none; transition: border-color .2s ease, transform .25s ease, box-shadow .25s ease; }
     .sp-next:hover { border-color: #0a0a0a; transform: translateY(-2px); box-shadow: 0 10px 30px #0a0a0a12; }
     .sp-next-kick { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #0a0a0a8c; }
-    .sp-next-kick i { width: 8px; height: 8px; background: var(--sp-accent); display: inline-block; }
+    .sp-next-kick i { width: 8px; height: 8px; background: var(--sp-grad); display: inline-block; }
     .sp-next-title { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(24px, 2.4vw, 32px); letter-spacing: -0.03em; line-height: 1.05; }
     .sp-next-meta { font-size: 14px; color: #0a0a0aa6; }
     .sp-next-meta > span { white-space: nowrap; }
@@ -6452,7 +6462,7 @@
     .sp-join-in { display: grid; justify-items: start; gap: 12px; padding-top: clamp(56px, 8vw, 110px); padding-bottom: clamp(56px, 8vw, 110px); }
     .sp-join h2 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(32px, 5vw, 64px); letter-spacing: -0.04em; line-height: 1; }
     .sp-join p { margin: 0 0 10px; color: #0a0a0aa6; font-size: 17px; }
-    .sp-mail { display: inline-block; padding: 15px 28px; border-radius: 999px; background: var(--sp-accent); color: #0a0a0a; font-weight: 700; text-decoration: none; transition: transform .2s ease; }
+    .sp-mail { display: inline-block; padding: 15px 28px; border-radius: 999px; background: var(--sp-grad); color: #fff; font-weight: 700; text-decoration: none; transition: transform .2s ease; }
     .sp-mail:hover { transform: translateY(-2px); }
     @media (max-width: 720px) {
         .sp-hub { left: 50%; top: 74%; }
@@ -6465,7 +6475,7 @@
 
     /* ---- Sponsorlar "ayrı dünya": sitenin üst menüsü ve footer'ı gizlenir, sayfanın kendi menüsü ve alt kısmı gelir ---- */
     /* Sponsorlar sayfasında site menüsü ve footer aynı kalır ama beyaz paletle: zemin beyaz, yazı siyah, turuncu vurgu. */
-    html.sp-mode[data-theme] { --ink: #0a0a0a; --paper: #FFFFFF; --paper-soft: #F6F6F4; --border: #0000001a; --border-strong: #00000030; --dot: #00000070; --dot-soft: #00000030; --accent: #19C7B5; color-scheme: light; }
+    html.sp-mode[data-theme] { --ink: #0a0a0a; --paper: #FFFFFF; --paper-soft: #F6F6F4; --border: #0000001a; --border-strong: #00000030; --dot: #00000070; --dot-soft: #00000030; --accent: #8F244D; color-scheme: light; }
     html.sp-mode .logo-img, html.sp-mode .site-footer .footer-wordmark, html.sp-mode .site-footer .footer-brand-logo { filter: none !important; }
     /* Menü yazıları açılışta karışık karakterlerden çözülür; asıl metin altta durur, üstte geçici bir katman oynar. */
     .nav-scramble { position: relative; }
@@ -6481,7 +6491,7 @@
     .nav-scramble-layer { position: absolute; left: 0; top: 0; display: flex; align-items: center; justify-content: center; white-space: nowrap; pointer-events: none; font-variant-numeric: tabular-nums; }
     .nav-scramble > .nav-scramble-text { display: inline-block; }
     html.sp-mode, html.sp-mode body { background: #fff; }
-    html.sp-mode .scroll-progress { background: #19C7B5; }
+    html.sp-mode .scroll-progress { background: var(--accent-grad); }
     .sp-nav { position: sticky; top: 0; z-index: 40; background: #ffffffe6; backdrop-filter: blur(10px); border-bottom: 1px solid #0a0a0a14; }
     .sp-nav-in { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 64px; }
     .sp-brand { display: inline-flex; align-items: center; gap: 12px; color: #0a0a0a; text-decoration: none; }
@@ -6490,7 +6500,7 @@
     .sp-brand em { font-style: normal; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: #0a0a0a8c; }
     .sp-menu { display: flex; align-items: center; gap: clamp(6px, 2vw, 22px); }
     .sp-menu button, .sp-menu a { position: relative; border: 0; background: none; padding: 8px 2px; color: #0a0a0a; font: inherit; font-size: 15px; text-decoration: none; cursor: pointer; }
-    .sp-menu button::after { content: ''; position: absolute; left: 0; right: 0; bottom: 2px; height: 2px; background: var(--sp-accent); transform: scaleX(0); transform-origin: left; transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
+    .sp-menu button::after { content: ''; position: absolute; left: 0; right: 0; bottom: 2px; height: 2px; background: var(--sp-grad); transform: scaleX(0); transform-origin: left; transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
     .sp-menu button:hover::after { transform: scaleX(1); }
     .sp-menu .sp-back { padding: 8px 16px; border-radius: 999px; border: 1px solid #0a0a0a; transition: background .2s ease, color .2s ease; }
     .sp-menu .sp-back:hover { background: #0a0a0a; color: #fff; }
@@ -6502,7 +6512,7 @@
     .sp-item { border-bottom: 1px solid #0a0a0a1f; opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .7s cubic-bezier(.2, .8, .2, 1); }
     .sp-item.is-in { opacity: 1; transform: none; }
     .sp-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto 40px; align-items: center; gap: clamp(12px, 2.5vw, 32px); padding: clamp(22px, 3vw, 34px) 12px; color: #0a0a0a; text-decoration: none; position: relative; isolation: isolate; transition: color .35s ease; }
-    .sp-row::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; z-index: -1; background: var(--sp-accent); transform: scaleY(0); transform-origin: bottom; transition: transform .4s cubic-bezier(.2, .8, .2, 1); }
+    .sp-row::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; z-index: -1; background: var(--sp-grad); transform: scaleY(0); transform-origin: bottom; transition: transform .4s cubic-bezier(.2, .8, .2, 1); }
     .sp-row::after { content: ''; position: absolute; inset: 0; z-index: -2; background: #f6f6f4; opacity: 0; transition: opacity .3s ease; }
     .sp-row:hover::after, .sp-row:focus-visible::after { opacity: 1; }
     .sp-row:hover::before, .sp-row:focus-visible::before { transform: scaleY(1); }
@@ -6538,11 +6548,11 @@
        Açılışta logo jenerik gibi kurulur: önce Hackfest27, sonra UniPakt (saydamdan opağa),
        sonra el yazısı Mixit (~2,1 sn). Katmanlar aynı kareden kesildi; sonunda tam logoya geçilir.
        ============================================================ */
-    html.hf-mode[data-theme] { --ink: #F2F1EE; --paper: #0C0C0D; --paper-soft: #161618; --border: #FFFFFF1F; --border-strong: #FFFFFF33; --dot: #FFFFFF80; --dot-soft: #FFFFFF40; --accent: #19C7B5; color-scheme: dark; }
+    html.hf-mode[data-theme] { --ink: #F2F1EE; --paper: #0C0C0D; --paper-soft: #161618; --border: #FFFFFF1F; --border-strong: #FFFFFF33; --dot: #FFFFFF80; --dot-soft: #FFFFFF40; --accent: #A94B86; color-scheme: dark; }
     html.hf-mode, html.hf-mode body { background: #0C0C0D; }
     html.hf-mode .logo-img:not(.logo-alt), html.hf-mode .site-footer .footer-brand-logo { filter: invert(1) !important; }
     html.hf-mode .site-footer .footer-wordmark { filter: invert(1) hue-rotate(180deg) !important; }
-    html.hf-mode .scroll-progress { background: #19C7B5; }
+    html.hf-mode .scroll-progress { background: var(--accent-grad); }
     /* ================= Tutarlılık (Ekim 2026) =================
        Taste Skill renk/çizgi kuralları: turuncu yalnız eylemde (buton, aktif menü noktası, el yazısı notlar,
        seçili/üzerine gelinen kontroller); süs amaçlı turuncu mürekkebe döner. Bölücü 1px çizgiler kalkar,
@@ -6707,7 +6717,7 @@
        ad (jenerik logo) anıt gibi büyük, sonrası sakin; etiket/numara/çizgi/gradyan/gölge yok,
        bölümler zemin tonuyla ayrılır, her bölüm kendi başlığıyla açılır ve komşusundan farklı dizilir. */
     .hf-page {
-        --hf-acc: #19C7B5; --hf-dark: #0C0C0D; --hf-dark-2: #161618; --hf-light: #F2F1EE; --hf-ink: #0C0C0D;
+        --hf-acc: #A94B86; --hf-grad: linear-gradient(135deg, #8F244D, #A94B86); --hf-dark: #0C0C0D; --hf-dark-2: #161618; --hf-light: #F2F1EE; --hf-ink: #0C0C0D;
         --hf-soft-d: #FFFFFFB8; --hf-soft-l: #0A0A0BB3;
         --hf-m: clamp(20px, 5vw, 64px);
         --hf-gap: clamp(28px, 5vw, 96px);
@@ -6738,11 +6748,11 @@
     .hf-stage.hf-done .hf-l-hack, .hf-stage.hf-done .hf-l-uni, .hf-stage.hf-done .hf-l-mix, .hf-stage.hf-done .hf-l-star { opacity: 0; animation: hfPartsOut .7s ease-out both; }
     /* Yıldız 27'nin arkasından, görünmezden görünüre süzülerek çıkar (katman olarak 27'nin altında). */
     @keyframes hfStar {
-        0% { opacity: 0; transform: translateX(-7%) scale(.7); filter: drop-shadow(0 0 0 #19C7B500); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
-        60% { opacity: 1; filter: drop-shadow(0 0 14px #19C7B599); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
-        100% { opacity: 1; transform: none; filter: drop-shadow(0 0 4px #19C7B555); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+        0% { opacity: 0; transform: translateX(-7%) scale(.7); filter: drop-shadow(0 0 0 #A94B8600); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+        60% { opacity: 1; filter: drop-shadow(0 0 14px #A94B8699); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+        100% { opacity: 1; transform: none; filter: drop-shadow(0 0 4px #A94B8655); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
     }
-    @keyframes hfFullIn { 0% { opacity: 0; filter: drop-shadow(0 0 0 #19C7B500) brightness(1.12); } 45% { opacity: 1; filter: drop-shadow(0 0 22px #19C7B555) brightness(1.06); } 100% { opacity: 1; filter: drop-shadow(0 0 0 #19C7B500) brightness(1); } } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+    @keyframes hfFullIn { 0% { opacity: 0; filter: drop-shadow(0 0 0 #A94B8600) brightness(1.12); } 45% { opacity: 1; filter: drop-shadow(0 0 22px #A94B8655) brightness(1.06); } 100% { opacity: 1; filter: drop-shadow(0 0 0 #A94B8600) brightness(1); } } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
     @keyframes hfPartsOut { from { opacity: 1; } to { opacity: 0; } }
     @media (prefers-reduced-motion: reduce) { .hf-stage.hf-done .hf-l { animation: none; } }
     @keyframes hfHack {
@@ -6760,7 +6770,7 @@
     .hf-strip-in { display: flex; align-items: center; justify-content: space-between; gap: 18px 40px; flex-wrap: wrap; padding-top: clamp(24px, 3vw, 40px); padding-bottom: clamp(26px, 3vw, 42px); }
     .hf-date { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: var(--hf-h2); line-height: 1.02; letter-spacing: -0.035em; text-wrap: balance; }
     .hf-place { margin: 10px 0 0; max-width: 60ch; font-size: var(--hf-body); line-height: 1.5; color: var(--hf-soft-d); }
-    .hf-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 28px; border-radius: 999px; background: var(--hf-acc); color: var(--hf-ink); font-weight: 700; font-size: var(--hf-body); text-decoration: none; transition: background .2s ease, color .2s ease, transform .2s ease; }
+    .hf-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 28px; border-radius: 999px; background: var(--hf-grad); color: #fff; font-weight: 700; font-size: var(--hf-body); text-decoration: none; transition: background .2s ease, color .2s ease, transform .2s ease; }
     .hf-btn:hover, .hf-btn:focus-visible { background: #fff; color: var(--hf-ink); transform: translateY(-2px); }
     .hf-btn:active { transform: translateY(0) scale(.98); }
 
@@ -6769,7 +6779,7 @@
     .hf-dark { background: var(--hf-dark); color: #fff; }
     .hf-dark + .hf-dark { background: var(--hf-dark-2); }
     .hf-light { background: var(--hf-light); color: var(--hf-ink); }
-    .hf-accent { background: var(--hf-acc); color: var(--hf-ink); }
+    .hf-accent { background: var(--hf-grad); color: #fff; }
     .hf-h { margin: 0; max-width: 18ch; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: var(--hf-h2); line-height: 1.02; letter-spacing: -0.035em; text-wrap: balance; }
     .hf-lead { margin: 24px 0 0; max-width: 56ch; font-size: var(--hf-lead); line-height: 1.5; }
     .hf-text { margin: 24px 0 0; max-width: 62ch; font-size: var(--hf-body); line-height: 1.6; }
@@ -6970,7 +6980,7 @@
     .mx-strips[style*="height"] { bottom: auto; }
     .mx-strip { position: absolute; left: 50%; width: 190vmax; margin-left: -95vmax; height: clamp(76px, 13svh, 150px); display: flex; align-items: center; overflow: hidden; }
     .mx-strip span { display: block; white-space: nowrap; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(44px, 8.4svh, 104px); line-height: 1; letter-spacing: -0.04em; text-transform: uppercase; will-change: transform; }
-    .mx-s-acc { background: var(--hf-acc); color: var(--hf-ink); }
+    .mx-s-acc { background: var(--hf-grad); color: #fff; }
     .mx-s-paper { background: var(--hf-light); color: var(--hf-ink); }
     .mx-s-ink { background: #1D1D20; color: #fff; }
     /* Son şerit: ortaya gelip dikilir; yazısı yukarı akar */
@@ -7564,7 +7574,7 @@
             <div class="sp-hero" id="spHero">
                 <canvas class="sp-canvas" id="spCanvas" aria-hidden="true"></canvas>
                 <div class="wrap sp-hero-text">
-                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><img class="sp-logo-img sp-wordmark" src="/unipakt-logo-bg.png?v=4" alt="" aria-hidden="true"></p>
+                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><img class="sp-logo-img sp-wordmark" src="/unipakt-logo-bg.png?v=5" alt="" aria-hidden="true"></p>
                     <h1>Sponsorlar</h1>
                     <p class="sp-lead">UniPakt ağındaki etkinlikleri destekleyen kurumlar.</p>
                     <button type="button" class="sp-down" data-sp-down>Sponsor ol ↓</button>
@@ -7614,11 +7624,11 @@
             <div class="hf-hero" id="hfHero">
                 <a class="hf-back" href="/sponsorlar/" data-route="sponsorlar">← Sponsorlar</a>
                 <div class="hf-stage" id="hfStage" role="img" aria-label="UniPakt HACKFEST27 MIXIT">
-                    <img class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp?v=2" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp?v=2" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp?v=2" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp?v=2" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp?v=2" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp?v=3" alt="" width="1375" height="505" decoding="async">
                 </div>
                 <div class="hf-strip">
                     <div class="hf-wrap hf-strip-in">
@@ -7844,7 +7854,7 @@
                     </div>
                     <div class="hf-close" data-reveal>
                         <a class="hf-btn" href="mailto:sponsorluk@unipakt.com?subject=HACKFEST27%3A%20MIXIT%20Sponsorlu%C4%9Fu">Sponsor olmak için yaz</a>
-                        <p><img src="/unipakt-logo-bg-white.png?v=4" alt="UniPakt" width="885" height="208" loading="lazy"><span>6–7 Mart 2027 · İstanbul Kongre Merkezi</span></p>
+                        <p><img src="/unipakt-logo-bg-white.png?v=5" alt="UniPakt" width="885" height="208" loading="lazy"><span>6–7 Mart 2027 · İstanbul Kongre Merkezi</span></p>
                     </div>
                 </div>
             </section>
@@ -7858,11 +7868,11 @@
         <section class="page hf-page mx-page" id="page-mixit" data-page="mixit">
             <div class="hf-hero mx-hero">
                 <div class="hf-stage" role="img" aria-label="UniPakt HACKFEST27 MIXIT">
-                    <img class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp?v=2" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp?v=2" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp?v=2" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp?v=2" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp?v=2" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                    <img class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp?v=3" alt="" width="1375" height="505" decoding="async">
                 </div>
                 <h1 class="mx-sr">HACKFEST27: MIXIT, 6–7 Mart 2027, İstanbul Kongre Merkezi</h1>
                 <p class="mx-cue" aria-hidden="true">Kaydır <b>↓</b></p>
@@ -7873,8 +7883,8 @@
                     <div class="mx-end" id="mxEnd">
                         <div class="mx-end-top">
                             <span class="mx-end-logo" role="img" aria-label="HACKFEST27 MIXIT">
-                                <img src="/hackfest-media/logo-full-nostar.webp?v=2" alt="" width="1375" height="505" decoding="async">
-                                <img class="mx-end-star" src="/hackfest-media/logo-star.webp?v=2" alt="" width="1375" height="505" decoding="async">
+                                <img src="/hackfest-media/logo-full-nostar.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                                <img class="mx-end-star" src="/hackfest-media/logo-star.webp?v=3" alt="" width="1375" height="505" decoding="async">
                             </span>
                             <p class="mx-end-meta">6–7 Mart 2027<br>İstanbul Kongre Merkezi</p>
                         </div>
@@ -9297,8 +9307,8 @@
                 const L = M + 70;
                 x.fillStyle = '#F2F1EE'; x.font = '800 64px Archivo, Arial, sans-serif'; x.textBaseline = 'alphabetic';
                 x.fillText('UniPakt', L, CY + 130); const lw = x.measureText('UniPakt').width;
-                x.fillStyle = '#19C7B5'; x.fillRect(L + lw + 6, CY + 116, 14, 14);
-                x.font = '700 26px Arial, sans-serif'; x.fillStyle = '#19C7B5';
+                x.fillStyle = '#A94B86'; x.fillRect(L + lw + 6, CY + 116, 14, 14);
+                x.font = '700 26px Arial, sans-serif'; x.fillStyle = '#A94B86';
                 x.fillText('ETKİNLİK BİLETİ', L, CY + 178);
                 let y = CY + 270;
                 x.fillStyle = '#F2F1EE';
@@ -9634,7 +9644,7 @@
             if (d.accent) vars.push(`--ev-acc:${d.accent}`, `--ev-on-acc:${inkOn(d.accent)}`);
             let ink = '#FFFFFF';
             if (d.bg === 'color' || d.bg === 'gradient') {
-                const second = d.bg === 'gradient' ? (d.accent || '#19C7B5') : d.bgColor;
+                const second = d.bg === 'gradient' ? (d.accent || '#A94B86') : d.bgColor;
                 ink = (luminance(d.bgColor) + luminance(second)) / 2 > 0.42 ? '#0C0C0D' : '#FFFFFF';
                 vars.push(`--ev-bgc:${d.bgColor}`, `--ev-grad2:${second}`);
             }
@@ -11575,7 +11585,7 @@
         const ctx = canvas.getContext('2d');
         const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         let nodes = [], links = [], raf = 0, t0 = 0, w = 0, h = 0, dpr = 1, maxDraw = 120;
-        const ACCENT = '#19C7B5';
+        const ACCENT = '#A94B86';
         const ease = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
         const hubPoint = () => (w <= 720 ? { x: w * 0.5, y: h * 0.74 } : { x: w * 0.72, y: h * 0.58 });
 
@@ -11668,9 +11678,9 @@
             });
             if (ptr) {
                 const near = nodes.map((n) => ({ n, d: Math.hypot(n.px - cursor.x, n.py - cursor.y) })).sort((x, y) => x.d - y.d).slice(0, 2);
-                ctx.strokeStyle = 'rgba(25,199,181,.75)'; ctx.lineWidth = 1.5;
+                ctx.strokeStyle = 'rgba(169,75,134,.75)'; ctx.lineWidth = 1.5;
                 near.forEach(({ n, d }) => { if (d > 260) return; ctx.beginPath(); ctx.moveTo(cursor.x, cursor.y); ctx.lineTo(n.px, n.py); ctx.stroke(); });
-                ctx.strokeStyle = 'rgba(25,199,181,.35)'; ctx.lineWidth = 1.2;
+                ctx.strokeStyle = 'rgba(169,75,134,.35)'; ctx.lineWidth = 1.2;
                 ctx.beginPath(); ctx.arc(cursor.x, cursor.y, 13 + Math.sin(t * 3) * 3, 0, Math.PI * 2); ctx.stroke();
                 ctx.fillStyle = ACCENT;
                 ctx.beginPath(); ctx.arc(cursor.x, cursor.y, 5, 0, Math.PI * 2); ctx.fill();
@@ -11773,7 +11783,7 @@
         if (logoLink && logoBase) {
             logoAlt = document.createElement('img');
             logoAlt.className = 'logo-img logo-alt';
-            logoAlt.src = '/unipakt-logo-bg.png?v=4';
+            logoAlt.src = '/unipakt-logo-bg.png?v=5';
             logoAlt.alt = '';
             logoAlt.setAttribute('aria-hidden', 'true');
             logoLink.appendChild(logoAlt);
@@ -11832,7 +11842,7 @@
             if (still) { kicker.classList.add('is-word'); return; }
             const STEPS = 22, STEP = 50;
             let n = 0;
-            const split = (amt) => `drop-shadow(${-amt}px 0 rgba(25,199,181,.85)) drop-shadow(${amt}px 0 rgba(10,10,10,.45))`;
+            const split = (amt) => `drop-shadow(${-amt}px 0 rgba(169,75,134,.85)) drop-shadow(${amt}px 0 rgba(10,10,10,.45))`;
             const tick = () => {
                 if (!active()) { kickReset(); return; }
                 if (n >= STEPS) { kickReset(); kicker.classList.add('is-word'); return; }
@@ -11886,7 +11896,7 @@
         if (navLogo && !navLogo.querySelector('.logo-mx')) {
             const mx = document.createElement('img');
             mx.className = 'logo-img logo-mx'; mx.alt = ''; mx.setAttribute('aria-hidden', 'true');
-            mx.src = '/hackfest-media/logo-hf27.webp?v=2'; mx.width = 680; mx.height = 106; mx.decoding = 'async';
+            mx.src = '/hackfest-media/logo-hf27.webp?v=3'; mx.width = 680; mx.height = 106; mx.decoding = 'async';
             navLogo.appendChild(mx);
         }
         let swapTimer = 0;
