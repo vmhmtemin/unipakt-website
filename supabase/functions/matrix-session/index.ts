@@ -45,7 +45,18 @@ Deno.serve(async (req) => {
 
   const { data: profile, error: profileError } = await supabase.from("profiles").select("role,club_id,permissions,staff_title,username,full_name").eq("id", user.id).maybeSingle();
   const chatMember = profile?.role === "member" && Array.isArray(profile.permissions) && profile.permissions.includes("chat");
-  if (profileError || !profile || !(["club", "admin"].includes(profile.role) || chatMember)) {
+  // Birim hesabı: aktif üyelik + (başkan ya da rolünde / kişisel yetkisinde "chat").
+  let unitName = "";
+  let chatUnit = false;
+  if (profile?.role === "unit") {
+    const { data: m } = await supabase.from("unit_members").select("unit_id, role_id, is_head, permissions, status").eq("user_id", user.id).maybeSingle();
+    if (m && m.status === "active") {
+      const { data: r } = await supabase.from("unit_roles").select("permissions").eq("id", m.role_id).maybeSingle();
+      chatUnit = m.is_head || [...(r?.permissions ?? []), ...(m.permissions ?? [])].includes("chat");
+      unitName = (await supabase.from("units").select("name").eq("id", m.unit_id).maybeSingle()).data?.name || "";
+    }
+  }
+  if (profileError || !profile || !(["club", "admin"].includes(profile.role) || chatMember || chatUnit)) {
     return reply(403, { message: "Bu hesap mesajlaşmaya yetkili değil." }, origin);
   }
   const { data: mfaOk } = await supabase.rpc("mfa_session_ok", { p_user: user.id, p_session: sessionIdOf(token) });
@@ -63,13 +74,14 @@ Deno.serve(async (req) => {
     return reply(503, { message: "Mesajlaşma sunucusu henüz yapılandırılmadı." }, origin);
   }
 
-  if (profile.role !== "admin" && !/^[0-9a-f-]{36}$/i.test(String(profile.club_id ?? ""))) {
+  if (!["admin", "unit"].includes(profile.role) && !/^[0-9a-f-]{36}$/i.test(String(profile.club_id ?? ""))) {
     return reply(403, { message: "Kulüp hesabının kulüp bağlantısı eksik." }, origin);
   }
   // Merkez Yönetim (kişisel yönetici hesabı) kendi adıyla yazışır; ortak UniPakt hesabı "unipakt" destek hesabıdır.
   const staff = profile.role === "admin" && !!profile.staff_title;
-  const accountKey = staff ? `staff-${user.id}` : profile.role === "admin" ? "unipakt-support" : `club-${profile.club_id}`;
-  const localpart = staff ? `staff_${user.id.replaceAll("-", "")}` : profile.role === "admin" ? "unipakt" : `club_${String(profile.club_id).replaceAll("-", "")}`;
+  const unit = profile.role === "unit";
+  const accountKey = unit ? `unit-${user.id}` : staff ? `staff-${user.id}` : profile.role === "admin" ? "unipakt-support" : `club-${profile.club_id}`;
+  const localpart = unit ? `unit_${user.id.replaceAll("-", "")}` : staff ? `staff_${user.id.replaceAll("-", "")}` : profile.role === "admin" ? "unipakt" : `club_${String(profile.club_id).replaceAll("-", "")}`;
   const userId = `@${localpart}:${serverName}`;
   const password = await matrixPassword(derivationSecret, accountKey);
   const headers = { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" };
@@ -78,7 +90,8 @@ Deno.serve(async (req) => {
   try {
     const account = await fetch(adminUrl, { headers });
     if (account.status === 404) {
-      const displayname = staff ? (profile.username || profile.full_name || "Merkez Yönetim")
+      const displayname = unit ? (profile.full_name || profile.username || `UniPakt ${unitName}`.trim())
+        : staff ? (profile.username || profile.full_name || "Merkez Yönetim")
         : profile.role === "admin"
         ? "UniPakt"
         : ((await supabase.from("clubs").select("name").eq("id", profile.club_id).maybeSingle()).data?.name || "Kulüp");

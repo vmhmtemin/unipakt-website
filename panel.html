@@ -2353,6 +2353,7 @@
   const chatSelf = () => (state.staff ? `staff:${state.staff.id}` : state.user);
   const matrixLocalpart = (panelUser) => (panelUser === ADMIN ? 'unipakt'
     : String(panelUser).startsWith('staff:') ? `staff_${String(panelUser).slice(6).replaceAll('-', '')}`
+    : String(panelUser).startsWith('unit:') ? `unit_${String(panelUser).slice(5).replaceAll('-', '')}`
     : `club_${String(panelUser).replaceAll('-', '')}`);
   const matrixIdFor = (panelUser) => `@${matrixLocalpart(panelUser)}:${matrixServerName()}`;
   // Matrix user id → panel user ('unipakt' or a club id).
@@ -2360,6 +2361,7 @@
     const localpart = String(matrixId || '').replace(/^@/, '').split(':')[0];
     if (localpart === 'unipakt') return ADMIN;
     if (localpart.startsWith('staff_')) { const p = staffProfiles().find((x) => `staff_${x.id.replaceAll('-', '')}` === localpart); return p ? `staff:${p.id}` : ''; }
+    if (localpart.startsWith('unit_')) { const p = (db?.panelProfiles || []).find((x) => x.role === 'unit' && `unit_${x.id.replaceAll('-', '')}` === localpart); return p ? `unit:${p.id}` : ''; }
     return db?.clubs.find((c) => `club_${String(c.id).replaceAll('-', '')}` === localpart)?.id || '';
   };
   const demoMatrixSession = async (deviceId) => {
@@ -3951,7 +3953,7 @@
       return `${head('Hesap', 'Giriş bilgilerini ve şifreni yönet.')}
         <section class="card">
           <h2>Hesap bilgileri</h2>
-          <div class="account-summary"><strong>${esc(session?.email || (DEMO ? club(state.user)?.account || '' : '') || 'E-posta bilgisi yüklenemedi')}</strong><br><small>${esc(state.staff ? `${state.staff.title}${state.profile.username ? ` · ${state.profile.username}` : ''}` : isAdmin() ? 'UniPakt yöneticisi' : state.member ? `${state.member.title} · ${club(state.user)?.name || 'Kulüp'} ekibi` : 'Kulüp başkanı hesabı')}</small></div>
+          <div class="account-summary"><strong>${esc(session?.email || (DEMO ? club(state.user)?.account || '' : '') || 'E-posta bilgisi yüklenemedi')}</strong><br><small>${esc(state.unitAcc ? `${state.unitAcc.unitName} · ${state.unitAcc.roleName}` : state.staff ? `${state.staff.title}${state.profile.username ? ` · ${state.profile.username}` : ''}` : isAdmin() ? 'UniPakt yöneticisi' : state.member ? `${state.member.title} · ${club(state.user)?.name || 'Kulüp'} ekibi` : 'Kulüp başkanı hesabı')}</small></div>
           ${state.unitAcc ? `<h2>E-postanı değiştir</h2>
           <form id="emailForm" class="stack" style="margin:18px 0 28px;max-width:520px">
             ${field('Yeni e-posta', '<input type="email" name="email" required maxlength="254" autocomplete="email">')}
@@ -6587,11 +6589,17 @@
       const p = staffProfiles().find((x) => x.id === String(peer).slice(6));
       return { id: peer, name: p ? staffName(p) : 'Merkez Yönetim', sub: [p?.fullName, p?.staffTitle || 'Merkez Yönetim'].filter((x, i, a) => x && a.indexOf(x) === i && x !== (p && staffName(p))).join(' · '), avatar: p?.avatarUrl || '', staff: true };
     }
+    if (String(peer).startsWith('unit:')) {   // birim üyesi: adı + birimi ve rolü
+      const id = String(peer).slice(5), p = (db.panelProfiles || []).find((x) => x.id === id);
+      const u = state.units.data?.units.find((x) => x.members.some((m) => m.id === id)), m = u?.members.find((x) => x.id === id);
+      const role = m ? (m.is_head ? 'Birim Başkanı' : u.roles.find((r) => r.id === m.role_id)?.name || '') : '';
+      return { id: peer, name: p?.fullName || p?.username || 'Birim üyesi', sub: u ? [u.name, role].filter(Boolean).join(' · ') : 'UniPakt birimi', avatar: p?.avatarUrl || '', unit: true };
+    }
     const c = club(peer);
     const p = db.panelProfiles?.find((x) => x.clubId === peer);
     return { id: peer, name: c?.name || 'Kulüp', sub: c ? [shortUni(c.uni), c.category].filter(Boolean).join(' · ') : '', avatar: p?.avatarUrl || '', club: true };
   };
-  const imNameMarkup = (info) => `<span class="im-name">${esc(info.name)}</span>${info.verified ? '<span class="im-verified" aria-label="Onaylı hesap">✓</span>' : ''}${info.club ? '<span class="im-tag">Kulüp</span>' : ''}${info.staff ? '<span class="im-tag">Merkez Yönetim</span>' : ''}`;
+  const imNameMarkup = (info) => `<span class="im-name">${esc(info.name)}</span>${info.verified ? '<span class="im-verified" aria-label="Onaylı hesap">✓</span>' : ''}${info.club ? '<span class="im-tag">Kulüp</span>' : ''}${info.staff ? '<span class="im-tag">Merkez Yönetim</span>' : ''}${info.unit ? '<span class="im-tag">Birim</span>' : ''}`;
   // Rooms whose other side is a known panel account, with that account attached.
   const imRooms = () => state.chat.rooms
     .map((r) => ({ ...r, peer: panelUserForMatrixId(r.peerUserId) }))
@@ -6638,7 +6646,11 @@
   };
   const imListHtml = () => {
     if (state.chat.newChat) {
-      const peers = [...(chatSelf() === ADMIN ? [] : [ADMIN]), ...staffProfiles().map((p) => `staff:${p.id}`).filter((id) => id !== chatSelf()),
+      // Birim üyeleri yalnızca Merkez Yönetim'e ve birim hesaplarına listelenir (pasifler hariç).
+      if ((isAdmin() || state.unitAcc) && !state.units.data && !state.units.loading) loadUnits();
+      const activeUnit = (id) => !state.units.data || state.units.data.units.some((u) => u.members.some((m) => m.id === id && m.status === 'active'));
+      const unitPeers = isAdmin() || state.unitAcc ? (db.panelProfiles || []).filter((p) => p.role === 'unit' && activeUnit(p.id)).map((p) => `unit:${p.id}`).filter((id) => id !== chatSelf()) : [];
+      const peers = [...(chatSelf() === ADMIN ? [] : [ADMIN]), ...staffProfiles().map((p) => `staff:${p.id}`).filter((id) => id !== chatSelf()), ...unitPeers,
         ...db.clubs.filter((c) => c.id !== state.user).sort(byLabel).map((c) => c.id)]
         .map(imPeerInfo).filter(imMatches);
       return `<p class="im-list-title">Yeni sohbet</p>${peers.map((info) => imRowHtml(info, null)).join('') || '<p class="im-empty-list">Eşleşen hesap yok.</p>'}`;
