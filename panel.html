@@ -44,6 +44,21 @@
     -webkit-font-smoothing: antialiased;
   }
   ::selection { background: var(--accent); color: var(--on-accent); }
+  /* Marka rengi sayfası */
+  .brand-presets { display: flex; flex-wrap: wrap; gap: 8px; }
+  .brand-presets .chip { display: inline-flex; align-items: center; gap: 8px; }
+  .brand-presets .chip i { width: 18px; height: 18px; border-radius: 50%; display: inline-block; }
+  .brand-grid { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 28px; align-items: start; }
+  @media (max-width: 860px) { .brand-grid { grid-template-columns: minmax(0, 1fr); } }
+  .brand-row { display: flex; align-items: center; gap: 10px; }
+  .brand-row input[type="color"] { width: 46px; height: 40px; padding: 2px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--paper-soft); cursor: pointer; }
+  .brand-row input[type="text"] { width: 110px; font-family: ui-monospace, monospace; text-transform: uppercase; }
+  .brand-out { display: grid; gap: 16px; }
+  .brand-swatch { height: 88px; border-radius: 16px; border: 1px solid var(--border); }
+  .brand-samples { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+  .brand-light { background: #FFFFFF; padding: 6px 12px; border-radius: 8px; font-weight: 700; }
+  .brand-logo { width: 100%; max-width: 420px; height: auto; background: #0C0C0D; border-radius: 14px; padding: 12px; }
+  .field-label { margin: 0; font-weight: 600; }
   /* Marka gradyanı: büyük vurgulu yazılarda yazının kendisi gradyan */
   .wordmark span, .kicker, .page-head h1 span, .evp-head h1 span, .im-side-head h2 span { background: var(--accent-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
   h1, h2, h3, p { margin: 0; }
@@ -1466,6 +1481,8 @@
      Every call resolves once `db` reflects the change.
      ------------------------------------------------------------------ */
   const local = {
+    // ---- Demo: marka rengi yalnızca bu tarayıcıda denenir ----
+    async saveTheme(t) { window.unipaktTheme?.apply(t); },
     // ---- Demo: işlem kaydı ----
     async activity() {
       const rows = (db.activity ||= []);
@@ -1733,6 +1750,11 @@
   };
 
   const remote = {
+    // Marka rengi (yalnızca UniPakt yöneticisi; set_site_theme sunucuda da denetler).
+    async saveTheme(t) {
+      await rest('rpc/set_site_theme', { method: 'POST', body: { p_colors: t.colors, p_angle: t.angle, p_on_dark: t.on_dark, p_on_light: t.on_light, p_on_accent: t.on_accent } });
+      window.unipaktTheme?.apply(t);
+    },
     async uploadEventPoster(file) {
       if (!file) return '';
       if (!['image/jpeg','image/png','image/webp'].includes(file.type)) throw new Error('Afiş yalnızca JPG, PNG veya WebP olabilir.');
@@ -2234,7 +2256,7 @@
   const can = (perm) => !state.member || state.member.perms.includes(perm);
   const isPresident = () => !!state.user && !isAdmin() && !state.member;
   const VIEW_PERM = { etkinliklerim: 'events', basvuru: 'events', 'etkinlik-olustur': 'events', gorevliler: 'registrations', kayitlar: 'registrations', ims: 'chat', 'destek-taleplerim': 'support', gorevler: 'tasks' };
-  const viewAllowed = (view) => (view === 'ekip' ? isPresident() : (view === 'ayarlar' || view === 'islem-kaydi') ? !state.member : !VIEW_PERM[view] || can(VIEW_PERM[view]));
+  const viewAllowed = (view) => (view === 'marka' ? isAdmin() : view === 'ekip' ? isPresident() : (view === 'ayarlar' || view === 'islem-kaydi') ? !state.member : !VIEW_PERM[view] || can(VIEW_PERM[view]));
   const actPerm = (act) => {
     if (/^(team-|club-|profile-avatar|activity-)/.test(act)) return 'president';
     if (/^(reg-|staff-|grant-)/.test(act)) return 'registrations';
@@ -2557,7 +2579,7 @@
       ['duyurular', 'Duyurular', 0, 'unipakt'],
       ['gorevler', 'Görevler', isAdmin() ? 0 : openMine, 'unipakt'],
       ['bildirimler', 'Bildirimler', (db.notifications || []).filter(n => !n.readAt).length, 'unipakt'],
-      ...(isAdmin() ? [['kulupler', 'Kulüpler', 0, 'unipakt'], ['site-mesajlari', 'Site Mesajları', siteInboxTotal(), 'unipakt']] : []),
+      ...(isAdmin() ? [['kulupler', 'Kulüpler', 0, 'unipakt'], ['site-mesajlari', 'Site Mesajları', siteInboxTotal(), 'unipakt'], ['marka', 'Marka rengi', 0, 'unipakt']] : []),
       ['destek-taleplerim', isAdmin() ? 'Destek Talepleri' : 'UniPakt Destek', supportNewCount(), 'unipakt'],
       ...(isPresident() ? [['ekip', 'Ekip', 0, 'unipakt']] : []),
       ...(state.member ? [] : [['islem-kaydi', 'İşlem Kaydı', 0, 'unipakt']]),
@@ -3353,7 +3375,7 @@
     if (d.title) parts.push(`Başlık: ${(DESIGN_TITLES.find(([k]) => k === d.title) || [, d.title])[1]}`);
     return parts.length ? parts.join(' · ') : 'Varsayılan';
   };
-  const lum = (hex) => { const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((x) => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+  const bLum = (hex) => { const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((x) => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
   const colorRow = (name, value, swatches, { allowDefault }) => `
     <div class="evd-colors" data-evd-colors="${name}">
       ${allowDefault ? `<button type="button" class="evd-sw evd-sw-none" data-evd-sw="${name}" data-v="" aria-pressed="${!value}" title="Varsayılan"><span>Ø</span></button>` : ''}
@@ -3518,13 +3540,13 @@
     if (d.bg === 'color' || d.bg === 'gradient') {
       d.bgColor = d.bgColor || '#0C0C0D';
       const second = d.bg === 'gradient' ? (d.accent || brandColor()) : d.bgColor;
-      heroInk = (lum(d.bgColor) + lum(second)) / 2 > 0.42 ? '#0C0C0D' : '#FFFFFF';
+      heroInk = (bLum(d.bgColor) + bLum(second)) / 2 > 0.42 ? '#0C0C0D' : '#FFFFFF';
       pvVars.push(`--pv-bgc:${d.bgColor}`, `--pv-grad2:${second}`);
     }
     pvVars.push(`--pv-ink:${heroInk}`);
     if (img) pvVars.push(`--pv-poster:url('${esc(img).replace(/'/g, '%27')}')`);
     if (hero) pvVars.push(`background-image:url('${esc(hero).replace(/'/g, '%27')}')`);
-    if (d.accent) { box.style.setProperty('--accent', d.accent); box.style.setProperty('--pv-on-acc', lum(d.accent) > 0.42 ? '#0C0C0D' : '#FFFFFF'); }
+    if (d.accent) { box.style.setProperty('--accent', d.accent); box.style.setProperty('--pv-on-acc', bLum(d.accent) > 0.42 ? '#0C0C0D' : '#FFFFFF'); }
     else { box.style.removeProperty('--accent'); box.style.removeProperty('--pv-on-acc'); }
     const orgLogo = isAdmin() || (evForm.mode === 'edit' && db.events.find((x) => x.id === evForm.id)?.ownerId === ADMIN) ? '/apple-touch-icon.png' : (state.profile.avatarUrl || '');
     box.innerHTML = `
@@ -3676,6 +3698,7 @@
   };
 
   const views = {
+    marka: () => brandView(),
     ekip: () => teamView(),
     'islem-kaydi': () => activityView(),
     ims: () => imView(),
@@ -4819,6 +4842,125 @@
         <div><p><strong>${esc(r.actor_name)}</strong> <span class="act-title">${r.actor_title !== r.actor_name ? esc(r.actor_title) : ''}${isAdmin() && r.club_id ? ` · ${esc(club(r.club_id)?.name || 'Kulüp')}` : ''}</span></p>
         <p class="act-what">${esc(r.action)}${r.target ? `: <span>${esc(r.target)}</span>` : ''}</p></div></div>`).join('')}</div></div>`).join('');
   };
+  /* ------------------------------------------------------------------
+     MARKA RENGİ (yalnızca UniPakt yöneticisi)
+     1–4 renk + açı. Kaydedince site, panel, giriş kontrol sayfası, logolar ve
+     e-postalar bu renge geçer (site_theme satırı; bkz. theme.js, tools/brand.py).
+     ------------------------------------------------------------------ */
+  const BRAND_HEX = /^#[0-9A-F]{6}$/;
+  const BRAND_PRESETS = [
+    ['Mor gradyan', ['#8F244D', '#A94B86'], 135],
+    ['Turkuaz', ['#19C7B5'], 135],
+    ['Turuncu', ['#FF5A1F'], 135],
+    ['Gün batımı', ['#FF5A1F', '#FFC23D'], 135],
+    ['Okyanus', ['#2F6FE0', '#19C7B5'], 135],
+    ['Gökkuşağı', ['#FF5A1F', '#FFC23D', '#2F6FE0', '#7C3CFF'], 90],
+  ];
+  // bLum: göreli parlaklık (yukarıda, etkinlik tasarımıyla ortak).
+  const bContrast = (a, b) => { const x = bLum(a), y = bLum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  const mixHex = (hex, to, t) => '#' + [1, 3, 5].map((i) => { const v = parseInt(hex.slice(i, i + 2), 16), w = parseInt(to.slice(i, i + 2), 16); return Math.round(v + (w - v) * t).toString(16).padStart(2, '0'); }).join('').toUpperCase();
+  // Okunurluk: koyu zeminde (#0C0C0D) en az 3:1, beyaz zeminde en az 4.5:1; gerekirse renk açılır/koyulaşır.
+  const readable = (hex, bg, target) => { for (let k = 0; k <= 20; k++) { const c = mixHex(hex, bg === '#FFFFFF' ? '#000000' : '#FFFFFF', k / 20); if (bContrast(c, bg) >= target) return c; } return bg === '#FFFFFF' ? '#000000' : '#FFFFFF'; };
+  const brandTheme = (colors, angle) => {
+    const byLight = [...colors].sort((a, b) => bLum(b) - bLum(a));
+    const worst = (ink) => Math.min(...colors.map((c) => bContrast(ink, c)));
+    return {
+      colors, angle: ((Math.round(angle) % 360) + 360) % 360,
+      on_dark: readable(byLight[0], '#0C0C0D', 3),
+      on_light: readable(byLight[byLight.length - 1], '#FFFFFF', 4.5),
+      on_accent: worst('#FFFFFF') >= worst('#000000') ? '#FFFFFF' : '#000000',
+    };
+  };
+  const brandDraft = () => {
+    if (!state.brand) {
+      const t = window.unipaktTheme?.current() || { colors: ['#8F244D', '#A94B86'], angle: 135 };
+      state.brand = { colors: [...t.colors], angle: t.angle, saved: brandTheme([...t.colors], t.angle), saving: false, error: '', dirty: false };
+    }
+    return state.brand;
+  };
+  const brandPreview = () => {
+    const b = brandDraft();
+    const t = brandTheme(b.colors, b.angle);
+    window.unipaktTheme?.apply(t, { preview: true });
+    const out = document.querySelector('[data-brand-out]');
+    if (out) out.innerHTML = brandOutHtml(t);
+  };
+  const brandOutHtml = (t) => `
+      <div class="brand-swatch" style="background:${window.unipaktTheme ? window.unipaktTheme.gradient(t) : t.colors[0]}"></div>
+      <div class="brand-samples">
+        <span class="btn" style="pointer-events:none">Örnek düğme</span>
+        <span style="color:${t.on_dark};font-weight:700">Koyu zeminde vurgu yazısı</span>
+        <span class="brand-light" style="color:${t.on_light}">Açık zeminde vurgu yazısı</span>
+      </div>
+      <img data-tint="logo-full" src="/hackfest-media/logo-full.webp?v=3" alt="Örnek logo" class="brand-logo">
+      <p class="hint">Yazılar okunmuyorsa renk otomatik açılıp koyulaştırılır: koyu zeminde <b style="color:${t.on_dark}">${t.on_dark}</b>, açık zeminde <b>${t.on_light}</b>, düğme yazısı ${t.on_accent === '#FFFFFF' ? 'beyaz' : 'siyah'}.</p>`;
+  const brandView = () => {
+    const b = brandDraft();
+    const t = brandTheme(b.colors, b.angle);
+    const rows = b.colors.map((c, i) => `
+        <div class="brand-row">
+          <input type="color" value="${c}" data-brand-color="${i}" aria-label="${i + 1}. renk">
+          <input type="text" value="${c}" maxlength="7" data-brand-hex="${i}" aria-label="${i + 1}. renk (#RRGGBB)" spellcheck="false">
+          ${b.colors.length > 1 ? `<button type="button" class="btn ghost small" data-act="brand-remove" data-id="${i}" aria-label="${i + 1}. rengi kaldır">Kaldır</button>` : ''}
+        </div>`).join('');
+    return `${head('Marka rengi', 'Sitenin, panelin, giriş kontrol sayfasının, logoların ve e-postaların rengi. Kaydedince herkes için değişir.')}
+      <section class="card stack brand-card">
+        <div class="brand-presets">${BRAND_PRESETS.map(([name, cols, ang], i) => `<button type="button" class="chip" data-act="brand-preset" data-id="${i}" title="${esc(cols.join(' → '))}"><i style="background:linear-gradient(${ang}deg, ${(cols.length > 1 ? cols : [cols[0], cols[0]]).join(', ')})"></i>${esc(name)}</button>`).join('')}</div>
+        <div class="brand-grid">
+          <div class="stack">
+            <p class="field-label">Renkler <small>(1–4, sırasıyla)</small></p>
+            ${rows}
+            ${b.colors.length < 4 ? '<button type="button" class="btn ghost small" data-act="brand-add">+ Renk ekle</button>' : ''}
+            <label class="field"><span>Gradyan açısı: <b data-brand-angle-out>${t.angle}°</b></span><input type="range" min="0" max="359" step="1" value="${t.angle}" data-brand-angle ${b.colors.length < 2 ? 'disabled' : ''}></label>
+          </div>
+          <div class="brand-out" data-brand-out>${brandOutHtml(t)}</div>
+        </div>
+        ${b.error ? `<p class="form-error">${esc(b.error)}</p>` : ''}
+        <div class="row-actions">
+          <button type="button" class="btn" data-act="brand-save" ${b.saving ? 'disabled' : ''}>${b.saving ? 'Kaydediliyor…' : 'Kaydet ve yayınla'}</button>
+          <button type="button" class="btn ghost" data-act="brand-reset" ${b.dirty ? '' : 'disabled'}>Kaydedilene dön</button>
+        </div>
+        <p class="hint">Değiştirdiğinde önce yalnızca bu ekranda önizlenir. Kaydedince site ziyaretçileri yeni rengi hemen görür; logolu paylaşım görselleri (bağlantı önizlemeleri) en geç bir saat içinde güncellenir. E-postalar bir dakika içinde yeni renkle gider.</p>
+      </section>`;
+  };
+  const brandActions = {
+    'brand-preset'(id) { const [, cols, ang] = BRAND_PRESETS[Number(id)]; Object.assign(brandDraft(), { colors: [...cols], angle: ang, dirty: true, error: '' }); render(); brandPreview(); },
+    'brand-add'() { const b = brandDraft(); if (b.colors.length < 4) { b.colors.push(b.colors[b.colors.length - 1]); b.dirty = true; render(); brandPreview(); } },
+    'brand-remove'(id) { const b = brandDraft(); if (b.colors.length > 1) { b.colors.splice(Number(id), 1); b.dirty = true; render(); brandPreview(); } },
+    'brand-reset'() { const b = brandDraft(); Object.assign(b, { colors: [...b.saved.colors], angle: b.saved.angle, dirty: false, error: '' }); window.unipaktTheme?.apply(b.saved); render(); },
+    async 'brand-save'() {
+      const b = brandDraft();
+      if (!b.colors.every((c) => BRAND_HEX.test(c))) { b.error = 'Her renk #RRGGBB biçiminde olmalı.'; render(); return; }
+      const t = brandTheme(b.colors, b.angle);
+      b.saving = true; b.error = ''; render();
+      try {
+        await api.saveTheme(t);
+        Object.assign(b, { saved: t, dirty: false });
+        toast('Marka rengi kaydedildi. Site, panel ve e-postalar yeni renkte.');
+      } catch (error) { b.error = error.message || 'Kaydedilemedi.'; }
+      b.saving = false; render();
+    },
+  };
+  document.addEventListener('input', (e) => {
+    const el = e.target;
+    if (!el.matches?.('[data-brand-color],[data-brand-hex],[data-brand-angle]')) return;
+    const b = brandDraft();
+    if (el.matches('[data-brand-angle]')) { b.angle = Number(el.value) || 0; const o = document.querySelector('[data-brand-angle-out]'); if (o) o.textContent = `${b.angle}°`; }
+    else {
+      const i = Number(el.dataset.brandColor ?? el.dataset.brandHex);
+      let v = el.value.trim().toUpperCase(); if (v && v[0] !== '#') v = `#${v}`;
+      if (!BRAND_HEX.test(v)) return;
+      b.colors[i] = v;
+      const twin = document.querySelector(el.matches('[data-brand-color]') ? `[data-brand-hex="${i}"]` : `[data-brand-color="${i}"]`);
+      if (twin) twin.value = v;
+    }
+    b.dirty = true;
+    const reset = document.querySelector('[data-act="brand-reset"]'); if (reset) reset.disabled = false;
+    brandPreview();
+  });
+  // Sayfadan kaydetmeden çıkılırsa önizleme geri alınır.
+  const brandLeave = () => { const b = state.brand; if (b?.dirty) { Object.assign(b, { colors: [...b.saved.colors], angle: b.saved.angle, dirty: false }); window.unipaktTheme?.apply(b.saved); } };
+
   const activityView = () => {
     const a = state.activity;
     const top = head('İşlem Kaydı', isAdmin() ? 'Panelde kimin, ne zaman, ne yaptığı. Tüm kulüpler; son 6 ay saklanır.' : 'Sen ve ekibinin panelde ne zaman ne yaptığı. Yalnızca sen görürsün; son 6 ay saklanır.',
@@ -4976,6 +5118,7 @@
 
   const actions = {
     ...teamActions,
+    ...brandActions,
     ...regActions,
     ...speakerActions,
     ...designActions,
@@ -5768,6 +5911,7 @@
   const go = (view) => {
     if (!knownView(view)) view = 'genel';
     if (view !== state.view && !leaveEventPage()) return;
+    if (view !== state.view && state.view === 'marka') brandLeave();
     state.view = view; state.profileMenuOpen = false; state.navOpen = false;
     if (location.hash !== `#${view}`) history.pushState(null, '', `#${view}`);
     render(); window.scrollTo(0, 0);

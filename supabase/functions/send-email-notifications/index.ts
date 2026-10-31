@@ -18,6 +18,25 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
+// Marka rengi (panel › Marka rengi): site_theme satırından okunur, 1 dakika önbellekte tutulur;
+// okunamazsa varsayılan kalır. E-postalarda B.dark (koyu zeminde vurgu) ve B.btn (düğme) kullanılır.
+type BrandRow = { colors: string[]; angle: number; on_dark: string; on_accent: string };
+const brandOf = (t: BrandRow) => {
+  const cols = t.colors.length > 1 ? t.colors : [t.colors[0], t.colors[0]];
+  return { dark: t.on_dark, btn: `background:${t.colors[0]};background-image:linear-gradient(${t.angle}deg,${cols.join(",")});color:${t.on_accent};` };
+};
+let B = brandOf({ colors: ["#8F244D", "#A94B86"], angle: 135, on_dark: "#A94B86", on_accent: "#FFFFFF" });
+let brandAt = 0;
+const loadBrand = async () => {
+  if (Date.now() - brandAt < 60_000) return;
+  brandAt = Date.now();
+  try {
+    const { data } = await supabase.from("site_theme").select("colors, angle, on_dark, on_accent").eq("id", 1).maybeSingle();
+    const hex = /^#[0-9A-Fa-f]{6}$/;
+    if (data && Array.isArray(data.colors) && data.colors.length && data.colors.every((c: string) => hex.test(c)) && hex.test(data.on_dark) && hex.test(data.on_accent)) B = brandOf(data as BrandRow);
+  } catch (_) { /* varsayılan kalır */ }
+};
+
 const FROM_EMAIL = "UniPakt <bildirim@unipakt.com>";
 const PANEL_URL = "https://unipakt.com/panel.html";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -84,14 +103,14 @@ function buildHtml(notification: any): string {
   <div style="max-width:620px;margin:40px auto;padding:0 20px;">
     <div style="border:1px solid #292929;border-radius:20px;overflow:hidden;background:#090909;">
       <div style="padding:28px 30px;border-bottom:1px solid #292929;">
-        <div style="font-size:22px;font-weight:700;letter-spacing:-0.5px;">UniPakt<span style="color:#777;">.</span></div>
-        <div style="margin-top:7px;color:#888;font-size:13px;">${type}</div>
+        <div style="font-size:22px;font-weight:700;letter-spacing:-0.5px;">UniPakt<span style="color:${B.dark};">.</span></div>
+        <div style="margin-top:7px;color:${B.dark};font-size:13px;font-weight:600;">${type}</div>
       </div>
       <div style="padding:32px 30px;">
         <h1 style="margin:0 0 18px;font-size:25px;line-height:1.25;color:#ffffff;">${title}</h1>
         <div style="color:#cfcfcf;font-size:16px;line-height:1.7;">${body}</div>
         <div style="margin-top:30px;">
-          <a href="${PANEL_URL}" style="display:inline-block;background:#ffffff;color:#000000;text-decoration:none;font-weight:600;padding:13px 20px;border-radius:10px;">UniPakt Paneli</a>
+          <a href="${PANEL_URL}" style="display:inline-block;${B.btn}text-decoration:none;font-weight:600;padding:13px 20px;border-radius:10px;">UniPakt Paneli</a>
         </div>
       </div>
       <div style="padding:20px 30px;border-top:1px solid #292929;color:#666;font-size:12px;line-height:1.6;">
@@ -123,6 +142,7 @@ async function sendEmail(to: string, notification: any): Promise<void> {
 }
 
 Deno.serve(async (req) => {
+  await loadBrand();
   if (req.method !== "POST") return json(405, { error: "POST gerekli." });
 
   // 1) Only the database trigger knows this key.

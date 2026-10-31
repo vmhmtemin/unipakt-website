@@ -19,6 +19,25 @@ const cors = {
 };
 const reply = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
+const BRAND_DB = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false, autoRefreshToken: false } });
+// Marka rengi (panel › Marka rengi): site_theme satırından okunur, 1 dakika önbellekte tutulur;
+// okunamazsa varsayılan kalır. E-postalarda B.dark (koyu zeminde vurgu) ve B.btn (düğme) kullanılır.
+type BrandRow = { colors: string[]; angle: number; on_dark: string; on_accent: string };
+const brandOf = (t: BrandRow) => {
+  const cols = t.colors.length > 1 ? t.colors : [t.colors[0], t.colors[0]];
+  return { dark: t.on_dark, btn: `background:${t.colors[0]};background-image:linear-gradient(${t.angle}deg,${cols.join(",")});color:${t.on_accent};` };
+};
+let B = brandOf({ colors: ["#8F244D", "#A94B86"], angle: 135, on_dark: "#A94B86", on_accent: "#FFFFFF" });
+let brandAt = 0;
+const loadBrand = async () => {
+  if (Date.now() - brandAt < 60_000) return;
+  brandAt = Date.now();
+  try {
+    const { data } = await BRAND_DB.from("site_theme").select("colors, angle, on_dark, on_accent").eq("id", 1).maybeSingle();
+    const hex = /^#[0-9A-Fa-f]{6}$/;
+    if (data && Array.isArray(data.colors) && data.colors.length && data.colors.every((c: string) => hex.test(c)) && hex.test(data.on_dark) && hex.test(data.on_accent)) B = brandOf(data as BrandRow);
+  } catch (_) { /* varsayılan kalır */ }
+};
 
 const FROM_EMAIL = "UniPakt <bildirim@unipakt.com>";
 const PANEL = "https://unipakt.com/panel.html";
@@ -46,13 +65,13 @@ const inviteMail = (clubName: string, inviter: string, name: string, title: stri
 <body style="margin:0;padding:0;background:#0C0C0D;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0C0C0D;"><tr><td align="center" style="padding:40px 16px;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:540px;background:#161618;border:1px solid #2a2a2d;border-radius:22px;"><tr><td style="padding:34px 32px;font-family:Arial,Helvetica,sans-serif;color:#F2F1EE;">
-  <div style="font:800 32px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:#A94B86;">.</span></div>
-  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#A94B86;">PANEL DAVETİ</div>
+  <div style="font:800 32px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:${B.dark};">.</span></div>
+  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:${B.dark};">PANEL DAVETİ</div>
   <h1 style="margin:28px 0 10px;font:800 25px/1.25 Arial,Helvetica,sans-serif;color:#F2F1EE;">Merhaba ${esc(name)}, ${esc(clubName)} ekibine davet edildin.</h1>
   <p style="margin:0;font:400 15px/1.6 Arial,Helvetica,sans-serif;color:#C9C8C4;">${esc(inviter)} seni UniPakt Panel'e <b style="color:#F2F1EE;">${esc(title)}</b> olarak ekledi.</p>
   <p style="margin:16px 0 0;font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#9A9995;">Yetkilerin: ${esc(list)}</p>
-  <p style="margin:26px 0 0;"><a href="${esc(link)}" style="display:inline-block;padding:15px 28px;border-radius:999px;background:#8F244D;background-image:linear-gradient(135deg,#8F244D,#A94B86);color:#FFFFFF;font:700 16px/1 Arial,Helvetica,sans-serif;text-decoration:none;">Şifremi belirle</a></p>
-  <p style="margin:22px 0 0;font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#9A9995;">Şifreni belirledikten sonra bu e-posta adresi ve şifrenle <a href="${PANEL}" style="color:#A94B86;">unipakt.com/panel.html</a> adresinden giriş yaparsın. Bağlantının süresi geçerse giriş ekranındaki “Şifremi unuttum” ile yenisini alabilirsin.</p>
+  <p style="margin:26px 0 0;"><a href="${esc(link)}" style="display:inline-block;padding:15px 28px;border-radius:999px;${B.btn}font:700 16px/1 Arial,Helvetica,sans-serif;text-decoration:none;">Şifremi belirle</a></p>
+  <p style="margin:22px 0 0;font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#9A9995;">Şifreni belirledikten sonra bu e-posta adresi ve şifrenle <a href="${PANEL}" style="color:${B.dark};">unipakt.com/panel.html</a> adresinden giriş yaparsın. Bağlantının süresi geçerse giriş ekranındaki “Şifremi unuttum” ile yenisini alabilirsin.</p>
 </td></tr></table>
 <p style="margin:18px 0 0;font:400 12px/1.6 Arial,Helvetica,sans-serif;color:#6f6e6a;">Bu daveti beklemiyorsan e-postayı yok sayabilirsin; şifre belirlemedikçe hesap kullanılamaz.</p>
 </td></tr></table></body></html>`;
@@ -61,6 +80,7 @@ const inviteMail = (clubName: string, inviter: string, name: string, title: stri
 };
 
 Deno.serve(async (req) => {
+  await loadBrand();
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return reply(405, { message: "Yalnızca POST." });
 

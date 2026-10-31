@@ -38,6 +38,25 @@ const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPAB
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
+// Marka rengi (panel › Marka rengi): site_theme satırından okunur, 1 dakika önbellekte tutulur;
+// okunamazsa varsayılan kalır. E-postalarda B.dark (koyu zeminde vurgu) ve B.btn (düğme) kullanılır.
+type BrandRow = { colors: string[]; angle: number; on_dark: string; on_accent: string };
+const brandOf = (t: BrandRow) => {
+  const cols = t.colors.length > 1 ? t.colors : [t.colors[0], t.colors[0]];
+  return { dark: t.on_dark, btn: `background:${t.colors[0]};background-image:linear-gradient(${t.angle}deg,${cols.join(",")});color:${t.on_accent};` };
+};
+let B = brandOf({ colors: ["#8F244D", "#A94B86"], angle: 135, on_dark: "#A94B86", on_accent: "#FFFFFF" });
+let brandAt = 0;
+const loadBrand = async () => {
+  if (Date.now() - brandAt < 60_000) return;
+  brandAt = Date.now();
+  try {
+    const { data } = await supabase.from("site_theme").select("colors, angle, on_dark, on_accent").eq("id", 1).maybeSingle();
+    const hex = /^#[0-9A-Fa-f]{6}$/;
+    if (data && Array.isArray(data.colors) && data.colors.length && data.colors.every((c: string) => hex.test(c)) && hex.test(data.on_dark) && hex.test(data.on_accent)) B = brandOf(data as BrandRow);
+  } catch (_) { /* varsayılan kalır */ }
+};
+
 const sha256 = async (text: string) => {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -82,8 +101,8 @@ const emailHtml = (purpose: string, code: string) => {
 <body style="margin:0;padding:0;background:#0C0C0D;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0C0C0D;"><tr><td align="center" style="padding:40px 16px;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background:#161618;border:1px solid #2a2a2d;border-radius:22px;"><tr><td style="padding:36px 32px;font-family:Arial,Helvetica,sans-serif;color:#F2F1EE;">
-  <div style="font:800 34px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:#A94B86;">.</span></div>
-  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:#A94B86;">PANEL</div>
+  <div style="font:800 34px/1 Arial,Helvetica,sans-serif;letter-spacing:-1px;color:#F2F1EE;">UniPakt<span style="color:${B.dark};">.</span></div>
+  <div style="margin-top:8px;font:700 13px/1 Arial,Helvetica,sans-serif;letter-spacing:2px;color:${B.dark};">PANEL</div>
   <h1 style="margin:32px 0 10px;font:800 26px/1.2 Arial,Helvetica,sans-serif;color:#F2F1EE;">Doğrulama kodun</h1>
   <p style="margin:0 0 26px;font:400 16px/1.6 Arial,Helvetica,sans-serif;color:#C9C8C4;">${esc(t.lead)}</p>
   <table role="presentation" cellspacing="0" cellpadding="0"><tr>${digits}</tr></table>
@@ -123,6 +142,7 @@ const issueDeviceToken = async (userId: string, userAgent: string) => {
 };
 
 Deno.serve(async (req) => {
+  await loadBrand();
   const origin = req.headers.get("Origin");
   const reply = (status: number, body: unknown) =>
     new Response(JSON.stringify(body), { status, headers: { ...corsFor(origin), "Content-Type": "application/json" } });
