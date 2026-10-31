@@ -6640,6 +6640,33 @@
     .cl-contact .club-contact-tile:hover { transform: none; }
     .club-page-link { display: inline-flex; gap: 6px; margin-top: 14px; font-weight: 600; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
     @media (max-width: 860px) { .cl-grid { grid-template-columns: minmax(0, 1fr); } }
+    /* ---- Kulüp sayfası tasarımı (kulübün panelde seçtiği; boşsa yukarıdaki varsayılan) ---- */
+    .cl-hero { color: var(--cl-ink, #fff); }
+    .cl-hero::before { content: ''; position: absolute; inset: 0; z-index: -2; background: var(--cl-banner, none) center / cover no-repeat; display: none; }
+    .cl-hero.cl-has-banner, .cl-hero.cl-bg-clear, .cl-hero.cl-bg-blur { padding-top: clamp(110px, 12vw, 170px); }
+    .cl-hero.cl-has-banner::before, .cl-hero.cl-bg-clear::before, .cl-hero.cl-bg-blur::before { display: block; }
+    .cl-hero.cl-has-banner::after { background: radial-gradient(#ffffff30 1px, transparent 1.3px) 0 0 / 18px 18px, rgba(0, 0, 0, .62); }
+    .cl-hero.cl-bg-clear::after { background: linear-gradient(180deg, rgba(0, 0, 0, .12) 0%, rgba(0, 0, 0, .7) 100%); }
+    .cl-hero.cl-bg-blur::before { filter: blur(38px) saturate(1.35); transform: scale(1.25); }
+    .cl-hero.cl-bg-blur::after { background: radial-gradient(#ffffff26 1px, transparent 1.3px) 0 0 / 18px 18px, rgba(0, 0, 0, .42); }
+    .cl-hero.cl-bg-color { background: var(--cl-bgc); }
+    .cl-hero.cl-bg-gradient { background: linear-gradient(135deg, var(--cl-bgc) 0%, var(--cl-grad2) 100%); }
+    .cl-hero.cl-bg-color::after, .cl-hero.cl-bg-gradient::after { background: radial-gradient(color-mix(in srgb, var(--cl-ink) 20%, transparent) 1px, transparent 1.3px) 0 0 / 18px 18px; }
+    .cl-hero.cl-hero-light .cl-back { color: #0C0C0D; background: rgba(255, 255, 255, .45); border-color: rgba(0, 0, 0, .2); }
+    .cl-hero.cl-title-left { text-align: left; }
+    .cl-hero.cl-title-left .cl-hero-in { justify-items: start; }
+    .cl-hero.cl-title-left h1 { font-size: clamp(36px, 6vw, 78px); max-width: 16ch; }
+    .cl-hero.cl-title-compact h1 { font-size: clamp(24px, 3.2vw, 40px); font-weight: 800; letter-spacing: -0.02em; }
+    .cl-hero.cl-title-outline h1 { color: transparent; -webkit-text-stroke: clamp(1px, .14vw, 2px) var(--cl-ink, #fff); }
+    @supports not (-webkit-text-stroke: 1px #fff) { .cl-hero.cl-title-outline h1 { color: inherit; } }
+    .cl-hero.cl-title-caps h1 { text-transform: uppercase; font-weight: 800; letter-spacing: .05em; font-size: clamp(24px, 3.8vw, 48px); }
+    .cl-hero.cl-title-hand h1 { font-family: 'Caveat', cursive; font-weight: 700; letter-spacing: 0; line-height: 1; font-size: clamp(44px, 6.6vw, 86px); }
+    .cl-skin.has-acc .cl-logo { border: 3px solid var(--ev-acc-read); }
+    .cl-skin.has-acc .cl-ev-date b, .cl-skin.has-acc .cl-ev:hover .cl-ev-go { color: var(--ev-acc-read); opacity: 1; }
+    .cl-skin.has-acc .cl-ev:hover { box-shadow: inset 3px 0 0 var(--ev-acc-read); }
+    .cl-skin.has-acc .cl-ev-tag { border-color: var(--ev-acc-read); color: var(--ev-acc-read); }
+    .cl-skin.has-acc .cl-contact .club-contact-icon { color: var(--ev-acc-read); }
+    .cl-skin.has-acc .cl-contact .club-contact-tile:hover { border-color: var(--ev-acc-read); }
     /* ---- Etkinlik sayfası tasarımı (kulübün panelde seçtiği; boşsa yukarıdaki varsayılan) ---- */
     .ev-org-line { display: inline-flex; align-items: center; gap: 10px; }
     .ev-org-logo { width: 32px; height: 32px; flex: none; border-radius: 50%; object-fit: cover; background: var(--paper); border: 1px solid var(--border-strong); }
@@ -6653,6 +6680,7 @@
     .ev-skin.has-acc .ev-act:hover, .ev-skin.has-acc .ev-social a:hover, .ev-skin.has-acc .ev-back-top:hover { border-color: var(--ev-acc-read); color: inherit; }
     .ev-skin.has-acc .ev-org:hover, .ev-skin.has-acc .ev-sp-link:hover { color: inherit; text-decoration-color: var(--ev-acc-read); border-bottom-color: var(--ev-acc-read); }
     .ev-skin.has-acc .ev-org-logo { border-color: var(--ev-acc-read); }
+    .ev-skin.has-acc .btn-pill.ghost, .ev-skin.has-acc .ev-ticket .btn-pill.ghost { border-color: var(--ev-acc-read); color: var(--ev-acc-read); }
     /* Etkinlik bilgilerindeki ikonlar her zaman beyaz (kulübün rengi koyuysa kaybolmasın). */
     .ev-info-row > svg, .ev-rules svg { color: #FFFFFF; opacity: .9; }
     .ev-hero { color: var(--ev-hero-ink, #fff); }
@@ -9641,6 +9669,34 @@
             });
         }
 
+        // Etkinlik ve kulüp sayfalarında kulübün rengi sayfanın tamamına (üst menüdeki "Bize Katıl" dahil) geçer;
+        // sayfadan çıkınca site rengine dönülür. Kulüp vurgu rengi seçmeyip yalnızca renkli arka plan seçtiyse
+        // o renk kullanılır (siyah/gri gibi renksiz tonlar yerine her zaman en canlı olan seçilir).
+        window.unipaktPageAccent = window.unipaktPageAccent || (() => {
+            const lum = (hex) => { const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+            const ink = (hex) => (lum(hex) > 0.42 ? '#0C0C0D' : '#FFFFFF');
+            const read = (hex) => {
+                const rgb = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+                for (let k = 0; k <= 20; k++) { const out = '#' + rgb.map((v) => Math.round(v + (255 - v) * k / 20).toString(16).padStart(2, '0')).join(''); if ((lum(out) + 0.05) / (lum('#0C0C0D') + 0.05) >= 3) return out.toUpperCase(); }
+                return '#FFFFFF';
+            };
+            const vivid = (hex) => { const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255); return Math.max(...c) - Math.min(...c); };
+            const ok = (h) => /^#[0-9a-f]{6}$/i.test(h || '');
+            return {
+                read, ink,
+                // Önce kulübün seçtiği vurgu; o renksizse (siyah, gri, beyaz) arka plan rengi.
+                pick(accent, background) {
+                    if (ok(accent) && (vivid(accent) >= 0.15 || !ok(background) || vivid(background) < 0.15)) return accent;
+                    return ok(background) && vivid(background) >= 0.15 ? background : (ok(accent) ? accent : '');
+                },
+                apply(hex) {
+                    const st = document.documentElement.style;
+                    if (!ok(hex)) { ['--accent', '--accent-grad', '--on-accent'].forEach((p) => st.removeProperty(p)); return; }
+                    const r = read(hex);
+                    st.setProperty('--accent', r); st.setProperty('--accent-grad', `linear-gradient(${r}, ${r})`); st.setProperty('--on-accent', ink(r));
+                },
+            };
+        })();
         // Sayfa tasarımı (panelde kulübün seçtiği): vurgu rengi, üst alan arka planı, başlık stili.
         // Yalnızca bilinen değerler uygulanır; boş tasarım = varsayılan görünüm.
         const HEX_RE = /^#[0-9a-f]{6}$/i;
@@ -9675,7 +9731,8 @@
         function designAttrs(e) {
             const d = e.design || cleanDesign();
             const vars = [];
-            if (d.accent) { const read = readableOnDark(d.accent); vars.push(`--ev-acc:${d.accent}`, `--ev-on-acc:${inkOn(d.accent)}`, `--ev-acc-read:${read}`, `--ev-on-acc-read:${inkOn(read)}`); }
+            const acc = window.unipaktPageAccent.pick(d.accent, (d.bg === 'color' || d.bg === 'gradient') ? d.bgColor : '');
+            if (acc) { const read = readableOnDark(acc); vars.push(`--ev-acc:${acc}`, `--ev-on-acc:${inkOn(acc)}`, `--ev-acc-read:${read}`, `--ev-on-acc-read:${inkOn(read)}`); }
             let ink = '#FFFFFF';
             if (d.bg === 'color' || d.bg === 'gradient') {
                 const second = d.bg === 'gradient' ? (d.accent || brandColor()) : d.bgColor;
@@ -9684,7 +9741,7 @@
             }
             vars.push(`--ev-hero-ink:${ink}`);
             if (e.poster) vars.push(`--ev-poster:url('${esc(e.poster).replace(/'/g, '%27')}')`);
-            return { skin: `ev-skin${d.accent ? ' has-acc' : ''}`, hero: ` ev-bg-${d.bg} ev-title-${d.title}${ink === '#0C0C0D' ? ' ev-hero-light' : ''}`, style: vars.join(';') };
+            return { accent: acc, skin: `ev-skin${acc ? ' has-acc' : ''}`, hero: ` ev-bg-${d.bg} ev-title-${d.title}${ink === '#0C0C0D' ? ' ev-hero-light' : ''}`, style: vars.join(';') };
         }
 
         // Konuşmacılar: yalnızca linkedin.com bağlantıları tıklanabilir olur.
@@ -9778,6 +9835,7 @@
                 ? `<span class="ev-org-line"><img class="ev-org-logo" src="${esc(orgLogo)}" alt="" width="32" height="32" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">${orgName}</span>`
                 : orgName;
             const look = designAttrs(e);
+            window.unipaktPageAccent.apply(look.accent);
             const partners = e.partners.length ? `<div class="ev-sub"><span>Ortak kulüpler:</span> <span data-no-i18n>${e.partners.map(esc).join(', ')}</span></div>` : '';
             const placeVal = (e.place || e.address || e.city)
                 ? `<span data-no-i18n>${[e.place, e.address, e.city].filter(Boolean).map(esc).join('<br>')}</span>${e.address || e.place ? `<a class="ev-map" href="${esc(mapUrl(e))}" target="_blank" rel="noopener noreferrer">Haritada aç ↗</a>` : ''}`
@@ -10011,7 +10069,7 @@
         });
 
         const isActive = () => section.classList.contains('active');
-        window.addEventListener('unipakt:route', () => { if (isActive()) load(); else { clearInterval(timer); timer = null; } });
+        window.addEventListener('unipakt:route', () => { if (isActive()) { if (current) window.unipaktPageAccent.apply(designAttrs(current).accent); load(); } else { clearInterval(timer); timer = null; window.unipaktPageAccent.apply(''); } });
         if (isActive()) load();
 
         // Sitedeki bir linkten açılış: adres /etkinlik/?id=… olur, geri tuşu önceki sayfaya döner.
@@ -10036,7 +10094,37 @@
         const MONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
         const SHORT = ['OCA', 'ŞUB', 'MAR', 'NİS', 'MAY', 'HAZ', 'TEM', 'AĞU', 'EYL', 'EKİ', 'KAS', 'ARA'];
         const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
-        let loadedId = '';
+        // Kulübün panelde seçtiği sayfa tasarımı (panel › Profil › Kulüp sayfası). Yalnızca bilinen değerler uygulanır.
+        const BANNER = /^https:\/\/hcgotmcbwmleeklbvawb\.supabase\.co\/storage\/v1\/object\/public\/profile-logos\/[0-9a-f-]{36}\/banner(\?v=\d+)?$/;
+        const HEX = /^#[0-9a-f]{6}$/i;
+        const lumOf = (hex) => { const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+        const inkFor = (hex) => (lumOf(hex) > 0.42 ? '#0C0C0D' : '#FFFFFF');
+        const readOnDark = (hex) => {
+            const rgb = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+            for (let k = 0; k <= 20; k++) { const out = '#' + rgb.map((v) => Math.round(v + (255 - v) * k / 20).toString(16).padStart(2, '0')).join(''); if ((lumOf(out) + 0.05) / (lumOf('#0C0C0D') + 0.05) >= 3) return out.toUpperCase(); }
+            return '#FFFFFF';
+        };
+        const clubLook = (c) => {
+            const d = c.design && typeof c.design === 'object' ? c.design : {};
+            const banner = typeof c.banner === 'string' && BANNER.test(c.banner) ? c.banner : '';
+            let bg = ['default', 'clear', 'blur', 'color', 'gradient'].includes(d.bg) ? d.bg : 'default';
+            if ((bg === 'clear' || bg === 'blur') && !banner) bg = 'default';
+            const bgColor = HEX.test(d.bgColor || '') ? d.bgColor : '#0C0C0D';
+            const accent = window.unipaktPageAccent.pick(HEX.test(d.accent || '') ? d.accent : '', (bg === 'color' || bg === 'gradient') ? bgColor : '');
+            const title = ['default', 'left', 'compact', 'outline', 'caps', 'hand'].includes(d.title) ? d.title : 'default';
+            const vars = [];
+            if (accent) { const read = readOnDark(accent); vars.push(`--ev-acc:${accent}`, `--ev-on-acc:${inkFor(accent)}`, `--ev-acc-read:${read}`, `--ev-on-acc-read:${inkFor(read)}`); }
+            let ink = '#FFFFFF';
+            if (bg === 'color' || bg === 'gradient') {
+                const second = bg === 'gradient' ? (HEX.test(d.accent || '') ? d.accent : '#2A2A2D') : bgColor;
+                ink = (lumOf(bgColor) + lumOf(second)) / 2 > 0.42 ? '#0C0C0D' : '#FFFFFF';
+                vars.push(`--cl-bgc:${bgColor}`, `--cl-grad2:${second}`);
+            }
+            vars.push(`--cl-ink:${ink}`);
+            if (banner) vars.push(`--cl-banner:url('${banner.replace(/'/g, '%27')}')`);
+            return { accent, skin: accent ? 'ev-skin has-acc' : '', hero: `cl-bg-${bg}${banner && bg === 'default' ? ' cl-has-banner' : ''} cl-title-${title}${ink === '#0C0C0D' ? ' cl-hero-light' : ''}`, style: vars.join(';') };
+        };
+        let loadedId = '', lastAccent = '';
         const message = (title, text) => `<div class="wrap ev-body ev-msg"><h1>${esc(title)}</h1><p>${esc(text)}</p><a class="btn-pill" href="/kulupler/">Tüm kulüpler</a></div>`;
         const eventRow = (ev) => {
             const [y, m, d] = String(ev.date || '').split('-').map(Number);
@@ -10055,8 +10143,11 @@
             const past = events.filter((ev) => (ev.end_date || ev.date) < t).slice(0, 12);
             const logo = typeof c.logo === 'string' && LOGO.test(c.logo) ? c.logo : '';
             const initial = String(c.name || '?').trim().charAt(0).toLocaleUpperCase('tr-TR');
-            host.innerHTML = `
-                <header class="cl-hero">
+            const look = clubLook(c);
+            lastAccent = look.accent;
+            window.unipaktPageAccent.apply(look.accent);
+            host.innerHTML = `<div class="cl-skin ${look.skin}" style="${esc(look.style)}">
+                <header class="cl-hero ${look.hero}">
                     <div class="wrap cl-hero-in">
                         <button type="button" class="ev-back ev-back-top cl-back" data-cl-back>← Kulüpler</button>
                         <div class="cl-logo">${logo ? `<img src="${esc(logo)}" alt="" width="120" height="120" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}<span aria-hidden="true">${esc(initial)}</span></div>
@@ -10071,7 +10162,7 @@
                         <aside class="ev-card cl-contact">${clubContactMarkup(fake)}</aside>
                     </div>
                     ${past.length ? `<section class="ev-card"><h2>Geçmiş etkinlikler</h2><div class="cl-evs past">${past.map(eventRow).join('')}</div></section>` : ''}
-                </div>`;
+                </div></div>`;
             document.title = `${c.name} — UniPakt`;
         }
         async function load() {
@@ -10095,7 +10186,10 @@
                 if (history.state && history.state.fromSite) history.back(); else navigateTo('kulupler');
             }
         });
-        window.addEventListener('unipakt:route', () => { if (section.classList.contains('active')) load(); });
+        window.addEventListener('unipakt:route', () => {
+            if (section.classList.contains('active')) { window.unipaktPageAccent.apply(lastAccent); load(); }
+            else if (!document.getElementById('page-etkinlik')?.classList.contains('active')) window.unipaktPageAccent.apply('');
+        });
         if (section.classList.contains('active')) load();
     })();
 

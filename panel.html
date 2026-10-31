@@ -44,6 +44,41 @@
     -webkit-font-smoothing: antialiased;
   }
   ::selection { background: var(--accent); color: var(--on-accent); }
+  .cp-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 400px); gap: 24px; align-items: start; }
+  @media (max-width: 980px) { .cp-grid { grid-template-columns: minmax(0, 1fr); } }
+  /* Kulüp sayfası önizlemesi (sitedeki /kulup sayfasının küçük kopyası) */
+  .cpv { border-radius: 18px; overflow: hidden; border: 1px solid var(--border); background: #0C0C0D; }
+  .cpv-hero { position: relative; isolation: isolate; overflow: hidden; display: grid; justify-items: center; gap: 6px; padding: 34px 16px 24px; text-align: center; color: var(--cp-ink, #fff); background: #0C0C0D; }
+  .cpv-hero::before { content: ''; position: absolute; inset: 0; z-index: -2; background: var(--cp-banner, none) center / cover no-repeat; display: none; }
+  .cpv-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(#ffffff26 1px, transparent 1.3px) 0 0 / 12px 12px; }
+  .cpv-has-banner, .cpv-bg-clear, .cpv-bg-blur { padding-top: 56px; }
+  .cpv-has-banner::before, .cpv-bg-clear::before, .cpv-bg-blur::before { display: block; }
+  .cpv-has-banner::after { background: radial-gradient(#ffffff30 1px, transparent 1.3px) 0 0 / 12px 12px, rgba(0, 0, 0, .62); }
+  .cpv-bg-clear::after { background: linear-gradient(180deg, rgba(0, 0, 0, .12), rgba(0, 0, 0, .7)); }
+  .cpv-bg-blur::before { filter: blur(20px) saturate(1.35); transform: scale(1.25); }
+  .cpv-bg-blur::after { background: rgba(0, 0, 0, .42); }
+  .cpv-bg-color { background: var(--cp-bgc); }
+  .cpv-bg-gradient { background: linear-gradient(135deg, var(--cp-bgc), var(--cp-grad2)); }
+  .cpv-bg-color::after, .cpv-bg-gradient::after { background: radial-gradient(color-mix(in srgb, var(--cp-ink) 20%, transparent) 1px, transparent 1.3px) 0 0 / 12px 12px; }
+  .cpv-logo { width: 56px; height: 56px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: #1E1E21; border: 1px solid #ffffff2e; font: 900 22px/1 'Archivo', sans-serif; color: #fff; }
+  .cpv.has-acc .cpv-logo { border: 2px solid var(--cp-acc); }
+  .cpv-logo img { width: 100%; height: 100%; object-fit: cover; }
+  .cpv-hero h3 { margin: 4px 0 0; font: 900 24px/1.05 'Archivo', sans-serif; letter-spacing: -0.02em; }
+  .cpv-hero p { margin: 0; font-size: 12px; opacity: .8; }
+  .cpv-title-left { justify-items: start; text-align: left; }
+  .cpv-title-left h3 { font-size: 30px; }
+  .cpv-title-compact h3 { font-size: 17px; font-weight: 800; }
+  .cpv-title-outline h3 { color: transparent; -webkit-text-stroke: 1px var(--cp-ink, #fff); }
+  .cpv-title-caps h3 { text-transform: uppercase; letter-spacing: .05em; font-size: 18px; font-weight: 800; }
+  .cpv-title-hand h3 { font-family: 'Caveat', cursive; font-weight: 700; font-size: 32px; letter-spacing: 0; }
+  .cpv-body { display: grid; gap: 10px; padding: 14px; background: #0C0C0D; color: #F2F1EE; }
+  .cpv-ev { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; padding: 10px; border-radius: 12px; background: #161618; }
+  .cpv-ev b { font: 800 18px/1 'Archivo', sans-serif; text-align: center; }
+  .cpv.has-acc .cpv-ev b, .cpv.has-acc .cpv-ev i { color: var(--cp-acc); }
+  .cpv-ev span { display: grid; gap: 2px; font-size: 13px; } .cpv-ev small { opacity: .6; font-size: 11.5px; }
+  .cpv-ev i { font-style: normal; opacity: .7; }
+  .cpv-btn { justify-self: start; padding: 8px 16px; border-radius: 999px; background: var(--accent-grad); color: var(--on-accent); font-weight: 700; font-size: 13px; }
+  .cpv.has-acc .cpv-btn { background: var(--cp-acc); color: #fff; }
   /* Marka rengi sayfası */
   .brand-presets { display: flex; flex-wrap: wrap; gap: 8px; }
   .brand-presets .chip { display: inline-flex; align-items: center; gap: 8px; }
@@ -1379,7 +1414,7 @@
   };
 
   const loadRemote = async () => {
-    const profiles = await rest(`profiles?select=role,club_id,full_name,bio,collaboration_interests,avatar_url,member_title,permissions&id=eq.${encodeURIComponent(session.user_id)}`);
+    const profiles = await rest(`profiles?select=role,club_id,full_name,bio,collaboration_interests,avatar_url,member_title,permissions,page_banner,page_design&id=eq.${encodeURIComponent(session.user_id)}`);
     const profile = profiles && profiles[0];
     if (!profile) {
       // A 2FA account whose session is not verified yet sees no rows at all; that
@@ -1458,7 +1493,7 @@
     state.user = profile.role === 'admin' ? ADMIN : profile.club_id;
     state.member = profile.role === 'member'
       ? { title: profile.member_title || 'Ekip üyesi', perms: Array.isArray(profile.permissions) ? profile.permissions : [] } : null;
-    state.profile = { fullName: profile.full_name || '', bio: profile.bio || '', collaborationInterests: Array.isArray(profile.collaboration_interests) ? profile.collaboration_interests : [], avatarUrl: profile.avatar_url || '' };
+    state.profile = { fullName: profile.full_name || '', bio: profile.bio || '', collaborationInterests: Array.isArray(profile.collaboration_interests) ? profile.collaboration_interests : [], avatarUrl: profile.avatar_url || '', pageBanner: profile.page_banner || '', pageDesign: profile.page_design && typeof profile.page_design === 'object' ? profile.page_design : {} };
     try { await loadSupportRemote(); }
     catch (error) {
       supportLoadError = error;
@@ -1481,6 +1516,12 @@
      Every call resolves once `db` reflects the change.
      ------------------------------------------------------------------ */
   const local = {
+    // ---- Demo: kulüp sayfası tasarımı ----
+    async saveClubPage({ design, file, removeBanner }) {
+      if (file) state.profile.pageBanner = await readAsDataUrl(file);
+      else if (removeBanner) state.profile.pageBanner = '';
+      state.profile.pageDesign = design;
+    },
     // ---- Demo: marka rengi yalnızca bu tarayıcıda denenir ----
     async saveTheme(t) { window.unipaktTheme?.apply(t); },
     // ---- Demo: işlem kaydı ----
@@ -1750,6 +1791,20 @@
   };
 
   const remote = {
+    // Kulüp sayfası: banner (profile-logos/<kullanıcı>/banner, 1 MB) + tasarım. Değerleri veritabanı da sınırlar.
+    async saveClubPage({ design, file, removeBanner }) {
+      let banner = state.profile.pageBanner || null;
+      if (file) {
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) throw new Error('Görsel JPG, PNG veya WebP olmalı.');
+        if (file.size > MAX_IMAGE) throw new Error('Görsel 1 MB’tan küçük olmalı.');
+        const path = `${session.user_id}/banner`;
+        await call(`/storage/v1/object/profile-logos/${path}`, { method: 'POST', body: file, raw: true, headers: { 'Content-Type': file.type, 'x-upsert': 'true' } });
+        banner = `${SUPABASE_URL}/storage/v1/object/public/profile-logos/${path}?v=${Date.now()}`;
+      } else if (removeBanner) banner = null;
+      await restMust(`profiles?id=eq.${encodeURIComponent(session.user_id)}`, { method: 'PATCH', body: { page_banner: banner, page_design: design } });
+      state.profile.pageBanner = banner || '';
+      state.profile.pageDesign = design;
+    },
     // Marka rengi (yalnızca UniPakt yöneticisi; set_site_theme sunucuda da denetler).
     async saveTheme(t) {
       await rest('rpc/set_site_theme', { method: 'POST', body: { p_colors: t.colors, p_angle: t.angle, p_on_dark: t.on_dark, p_on_light: t.on_light, p_on_accent: t.on_accent } });
@@ -2256,7 +2311,7 @@
   const can = (perm) => !state.member || state.member.perms.includes(perm);
   const isPresident = () => !!state.user && !isAdmin() && !state.member;
   const VIEW_PERM = { etkinliklerim: 'events', basvuru: 'events', 'etkinlik-olustur': 'events', gorevliler: 'registrations', kayitlar: 'registrations', ims: 'chat', 'destek-taleplerim': 'support', gorevler: 'tasks' };
-  const viewAllowed = (view) => (view === 'marka' ? isAdmin() : view === 'ekip' ? isPresident() : (view === 'ayarlar' || view === 'islem-kaydi') ? !state.member : !VIEW_PERM[view] || can(VIEW_PERM[view]));
+  const viewAllowed = (view) => (view === 'marka' ? isAdmin() : view === 'kulup-sayfasi' ? isPresident() : view === 'ekip' ? isPresident() : (view === 'ayarlar' || view === 'islem-kaydi') ? !state.member : !VIEW_PERM[view] || can(VIEW_PERM[view]));
   const actPerm = (act) => {
     if (/^(team-|club-|profile-avatar|activity-)/.test(act)) return 'president';
     if (/^(reg-|staff-|grant-)/.test(act)) return 'registrations';
@@ -2291,7 +2346,7 @@
       </button>
       <div class="profile-dropdown" role="menu" ${state.profileMenuOpen ? '' : 'hidden'}>
         ${state.member ? '' : '<button type="button" role="menuitem" data-go="ayarlar">Profil</button>'}
-        ${isPresident() ? '<button type="button" role="menuitem" data-go="ekip">Ekip</button>' : ''}
+        ${isPresident() ? '<button type="button" role="menuitem" data-go="kulup-sayfasi">Kulüp sayfası</button><button type="button" role="menuitem" data-go="ekip">Ekip</button>' : ''}
         <button type="button" role="menuitem" data-go="hesap">Hesap</button>
       </div>
     </div>`;
@@ -2587,7 +2642,7 @@
     return items.filter(([id]) => viewAllowed(id));
   };
   // Menüde görünmeyen ama açılabilen sayfalar.
-  const HIDDEN_VIEWS = ['etkinlik-olustur', 'ayarlar', 'hesap', 'dogrulama', 'kayitlar'];
+  const HIDDEN_VIEWS = ['etkinlik-olustur', 'ayarlar', 'hesap', 'dogrulama', 'kayitlar', 'kulup-sayfasi'];
   const knownView = (view) => (HIDDEN_VIEWS.includes(view) && viewAllowed(view)) || NAV().some(([id]) => id === view);
 
   /* ------------------------------------------------------------------
@@ -3383,11 +3438,11 @@
       <label class="evd-custom" title="Özel renk"><input type="color" data-evd-pick="${name}" value="${HEX6.test(value) ? esc(value) : brandColor()}" aria-label="Özel renk seç"><span>+</span></label>
       <input class="evd-hex" name="${name}" value="${esc(value)}" maxlength="7" placeholder="${allowDefault ? 'Varsayılan' : '#RRGGBB'}" spellcheck="false" autocomplete="off" aria-label="Renk kodu">
     </div>`;
-  const designHtml = (v) => `
-    <div class="evd-group"><span class="field-label">Vurgu rengi</span><small class="hint">Çizgiler, simgeler, geri sayım çerçevesi ve “Kayıt ol” düğmesi bu renge döner.</small>
+  const designHtml = (v, { accentHint = 'Çizgiler, simgeler, geri sayım çerçevesi ve “Kayıt ol” düğmesi bu renge döner.', bgs = DESIGN_BGS } = {}) => `
+    <div class="evd-group"><span class="field-label">Vurgu rengi</span><small class="hint">${esc(accentHint)}</small>
       ${colorRow('dAccent', v.dAccent || '', ACCENT_SWATCHES, { allowDefault: true })}</div>
     <div class="evd-group"><span class="field-label">Üst alan arka planı</span>
-      <div class="evd-cards">${DESIGN_BGS.map(([k, label, hint]) => `<label class="evd-card"><input type="radio" name="dBg" value="${k}" ${v.dBg === k ? 'checked' : ''}><span class="evd-thumb bg-${k}" aria-hidden="true"><i></i></span><b>${esc(label)}</b><small>${esc(hint)}</small></label>`).join('')}</div>
+      <div class="evd-cards">${bgs.map(([k, label, hint]) => `<label class="evd-card"><input type="radio" name="dBg" value="${k}" ${v.dBg === k ? 'checked' : ''}><span class="evd-thumb bg-${k}" aria-hidden="true"><i></i></span><b>${esc(label)}</b><small>${esc(hint)}</small></label>`).join('')}</div>
       <div class="evd-bgcolor" data-evd-bgcolor ${v.dBg === 'color' || v.dBg === 'gradient' ? '' : 'hidden'}><span class="field-label">Arka plan rengi</span>${colorRow('dBgColor', v.dBgColor || '', BG_SWATCHES, { allowDefault: false })}</div></div>
     <div class="evd-group"><span class="field-label">Başlık stili</span>
       <div class="evd-cards titles">${DESIGN_TITLES.map(([k, label]) => `<label class="evd-card"><input type="radio" name="dTitle" value="${k}" ${v.dTitle === k ? 'checked' : ''}><span class="evd-aa t-${k}" aria-hidden="true">Aa</span><b>${esc(label)}</b></label>`).join('')}</div></div>`;
@@ -3397,8 +3452,8 @@
     const bg = fd.get('dBg');
     const box = form.querySelector('[data-evd-bgcolor]'); if (box) box.hidden = !(bg === 'color' || bg === 'gradient');
   };
-  const setDesignValue = (name, value) => {
-    const form = document.getElementById('evpForm'); if (!form) return;
+  const setDesignValue = (name, value, form = document.getElementById('evpForm')) => {
+    if (!form) return;
     const input = form.querySelector(`[name="${name}"]`); if (!input) return;
     input.value = value;
     const pick = form.querySelector(`[data-evd-pick="${name}"]`); if (pick && HEX6.test(value)) pick.value = value.toLowerCase();
@@ -3408,16 +3463,16 @@
   document.addEventListener('click', (e) => {
     const b = e.target.closest?.('[data-evd-sw]'); if (!b) return;
     e.preventDefault();
-    setDesignValue(b.dataset.evdSw, b.dataset.v);
+    setDesignValue(b.dataset.evdSw, b.dataset.v, b.closest('form'));
     if (b.dataset.evdSw === 'dBgColor') {
-      const form = document.getElementById('evpForm');
+      const form = b.closest('form');
       const bg = form?.querySelector('[name="dBg"]:checked');
       if (bg && bg.value !== 'color' && bg.value !== 'gradient') { form.querySelector('[name="dBg"][value="color"]').checked = true; syncDesignUi(form); form.dispatchEvent(new Event('input', { bubbles: true })); }
     }
   });
   document.addEventListener('input', (e) => {
     const el = e.target;
-    if (el.matches?.('[data-evd-pick]')) { setDesignValue(el.dataset.evdPick, el.value.toUpperCase()); return; }
+    if (el.matches?.('[data-evd-pick]')) { setDesignValue(el.dataset.evdPick, el.value.toUpperCase(), el.form); return; }
     if (el.matches?.('.evd-hex')) {
       let s = el.value.trim(); if (s && !s.startsWith('#')) { s = `#${s}`; el.value = s; }
       const form = el.form; if (form) syncDesignUi(form);
@@ -3699,6 +3754,7 @@
 
   const views = {
     marka: () => brandView(),
+    'kulup-sayfasi': () => clubPageView(),
     ekip: () => teamView(),
     'islem-kaydi': () => activityView(),
     ims: () => imView(),
@@ -4847,6 +4903,99 @@
         <p class="act-what">${esc(r.action)}${r.target ? `: <span>${esc(r.target)}</span>` : ''}</p></div></div>`).join('')}</div></div>`).join('');
   };
   /* ------------------------------------------------------------------
+     KULÜP SAYFASI (yalnızca kulüp başkanı) — sitedeki /kulup/?id=… sayfasının
+     üst alan görseli (banner), vurgu rengi, arka planı ve başlık stili.
+     ------------------------------------------------------------------ */
+  const CLUB_BGS = [['default', 'Varsayılan', 'Banner varsa koyu katmanla, yoksa noktalı zemin'], ['clear', 'Banner net', 'Görsel olduğu gibi görünür'], ['blur', 'Bannerdan bulanık', 'Görselin renkleri yumuşak bir zemin olur'], ['color', 'Düz renk', 'Seçtiğin renk'], ['gradient', 'Renk geçişi', 'Arka plan renginden vurgu rengine']];
+  const clubPageDraft = () => {
+    if (!state.clubPage) {
+      const d = state.profile.pageDesign || {};
+      state.clubPage = { v: { dAccent: d.accent || '', dBg: d.bg || 'default', dBgColor: d.bgColor || '', dTitle: d.title || 'default' }, banner: state.profile.pageBanner || '', file: null, removeBanner: false, saving: false, error: '' };
+    }
+    return state.clubPage;
+  };
+  const clubPreviewHtml = () => {
+    const cp = clubPageDraft(), v = cp.v, c = club(state.user) || {};
+    const d = designFrom(v);
+    const bg = (d.bg === 'clear' || d.bg === 'blur') && !cp.banner ? 'default' : (d.bg || 'default');
+    const second = d.bg === 'gradient' ? (d.accent || '#2A2A2D') : (d.bgColor || '#0C0C0D');
+    const ink = (bg === 'color' || bg === 'gradient') && (bLum(d.bgColor || '#0C0C0D') + bLum(second)) / 2 > 0.42 ? '#0C0C0D' : '#FFFFFF';
+    const vivid = (h) => { const x = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255); return Math.max(...x) - Math.min(...x); };
+    let acc = d.accent || '';
+    if ((!acc || vivid(acc) < 0.15) && (bg === 'color' || bg === 'gradient') && d.bgColor && vivid(d.bgColor) >= 0.15) acc = d.bgColor;
+    const style = [`--cp-ink:${ink}`, `--cp-bgc:${d.bgColor || '#0C0C0D'}`, `--cp-grad2:${second}`, acc ? `--cp-acc:${acc}` : '', cp.banner ? `--cp-banner:url('${esc(cp.banner).replace(/'/g, '%27')}')` : ''].filter(Boolean).join(';');
+    const initial = String(c.name || '?').trim().charAt(0).toLocaleUpperCase('tr-TR');
+    return `<div class="cpv ${acc ? 'has-acc' : ''}" style="${style}">
+      <div class="cpv-hero cpv-bg-${bg}${cp.banner && bg === 'default' ? ' cpv-has-banner' : ''} cpv-title-${d.title || 'default'}">
+        <div class="cpv-logo">${state.profile.avatarUrl ? `<img src="${esc(state.profile.avatarUrl)}" alt="">` : esc(initial)}</div>
+        <h3>${esc(c.name || 'Kulübün')}</h3><p>${esc(c.uni || '')}${c.category ? ` · ${esc(c.category)}` : ''}</p>
+      </div>
+      <div class="cpv-body"><div class="cpv-ev"><b>19</b><span><strong>Örnek etkinlik</strong><small>19 Kasım · 13:00</small></span><i>→</i></div><span class="cpv-btn">Kayıt ol</span></div>
+    </div>`;
+  };
+  const clubPageView = () => {
+    const cp = clubPageDraft();
+    const url = `https://unipakt.com/kulup/?id=${encodeURIComponent(state.user)}`;
+    return `${head('Kulüp sayfası', 'Sitedeki kulüp sayfanın görünümü: üst alan görseli, renkler ve başlık stili. Logo ve tanıtım yazısı Profil’den değişir.', `<a class="btn ghost" href="${esc(url)}" target="_blank" rel="noopener">Sayfayı aç ↗</a>`)}
+      <form id="clubPageForm" class="cp-grid" novalidate>
+        <div class="stack">
+          <section class="card stack">
+            <span class="field-label">Üst alan görseli (banner)</span>
+            <small class="hint">Yatay bir görsel seç (ör. 1920×640). 1 MB’tan büyükse otomatik küçültülür.</small>
+            <div class="row-actions">
+              <label class="btn ghost small" style="cursor:pointer">Görsel seç<input type="file" accept="image/jpeg,image/png,image/webp" data-cp-file hidden></label>
+              ${cp.banner ? '<button type="button" class="btn ghost small" data-act="cp-banner-remove">Görseli kaldır</button>' : ''}
+            </div>
+          </section>
+          <section class="card stack">${designHtml(cp.v, { accentHint: 'Düğmeler, vurgulu yazılar, etkinlik tarihleri ve iletişim simgeleri bu renge döner. Boş bırakır ve renkli bir arka plan seçersen o renk kullanılır.', bgs: CLUB_BGS })}</section>
+          ${cp.error ? `<p class="form-error">${esc(cp.error)}</p>` : ''}
+          <div class="row-actions">
+            <button type="button" class="btn" data-act="cp-save" ${cp.saving ? 'disabled' : ''}>${cp.saving ? 'Kaydediliyor…' : 'Kaydet ve yayınla'}</button>
+            <button type="button" class="btn ghost" data-act="cp-reset">Varsayılana dön</button>
+          </div>
+        </div>
+        <aside class="evp-preview"><small>Sitedeki görünüm · canlı önizleme</small><div data-cp-preview>${clubPreviewHtml()}</div></aside>
+      </form>`;
+  };
+  const clubPageRefresh = () => {
+    const form = document.getElementById('clubPageForm'); if (!form) return;
+    const fd = new FormData(form), cp = clubPageDraft();
+    cp.v = { dAccent: String(fd.get('dAccent') || '').trim().toUpperCase(), dBg: String(fd.get('dBg') || 'default'), dBgColor: String(fd.get('dBgColor') || '').trim().toUpperCase(), dTitle: String(fd.get('dTitle') || 'default') };
+    const box = form.querySelector('[data-cp-preview]'); if (box) box.innerHTML = clubPreviewHtml();
+  };
+  document.addEventListener('input', (e) => { if (e.target.form?.id === 'clubPageForm') clubPageRefresh(); });
+  document.addEventListener('change', async (e) => {
+    if (e.target.form?.id === 'clubPageForm' && !e.target.matches('[data-cp-file]')) { clubPageRefresh(); return; }
+    if (!e.target.matches?.('[data-cp-file]')) return;
+    const file = e.target.files?.[0]; if (!file) return;
+    const cp = clubPageDraft();
+    try {
+      const { file: small } = await shrinkImage(file);
+      cp.file = small; cp.removeBanner = false; cp.banner = await readAsDataUrl(small); cp.error = '';
+      if (cp.v.dBg === 'default' || cp.v.dBg === 'color' || cp.v.dBg === 'gradient') cp.v.dBg = 'clear';   // yeni görsel görünsün
+    } catch (error) { cp.error = error.message || 'Görsel okunamadı.'; }
+    render();
+  });
+  const clubPageActions = {
+    'cp-banner-remove'() { Object.assign(clubPageDraft(), { banner: '', file: null, removeBanner: true }); render(); },
+    'cp-reset'() { Object.assign(clubPageDraft(), { v: { dAccent: '', dBg: 'default', dBgColor: '', dTitle: 'default' }, error: '' }); render(); },
+    async 'cp-save'() {
+      const cp = clubPageDraft();
+      clubPageRefresh();
+      const v = cp.v;
+      if (v.dAccent && !HEX6.test(v.dAccent)) { cp.error = 'Vurgu rengi #RRGGBB biçiminde olmalı.'; render(); return; }
+      if ((v.dBg === 'color' || v.dBg === 'gradient') && !HEX6.test(v.dBgColor)) { cp.error = 'Arka plan rengini seç.'; render(); return; }
+      cp.saving = true; cp.error = ''; render();
+      try {
+        await api.saveClubPage({ design: designFrom(v), file: cp.file, removeBanner: cp.removeBanner });
+        Object.assign(cp, { file: null, removeBanner: false, banner: state.profile.pageBanner || '' });
+        toast('Kulüp sayfası güncellendi. Sitede hemen görünür.');
+      } catch (error) { cp.error = error.message || 'Kaydedilemedi.'; }
+      cp.saving = false; render();
+    },
+  };
+
+  /* ------------------------------------------------------------------
      MARKA RENGİ (yalnızca UniPakt yöneticisi)
      1–4 renk + açı. Kaydedince site, panel, giriş kontrol sayfası, logolar ve
      e-postalar bu renge geçer (site_theme satırı; bkz. theme.js, tools/brand.py).
@@ -5123,6 +5272,7 @@
   const actions = {
     ...teamActions,
     ...brandActions,
+    ...clubPageActions,
     ...regActions,
     ...speakerActions,
     ...designActions,
