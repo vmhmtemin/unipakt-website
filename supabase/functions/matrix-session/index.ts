@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
   const user = authData.user;
   if (!user) return reply(401, { message: "Oturum geçersiz." }, origin);
 
-  const { data: profile, error: profileError } = await supabase.from("profiles").select("role,club_id,permissions").eq("id", user.id).maybeSingle();
+  const { data: profile, error: profileError } = await supabase.from("profiles").select("role,club_id,permissions,staff_title,username,full_name").eq("id", user.id).maybeSingle();
   const chatMember = profile?.role === "member" && Array.isArray(profile.permissions) && profile.permissions.includes("chat");
   if (profileError || !profile || !(["club", "admin"].includes(profile.role) || chatMember)) {
     return reply(403, { message: "Bu hesap mesajlaşmaya yetkili değil." }, origin);
@@ -66,8 +66,10 @@ Deno.serve(async (req) => {
   if (profile.role !== "admin" && !/^[0-9a-f-]{36}$/i.test(String(profile.club_id ?? ""))) {
     return reply(403, { message: "Kulüp hesabının kulüp bağlantısı eksik." }, origin);
   }
-  const accountKey = profile.role === "admin" ? "unipakt-support" : `club-${profile.club_id}`;
-  const localpart = profile.role === "admin" ? "unipakt" : `club_${String(profile.club_id).replaceAll("-", "")}`;
+  // Merkez Yönetim (kişisel yönetici hesabı) kendi adıyla yazışır; ortak UniPakt hesabı "unipakt" destek hesabıdır.
+  const staff = profile.role === "admin" && !!profile.staff_title;
+  const accountKey = staff ? `staff-${user.id}` : profile.role === "admin" ? "unipakt-support" : `club-${profile.club_id}`;
+  const localpart = staff ? `staff_${user.id.replaceAll("-", "")}` : profile.role === "admin" ? "unipakt" : `club_${String(profile.club_id).replaceAll("-", "")}`;
   const userId = `@${localpart}:${serverName}`;
   const password = await matrixPassword(derivationSecret, accountKey);
   const headers = { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" };
@@ -76,7 +78,8 @@ Deno.serve(async (req) => {
   try {
     const account = await fetch(adminUrl, { headers });
     if (account.status === 404) {
-      const displayname = profile.role === "admin"
+      const displayname = staff ? (profile.username || profile.full_name || "Merkez Yönetim")
+        : profile.role === "admin"
         ? "UniPakt"
         : ((await supabase.from("clubs").select("name").eq("id", profile.club_id).maybeSingle()).data?.name || "Kulüp");
       const created = await fetch(adminUrl, { method: "PUT", headers, body: JSON.stringify({ password, admin: false, displayname }) });

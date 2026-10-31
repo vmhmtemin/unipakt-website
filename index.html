@@ -825,7 +825,8 @@
         max-width: 54ch;
     }
 
-    .section-title .impact-slogan {
+    /* "What the pakt?": aşağıdaki "UniPakt for impact" ile aynı yazı stili ve boyutu */
+    .section-title .impact-slogan, .what-slogan {
         margin: 0 0 8px;
         font-size: clamp(36px, 4.6vw, 52px);
         opacity: .72;
@@ -2324,7 +2325,7 @@
             max-width: 100%;
         }
 
-        .section-title .impact-slogan {
+        .section-title .impact-slogan, .what-slogan {
             font-size: clamp(30px, 8vw, 38px);
         }
 
@@ -2914,7 +2915,7 @@
                  ============================================================ */
 
     /* Marka gradyanı: büyük vurgulu yazılarda yazının kendisi gradyan */
-    .eyebrow-split .b, .section-title .impact-slogan, .site-footer .footer-kicker, .hero .note,
+    .eyebrow-split .b, .section-title .impact-slogan, .what-slogan, .site-footer .footer-kicker, .hero .note,
     .ev-fee, .sp-count, .sp-brand b span, .hf-day h3, .mx-days h3, .mx-p-lead .mx-hl, .mx-d-acc, .hf-months li:last-child {
         background: var(--accent-grad);
         -webkit-background-clip: text; background-clip: text;
@@ -6446,8 +6447,9 @@
     .sp-brand-logo { display: block; height: 26px; width: auto; }
     .sp-hero h1 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(54px, 10vw, 150px); line-height: .92; letter-spacing: -0.05em; }
     .sp-lead { margin: 14px 0 0; max-width: 34ch; font-size: clamp(16px, 1.6vw, 20px); color: #0a0a0aa6; }
-    .sp-down { pointer-events: auto; margin-top: 26px; padding: 13px 24px; border-radius: 999px; border: 1.5px solid #0a0a0a; background: #0a0a0a; color: #fff; font: inherit; font-weight: 600; cursor: pointer; transition: background .2s ease, color .2s ease, border-color .2s ease; }
-    .sp-down:hover { background: var(--sp-grad); border-color: var(--sp-accent); color: var(--brand-on-accent); }
+    .sp-down { pointer-events: auto; margin-top: 26px; padding: 13px 24px; border-radius: 999px; border: 1.5px solid #0a0a0a; background-color: #0a0a0a; background-image: none; color: #fff; font: inherit; font-weight: 600; cursor: pointer; transition: color .2s ease, border-color .2s ease; }
+    /* Gradyan geçiş animasyonu yapılamaz; yalnızca resim değişir, zemin rengi hep koyu kalır (beyaz yanıp sönme olmaz). */
+    .sp-down:hover { background-image: var(--sp-grad); border-color: var(--sp-accent); color: var(--brand-on-accent); }
     /* Sıradaki büyük etkinlik kartı: hero'nun sol altındaki boşluğu doldurur, sponsorluk mailine götürür. */
     .sp-next { pointer-events: auto; display: grid; gap: 8px; width: min(400px, 100%); margin-top: clamp(48px, 12vh, 140px); padding: 22px 24px; border: 1px solid #0a0a0a1f; border-radius: 18px; background: #fff; color: #0a0a0a; text-decoration: none; transition: border-color .2s ease, transform .25s ease, box-shadow .25s ease; }
     .sp-next:hover { border-color: #0a0a0a; transform: translateY(-2px); box-shadow: 0 10px 30px #0a0a0a12; }
@@ -7168,6 +7170,7 @@
             <!-- Nedir bu pakt? -->
             <div class="section">
                 <div class="wrap">
+                    <p class="impact-slogan what-slogan script" data-reveal>What the pakt?</p>
                     <h2 class="what-title" data-reveal>Nedir bu pakt?</h2>
                     <div class="what-split">
                         <div class="fragment-stack" data-reveal-stagger>

@@ -1312,7 +1312,7 @@
     return data;
   };
   const rest = (query, opts) => call(`/rest/v1/${query}`, opts);
-  const mapPanelProfile = (p) => ({ id: p.id, role: p.role, clubId: p.club_id || '', fullName: p.full_name || '', bio: p.bio || '', interests: Array.isArray(p.collaboration_interests) ? p.collaboration_interests : [], avatarUrl: p.avatar_url || '' });
+  const mapPanelProfile = (p) => ({ id: p.id, role: p.role, clubId: p.club_id || '', fullName: p.full_name || '', bio: p.bio || '', interests: Array.isArray(p.collaboration_interests) ? p.collaboration_interests : [], avatarUrl: p.avatar_url || '', username: p.username || '', staffTitle: p.staff_title || '' });
   const eq = (id) => `id=eq.${encodeURIComponent(id)}`;
   // PATCH/DELETE that must touch at least one row. Row level security turns a
   // forbidden or missing row into an empty success, so ask for the rows back.
@@ -1414,7 +1414,7 @@
   };
 
   const loadRemote = async () => {
-    const profiles = await rest(`profiles?select=role,club_id,full_name,bio,collaboration_interests,avatar_url,member_title,permissions,page_banner,page_design&id=eq.${encodeURIComponent(session.user_id)}`);
+    const profiles = await rest(`profiles?select=role,club_id,full_name,bio,collaboration_interests,avatar_url,member_title,permissions,page_banner,page_design,username,staff_title&id=eq.${encodeURIComponent(session.user_id)}`);
     const profile = profiles && profiles[0];
     if (!profile) {
       // A 2FA account whose session is not verified yet sees no rows at all; that
@@ -1430,7 +1430,7 @@
       rest('event_edit_requests?select=*&order=created_at.desc'),
       rest('notifications?select=*&order=created_at.desc'),
       rest('rpc/leaderboard', { method: 'POST', body: {} }),
-      rest('profiles?select=id,role,club_id,full_name,bio,collaboration_interests,avatar_url'),
+      rest('profiles?select=id,role,club_id,full_name,bio,collaboration_interests,avatar_url,username,staff_title'),
       // Yorumları yalnızca yetkili okuyabilir (RLS); kulüp hesabı hiç istemez.
       profile.role === 'admin' ? rest('event_comments?select=id,event_id,name,email,body,status,created_at&status=eq.pending&order=created_at') : [],
       // Okundu / sil her hesap için ayrı (yalnızca kendi satırların gelir).
@@ -1494,9 +1494,11 @@
       })(),
     };
     state.user = profile.role === 'admin' ? ADMIN : profile.club_id;
+    // Merkez Yönetim: kişisel yönetici hesabı (yetkileri UniPakt ile aynı; mesajlaşmada kendi adıyla görünür).
+    state.staff = profile.role === 'admin' && profile.staff_title ? { id: session.user_id, title: profile.staff_title, username: profile.username || '' } : null;
     state.member = profile.role === 'member'
       ? { title: profile.member_title || 'Ekip üyesi', perms: Array.isArray(profile.permissions) ? profile.permissions : [] } : null;
-    state.profile = { fullName: profile.full_name || '', bio: profile.bio || '', collaborationInterests: Array.isArray(profile.collaboration_interests) ? profile.collaboration_interests : [], avatarUrl: profile.avatar_url || '', pageBanner: profile.page_banner || '', pageDesign: profile.page_design && typeof profile.page_design === 'object' ? profile.page_design : {} };
+    state.profile = { fullName: profile.full_name || '', bio: profile.bio || '', collaborationInterests: Array.isArray(profile.collaboration_interests) ? profile.collaboration_interests : [], avatarUrl: profile.avatar_url || '', username: profile.username || '', staffTitle: profile.staff_title || '', pageBanner: profile.page_banner || '', pageDesign: profile.page_design && typeof profile.page_design === 'object' ? profile.page_design : {} };
     try { await loadSupportRemote(); }
     catch (error) {
       supportLoadError = error;
@@ -1519,6 +1521,7 @@
      Every call resolves once `db` reflects the change.
      ------------------------------------------------------------------ */
   const local = {
+    async setUsername(u) { state.profile.username = u; if (state.staff) state.staff.username = u; },
     // ---- Demo: kulüp sayfası tasarımı ----
     async saveClubPage({ design, file, removeBanner }) {
       if (file) state.profile.pageBanner = await readAsDataUrl(file);
@@ -1794,6 +1797,12 @@
   };
 
   const remote = {
+    async setUsername(u) {
+      try { await restMust(`profiles?id=eq.${encodeURIComponent(session.user_id)}`, { method: 'PATCH', body: { username: u } }); }
+      catch (error) { if (error.status === 409 || /duplicate|unique/i.test(error.message || '')) throw new Error('Bu kullanıcı adı alınmış; başka bir ad dene.'); throw error; }
+      state.profile.username = u; if (state.staff) state.staff.username = u;
+      const me = (db.panelProfiles || []).find((p) => p.id === session.user_id); if (me) me.username = u;
+    },
     // Kulüp sayfası: banner (profile-logos/<kullanıcı>/banner, 1 MB) + tasarım. Değerleri veritabanı da sınırlar.
     async saveClubPage({ design, file, removeBanner }) {
       let banner = state.profile.pageBanner || null;
@@ -2239,17 +2248,22 @@
   // (accounts club_<id> / unipakt with password "demo"). Local machine only.
   const DEMO_HS = DEMO ? (new URLSearchParams(location.search).get('hs') || '') : '';
   const matrixServerName = () => (DEMO_HS ? 'localhost' : MATRIX_SERVER_NAME);
-  const matrixLocalpart = (panelUser) => (panelUser === ADMIN ? 'unipakt' : `club_${String(panelUser).replaceAll('-', '')}`);
+  // Sohbet kimliği: 'unipakt' (ortak destek hesabı), kulüp id'si ya da 'staff:<hesap id>' (Merkez Yönetim).
+  const chatSelf = () => (state.staff ? `staff:${state.staff.id}` : state.user);
+  const matrixLocalpart = (panelUser) => (panelUser === ADMIN ? 'unipakt'
+    : String(panelUser).startsWith('staff:') ? `staff_${String(panelUser).slice(6).replaceAll('-', '')}`
+    : `club_${String(panelUser).replaceAll('-', '')}`);
   const matrixIdFor = (panelUser) => `@${matrixLocalpart(panelUser)}:${matrixServerName()}`;
   // Matrix user id → panel user ('unipakt' or a club id).
   const panelUserForMatrixId = (matrixId) => {
     const localpart = String(matrixId || '').replace(/^@/, '').split(':')[0];
     if (localpart === 'unipakt') return ADMIN;
+    if (localpart.startsWith('staff_')) { const p = staffProfiles().find((x) => `staff_${x.id.replaceAll('-', '')}` === localpart); return p ? `staff:${p.id}` : ''; }
     return db?.clubs.find((c) => `club_${String(c.id).replaceAll('-', '')}` === localpart)?.id || '';
   };
   const demoMatrixSession = async (deviceId) => {
     const r = await fetch(`${DEMO_HS}/_matrix/client/v3/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'm.login.password', user: matrixLocalpart(state.user), password: 'demo', device_id: deviceId }) });
+      body: JSON.stringify({ type: 'm.login.password', user: matrixLocalpart(chatSelf()), password: 'demo', device_id: deviceId }) });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error || 'Demo sohbet sunucusuna girilemedi.');
     return { base_url: DEMO_HS, user_id: data.user_id, device_id: data.device_id, access_token: data.access_token };
@@ -2270,7 +2284,8 @@
             return value;
           } catch (_) { return crypto.randomUUID().replaceAll('-', '').slice(0, 20).toUpperCase(); }
         })();
-        let matrixSession = saved?.panel_user_id === panelUserId ? saved : null;
+        // Kimlik değiştiyse (ör. yönetici hesabı Merkez Yönetim'e geçti) eski oturum kullanılmaz.
+        let matrixSession = saved?.panel_user_id === panelUserId && (DEMO || String(saved.user_id || '').split(':')[0] === `@${matrixLocalpart(chatSelf())}`) ? saved : null;
         const isExpiredMatrixSession = (error) => {
           const errcode = String(error?.errcode || error?.data?.errcode || '');
           const status = Number(error?.httpStatus || error?.statusCode || error?.status || error?.data?.status || 0);
@@ -2352,7 +2367,7 @@
     ? `<span class="profile-avatar ${extraClass}"><img src="${esc(url)}" alt="${esc(label || 'Profil görseli')}" loading="lazy"></span>`
     : `<span class="profile-avatar ${extraClass}" aria-hidden="true">${esc(String(label || 'U').trim().charAt(0).toLocaleUpperCase('tr-TR') || 'U')}</span>`;
   const profileMenu = () => {
-    const label = isAdmin() ? 'UniPakt' : (club(state.user)?.name || 'Kulüp');
+    const label = state.staff ? (state.profile.username || state.profile.fullName || 'Merkez Yönetim') : isAdmin() ? 'UniPakt' : (club(state.user)?.name || 'Kulüp');
     return `<div class="profile-menu">
       <button class="profile-trigger" type="button" data-act="profile-menu-toggle" aria-haspopup="menu" aria-expanded="${state.profileMenuOpen ? 'true' : 'false'}">
         ${avatarMarkup(state.profile.avatarUrl, label)}<span>Profil</span><i class="profile-caret" aria-hidden="true"></i>
@@ -3791,6 +3806,7 @@
                 </div>
               </div>
               ${field('Adın', `<input name="fullName" maxlength="120" required value="${esc(state.profile.fullName)}" autocomplete="name">`)}
+              ${state.staff ? `<p class="body">Kullanıcı adın: <strong>${esc(state.profile.username || '—')}</strong> <button type="button" class="btn ghost small" data-act="username-change">Değiştir</button></p>` : ''}
               <button class="btn small" type="submit">Profili kaydet</button>
               <p class="form-error" data-profile-error hidden></p>
             </form>` : `<p class="body">Logo ve kısa tanıtım, sitedeki kulüp sayfanda ve etkinliklerinin organizatör satırında da herkese açık görünür. Başkanın adı ve iş birliği alanları yalnızca panelde ve kulüpler arası sohbetlerde görünür.</p>
@@ -3818,7 +3834,7 @@
       return `${head('Hesap', 'Giriş bilgilerini ve şifreni yönet.')}
         <section class="card">
           <h2>Hesap bilgileri</h2>
-          <div class="account-summary"><strong>${esc(session?.email || (DEMO ? club(state.user)?.account || '' : '') || 'E-posta bilgisi yüklenemedi')}</strong><br><small>${esc(isAdmin() ? 'UniPakt yöneticisi' : state.member ? `${state.member.title} · ${club(state.user)?.name || 'Kulüp'} ekibi` : 'Kulüp başkanı hesabı')}</small></div>
+          <div class="account-summary"><strong>${esc(session?.email || (DEMO ? club(state.user)?.account || '' : '') || 'E-posta bilgisi yüklenemedi')}</strong><br><small>${esc(state.staff ? `${state.staff.title}${state.profile.username ? ` · ${state.profile.username}` : ''}` : isAdmin() ? 'UniPakt yöneticisi' : state.member ? `${state.member.title} · ${club(state.user)?.name || 'Kulüp'} ekibi` : 'Kulüp başkanı hesabı')}</small></div>
           <h2>Şifre değiştir</h2>
           <form id="passwordForm" class="stack" style="margin-top:18px;max-width:520px">
             ${field('Mevcut şifre', '<input type="password" name="currentPassword" required autocomplete="current-password">')}
@@ -5301,6 +5317,7 @@
     ...teamActions,
     ...brandActions,
     ...clubPageActions,
+    'username-change'() { askUsername(); },
     ...regActions,
     ...speakerActions,
     ...designActions,
@@ -6131,17 +6148,23 @@
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
     sending: '<svg class="im-tick" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.4" aria-label="Gönderiliyor"><circle cx="8" cy="5.5" r="4"/><path d="M8 3.3v2.4l1.5 1"/></svg>',
   };
+  const staffProfiles = () => (db?.panelProfiles || []).filter((p) => p.role === 'admin' && p.staffTitle);
+  const staffName = (p) => p.username || p.fullName || 'Merkez Yönetim';
   const imPeerInfo = (peer) => {
     if (peer === ADMIN) return { id: ADMIN, name: 'UniPakt', sub: 'Resmî destek hesabı', avatar: '/favicon-192.png', verified: true };
+    if (String(peer).startsWith('staff:')) {
+      const p = staffProfiles().find((x) => x.id === String(peer).slice(6));
+      return { id: peer, name: p ? staffName(p) : 'Merkez Yönetim', sub: [p?.fullName, p?.staffTitle || 'Merkez Yönetim'].filter((x, i, a) => x && a.indexOf(x) === i && x !== (p && staffName(p))).join(' · '), avatar: p?.avatarUrl || '', staff: true };
+    }
     const c = club(peer);
     const p = db.panelProfiles?.find((x) => x.clubId === peer);
     return { id: peer, name: c?.name || 'Kulüp', sub: c ? [shortUni(c.uni), c.category].filter(Boolean).join(' · ') : '', avatar: p?.avatarUrl || '', club: true };
   };
-  const imNameMarkup = (info) => `<span class="im-name">${esc(info.name)}</span>${info.verified ? '<span class="im-verified" aria-label="Onaylı hesap">✓</span>' : ''}${info.club ? '<span class="im-tag">Kulüp</span>' : ''}`;
+  const imNameMarkup = (info) => `<span class="im-name">${esc(info.name)}</span>${info.verified ? '<span class="im-verified" aria-label="Onaylı hesap">✓</span>' : ''}${info.club ? '<span class="im-tag">Kulüp</span>' : ''}${info.staff ? '<span class="im-tag">Merkez Yönetim</span>' : ''}`;
   // Rooms whose other side is a known panel account, with that account attached.
   const imRooms = () => state.chat.rooms
     .map((r) => ({ ...r, peer: panelUserForMatrixId(r.peerUserId) }))
-    .filter((r) => r.peer && r.peer !== state.user);
+    .filter((r) => r.peer && r.peer !== chatSelf());
   const imRoomFor = (peer) => imRooms().find((r) => r.peer === peer) || null;
   const imUnreadTotal = () => imRooms().reduce((sum, r) => sum + r.unread, 0);
   const imMatches = (info) => !state.chat.search.trim() || searchKey(`${info.name} ${info.sub}`).includes(searchKey(state.chat.search));
@@ -6184,9 +6207,10 @@
   };
   const imListHtml = () => {
     if (state.chat.newChat) {
-      const peers = [...(isAdmin() ? [] : [ADMIN]), ...db.clubs.filter((c) => c.id !== state.user).sort(byLabel).map((c) => c.id)]
+      const peers = [...(chatSelf() === ADMIN ? [] : [ADMIN]), ...staffProfiles().map((p) => `staff:${p.id}`).filter((id) => id !== chatSelf()),
+        ...db.clubs.filter((c) => c.id !== state.user).sort(byLabel).map((c) => c.id)]
         .map(imPeerInfo).filter(imMatches);
-      return `<p class="im-list-title">Yeni sohbet</p>${peers.map((info) => imRowHtml(info, null)).join('') || '<p class="im-empty-list">Eşleşen kulüp yok.</p>'}`;
+      return `<p class="im-list-title">Yeni sohbet</p>${peers.map((info) => imRowHtml(info, null)).join('') || '<p class="im-empty-list">Eşleşen hesap yok.</p>'}`;
     }
     if (state.chat.error) return `<p class="im-empty-list">${esc(state.chat.error)}</p>`;
     if (!matrixModule && state.chat.loading) return '<p class="im-empty-list">Sohbetler yükleniyor…</p>';
@@ -6387,6 +6411,28 @@
     markOpenRoomRead();
   };
   // Matrix changed: patch the chat page in place (batched to one frame).
+  // Sohbet ekranı her Matrix olayında (yazıyor…, okundu, yeni mesaj) yeniden çizilir. innerHTML'i
+  // baştan yazmak profil fotoğraflarını her seferinde yeniden yükletip titretiyordu; bunun yerine
+  // yalnızca değişen düğümler güncellenir (aynı <img> öğesi yerinde kalır).
+  const morphNode = (from, to) => {
+    if (from.nodeType !== to.nodeType || from.nodeName !== to.nodeName) { from.replaceWith(to.cloneNode(true)); return; }
+    if (from.nodeType === 3 || from.nodeType === 8) { if (from.nodeValue !== to.nodeValue) from.nodeValue = to.nodeValue; return; }
+    if (from.nodeType !== 1) return;
+    [...from.attributes].forEach((a) => { if (!to.hasAttribute(a.name)) from.removeAttribute(a.name); });
+    [...to.attributes].forEach((a) => { if (from.getAttribute(a.name) !== a.value) from.setAttribute(a.name, a.value); });
+    morphChildren(from, to);
+  };
+  const morphChildren = (from, to) => {
+    const a = [...from.childNodes], b = [...to.childNodes];
+    b.forEach((n, i) => { if (a[i]) morphNode(a[i], n); else from.appendChild(n.cloneNode(true)); });
+    for (let i = a.length - 1; i >= b.length; i--) a[i].remove();
+  };
+  const setHtml = (el, html) => {
+    if (!el || el._html === html) return;
+    el._html = html;
+    const t = document.createElement('template'); t.innerHTML = html;
+    morphChildren(el, t.content);
+  };
   let imRefreshQueued = false;
   const refreshIm = () => {
     if (!matrixModule || !state.user || !db) return;
@@ -6396,14 +6442,12 @@
     const im = document.getElementById('im');
     if (state.view !== 'ims' || !im) return;
     if (im.dataset.mode !== imMode()) { if (!busy()) render(); return; }
-    const list = document.getElementById('imList');
-    if (list) list.innerHTML = imListHtml();
-    const head = document.getElementById('imHeadWho');
-    if (head) head.innerHTML = imHeadWhoHtml();
+    setHtml(document.getElementById('imList'), imListHtml());
+    setHtml(document.getElementById('imHeadWho'), imHeadWhoHtml());
     const msgs = document.getElementById('imMsgs');
     if (msgs) {
       const atBottom = msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight < 120;
-      msgs.innerHTML = imMsgsHtml();
+      setHtml(msgs, imMsgsHtml());
       if (atBottom) msgs.scrollTop = msgs.scrollHeight;
     }
     markOpenRoomRead();
@@ -6420,7 +6464,7 @@
     if (DEMO || !db || !state.user || (!force && Date.now() - profilesFetchedAt < 20000)) return;
     profilesFetchedAt = Date.now();
     try {
-      const rows = await rest('profiles?select=id,role,club_id,full_name,bio,collaboration_interests,avatar_url');
+      const rows = await rest('profiles?select=id,role,club_id,full_name,bio,collaboration_interests,avatar_url,username,staff_title');
       if (db && Array.isArray(rows)) { db.panelProfiles = rows.map(mapPanelProfile); refreshIm(); }
     } catch (_) {}
   };
@@ -6490,11 +6534,27 @@
       </div></main>`;
   };
 
+  // Merkez Yönetim hesabı ilk girişte kullanıcı adını seçer (panelde ve mesajlaşmada bu ad görünür).
+  const USERNAME_RE = /^[a-z0-9._]{3,24}$/;
+  const askUsername = () => openForm({
+    title: 'Kullanıcı adını seç',
+    lead: 'Panelde ve UniPakt Instant Messages’ta bu adla görüneceksin. 3–24 karakter; küçük harf, rakam, nokta ve alt çizgi.',
+    fields: field('Kullanıcı adı', `<input name="username" required minlength="3" maxlength="24" pattern="[a-z0-9._]{3,24}" autocomplete="username" spellcheck="false" value="${esc(state.profile.username || '')}" placeholder="ör. mehmetemin">`),
+    submit: 'Kaydet',
+    onSubmit: async (fd) => {
+      const u = String(fd.get('username') || '').trim().toLowerCase();
+      if (!USERNAME_RE.test(u)) return 'Kullanıcı adı 3–24 karakter olmalı; yalnızca küçük harf, rakam, nokta ve alt çizgi.';
+      await api.setUsername(u);
+      toast(`Kullanıcı adın: ${u}`);
+      return null;
+    },
+  });
   const render = () => {
     if (!db || !state.user || (state.user !== ADMIN && !club(state.user))) { state.user = null; renderLogin(); return; }
+    if (state.staff && !state.profile.username && !state.usernameAsked && !dlg.open) { state.usernameAsked = true; setTimeout(askUsername, 0); }
     const nav = NAV();
     if (!knownView(state.view)) state.view = 'genel';
-    const me = isAdmin() ? { name: 'UniPakt', role: 'UniPakt yetkilisi' } : { name: club(state.user).name, role: state.member ? esc(state.member.title) : 'Kulüp başkanı' };
+    const me = state.staff ? { name: state.profile.username || state.profile.fullName || 'Merkez Yönetim', role: esc(state.staff.title) } : isAdmin() ? { name: 'UniPakt', role: 'UniPakt yetkilisi' } : { name: club(state.user).name, role: state.member ? esc(state.member.title) : 'Kulüp başkanı' };
     root.innerHTML = `
       <div class="app">
         <aside class="side ${state.navOpen ? 'nav-open' : ''}">
@@ -6605,8 +6665,7 @@
   document.addEventListener('input', (e) => {
     if (e.target.matches('[data-im-search]')) {
       state.chat.search = e.target.value;
-      const list = document.getElementById('imList');
-      if (list) list.innerHTML = imListHtml();
+      setHtml(document.getElementById('imList'), imListHtml());
       return;
     }
     if (e.target.matches('[data-im-input]')) {
