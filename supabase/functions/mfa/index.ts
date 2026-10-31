@@ -157,7 +157,7 @@ Deno.serve(async (req) => {
   if (!user || !sessionId) return reply(401, { message: "Oturum geçersiz." });
 
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (!profile || !["club", "admin", "member"].includes(profile.role)) return reply(403, { message: "Bu hesaba panel yetkisi verilmemiş." });
+  if (!profile || !["club", "admin", "member", "unit"].includes(profile.role)) return reply(403, { message: "Bu hesaba panel yetkisi verilmemiş." });
 
   let body: Record<string, unknown>;
   try { body = await req.json(); } catch { return reply(400, { message: "Geçersiz istek." }); }
