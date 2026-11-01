@@ -44,8 +44,18 @@ const loadBrand = async () => {
 
 const FROM_EMAIL = "UniPakt <bildirim@unipakt.com>";
 const PANEL = "https://unipakt.com/panel.html";
-const PERMS = ["team", "roles", "chat"];
-const PERM_TEXT: Record<string, string> = { team: "Ekip yönetimi", roles: "Rol yönetimi", chat: "Mesajlar" };
+// Ortak yetkiler + birim türüne özel yetkiler (veritabanındaki unit_kind_perms() ile aynı).
+const KIND_PERMS: Record<string, string[]> = {
+  social: ["posts", "brand"], pr: ["campaigns"], sponsor: ["sponsors"],
+  clubs: ["clubs", "clubs_accept"], audit: ["audit", "audit_assign"], board: ["approve"],
+};
+const KINDS = Object.keys(KIND_PERMS);
+const kindPerms = (kind?: string | null) => ["team", "roles", "chat", ...(KIND_PERMS[kind ?? ""] ?? [])];
+const PERM_TEXT: Record<string, string> = {
+  team: "Ekip yönetimi", roles: "Rol yönetimi", chat: "Mesajlar", posts: "Paylaşım talepleri", brand: "Marka rengi",
+  campaigns: "Kampanyalar", sponsors: "Sponsor ağı", clubs: "Kulüp ağı", clubs_accept: "Kulüp kabulü",
+  audit: "Denetim kayıtları", audit_assign: "Etkinliğe sorumlu atama", approve: "YK onayı",
+};
 const MAX_MEMBERS = 40;
 const UUID = /^[0-9a-f-]{36}$/i;
 const BAN = "876000h";   // pasif hesap: giriş kapalı (~100 yıl)
@@ -58,7 +68,7 @@ const sessionIdOf = (jwt: string) => {
     return /^[0-9a-f-]{36}$/i.test(String(payload.session_id ?? "")) ? String(payload.session_id) : "00000000-0000-0000-0000-000000000000";
   } catch { return "00000000-0000-0000-0000-000000000000"; }
 };
-const cleanPerms = (value: unknown) => Array.isArray(value) ? PERMS.filter((p) => value.includes(p)) : [];
+const cleanPerms = (value: unknown, kind?: string | null) => Array.isArray(value) ? kindPerms(kind).filter((p) => value.includes(p)) : [];
 const cleanName = (value: unknown, max: number) => String(value ?? "").replace(/\s+/g, " ").trim().slice(0, max);
 
 const inviteMail = (unitName: string, inviter: string, name: string, role: string, perms: string[], link: string) => {
@@ -81,6 +91,7 @@ const inviteMail = (unitName: string, inviter: string, name: string, role: strin
   return { html, text };
 };
 
+type Unit = { id: string; name: string; kind: string | null };
 type Member = { user_id: string; unit_id: string; role_id: string; is_head: boolean; permissions: string[]; status: string };
 type Role = { id: string; unit_id: string; name: string; permissions: string[]; is_head: boolean; preset: boolean };
 
@@ -108,7 +119,9 @@ Deno.serve(async (req) => {
     mine = (await db.from("unit_members").select("*").eq("user_id", uid).eq("status", "active").maybeSingle()).data as Member | null;
     if (!mine) return reply(403, { message: "Aktif bir birim üyeliğin yok." });
     const role = (await db.from("unit_roles").select("permissions").eq("id", mine.role_id).maybeSingle()).data;
-    myPerms = mine.is_head ? [...PERMS] : [...new Set([...(role?.permissions ?? []), ...(mine.permissions ?? [])])];
+    const myKind = (await db.from("units").select("kind").eq("id", mine.unit_id).maybeSingle()).data?.kind;
+    const allowed = kindPerms(myKind);
+    myPerms = mine.is_head ? allowed : [...new Set([...(role?.permissions ?? []), ...(mine.permissions ?? [])])].filter((p) => allowed.includes(p));
   }
   const can = (unitId: string, perm: "team" | "roles") => isAdmin || (mine?.unit_id === unitId && myPerms.includes(perm));
   const isHeadOf = (unitId: string) => isAdmin || (mine?.unit_id === unitId && mine.is_head);
@@ -121,7 +134,7 @@ Deno.serve(async (req) => {
   const log = (what: string, target: string) =>
     db.rpc("log_activity", { p_action: what, p_target: target, p_actor: uid }).then(() => {}, () => {});
 
-  const unitOf = async (id: unknown) => UUID.test(String(id ?? "")) ? (await db.from("units").select("id, name").eq("id", String(id)).maybeSingle()).data : null;
+  const unitOf = async (id: unknown) => UUID.test(String(id ?? "")) ? (await db.from("units").select("id, name, kind").eq("id", String(id)).maybeSingle()).data as Unit | null : null;
   const roleOf = async (id: unknown) => UUID.test(String(id ?? "")) ? (await db.from("unit_roles").select("*").eq("id", String(id)).maybeSingle()).data as Role | null : null;
   const memberOf = async (id: unknown) => UUID.test(String(id ?? "")) ? (await db.from("unit_members").select("*").eq("user_id", String(id)).maybeSingle()).data as Member | null : null;
   const nameOf = async (id: string) => (await db.from("profiles").select("full_name").eq("id", id).maybeSingle()).data?.full_name || "";
@@ -148,17 +161,19 @@ Deno.serve(async (req) => {
     if (!isAdmin) return deny();
     const name = cleanName(body.name, 60);
     if (name.length < 2) return reply(400, { message: "Birim adı en az 2 karakter olmalı." });
+    const kind = body.kind === undefined ? undefined : (KINDS.includes(String(body.kind)) ? String(body.kind) : null);
+    const dupMsg = (m: string) => /kind/i.test(m) ? "Bu türde bir birim zaten var; her türden tek birim olur." : /unique|duplicate/i.test(m) ? "Bu adda bir birim zaten var." : "Kaydedilemedi.";
     if (body.id) {
       const unit = await unitOf(body.id);
       if (!unit) return reply(404, { message: "Birim bulunamadı." });
-      const { error } = await db.from("units").update({ name }).eq("id", unit.id);
-      if (error) return reply(400, { message: /unique|duplicate/i.test(error.message) ? "Bu adda bir birim zaten var." : "Kaydedilemedi." });
+      const { error } = await db.from("units").update(kind === undefined ? { name } : { name, kind }).eq("id", unit.id);
+      if (error) return reply(400, { message: dupMsg(error.message) });
       await log("Birimin adını değiştirdi", `${unit.name} → ${name}`);
       return reply(200, { ok: true, id: unit.id });
     }
     const { data: last } = await db.from("units").select("sort").order("sort", { ascending: false }).limit(1).maybeSingle();
-    const { data, error } = await db.from("units").insert({ name, sort: (last?.sort ?? 0) + 1 }).select("id").single();
-    if (error) return reply(400, { message: /unique|duplicate/i.test(error.message) ? "Bu adda bir birim zaten var." : "Birim açılamadı." });
+    const { data, error } = await db.from("units").insert({ name, kind: kind ?? null, sort: (last?.sort ?? 0) + 1 }).select("id").single();
+    if (error) return reply(400, { message: dupMsg(error.message) });
     await log("Birim açtı", name);
     return reply(200, { ok: true, id: data.id });
   }
@@ -177,8 +192,9 @@ Deno.serve(async (req) => {
   // ---- Roller ----
   if (action === "role_save") {
     const name = cleanName(body.name, 40);
-    const perms = cleanPerms(body.permissions);
     if (name.length < 2) return reply(400, { message: "Rol adı en az 2 karakter olmalı." });
+    const target = body.id ? (await roleOf(body.id))?.unit_id : body.unit_id;
+    const perms = cleanPerms(body.permissions, (await unitOf(target))?.kind);
     if (body.id) {
       const role = await roleOf(body.id);
       if (!role || !can(role.unit_id, "roles")) return deny();
@@ -225,7 +241,7 @@ Deno.serve(async (req) => {
     if (!unit || !can(unit.id, "team")) return deny();
     const role = await roleOf(body.role_id);
     if (!role || role.unit_id !== unit.id) return reply(400, { message: "Bir rol seç." });
-    const perms = cleanPerms(body.permissions);
+    const perms = cleanPerms(body.permissions, unit.kind);
     if (role.is_head && !isHeadOf(unit.id)) return reply(403, { message: "Başkanı yalnızca Merkez Yönetim ya da mevcut başkan atayabilir." });
     if (!permsAllowed([...role.permissions, ...perms]) && !role.is_head) return reply(403, { message: "Kendinde olmayan bir yetkiyi veremezsin." });
     if (role.is_head) {
@@ -252,7 +268,7 @@ Deno.serve(async (req) => {
       user_id: userId, unit_id: unit.id, role_id: role.id, is_head: role.is_head, permissions: perms, added_by: uid,
     });
     if (mErr) { await undo(); return reply(400, { message: /one_head/.test(mErr.message) ? "Bu birimin zaten bir başkanı var." : "Hesap açılamadı." }); }
-    const effective = role.is_head ? PERMS : [...new Set([...role.permissions, ...perms])];
+    const effective = role.is_head ? kindPerms(unit.kind) : [...new Set([...role.permissions, ...perms])];
     if (!(await sendInvite(email, name, unit.name, role.name, effective))) {
       await undo();
       return reply(502, { message: "Davet e-postası gönderilemedi. Biraz sonra tekrar dene." });
@@ -274,7 +290,7 @@ Deno.serve(async (req) => {
     if (!role || role.unit_id !== member.unit_id) return reply(400, { message: "Bir rol seç." });
     if (role.is_head && !member.is_head) return reply(400, { message: "Başkan atamak için “Başkanı değiştir” ekranını kullan." });
     if (member.is_head && !role.is_head) return reply(400, { message: "Başkanın rolünü değiştirmek için “Başkanı değiştir” ekranını kullan." });
-    const perms = cleanPerms(body.permissions);
+    const perms = cleanPerms(body.permissions, unit.kind);
     if (!permsAllowed([...role.permissions, ...perms])) return reply(403, { message: "Kendinde olmayan bir yetkiyi veremezsin." });
     const { error } = await db.from("unit_members").update({ role_id: role.id, permissions: perms }).eq("user_id", member.user_id);
     if (error) return reply(500, { message: "Kaydedilemedi." });
@@ -330,7 +346,7 @@ Deno.serve(async (req) => {
     const email = (await db.auth.admin.getUserById(member.user_id)).data?.user?.email;
     if (!email) return reply(404, { message: "Kişi bulunamadı." });
     const role = await roleOf(member.role_id);
-    const effective = member.is_head ? PERMS : [...new Set([...(role?.permissions ?? []), ...member.permissions])];
+    const effective = member.is_head ? kindPerms(unit.kind) : [...new Set([...(role?.permissions ?? []), ...member.permissions])];
     if (!(await sendInvite(email, who, unit.name, role?.name || "Üye", effective))) return reply(502, { message: "Davet e-postası gönderilemedi." });
     return reply(200, { ok: true });
   }

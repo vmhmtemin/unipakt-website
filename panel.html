@@ -1539,7 +1539,7 @@
       const u = dir?.units?.find((x) => x.id === dir.me?.unit_id);
       if (!u) throw signedOut('Birim üyeliğin pasif ya da kaldırılmış. Birim başkanına ya da UniPakt Merkez Yönetim’e yaz.');
       const m = u.members.find((x) => x.id === session.user_id);
-      state.unitAcc = { id: session.user_id, unitId: u.id, unitName: u.name, roleName: m?.is_head ? 'Birim Başkanı' : (u.roles.find((r) => r.id === m?.role_id)?.name || 'Üye'), chat: (dir.me.perms || []).includes('chat') };
+      state.unitAcc = { id: session.user_id, unitId: u.id, unitName: u.name, roleName: m?.is_head ? 'Birim Başkanı' : (u.roles.find((r) => r.id === m?.role_id)?.name || 'Üye'), chat: (dir.me.perms || []).includes('chat'), perms: dir.me.perms || [] };
       state.units = { ...state.units, data: dir, open: state.units.open || u.id };
     }
     // Merkez Yönetim: kişisel yönetici hesabı (yetkileri UniPakt ile aynı; mesajlaşmada kendi adıyla görünür).
@@ -1587,7 +1587,8 @@
     // ---- Demo: birimler (yalnız bu tarayıcıda) ----
     async units() {
       if (!db.units) {
-        const mk = (name, i) => ({ id: `unit-${i}`, name, sort: i, roles: [
+        const KIND = { 'Sosyal Medya': 'social', 'Halkla İlişkiler': 'pr', Sponsorluk: 'sponsor', 'Kulüp İlişkileri': 'clubs', Denetim: 'audit' };
+        const mk = (name, i) => ({ id: `unit-${i}`, name, sort: i, kind: KIND[name] || null, roles: [
           { id: `unit-${i}-h`, name: 'Birim Başkanı', permissions: ['team', 'roles', 'chat'], is_head: true, preset: true },
           { id: `unit-${i}-y`, name: 'Başkan Yardımcısı', permissions: ['team', 'chat'], is_head: false, preset: true },
           { id: `unit-${i}-u`, name: 'Üye', permissions: ['chat'], is_head: false, preset: true }], members: [] });
@@ -1598,8 +1599,10 @@
           { id: 'um-3', full_name: 'Deniz Kaya', username: '', avatar_url: '', role_id: 'unit-2-u', is_head: false, permissions: ['roles'], status: 'passive', email: 'deniz@example.com' }];
         save();
       }
+      const KP = { social: ['posts', 'brand'], pr: ['campaigns'], sponsor: ['sponsors'], clubs: ['clubs', 'clubs_accept'], audit: ['audit', 'audit_assign'], board: ['approve'] };
+      db.units.forEach((u) => { u.kind_perms = ['team', 'roles', 'chat', ...(KP[u.kind] || [])]; }); save();
       const me = state.unitAcc ? db.units.flatMap((u) => u.members.map((m) => ({ u, m }))).find(({ m }) => m.id === state.unitAcc.id) : null;
-      const perms = me ? (me.m.is_head ? ['team', 'roles', 'chat'] : [...new Set([...(me.u.roles.find((r) => r.id === me.m.role_id)?.permissions || []), ...me.m.permissions])]) : [];
+      const perms = me ? (me.m.is_head ? me.u.kind_perms : [...new Set([...(me.u.roles.find((r) => r.id === me.m.role_id)?.permissions || []), ...me.m.permissions])]) : [];
       return { me: { admin: isAdmin(), unit_id: me?.u.id || null, perms, is_head: !!me?.m.is_head },
         units: db.units.map((u) => ({ ...u, members: u.members.filter((m) => m.status === 'active' || isAdmin() || u.id === me?.u.id).map(({ email, ...m }) => m) })) };
     },
@@ -1609,7 +1612,7 @@
       const mem = (id) => owner(id)?.members.find((m) => m.id === id);
       const done = (r = { ok: true }) => { save(); return r; };
       if (action === 'emails') return { emails: Object.fromEntries((unit(x.unit_id)?.members || []).map((m) => [m.id, m.email])) };
-      if (action === 'unit_save') { if (x.id) { unit(x.id).name = x.name; return done({ ok: true, id: x.id }); } const i = U.length + 1; U.push({ id: `unit-${i}`, name: x.name, sort: i, roles: [{ id: `unit-${i}-h`, name: 'Birim Başkanı', permissions: ['team', 'roles', 'chat'], is_head: true, preset: true }, { id: `unit-${i}-y`, name: 'Başkan Yardımcısı', permissions: ['team', 'chat'], is_head: false, preset: true }, { id: `unit-${i}-u`, name: 'Üye', permissions: ['chat'], is_head: false, preset: true }], members: [] }); return done({ ok: true, id: `unit-${i}` }); }
+      if (action === 'unit_save') { if (x.kind && U.some((v) => v.kind === x.kind && v.id !== x.id)) throw new Error('Bu türde bir birim zaten var; her türden tek birim olur.'); if (x.id) { Object.assign(unit(x.id), { name: x.name, kind: x.kind || null }); return done({ ok: true, id: x.id }); } const i = U.length + 1; U.push({ id: `unit-${i}`, name: x.name, sort: i, roles: [{ id: `unit-${i}-h`, name: 'Birim Başkanı', permissions: ['team', 'roles', 'chat'], is_head: true, preset: true }, { id: `unit-${i}-y`, name: 'Başkan Yardımcısı', permissions: ['team', 'chat'], is_head: false, preset: true }, { id: `unit-${i}-u`, name: 'Üye', permissions: ['chat'], is_head: false, preset: true }], members: [] }); return done({ ok: true, id: `unit-${i}` }); }
       if (action === 'unit_delete') { db.units = U.filter((u) => u.id !== x.id); return done(); }
       if (action === 'role_save') { const u = x.id ? U.find((v) => v.roles.some((r) => r.id === x.id)) : unit(x.unit_id); if (x.id) Object.assign(u.roles.find((r) => r.id === x.id), { name: x.name, permissions: x.permissions }); else u.roles.push({ id: uid(), name: x.name, permissions: x.permissions, is_head: false, preset: false }); return done(); }
       if (action === 'role_delete') { const u = U.find((v) => v.roles.some((r) => r.id === x.id)); if (u.members.some((m) => m.role_id === x.id)) throw new Error('Bu rolde kişiler var. Önce onlara başka rol ver.'); u.roles = u.roles.filter((r) => r.id !== x.id); return done(); }
@@ -2444,7 +2447,7 @@
   const UNIT_VIEWS = ['birimler', 'ims', 'ayarlar', 'hesap', 'dogrulama'];
   const homeView = () => (state.unitAcc ? 'birimler' : 'genel');
   const VIEW_PERM = { etkinliklerim: 'events', basvuru: 'events', 'etkinlik-olustur': 'events', gorevliler: 'registrations', kayitlar: 'registrations', ims: 'chat', 'destek-taleplerim': 'support', gorevler: 'tasks' };
-  const viewAllowed = (view) => state.unitAcc ? (UNIT_VIEWS.includes(view) && (view !== 'ims' || state.unitAcc.chat)) : (view === 'marka' ? isAdmin() : view === 'birimler' ? (isAdmin() || !!state.unitAcc) : view === 'kulup-sayfasi' ? isPresident() : view === 'ekip' ? isPresident() : (view === 'ayarlar' || view === 'islem-kaydi') ? !state.member : !VIEW_PERM[view] || can(VIEW_PERM[view]));
+  const viewAllowed = (view) => state.unitAcc ? ((UNIT_VIEWS.includes(view) && (view !== 'ims' || state.unitAcc.chat)) || (view === 'marka' && (state.unitAcc.perms || []).includes('brand'))) : (view === 'marka' ? isAdmin() : view === 'birimler' ? (isAdmin() || !!state.unitAcc) : view === 'kulup-sayfasi' ? isPresident() : view === 'ekip' ? isPresident() : (view === 'ayarlar' || view === 'islem-kaydi') ? !state.member : !VIEW_PERM[view] || can(VIEW_PERM[view]));
   const actPerm = (act) => {
     if (/^profile-avatar/.test(act)) return '';
     if (/^(team-|club-|activity-)/.test(act)) return 'president';
@@ -2466,8 +2469,8 @@
       const u = (db.units || []).find((x) => x.members.some((m) => m.id === raw.slice(5) && m.status === 'active'));
       const m = u?.members.find((x) => x.id === raw.slice(5));
       if (!m) { state.user = null; return; }
-      const perms = m.is_head ? ['team', 'roles', 'chat'] : [...new Set([...(u.roles.find((r) => r.id === m.role_id)?.permissions || []), ...m.permissions])];
-      state.unitAcc = { id: m.id, unitId: u.id, unitName: u.name, roleName: m.is_head ? 'Birim Başkanı' : (u.roles.find((r) => r.id === m.role_id)?.name || 'Üye'), chat: perms.includes('chat') };
+      const perms = m.is_head ? (u.kind_perms || ['team', 'roles', 'chat']) : [...new Set([...(u.roles.find((r) => r.id === m.role_id)?.permissions || []), ...m.permissions])];
+      state.unitAcc = { id: m.id, unitId: u.id, unitName: u.name, roleName: m.is_head ? 'Birim Başkanı' : (u.roles.find((r) => r.id === m.role_id)?.name || 'Üye'), chat: perms.includes('chat'), perms };
       state.profile = { ...state.profile, fullName: m.full_name, avatarUrl: m.avatar_url || '' };
       state.meId = m.id;
       return;
@@ -2780,6 +2783,7 @@
       ['bildirimler', 'Bildirimler', (db.notifications || []).filter(n => !n.readAt).length, 'unipakt'],
       ...(isAdmin() ? [['kulupler', 'Kulüpler', 0, 'unipakt'], ['site-mesajlari', 'Site Mesajları', siteInboxTotal(), 'unipakt'], ['marka', 'Marka rengi', 0, 'unipakt']] : []),
       ...(isAdmin() || state.unitAcc ? [['birimler', 'Birimler', 0, 'unipakt']] : []),
+      ...(state.unitAcc && (state.unitAcc.perms || []).includes('brand') ? [['marka', 'Marka rengi', 0, 'unipakt']] : []),
       ['destek-taleplerim', isAdmin() ? 'Destek Talepleri' : 'UniPakt Destek', supportNewCount(), 'unipakt'],
       ...(isPresident() ? [['ekip', 'Ekip', 0, 'unipakt']] : []),
       ...(state.member ? [] : [['islem-kaydi', 'İşlem Kaydı', 0, 'unipakt']]),
@@ -5453,11 +5457,23 @@
      salt okunur görür. Her birimde tek başkan; çıkarılan kişi pasife alınır.
      Sunucu: unit_directory() (okuma) + unit-team fonksiyonu (yazma, yetkiyi o da denetler).
      ------------------------------------------------------------------ */
+  // Yetki kataloğu: ortak (team, roles, chat) + birim türüne özel (veritabanındaki unit_kind_perms() ile aynı).
   const UNIT_PERMS = [
     ['team', 'Ekip yönetimi', 'Kişi ekler, rol verir, pasife alır'],
     ['roles', 'Rol yönetimi', 'Yeni rol açar, rollerin yetkilerini düzenler'],
     ['chat', 'Mesajlar', 'UniPakt Instant Messages'],
+    ['posts', 'Paylaşım talepleri', 'Talepleri değerlendirir, yayın akışını yürütür'],
+    ['brand', 'Marka rengi', 'Sitenin ve panelin marka rengini değiştirir'],
+    ['campaigns', 'Kampanyalar', 'Kampanya açar, onaya gönderir'],
+    ['sponsors', 'Sponsor ağı', 'Sponsor kayıtları ve görüşmeler'],
+    ['clubs', 'Kulüp ağı', 'Kulüp kayıtları ve iletişim takibi'],
+    ['clubs_accept', 'Kulüp kabulü', 'Yeni kulübü ağa kabul eder'],
+    ['audit', 'Denetim kayıtları', 'Tespit, uyarı ve rapor'],
+    ['audit_assign', 'Etkinliğe sorumlu atama', 'Etkinliklere denetim sorumlusu atar'],
+    ['approve', 'YK onayı', 'Birimlerden gelen talepleri onaylar'],
   ];
+  const UNIT_KINDS = [['', 'Genel (yalnızca ekip yönetimi)'], ['social', 'Sosyal Medya'], ['pr', 'Halkla İlişkiler'], ['sponsor', 'Sponsorluk'], ['clubs', 'Kulüp İlişkileri'], ['audit', 'Denetim'], ['board', 'Yönetim Kurulu (YK)']];
+  const unitKindPerms = (u) => (Array.isArray(u?.kind_perms) && u.kind_perms.length ? u.kind_perms : ['team', 'roles', 'chat']);
   const unitPermLabel = (k) => (UNIT_PERMS.find(([p]) => p === k) || [k, k])[1];
   const freshUnits = () => ({ data: null, loading: false, error: '', open: '', emails: {}, showPassive: false });
   const loadUnits = async () => {
@@ -5484,7 +5500,7 @@
   };
   const unitHead = (u) => u.members.find((m) => m.is_head && m.status === 'active');
   const roleName = (u, id) => u.roles.find((r) => r.id === id)?.name || '—';
-  const memberPerms = (u, m) => m.is_head ? UNIT_PERMS.map(([k]) => k) : [...new Set([...(u.roles.find((r) => r.id === m.role_id)?.permissions || []), ...(m.permissions || [])])];
+  const memberPerms = (u, m) => m.is_head ? unitKindPerms(u) : [...new Set([...(u.roles.find((r) => r.id === m.role_id)?.permissions || []), ...(m.permissions || [])])];
   const personName = (m) => m.full_name || m.username || 'İsimsiz';
 
   const unitsView = () => {
@@ -5540,8 +5556,9 @@
     return `<section class="unit-detail">
       <div class="unit-detail-head">${back}
         <h2>${esc(u.name)}</h2>
+        ${u.kind ? `<span class="tag">${esc(UNIT_KINDS.find(([k]) => k === u.kind)?.[1] || '')}</span>` : ''}
         ${readOnly ? '<span class="tag">Salt okunur</span>' : ''}
-        ${me.admin ? `<div class="row"><button class="btn ghost small" data-act="unit-rename" data-id="${esc(u.id)}">Adını değiştir</button><button class="btn danger small" data-act="unit-delete" data-id="${esc(u.id)}">Birimi sil</button></div>` : ''}
+        ${me.admin ? `<div class="row"><button class="btn ghost small" data-act="unit-rename" data-id="${esc(u.id)}">Birim ayarları</button><button class="btn danger small" data-act="unit-delete" data-id="${esc(u.id)}">Birimi sil</button></div>` : ''}
       </div>
       <div class="card unit-headline">
         ${h ? `${avatarMarkup(h.avatar_url, personName(h), 'large')}<div><small>Birim Başkanı</small><h3>${esc(personName(h))}</h3></div>` : '<div><small>Birim Başkanı</small><h3 class="unit-nohead">Başkan atanmadı</h3></div>'}
@@ -5552,14 +5569,14 @@
       <div class="card unit-members">${people.length ? people.map(memberRow).join('') : '<p class="body">Henüz kimse yok.</p>'}</div>
       <div class="unit-section-head"><h3>Roller</h3>${roles ? `<button class="btn ghost small" data-act="unit-role-new" data-id="${esc(u.id)}">Rol ekle</button>` : ''}</div>
       <div class="card unit-roles">${u.roles.map((r) => `<div class="unit-role">
-          <div><strong>${esc(r.name)}</strong>${r.preset ? ' <span class="tag">Hazır</span>' : ''}<div class="team-perms">${(r.is_head ? UNIT_PERMS.map(([k]) => k) : r.permissions).map((p) => `<span class="tag">${esc(unitPermLabel(p))}</span>`).join('') || '<small>Yetki yok</small>'}</div></div>
+          <div><strong>${esc(r.name)}</strong>${r.preset ? ' <span class="tag">Hazır</span>' : ''}<div class="team-perms">${(r.is_head ? unitKindPerms(u) : r.permissions).map((p) => `<span class="tag">${esc(unitPermLabel(p))}</span>`).join('') || '<small>Yetki yok</small>'}</div></div>
           ${roles && !r.is_head ? `<div class="row"><button class="btn ghost small" data-act="unit-role-edit" data-id="${esc(r.id)}">Düzenle</button>${r.preset ? '' : `<button class="btn danger small" data-act="unit-role-delete" data-id="${esc(r.id)}">Sil</button>`}</div>` : ''}
         </div>`).join('')}</div>
     </section>`;
   };
 
   // Yetki kutuları. locked: rolden gelenler (işaretli, değiştirilemez). allowed: verebileceklerin.
-  const unitPermChecks = (on = [], locked = [], allowed = null) => `<div class="field"><span>Yetkiler</span><div class="checks team-checks">${UNIT_PERMS.map(([k, label, hint]) => {
+  const unitPermChecks = (u, on = [], locked = [], allowed = null) => `<div class="field"><span>Yetkiler</span><div class="checks team-checks">${UNIT_PERMS.filter(([k]) => unitKindPerms(u).includes(k)).map(([k, label, hint]) => {
       const lock = locked.includes(k), dis = lock || (allowed && !allowed.includes(k));
       return `<label><input type="checkbox" name="perm" value="${k}" ${on.includes(k) || lock ? 'checked' : ''} ${dis ? 'disabled' : ''}> <span><strong>${esc(label)}</strong><small>${esc(lock ? 'Rolünden geliyor' : hint)}</small></span></label>`;
     }).join('')}</div></div>`;
@@ -5574,7 +5591,7 @@
     if (!sel) return;
     const sync = () => {
       const r = u.roles.find((x) => x.id === sel.value);
-      const lockedPerms = r?.is_head ? UNIT_PERMS.map(([k]) => k) : (r?.permissions || []);
+      const lockedPerms = r?.is_head ? unitKindPerms(u) : (r?.permissions || []);
       dlgForm.querySelectorAll('input[name="perm"]').forEach((box) => {
         const lock = lockedPerms.includes(box.value);
         box.checked = lock || (box.dataset.extra === '1');
@@ -5609,19 +5626,19 @@
     'unit-passive-toggle'() { state.units.showPassive = !state.units.showPassive; render(); },
     'unit-new'() {
       openForm({ title: 'Birim ekle', lead: 'Yeni birim hazır rollerle (Birim Başkanı, Başkan Yardımcısı, Üye) açılır.',
-        fields: field('Birim adı', '<input name="name" required maxlength="60" placeholder="Örn. Yönetim Kurulu">'),
+        fields: field('Birim adı', '<input name="name" required maxlength="60" placeholder="Örn. Yönetim Kurulu">') + field('Birim türü', `<select name="kind">${UNIT_KINDS.map(([k, l]) => `<option value="${k}" ${k === ('') ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select><small class="hint">Tür, birimin özel sayfalarını ve yetkilerini belirler. Her türden tek birim olur.</small>`),
         submit: 'Birimi aç',
         onSubmit: async (fd) => {
           const name = val(fd, 'name').replace(/\s+/g, ' ');
           if (name.length < 2) return 'Birim adını yaz.';
-          const r = await api.unit('unit_save', { name });
+          const r = await api.unit('unit_save', { name, kind: val(fd, 'kind') || null });
           toast(`${name} açıldı.`); state.units.open = r.id || ''; reloadUnits();
         } });
     },
     'unit-rename'(id) {
       const u = unitById(id); if (!u) return;
-      openForm({ title: 'Birimin adı', fields: field('Birim adı', `<input name="name" required maxlength="60" value="${esc(u.name)}">`),
-        onSubmit: async (fd) => { const name = val(fd, 'name').replace(/\s+/g, ' '); if (name.length < 2) return 'Birim adını yaz.'; await api.unit('unit_save', { id, name }); toast('Kaydedildi.'); reloadUnits(); } });
+      openForm({ title: 'Birim ayarları', fields: field('Birim adı', `<input name="name" required maxlength="60" value="${esc(u.name)}">`) + field('Birim türü', `<select name="kind">${UNIT_KINDS.map(([k, l]) => `<option value="${k}" ${k === ((u.kind || '')) ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select><small class="hint">Tür, birimin özel sayfalarını ve yetkilerini belirler. Her türden tek birim olur.</small>`),
+        onSubmit: async (fd) => { const name = val(fd, 'name').replace(/\s+/g, ' '); if (name.length < 2) return 'Birim adını yaz.'; await api.unit('unit_save', { id, name, kind: val(fd, 'kind') || null }); toast('Kaydedildi.'); reloadUnits(); } });
     },
     'unit-delete'(id) {
       const u = unitById(id); if (!u) return;
@@ -5639,7 +5656,7 @@
           + field('E-posta', '<input type="email" name="email" required maxlength="254" autocomplete="off">')
           + field('Rol', roleSelect(u, def, { withHead: headOk }))
           + headWarnHtml(u)
-          + unitPermChecks([], [], grant),
+          + unitPermChecks(u, [], [], grant),
         submit: 'Daveti gönder',
         onSubmit: async (fd) => {
           const name = val(fd, 'name').replace(/\s+/g, ' '), email = val(fd, 'email').toLowerCase(), roleId = val(fd, 'role');
@@ -5673,7 +5690,7 @@
       }
       openForm({
         title: 'Rol ve yetkiler', lead: `${personName(m)} · rolünden gelen yetkilerin üstüne kişiye özel yetki ekleyebilirsin.`,
-        fields: field('Rol', roleSelect(u, m.role_id)) + unitPermChecks(m.permissions || [], [], myGrantable(u.id)),
+        fields: field('Rol', roleSelect(u, m.role_id)) + unitPermChecks(u, m.permissions || [], [], myGrantable(u.id)),
         onSubmit: async (fd) => {
           const roleId = val(fd, 'role');
           await api.unit('update', { id, role_id: roleId, permissions: extraPerms(fd, u, roleId) });
@@ -5735,7 +5752,7 @@
     openForm({
       title: r ? 'Rolü düzenle' : 'Rol ekle',
       lead: r ? '' : 'Rolü istediğin adla aç ve yetkilerini seç. Kişiye bu rolü verince yetkiler de gelir.',
-      fields: field('Rol adı', `<input name="name" required maxlength="40" value="${esc(r?.name || '')}" placeholder="Örn. İçerik Sorumlusu">`) + unitPermChecks(r?.permissions || [], [], myGrantable(u.id)),
+      fields: field('Rol adı', `<input name="name" required maxlength="40" value="${esc(r?.name || '')}" placeholder="Örn. İçerik Sorumlusu">`) + unitPermChecks(u, r?.permissions || [], [], myGrantable(u.id)),
       onSubmit: async (fd) => {
         const name = val(fd, 'name').replace(/\s+/g, ' ');
         if (name.length < 2) return 'Rol adını yaz.';
