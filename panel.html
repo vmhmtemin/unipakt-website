@@ -489,6 +489,14 @@
   .uw-row { cursor: pointer; }
   .uw-row:hover td { background: var(--paper-soft); }
   .uw-notes { max-width: 220px; opacity: .8; }
+  .uw-sponsor-stats { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+  .uw-sponsor-list, .uw-sponsor-summary { display: flex; flex-direction: column; gap: 12px; }
+  .uw-sponsor-card h3 { margin: 4px 0 12px; overflow-wrap: anywhere; }
+  .uw-sponsor-fields, .uw-sponsor-breakdown { display: flex; flex-direction: column; gap: 0; }
+  .uw-sponsor-field, .uw-sponsor-breakdown-row { min-width: 0; padding: 9px 0; border-top: 1px solid var(--border); overflow-wrap: anywhere; }
+  .uw-sponsor-field small, .uw-sponsor-breakdown-row small { display: block; margin-bottom: 3px; }
+  .uw-sponsor-breakdown-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .uw-sponsor-breakdown-row strong { font-variant-numeric: tabular-nums; }
   .uw-cat-tabs { flex-wrap: wrap; }
   .uw-mini { padding: 10px 14px; margin-top: 10px; }
   .uw-steps { display: flex; gap: 5px; }
@@ -6622,6 +6630,7 @@
   const uwLead = () => uwHead() || uwHas('team');
   const uwKindIs = (k) => (uwMyUnit()?.kind || null) === k;
   const uwCan = (k, perm) => uwKindIs(k) && uwHas(perm);
+  const uwSponsorManager = () => uwAdmin() || uwCan('sponsor', 'sponsors');
   const uwPerson = (id) => { for (const u of uwUnits()) { const m = (u.members || []).find((x) => x.id === id); if (m) return { ...m, unit: u }; } return null; };
   const uwList = (key) => (Array.isArray(UWD()[key]) ? UWD()[key] : []);
   const uwUnread = () => uwList('notifications').filter((n) => !n.read_at).length;
@@ -7331,37 +7340,54 @@
   const spStage = (k) => SP_STAGES.find(([s]) => s === k) || ['', k, ''];
   const spPack = (k) => (SP_PACKS.find(([s]) => s === k) || [null, ''])[1];
   const spData = () => UWD().sponsors || { rows: [], contacts: [] };
-  const uwSponsorTable = (rows, lead) => `<div class="uw-table-wrap"><table class="uw-table">
-      <thead><tr><th>Marka</th><th>Mail</th><th>İletişim formu / web</th><th>Yetkili kişi</th><th>Sorumlu</th><th>Durum</th><th>Son işlem</th><th>Notlar</th><th>Paket</th><th>Etkinlik</th></tr></thead>
-      <tbody>${rows.map((s) => `<tr data-act="uw-sp-open" data-id="${esc(s.id)}" class="uw-row">
-        <td><strong>${esc(s.brand)}</strong>${s.contacts ? `<small class="hint"> · ${s.contacts} görüşme</small>` : ''}</td>
-        <td>${s.email ? `<a href="mailto:${esc(s.email)}" data-stop>${esc(s.email)}</a>` : ''}</td>
-        <td>${s.web ? `<a href="${esc(s.web)}" target="_blank" rel="noopener noreferrer" data-stop>${esc(s.web.replace(/^https?:\/\/(www\.)?/i, '').slice(0, 40))}</a>` : ''}</td>
-        <td>${esc(s.contact_person || '')}</td><td>${esc(s.owner ? s.owner_name || '' : '')}</td>
-        <td><span class="tag ${spStage(s.stage)[2]}">${esc(spStage(s.stage)[1])}</span>${s.budget?.status === 'center' ? ' <span class="tag wait">Bütçe onayda</span>' : s.budget?.status === 'approved' ? ' <span class="tag ok">Bütçe onaylı</span>' : ''}</td>
-        <td>${s.last_action ? uwDate(s.last_action) : ''}</td><td class="uw-notes">${esc((s.notes || '').slice(0, 80))}</td><td>${esc(spPack(s.package))}</td><td>${esc(s.event_label || '')}</td>
-      </tr>`).join('')}</tbody></table></div>
-      ${lead ? '' : ''}`;
+  const uwSponsorTable = (rows, lead) => `<div class="stack uw-sponsor-list">
+      ${rows.map((s) => `<article class="card item uw-sponsor-card uw-row" data-act="uw-sp-open" data-id="${esc(s.id)}">
+        <div class="meta top"><span class="tag">${esc(s.category)}</span><span class="tag ${spStage(s.stage)[2]}">${esc(spStage(s.stage)[1])}</span>${s.contacts ? `<span class="hint">${s.contacts} görüşme</span>` : ''}</div>
+        <h3>${esc(s.brand)}</h3>
+        <div class="uw-sponsor-fields">
+          ${s.email ? `<div class="uw-sponsor-field"><small class="hint">Mail</small><a href="mailto:${esc(s.email)}" data-stop>${esc(s.email)}</a></div>` : ''}
+          ${s.web ? `<div class="uw-sponsor-field"><small class="hint">İletişim formu / web</small><a href="${esc(s.web)}" target="_blank" rel="noopener noreferrer" data-stop>${esc(s.web.replace(/^https?:\/\/(www\.)?/i, '').slice(0, 80))}</a></div>` : ''}
+          ${s.contact_person ? `<div class="uw-sponsor-field"><small class="hint">Yetkili kişi</small><div>${esc(s.contact_person)}</div></div>` : ''}
+          <div class="uw-sponsor-field"><small class="hint">Sorumlu</small><div>${esc(s.owner ? s.owner_name || '' : 'Atanmadı')}</div></div>
+          <div class="uw-sponsor-field"><small class="hint">Son işlem</small><div>${s.last_action ? uwDate(s.last_action) : 'Henüz işlem yok'}</div></div>
+          <div class="uw-sponsor-field"><small class="hint">Paket / etkinlik</small><div>${[spPack(s.package), s.event_label].filter(Boolean).map(esc).join(' · ') || '—'}</div></div>
+          ${s.notes ? `<div class="uw-sponsor-field"><small class="hint">Notlar</small><div>${uwText((s.notes || '').slice(0, 180))}${s.notes.length > 180 ? '…' : ''}</div></div>` : ''}
+        </div>
+        ${lead ? `<div class="actions"><button type="button" class="btn ghost small" data-act="uw-sp-edit" data-id="${esc(s.id)}">Düzenle</button><button type="button" class="btn small" data-act="uw-sp-open" data-id="${esc(s.id)}">Detay ve görüşmeler</button></div>` : ''}
+      </article>`).join('')}
+    </div>`;
   const uwSponsorSummary = (rows) => {
     const cats = [...SPONSOR_CATS, ...[...new Set(rows.map((s) => s.category))].filter((c) => !SPONSOR_CATS.includes(c))];
     const owners = [...new Map(rows.filter((s) => s.owner).map((s) => [s.owner, s.owner_name])).entries()];
     const deals = rows.filter((s) => s.stage === 'deal').length, reached = rows.filter((s) => s.stage !== 'research').length;
-    return `<div class="stats uw-stats">
-        <div class="stat"><b>${rows.length}</b><span>Firma</span></div>
-        <div class="stat"><b>${spData().contacts.length}</b><span>Görüşme kaydı</span></div>
-        <div class="stat"><b>${reached}</b><span>İletişime geçilen</span></div>
-        <div class="stat hot"><b>${deals}</b><span>Anlaşma · dönüşüm %${reached ? Math.round((deals / reached) * 100) : 0}</span></div>
+    const metric = (label, value) => `<div class="stat"><b>${value}</b><span>${label}</span></div>`;
+    return `<div class="stats uw-sponsor-stats">
+        ${metric('Firma', rows.length)}
+        ${metric('Görüşme kaydı', spData().contacts.length)}
+        ${metric('İletişime geçilen', reached)}
+        ${metric(`Anlaşma · dönüşüm %${reached ? Math.round((deals / reached) * 100) : 0}`, deals)}
       </div>
-      <div class="uw-table-wrap" style="margin-top:22px"><table class="uw-table">
-        <thead><tr><th>Kategori</th><th>Firma</th><th>Maili olan</th><th>Sorumlusuz</th>${SP_STAGES.map(([, l]) => `<th>${l}</th>`).join('')}${owners.map(([, n]) => `<th>${esc(n)}</th>`).join('')}</tr></thead>
-        <tbody>${cats.map((c) => { const l = rows.filter((s) => s.category === c); return l.length ? `<tr class="uw-row" data-act="uw-tab" data-id="b-sponsorlar" data-sub="${esc(c)}"><td><strong>${esc(c)}</strong></td><td>${l.length}</td><td>${l.filter((s) => s.email).length}</td><td>${l.filter((s) => !s.owner).length}</td>${SP_STAGES.map(([k]) => `<td>${l.filter((s) => s.stage === k).length || ''}</td>`).join('')}${owners.map(([id]) => `<td>${l.filter((s) => s.owner === id).length || ''}</td>`).join('')}</tr>` : ''; }).join('')}</tbody>
-      </table></div>`;
+      <div class="stack uw-sponsor-summary" style="margin-top:22px">${cats.map((c) => {
+        const l = rows.filter((s) => s.category === c);
+        if (!l.length) return '';
+        const details = [
+          ['Firma', l.length],
+          ['Maili olan', l.filter((s) => s.email).length],
+          ['Sorumlusuz', l.filter((s) => !s.owner).length],
+          ...SP_STAGES.map(([k, label]) => [label, l.filter((s) => s.stage === k).length]),
+          ...owners.map(([id, name]) => [`Sorumlu · ${name}`, l.filter((s) => s.owner === id).length]),
+        ];
+        return `<article class="card item uw-row" data-act="uw-tab" data-id="b-sponsorlar" data-sub="${esc(c)}">
+          <div class="meta top"><h3>${esc(c)}</h3><span class="tag">${l.length} firma</span></div>
+          <div class="uw-sponsor-breakdown">${details.map(([label, value]) => `<div class="uw-sponsor-breakdown-row"><small>${esc(label)}</small><strong>${value}</strong></div>`).join('')}</div>
+        </article>`;
+      }).join('')}</div>`;
   };
   const uwSponsorsView = () => {
     const sub = 'Sponsorship File’dan aktarılan sponsor ağı; aynı düzen, ek olarak paket ve etkinlik. Görüşme kaydı girdikçe sayı ve son işlem tarihi kendiliğinden güncellenir. Bütçe kısmı Merkez onayına gider.';
     const wait = uwLoading('Sponsor Ağı', sub); if (wait) return wait;
     const rows = spData().rows || [];
-    const lead = uwCan('sponsor', 'sponsors');
+    const lead = uwSponsorManager();
     const cats = [...SPONSOR_CATS, ...[...new Set(rows.map((s) => s.category))].filter((c) => !SPONSOR_CATS.includes(c))];
     const tab = uwTabOf('b-sponsorlar', 'summary');
     const q = (state.uwFilter['b-sponsorlar-q'] || '').toLocaleLowerCase('tr-TR');
@@ -7556,7 +7582,8 @@
     'uw-tcal-pick'(key) { const st = state.uwFilter['b-takvim'] || { y: now.getFullYear(), m: now.getMonth() }; state.uwFilter['b-takvim'] = { ...st, sel: key }; render(); },
     'uw-sp-open'(id) {
       const s = (spData().rows || []).find((x) => x.id === id); if (!s) return;
-      const lead = uwCan('sponsor', 'sponsors');
+      const lead = uwSponsorManager();
+      const unitLead = uwCan('sponsor', 'sponsors');
       const contacts = (spData().contacts || []).filter((c) => c.sponsor_id === id);
       dlgForm.innerHTML = `<h2>${esc(s.brand)}</h2><p class="lead">${esc(s.category)} · <span class="tag ${spStage(s.stage)[2]}">${esc(spStage(s.stage)[1])}</span>${s.package ? ` · ${esc(spPack(s.package))} paket` : ''}${s.event_label ? ` · ${esc(s.event_label)}` : ''}</p>
         <div class="stack">${s.email ? `<div><small class="hint">Mail</small><div><a href="mailto:${esc(s.email)}">${esc(s.email)}</a></div></div>` : ''}${s.web ? `<div><small class="hint">İletişim formu / web</small><div>${uwLink(s.web, s.web)}</div></div>` : ''}${s.contact_person ? `<div><small class="hint">Yetkili kişi</small><div>${esc(s.contact_person)}</div></div>` : ''}${s.owner_name && s.owner ? `<div><small class="hint">Sorumlu</small><div>${esc(s.owner_name)}</div></div>` : ''}${s.notes ? `<div class="quote"><small>Notlar</small>${uwText(s.notes)}</div>` : ''}${s.budget ? `<div class="quote"><small>Bütçe talebi · ${esc(REQ_ST[s.budget.status]?.[1] || '')}</small>${uwText(s.budget.note || '')}</div>` : ''}</div>
@@ -7564,7 +7591,8 @@
         ${contacts.length ? `<div class="card">${contacts.map((c) => `<div class="mini-row"><div><strong>${esc((SP_CONTACT.find(([k]) => k === c.kind) || ['', c.kind])[1])} · ${uwDate(c.at)}</strong><small>${esc(c.note || '')} · ${esc(c.by_name || '')}</small></div>${lead ? `<button type="button" class="btn ghost small" data-uw-dlg="sp-contact-del" data-id="${esc(c.id)}">Sil</button>` : ''}</div>`).join('')}</div>` : '<p class="hint">Görüşme kaydı yok.</p>'}
         <div class="dialog-actions">
           <button type="button" class="btn ghost" data-close>Kapat</button>
-          ${lead ? `<button type="button" class="btn ghost" data-uw-dlg="sp-budget" data-id="${esc(id)}">Bütçeyi Merkez onayına gönder</button><button type="button" class="btn ghost" data-uw-dlg="sp-edit" data-id="${esc(id)}">Düzenle</button><button type="button" class="btn" data-uw-dlg="sp-contact" data-id="${esc(id)}">Görüşme kaydet</button>` : ''}
+          ${unitLead ? `<button type="button" class="btn ghost" data-uw-dlg="sp-budget" data-id="${esc(id)}">Bütçeyi Merkez onayına gönder</button>` : ''}
+          ${lead ? `<button type="button" class="btn ghost" data-uw-dlg="sp-edit" data-id="${esc(id)}">Düzenle</button><button type="button" class="btn" data-uw-dlg="sp-contact" data-id="${esc(id)}">Görüşme kaydet</button>` : ''}
         </div>`;
       dlgSubmit = null; dlg.showModal();
     },
@@ -7580,7 +7608,7 @@
           ${field('Son işlem tarihi (görüşme kaydı varsa en yenisi kullanılır)', `<input type="date" name="last_action" value="${esc(s.last_action ? String(s.last_action).slice(0, 10) : '')}">`)}
           ${field('Paket', `<select name="package"><option value="">—</option>${SP_PACKS.map(([k, l]) => `<option value="${k}" ${s.package === k ? 'selected' : ''}>${l}</option>`).join('')}</select>`)}${field('Etkinlik', `<input name="event_label" maxlength="160" placeholder="Örn. HACKFEST27" value="${esc(s.event_label || '')}">`)}
           ${field('Notlar', `<textarea name="notes" rows="3" maxlength="4000">${esc(s.notes || '')}</textarea>`)}
-          ${id && uwLead() ? `<button type="button" class="btn danger small" data-uw-dlg="sp-delete" data-id="${esc(id)}">Sponsoru sil</button>` : ''}`,
+          ${id && (uwAdmin() || (uwCan('sponsor', 'sponsors') && uwLead())) ? `<button type="button" class="btn danger small" data-uw-dlg="sp-delete" data-id="${esc(id)}">Sponsoru sil</button>` : ''}`,
         onSubmit: uwSubmit('sponsor_save', (fd) => ({ id: id || null, category: val(fd, 'category'), brand: val(fd, 'brand'), email: val(fd, 'email'), web: val(fd, 'web'), contact_person: val(fd, 'contact_person'), owner: val(fd, 'owner') || null, stage: val(fd, 'stage'), last_action: val(fd, 'last_action'), package: val(fd, 'package'), event_label: val(fd, 'event_label'), notes: val(fd, 'notes') }), 'Kaydedildi.') });
     },
     'uw-cl-contact'(clubId) {
