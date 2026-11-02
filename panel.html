@@ -561,6 +561,10 @@
   .mini-row > :last-child { flex: none; }
 
   /* ---- Filters ---- */
+  .toolbar input:not([type="checkbox"]):not([type="radio"]) { min-width:0; max-width:100%; padding:11px 14px; border:1px solid var(--border-strong); border-radius:12px; background:var(--surface); color:var(--ink); font:inherit; }
+  .toolbar select { max-width:100%; min-width:0; }
+  .toolbar input:focus-visible, .toolbar select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .card p, .card a { overflow-wrap:anywhere; }
   .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 18px; }
   .chip { padding: 9px 16px; border-radius: 999px; border: 1px solid var(--border-strong); background: transparent; font-size: 14px; font-weight: 500; transition: border-color .2s ease; }
   .chip:hover { border-color: var(--ink); }
@@ -1141,6 +1145,9 @@
 </style>
     <meta name="unipakt-theme-baked" content="#8F244D,#A94B86|135">
     <script src="/theme.js?v=1"></script>
+    <script src="/unit-workflows.js?v=1"></script>
+<script src="/unit-records.js?v=1"></script>
+<script src="/unit-files.js?v=1"></script>
 </head>
 <body>
 <div class="pf-intro" id="pfIntro" aria-hidden="true" hidden>
@@ -2830,17 +2837,16 @@
   })).sort((a, b) => b.points - a.points || a.name.localeCompare(b.name, 'tr'));
   const signed = (n) => `${n >= 0 ? '+' : '−'}${Math.abs(n)}`;
 
-  // Sol menü iki grupta: [id, etiket, sayaç, grup]. Kulüp hesabı Onaylamalar, Kulüpler ve Site Mesajları'nı görmez.
-  const NAV_GROUPS = [['unipakt', 'UniPakt'], ['birim', 'Birim İşleri'], ['events', 'Etkinlik İşlemleri']];
+  // Sol menü üç grupta: [id, etiket, sayaç, grup]. Kulüp hesabı Onaylamalar, Kulüpler ve Site Mesajları'nı görmez.
+  const NAV_GROUPS = [['unipakt', 'UniPakt'], ['events', 'Etkinlik İşlemleri'], ['birim', 'Birim İşleri']];
   const ADMIN_UNIT_NAV = [
     ['social', 'Sosyal Medya', 'b-yayin'],
     ['pr', 'Halkla İlişkiler', 'b-kampanyalar'],
     ['sponsor', 'Sponsorluk', 'b-sponsorlar'],
     ['clubs', 'Kulüp İlişkileri', 'b-kulupler'],
     ['audit', 'Denetim', 'b-denetim'],
-    ['board', 'Yönetim Kurulu', 'b-onaylar'],
   ];
-  const ADMIN_UNIT_SHARED_IDS = new Set(['b-bildirimler', 'b-gorevler', 'b-duyurular', 'b-belgeler', 'b-destek']);
+  const ADMIN_UNIT_SHARED_IDS = new Set(['b-erisimler', 'b-onaylar', 'b-bildirimler', 'b-gorevler', 'b-duyurular', 'b-belgeler', 'b-destek', 'b-islem', 'b-takvim']);
   const NAV = () => {
     const openMine = visibleTasks().filter((t) => t.status === 'open').length;
     const items = [
@@ -2878,21 +2884,22 @@
   const renderNavGroups = (nav) => NAV_GROUPS
     .filter(([group]) => nav.some((item) => item[3] === group))
     .map(([group, title]) => {
+      const unitView = window.UniPaktRecords.baseView(window.UniPaktWorkflows.baseView(state.view));
       const items = nav.filter((item) => item[3] === group);
-      if (group !== 'birim' || !isAdmin()) {
+      if (group !== 'birim') {
         return `<p class="nav-group">${esc(title)}</p>${items.map((item) => navItemHtml(item)).join('')}`;
       }
       const shared = items.filter(([id]) => ADMIN_UNIT_SHARED_IDS.has(id));
       const unitPages = items.filter(([id]) => ADMIN_UNIT_NAV.some(([, , view]) => view === id));
-      const activeUnit = ADMIN_UNIT_NAV.some(([, , view]) => view === state.view);
+      const activeUnit = ADMIN_UNIT_NAV.some(([, , view]) => view === unitView);
       const activeShared = ADMIN_UNIT_SHARED_IDS.has(state.view);
       const unitsOpen = state.adminUnitsOpen ?? (activeUnit || activeShared);
       const commonOpen = state.adminCommonOpen ?? activeShared;
       const unitRows = ADMIN_UNIT_NAV.map(([kind, unitLabel, view]) => {
         const item = unitPages.find(([id]) => id === view);
         if (!item) return '';
-        const expanded = state.adminUnitNavOpen[kind] ?? (state.view === view);
-        return `<button type="button" class="nav-item nav-unit-toggle" data-act="admin-unit-nav-toggle" data-id="${kind}" aria-expanded="${expanded ? 'true' : 'false'}"><span>${esc(unitLabel)}</span><span class="nav-chevron" aria-hidden="true">${expanded ? '−' : '+'}</span></button>${expanded ? `<div class="nav-accordion-inner">${navItemHtml(item, 'nav-sub-item')}</div>` : ''}`;
+        const expanded = state.adminUnitNavOpen[kind] ?? (unitView === view);
+        return `<button type="button" class="nav-item nav-unit-toggle" data-act="admin-unit-nav-toggle" data-id="${kind}" aria-expanded="${expanded ? 'true' : 'false'}"><span>${esc(unitLabel)}</span><span class="nav-chevron" aria-hidden="true">${expanded ? '−' : '+'}</span></button>${expanded ? `<div class="nav-accordion-inner">${workspaceUnitLinks(kind, item)}</div>` : ''}`;
       }).join('');
       return `<p class="nav-group">${esc(title)}</p>
         <button type="button" class="nav-item nav-unit-toggle" data-act="admin-units-nav-toggle" aria-expanded="${unitsOpen ? 'true' : 'false'}"><span>Birimler</span><span class="nav-chevron" aria-hidden="true">${unitsOpen ? '−' : '+'}</span></button>
@@ -4229,7 +4236,7 @@
     'destek-taleplerim'() { return renderSupportTickets(); },
 
     bildirimler() {
-      const list = [...(db.notifications || [])].sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+      const list = [...(db.notifications || [])].filter(n=>!n.recipientClubId||n.recipientClubId===state.user).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
       const row = (n) => { const app = notificationApplication(n); const pending = n.type === 'partnership_application' ? !!(app?.p.status === 'pending') : (n.actionable && !n.resolved); return `<article class="card item notification ${!n.readAt ? 'unread' : ''}"><div class="meta top"><span class="tag ${pending?'wait':'ok'}">${pending?'İşlem bekliyor':'Bilgi'}</span><span>${fmtStamp(n.createdAt)}</span></div><h3>${esc(n.title)}</h3><p class="body notif-body">${esc(n.body)}</p><div class="actions">${n.type === 'partnership_application' ? notificationAction(n) : (pending ? notificationAction(n) : '')}${!n.readAt ? `<button class="btn ghost small" data-act="notif-read" data-id="${esc(n.id)}">Okundu</button>` : ''}${!pending ? `<button class="btn ghost small" data-act="notif-delete" data-id="${esc(n.id)}">Sil</button>` : ''}</div></article>`; };
       return `${head('Bildirimler','Talepler, sonuçlar ve seninle ilgili önemli gelişmeler. Sonuçlandırılmamış talepler silinemez.')}${list.length ? `<div class="stack">${list.map(row).join('')}</div>` : empty('Henüz bildirimin yok.')}`;
     },
@@ -4325,7 +4332,7 @@
     gorevler() {
       let list = visibleTasks();
       if (isAdmin() && state.taskClub !== 'all') list = list.filter((t) => t.clubId === state.taskClub);
-      const open = list.filter((t) => t.status === 'open').sort((a, b) => String(a.due || '9').localeCompare(String(b.due || '9')));
+      const open = list.filter((t) => !t.archived_at && t.status === 'open').sort((a, b) => String(a.due || '9').localeCompare(String(b.due || '9')));
       const done = list.filter((t) => t.status === 'done').sort((a, b) => String(b.doneAt).localeCompare(String(a.doneAt)));
       const shown = state.taskTab === 'done' ? done : open;
       return `
@@ -6700,7 +6707,7 @@
   const uwHas = (perm) => !!state.unitAcc && (uwMe().is_head || (uwMe().perms || []).includes(perm) || (state.unitAcc.perms || []).includes(perm));
   const uwLead = () => uwHead() || uwHas('team');
   const uwKindIs = (k) => (uwMyUnit()?.kind || null) === k;
-  const uwCan = (k, perm) => uwKindIs(k) && uwHas(perm);
+  const uwCan = (k, perm) => uwAdmin() || (uwKindIs(k) && uwHas(perm));
   const uwSponsorManager = () => uwAdmin() || uwCan('sponsor', 'sponsors');
   const uwPerson = (id) => { for (const u of uwUnits()) { const m = (u.members || []).find((x) => x.id === id); if (m) return { ...m, unit: u }; } return null; };
   const uwList = (key) => (Array.isArray(UWD()[key]) ? UWD()[key] : []);
@@ -6720,15 +6727,16 @@
   const loadUw = async () => {
     if (state.uw.loading) return;
     state.uw.loading = true; state.uw.error = '';
-    try { state.uw.data = await api.workspace(); }
+    try { await api.uw('due_refresh',{}); state.uw.data = await api.workspace(); window.UniPaktRecords?.invalidate(); window.UniPaktWorkflows?.invalidate(); }
     catch (error) { state.uw.error = error.message || 'Birim verileri yüklenemedi.'; }
     state.uw.loading = false;
+    if(state.uw.data)window.UniPaktFiles?.openPending();
     if (state.user && !busy()) render();
   };
   // Yazma: sunucuya gönder, ardından çalışma alanını yeniden oku.
   const uwDo = async (action, data = {}) => {
     const result = await api.uw(action, data);
-    try { state.uw.data = await api.workspace(); } catch (_) { /* bir sonraki açılışta yenilenir */ }
+    try { await api.uw('due_refresh',{}); state.uw.data = await api.workspace(); window.UniPaktRecords?.invalidate(); window.UniPaktWorkflows?.invalidate(); } catch (_) { /* bir sonraki açılışta yenilenir */ }
     return result;
   };
   // Form gönderimi: hata metni döner (openForm gösterir), başarıda bildirim çıkar.
@@ -6743,7 +6751,7 @@
     const u = uwUnit(unitId);
     return `${none ? `<option value="">${esc(none)}</option>` : ''}${(u?.members || []).map((m) => `<option value="${esc(m.id)}" ${m.id === selected ? 'selected' : ''}>${esc(m.name)}${m.is_head ? ' (Başkan)' : ''}</option>`).join('')}`;
   };
-  const uwUnitOptions = (selected = '', { all = '' } = {}) => `${all ? `<option value="">${esc(all)}</option>` : ''}${uwUnits().map((u) => `<option value="${esc(u.id)}" ${u.id === selected ? 'selected' : ''}>${esc(u.name)}</option>`).join('')}`;
+  const uwUnitOptions = (selected = '', { all = '' } = {}) => `${all ? `<option value="">${esc(all)}</option>` : ''}${uwUnits().filter((u) => u.kind !== 'board').map((u) => `<option value="${esc(u.id)}" ${u.id === selected ? 'selected' : ''}>${esc(u.name)}</option>`).join('')}`;
 
   /* ---------------- Genel Bakış (birim hesabı) ---------------- */
   // Birim sayfaları kendi sayaçlarını buraya ekler: () => [{ label, n, go, hot }]
@@ -6756,6 +6764,8 @@
     const anns = uwList('announcements');
     const unreadAnn = anns.filter((a) => !a.read_at);
     const extra = UW_HOME_STATS.flatMap((f) => f() || []);
+    const workflowStats=UWD().work_stats||{};
+    for(const [key,label] of [['active','Açık birim kaydı'],['overdue','Geciken kayıt'],['upcoming','Bu hafta yaklaşan'],['unassigned','Sorumlu atanmamış'],['approval','Kayıt onayı bekleyen'],['waiting','Bilgi bekleyen']])extra.push({label,n:workflowStats[key]||0,go:'b-plan',hot:key==='overdue'&&workflowStats[key]>0});
     const stats = [
       { label: 'Okunmamış bildirim', n: uwUnread(), go: 'b-bildirimler', hot: uwUnread() > 0 },
       { label: 'Açık görevim', n: tasks.length, go: 'b-gorevler', hot: tasks.some((t) => t.due_date && t.due_date <= today()) },
@@ -6803,8 +6813,8 @@
   };
 
   /* ---------------- Görevler ---------------- */
-  const uwTaskCanReview = (t) => t.review_status === 'pending' && (t.by_admin ? uwAdmin() : (!!state.unitAcc && t.unit_id === uwMe().unit_id && uwLead()));
-  const uwTaskCanComplete = (t) => t.status === 'open' && !!state.unitAcc && t.unit_id === uwMe().unit_id && (t.assignee === uwMe().id || (!t.assignee && uwLead()));
+  const uwTaskCanReview = (t) => t.review_status === 'pending' && (uwAdmin() || (!t.by_admin && !!state.unitAcc && t.unit_id === uwMe().unit_id && uwLead()));
+  const uwTaskCanComplete = (t) => t.status === 'open' && (uwAdmin() || (!!state.unitAcc && t.unit_id === uwMe().unit_id && (t.assignee === uwMe().id || uwLead())));
   const uwTaskCanDelete = (t) => uwAdmin() || (!t.by_admin && !!state.unitAcc && t.unit_id === uwMe().unit_id && uwLead());
   const uwTaskCard = (t) => {
     const late = t.status === 'open' && t.due_date && t.due_date < today();
@@ -6813,13 +6823,18 @@
       <div class="meta top"><span class="tag ${st[0]}">${st[1]}</span><span>${uwAdmin() ? `${esc(uwUnit(t.unit_id)?.name || 'Birim')} · ` : ''}${t.assignee ? esc(t.assignee_name || 'Kişi') : 'Birime'}${t.due_date ? ` · Son tarih ${uwDate(t.due_date)}` : ''}</span></div>
       <h3>${esc(t.title)}</h3>
       ${t.description ? `<p class="body">${uwText(t.description)}</p>` : ''}
+      <div class="meta"><span>${esc(UW_PRIORITY[t.priority || 'normal'])} öncelik · ${t.status === 'done' ? 'Tamamlandı' : esc(UW_PROGRESS[t.progress || 'not_started'])}</span></div>
+      ${uwLink(t.attachment_url, 'Görev eki')}
+      ${uwTaskHistory(t)}
       <div class="meta"><span>Atayan: ${t.by_admin ? 'Merkez Yönetim' : esc(t.created_by_name || '—')} · ${uwWhen(t.created_at)}</span></div>
       ${t.review_note ? `<div class="quote"><small>${t.review_status === 'rejected' ? 'Geri gönderme notu' : 'İnceleme notu'}</small>${uwText(t.review_note)}</div>` : ''}
       ${t.status === 'done' ? `<div class="quote"><small>Tamamlayan: ${esc(t.done_by_name || '—')} · ${uwWhen(t.done_at)}</small>${uwText(t.proof_text || '')}${t.proof_link ? `<div>${uwLink(t.proof_link)}</div>` : ''}</div>` : ''}
       <div class="actions">
-        ${uwTaskCanComplete(t) ? `<button class="btn small" data-act="uw-task-complete" data-id="${esc(t.id)}">Tamamladım</button>` : ''}
-        ${uwTaskCanReview(t) ? `<button class="btn small" data-act="uw-task-approve" data-id="${esc(t.id)}">Onayla</button><button class="btn ghost small" data-act="uw-task-reject" data-id="${esc(t.id)}">Geri gönder</button>` : ''}
-        ${uwTaskCanDelete(t) ? `<button class="btn ghost small" data-act="uw-task-delete" data-id="${esc(t.id)}">Sil</button>` : ''}
+        <button class="btn ghost small" data-act="uw-task-comment" data-id="${esc(t.id)}">Yorum yaz</button>
+        ${!t.archived_at&&(uwAdmin()||uwHead())?`<button class="btn ghost small" data-act="uw-task-reassign" data-id="${esc(t.id)}">Yeniden ata</button>`:''}${!t.archived_at&&uwTaskCanEdit(t) ? `<button class="btn ghost small" data-act="uw-task-edit" data-id="${esc(t.id)}">Güncelle</button>` : ''}
+        ${!t.archived_at&&uwTaskCanComplete(t) ? `<button class="btn small" data-act="uw-task-complete" data-id="${esc(t.id)}">Tamamladım</button>` : ''}
+        ${!t.archived_at&&uwTaskCanReview(t) ? `<button class="btn small" data-act="uw-task-approve" data-id="${esc(t.id)}">Onayla</button><button class="btn ghost small" data-act="uw-task-reject" data-id="${esc(t.id)}">Geri gönder</button>` : ''}
+        ${uwAdmin()||uwHead() ? `<button class="btn ghost small" data-act="uw-task-archive" data-id="${esc(t.id)}">${t.archived_at?'Arşivden çıkar':'Arşivle'}</button>` : ''}
       </div>
     </article>`;
   };
@@ -6828,18 +6843,29 @@
     const sub = uwAdmin() ? 'Birimlere ya da birimdeki bir kişiye görev ata; tamamlananları incele.' : (uwLead() ? 'Sana atanan görevler ve ekibine atadıkların. Tamamlanan görevi sen incelersin.' : 'Sana atanan görevler. Bitirince kısa bir not ya da bağlantı bırak.');
     const wait = uwLoading(title, sub); if (wait) return wait;
     let list = uwList('tasks');
+    if(state.focusTask)list=list.filter(t=>t.id===state.focusTask);
     const unitFilter = state.uwFilter['b-gorevler'] || '';
     if (uwAdmin() && unitFilter) list = list.filter((t) => t.unit_id === unitFilter);
-    const open = list.filter((t) => t.status === 'open').sort((a, b) => String(a.due_date || '9').localeCompare(String(b.due_date || '9')));
-    const pending = list.filter((t) => t.review_status === 'pending');
-    const done = list.filter((t) => t.review_status === 'approved');
+    const search = (state.uwFilter['tasks-q'] || '').toLocaleLowerCase('tr-TR');
+    const priority = state.uwFilter['tasks-priority'] || '';
+    list = list.filter((t) => (!search || [t.title,t.description,t.assignee_name].join(' ').toLocaleLowerCase('tr-TR').includes(search)) && (!priority || (t.priority || 'normal') === priority));
+    const open = list.filter((t) => !t.archived_at && t.status === 'open').sort((a, b) => String(a.due_date || '9').localeCompare(String(b.due_date || '9')));
+    const pending = list.filter((t) => !t.archived_at && t.review_status === 'pending');
+    const done = list.filter((t) => !t.archived_at && t.review_status === 'approved');
     const tab = uwTabOf('b-gorevler', 'open');
-    const shown = tab === 'review' ? pending : tab === 'done' ? done : open;
-    return `${head(title, sub, uwAdmin() || uwLead() ? '<button class="btn" data-act="uw-task-new">Görev ata</button>' : '')}
+    const matching = tab === 'archive' ? list.filter(t=>t.archived_at) : tab === 'review' ? pending : tab === 'done' ? done : open;
+    const pageKey = [tab,unitFilter,search,priority].join('|');
+    if (state.taskPageKey !== pageKey) { state.taskPageKey=pageKey; state.taskPage=0; }
+    const pages = Math.max(1,Math.ceil(matching.length/20));
+    state.taskPage = Math.min(state.taskPage || 0,pages-1);
+    const shown = matching.slice(state.taskPage*20,(state.taskPage+1)*20);
+    return `${head(title, sub, uwAdmin() || uwLead() ? '<button class="btn" data-act="uw-task-new">Görev ata</button>' : '')}${state.focusTask?'<button class="btn ghost small" data-act="uw-task-unfocus">Tüm görevleri göster</button>':''}
       <div class="toolbar">
-        ${[['open', 'Açık', open.length], ['review', 'İncelemede', pending.length], ['done', 'Onaylanan', done.length]].map(([id, label, n]) => `<button class="chip ${tab === id ? 'active' : ''}" data-act="uw-tab" data-id="b-gorevler" data-sub="${id}">${label} (${n})</button>`).join('')}
+        ${[['open', 'Açık', open.length], ['review', 'İncelemede', pending.length], ['done', 'Onaylanan', done.length],['archive','Arşiv',list.filter(t=>t.archived_at).length]].map(([id, label, n]) => `<button class="chip ${tab === id ? 'active' : ''}" data-act="uw-tab" data-id="b-gorevler" data-sub="${id}">${label} (${n})</button>`).join('')}
         ${uwAdmin() ? `<select data-uw-filter="b-gorevler" aria-label="Birime göre süz">${uwUnitOptions(unitFilter, { all: 'Tüm birimler' })}</select>` : ''}
       </div>
+      <div class="toolbar"><input type="search" data-uw-search="tasks-q" aria-label="Görev ara" placeholder="Başlık, açıklama veya sorumlu ara" value="${esc(state.uwFilter['tasks-q'] || '')}"><select data-uw-filter="tasks-priority" aria-label="Öncelik filtresi"><option value="">Tüm öncelikler</option>${Object.entries(UW_PRIORITY).map(([k,l]) => `<option value="${k}" ${priority===k?'selected':''}>${esc(l)}</option>`).join('')}</select></div>
+      ${pages>1 ? `<div class="toolbar"><button class="btn ghost small" data-act="uw-task-page" data-id="-1" ${!state.taskPage?'disabled':''}>Önceki</button><span>Sayfa ${state.taskPage+1} / ${pages} · ${matching.length} görev</span><button class="btn ghost small" data-act="uw-task-page" data-id="1" ${state.taskPage===pages-1?'disabled':''}>Sonraki</button></div>`:''}
       <div class="stack">${shown.length ? shown.map(uwTaskCard).join('') : empty(tab === 'review' ? 'İnceleme bekleyen görev yok.' : tab === 'done' ? 'Onaylanan görev yok.' : 'Açık görev yok.')}</div>`;
   };
 
@@ -6850,11 +6876,11 @@
     const wait = uwLoading(title, sub); if (wait) return wait;
     const list = uwList('announcements');
     const aud = (a) => (a.audience?.length ? a.audience.map((id) => uwUnit(id)?.name).filter(Boolean).join(', ') : 'Tüm birimler');
-    return `${head(title, sub, uwAdmin() ? '<button class="btn" data-act="uw-ann-new">Yeni birim duyurusu</button>' : '')}
+    return `${head(title, sub, uwAdmin() || uwHead() ? '<button class="btn" data-act="uw-ann-new">Yeni birim duyurusu</button>' : '')}
       ${list.length ? `<div class="stack">${list.map((a) => `
         <article class="card item ${!uwAdmin() && !a.read_at ? 'unread' : ''}">
           <div class="meta top"><span class="tag ${!uwAdmin() && !a.read_at ? 'wait' : 'ok'}">${uwAdmin() ? esc(aud(a)) : a.read_at ? 'Okundu' : 'Yeni'}</span><span>${uwWhen(a.created_at)} · ${esc(a.created_by_name || 'Merkez Yönetim')}</span></div>
-          <h3>${esc(a.title)}</h3><p class="body">${uwText(a.body)}</p>
+          <h3>${esc(a.title)}</h3><p class="body">${uwText(a.body)}</p>${a.attachment_url?uwLink(a.attachment_url,'Ek'):''}
           <div class="actions">
             ${uwAdmin() ? `<span class="hint">${Number(a.reads || 0)} kişi okudu</span><button class="btn ghost small" data-act="uw-ann-delete" data-id="${esc(a.id)}">Sil</button>` : a.read_at ? '' : `<button class="btn small" data-act="uw-ann-read" data-id="${esc(a.id)}">Okudum</button>`}
           </div>
@@ -6863,15 +6889,15 @@
 
   /* ---------------- Belgeler ---------------- */
   const uwDocsView = () => {
-    const sub = 'Protokoller, revizyon belgeleri ve kurumsal Drive bağlantıları. Merkez Yönetim ve birim başkanları ekler, herkes görür.';
+    const sub = 'Protokoller, revizyon belgeleri ve kurumsal Drive bağlantıları. Merkez Yönetim ve birim başkanları ekler; birime özel belgeleri yalnız ilgili birim ve Merkez görür.';
     const wait = uwLoading('Belgeler', sub); if (wait) return wait;
     const docs = uwList('docs');
     const groups = [[null, 'Tüm UniPakt'], ...uwUnits().map((u) => [u.id, u.name])].map(([id, name]) => [id, name, docs.filter((d) => (d.unit_id || null) === id)]).filter(([, , l]) => l.length);
     const canDel = (d) => uwAdmin() || (uwHead() && d.unit_id === uwMe().unit_id);
     return `${head('Belgeler', sub, uwAdmin() || uwHead() ? '<button class="btn" data-act="uw-doc-new">Belge ekle</button>' : '')}
       ${groups.length ? groups.map(([, name, l]) => `<div class="section-head"><h2>${esc(name)}</h2></div><div class="card">${l.map((d) => `
-        <div class="mini-row"><div><strong>${esc(d.title)}</strong><small>${d.note ? `${esc(d.note)} · ` : ''}${esc(d.created_by_name || '')} · ${uwWhen(d.created_at)}</small></div>
-          <div class="row">${uwLink(d.url, 'Aç')}${canDel(d) ? `<button class="btn ghost small" data-act="uw-doc-delete" data-id="${esc(d.id)}">Sil</button>` : ''}</div></div>`).join('')}</div>`).join('') : empty('Henüz belge eklenmedi.')}`;
+        <div class="mini-row"><div><strong>${esc(d.title)}</strong><small>${d.related_kind?`İlişki: ${esc({event:'Etkinlik',task:'Görev',campaign:'Kampanya',work:'Birim kaydı'}[d.related_kind])} · `:''}${d.note ? `${esc(d.note)} · ` : ''}${esc(d.created_by_name || '')} · ${uwWhen(d.created_at)}</small></div>
+          <div class="row">${d.url?uwLink(d.url,'Aç'):'<span class="hint">Dosya eklemek için düzenle</span>'}${canDel(d) ? `<button class="btn ghost small" data-act="uw-doc-edit" data-id="${esc(d.id)}">Düzenle</button><button class="btn ghost small" data-act="uw-doc-delete" data-id="${esc(d.id)}">Sil</button>` : ''}</div></div>`).join('')}</div>`).join('') : empty('Henüz belge eklenmedi.')}`;
   };
 
   /* ---------------- İşlem Kaydı (birim başkanı) ---------------- */
@@ -6902,36 +6928,46 @@
   // [id, etiket (fonksiyon), sayaç, grup, izin, çizim]
   const UW_VIEWS = {};
   const uwView = (id, def) => { UW_VIEWS[id] = def; };
-  uwView('b-genel', { label: () => 'Genel Bakış', group: 'unipakt', order: 0, allow: () => !!state.unitAcc, render: uwHomeView });
-  uwView('b-bildirimler', { label: () => (isAdmin() ? 'Birim Bildirimleri' : 'Bildirimler'), group: () => (isAdmin() ? 'birim' : 'unipakt'), order: 1, count: uwUnread, allow: () => isAdmin() || !!state.unitAcc, render: uwNotifView });
-  uwView('b-gorevler', { label: () => (isAdmin() ? 'Birim Görevleri' : 'Görevler'), group: () => (isAdmin() ? 'birim' : 'unipakt'), order: 2,
+  uwView('b-genel', { label: () => 'Genel Bakış', group: 'unipakt', order: 0, allow: () => isAdmin() || !!state.unitAcc, render: uwHomeView });
+  uwView('b-bildirimler', { label: () => (isAdmin() ? 'Birim Bildirimleri' : 'Bildirimler'), group: 'birim', order: 1, count: uwUnread, allow: () => isAdmin() || !!state.unitAcc, render: uwNotifView });
+  uwView('b-gorevler', { label: () => (isAdmin() ? 'Birim Görevleri' : 'Görevler'), group: 'birim', order: 2,
     count: () => (isAdmin() ? uwList('tasks').filter((t) => t.by_admin && t.review_status === 'pending').length : uwList('tasks').filter((t) => (t.status === 'open' && (t.assignee === uwMe().id || (!t.assignee && uwLead()))) || (uwLead() && !t.by_admin && t.review_status === 'pending')).length),
     allow: () => isAdmin() || !!state.unitAcc, render: uwTasksView });
-  uwView('b-duyurular', { label: () => (isAdmin() ? 'Birim Duyuruları' : 'Duyurular'), group: () => (isAdmin() ? 'birim' : 'unipakt'), order: 3, count: () => (isAdmin() ? 0 : uwList('announcements').filter((a) => !a.read_at).length), allow: () => isAdmin() || !!state.unitAcc, render: uwAnnView });
-  uwView('b-belgeler', { label: () => 'Belgeler', group: () => (isAdmin() ? 'birim' : 'unipakt'), order: 5, allow: () => isAdmin() || !!state.unitAcc, render: uwDocsView });
-  uwView('b-islem', { label: () => 'İşlem Kaydı', group: 'unipakt', order: 7, allow: () => !!state.unitAcc && uwHead(), render: uwActivityView });
+  uwView('b-duyurular', { label: () => (isAdmin() ? 'Birim Duyuruları' : 'Duyurular'), group: 'birim', order: 3, count: () => (isAdmin() ? 0 : uwList('announcements').filter((a) => !a.read_at).length), allow: () => isAdmin() || !!state.unitAcc, render: uwAnnView });
+  uwView('b-belgeler', { label: () => 'Belgeler', group: 'birim', order: 5, allow: () => isAdmin() || !!state.unitAcc, render: uwDocsView });
+  uwView('b-islem', { label: () => 'İşlem Kaydı', group: 'birim', order: 7, allow: () => uwAdmin() || !!state.unitAcc && uwHead(), render: uwActivityView });
   const uwNavItems = (group) => Object.entries(UW_VIEWS)
     .filter(([, d]) => (typeof d.group === 'function' ? d.group() : d.group) === group)
     .sort((a, b) => (a[1].order ?? 50) - (b[1].order ?? 50))
     .map(([id, d]) => [id, d.label(), d.count ? d.count() : 0, group]);
   Object.entries(UW_VIEWS).forEach(([id, d]) => { views[id] = () => d.render(); });
 
+  uwView('b-erisimler', { label: () => 'Birim Sayfaları', group: 'birim', order: -2,
+    allow: () => uwAdmin(), render: () => {
+      const wait = uwLoading('Birim Sayfaları', 'Birimlerin etkin rol ve sayfa erişimleri.'); if (wait) return wait;
+      return head('Birim Sayfaları', 'Başkan kendi biriminin tüm işlevlerine erişir. YK onayı aktif birim başkanlarına aittir.') +
+        uwUnits().filter((u) => u.kind !== 'board').map((u) => `<section class="card item"><h3>${esc(u.name)}</h3>
+          <p class="body">${esc((WORKSPACE_PAGES[u.kind] || []).map((x) => x[1]).join(' · ') || 'Ortak birim sayfaları')}</p>
+          ${(u.members || []).map((m) => `<div class="mini-row"><div><strong>${esc(m.name)}${m.is_head ? ' · Başkan' : ''}</strong><small>${esc((m.perms || []).map(unitPermLabel).join(', ') || 'Ek birim yetkisi yok')}</small></div></div>`).join('') || '<p class="hint">Aktif ekip üyesi yok.</p>'}</section>`).join('');
+    } });
+  views['b-erisimler'] = () => UW_VIEWS['b-erisimler'].render();
+
   /* ---------------- İşlemler ---------------- */
   const uwActions = {
     'uw-reload'() { state.uw.data = null; return loadUw(); },
     'uw-tab'(view, tab) { state.uwTab[view] = tab; render(); },
-    'uw-notif-open'(id, view) { if (!UWD().notifications?.find((n) => n.id === id)?.read_at) uwDo('notif_read', { id }).catch(() => {}); go(view); },
+    'uw-notif-open'(id, view) { const n=UWD().notifications?.find(x=>x.id===id);if(!n)return;if(!n.read_at)uwDo('notif_read',{id}).catch(()=>{});if(view==='b-gorevler'&&n.record_id){state.focusTask=n.record_id;const task=uwList('tasks').find(t=>t.id===n.record_id);if(task)state.uwTab['b-gorevler']=task.archived_at?'archive':task.review_status==='pending'?'review':task.review_status==='approved'?'done':'open';}go(view);if(n.record_id&&view.startsWith('b-work-'))window.UniPaktWorkflows.openRecord(view.slice(7),n.record_id).catch(e=>toast(e.message));else if(n.record_id&&view.startsWith('b-record-'))window.UniPaktRecords.openRecord(view.slice(9),n.record_id).catch(e=>toast(e.message)); },
     'uw-notif-read'(id) { return uwRun('notif_read', { id }); },
     'uw-notif-readall'() { return uwRun('notif_read', {}, 'Tüm bildirimler okundu.'); },
     'uw-notif-hide'(id) { return uwRun('notif_hide', { id }); },
     'uw-task-new'() {
       const admin = uwAdmin();
       const pick = admin
-        ? field('Kime', `<select name="target" required>${uwUnits().map((u) => `<optgroup label="${esc(u.name)}"><option value="${esc(u.id)}|">${esc(u.name)} (birime)</option>${(u.members || []).map((m) => `<option value="${esc(u.id)}|${esc(m.id)}">${esc(m.name)}${m.is_head ? ' (Başkan)' : ''}</option>`).join('')}</optgroup>`).join('')}</select>`)
+        ? field('Kime', `<select name="target" required>${uwUnits().filter((u) => u.kind !== 'board').map((u) => `<optgroup label="${esc(u.name)}"><option value="${esc(u.id)}|">${esc(u.name)} (birime)</option>${(u.members || []).map((m) => `<option value="${esc(u.id)}|${esc(m.id)}">${esc(m.name)}${m.is_head ? ' (Başkan)' : ''}</option>`).join('')}</optgroup>`).join('')}</select>`)
         : field('Kime', `<select name="target" required>${(uwMyUnit()?.members || []).filter((m) => m.id !== uwMe().id).map((m) => `<option value="|${esc(m.id)}">${esc(m.name)}</option>`).join('') || '<option value="">Ekibinde başka kişi yok</option>'}</select>`);
       openForm({ title: 'Görev ata', lead: admin ? 'Birime atarsan başkan ve ekip yönetimi yetkisi olanlar görür.' : 'Görev, seçtiğin kişinin Görevler sayfasına düşer. Tamamlandığında sen incelersin.', submit: 'Ata',
-        fields: `${pick}${field('Başlık', '<input name="title" required maxlength="160">')}${field('Açıklama', '<textarea name="description" rows="4" maxlength="2000"></textarea>')}${field('Son tarih', '<input type="date" name="due_date">')}`,
-        onSubmit: uwSubmit('task_create', (fd) => { const [unit, who2] = val(fd, 'target').split('|'); return { unit_id: unit || null, assignee: who2 || null, title: val(fd, 'title'), description: val(fd, 'description'), due_date: val(fd, 'due_date') }; }, 'Görev atandı.') });
+        fields: `${pick}${field('Başlık', '<input name="title" required minlength="2" maxlength="160">')}${field('Açıklama', '<textarea name="description" rows="4" maxlength="2000"></textarea>')}${field('Son tarih', '<input type="date" name="due_date">')}${uwTaskExtraFields()}`,
+        onSubmit: uwSubmit('task_create', (fd) => { const [unit, who2] = val(fd, 'target').split('|'); return { unit_id: unit || null, assignee: who2 || null, title: val(fd, 'title'), description: val(fd, 'description'), due_date: val(fd, 'due_date'), priority: val(fd, 'priority'), attachment_url: val(fd, 'attachment_url') }; }, 'Görev atandı.') });
     },
     'uw-task-complete'(id) {
       openForm({ title: 'Görevi tamamla', lead: 'Ne yaptığını kısaca yaz; varsa dosyanın ya da paylaşımın bağlantısını ekle.', submit: 'Gönder',
@@ -6945,19 +6981,20 @@
     },
     'uw-task-delete'(id) { if (!confirm('Bu görev silinsin mi?')) return; return uwRun('task_delete', { id }, 'Görev silindi.'); },
     'uw-ann-new'() {
-      openForm({ title: 'Birimlere duyuru', lead: 'Hiç birim seçmezsen tüm birimler görür. Kulüpler görmez.', submit: 'Yayınla',
-        fields: `${field('Başlık', '<input name="title" required maxlength="160">')}${field('Metin', '<textarea name="body" rows="6" required maxlength="5000"></textarea>')}
+      openForm({ title: 'Birimlere duyuru', lead: uwAdmin()?'Hiç birim seçmezsen tüm birimler görür.':'Duyuruyu kendi birimin görür.', submit: 'Yayınla',
+        fields: `${field('Başlık', '<input name="title" required maxlength="160">')}${field('Metin', '<textarea name="body" rows="6" required maxlength="5000"></textarea>')}${field('Ek bağlantısı','<input name="attachment_url" type="url">')}
           <fieldset class="field"><span>Kimler görsün</span><div class="check-grid">${uwUnits().map((u) => `<label class="check"><input type="checkbox" name="audience" value="${esc(u.id)}"> ${esc(u.name)}</label>`).join('')}</div></fieldset>`,
-        onSubmit: uwSubmit('ann_create', (fd) => ({ title: val(fd, 'title'), body: val(fd, 'body'), audience: fd.getAll('audience') }), 'Duyuru yayınlandı.') });
+        onSubmit: uwSubmit('ann_create', (fd) => ({ title: val(fd, 'title'), body: val(fd, 'body'), audience: fd.getAll('audience'), attachment_url:val(fd,'attachment_url') }), 'Duyuru yayınlandı.') });
     },
     'uw-ann-delete'(id) { if (!confirm('Duyuru silinsin mi?')) return; return uwRun('ann_delete', { id }, 'Duyuru silindi.'); },
     'uw-ann-read'(id) { return uwRun('ann_read', { id }); },
     'uw-doc-new'() {
-      openForm({ title: 'Belge ekle', lead: 'Belgeyi Drive’a yükleyip bağlantısını buraya ekle. Bağlantının erişim ayarını Drive’da sen belirlersin.', submit: 'Ekle',
-        fields: `${field('Belge adı', '<input name="title" required maxlength="160">')}${field('Bağlantı', '<input name="url" type="url" required placeholder="https://drive.google.com/…">')}${field('Kısa not', '<input name="note" maxlength="500">')}
-          ${uwAdmin() ? field('Nereye', `<select name="unit_id">${uwUnitOptions('', { all: 'Tüm UniPakt' })}</select>`) : ''}`,
-        onSubmit: uwSubmit('doc_add', (fd) => ({ title: val(fd, 'title'), url: val(fd, 'url'), note: val(fd, 'note'), unit_id: val(fd, 'unit_id') || null }), 'Belge eklendi.') });
+      openForm({ title: 'Belge ekle', lead: 'Bağlantı ekleyebilir veya boş bırakıp kaydı oluşturduktan sonra Düzenle ile özel dosya yükleyebilirsin. Dış bağlantıların erişimi ilgili hizmetten yönetilir.', submit: 'Ekle',
+        fields: `${field('Belge adı', '<input name="title" required maxlength="160">')}${field('Bağlantı (isteğe bağlı)', '<input name="url" type="url" placeholder="https://drive.google.com/…">')}${field('Kısa not', '<input name="note" maxlength="500">')}
+          ${docRelationFields()}${uwAdmin() ? field('Nereye', `<select name="unit_id">${uwUnitOptions('', { all: 'Tüm UniPakt' })}</select>`) : ''}`,
+        onSubmit: uwSubmit('doc_add', (fd) => ({ title: val(fd, 'title'), url: val(fd, 'url'), note: val(fd, 'note'), unit_id: val(fd, 'unit_id') || null,related_kind:val(fd,'related_kind')||null,related_id:val(fd,'related_id')||null }), 'Belge eklendi.') });
     },
+    'uw-doc-edit'(id) { const d=uwList('docs').find(x=>x.id===id);if(!d)return;openForm({title:'Belgeyi düzenle',submit:'Kaydet',fields:unitUploadField('doc',id,'url')+docRelationFields(d)+field('Başlık',`<input name="title" required maxlength="160" value="${esc(d.title)}">`)+field('Bağlantı',`<input name="url" type="url" required value="${esc(d.url)}">`)+field('Not',`<textarea name="note" maxlength="500">${esc(d.note||'')}</textarea>`),onSubmit:uwSubmit('doc_update',fd=>({id,title:val(fd,'title'),url:val(fd,'url'),note:val(fd,'note'),related_kind:val(fd,'related_kind')||null,related_id:val(fd,'related_id')||null}),'Belge güncellendi.')}); },
     'uw-doc-delete'(id) { if (!confirm('Belge listeden kaldırılsın mı? (Drive’daki dosya silinmez.)')) return; return uwRun('doc_delete', { id }, 'Belge kaldırıldı.'); },
   };
   Object.assign(actions, uwActions);
@@ -6985,7 +7022,7 @@
     const m = u?.members.find((x) => x.id === c.id);
     demoUw().activity.unshift({ id: uid(), unit_id: c.unit, actor_name: demoName(c.id), actor_title: c.admin ? 'UniPakt yetkilisi' : `${u?.name} · ${m?.is_head ? 'Birim Başkanı' : (u?.roles.find((r) => r.id === m?.role_id)?.name || 'Üye')}`, action, target, created_at: stamp() });
   };
-  const demoNotify = (user, unit, perm, admin, type, title, body, view) => { demoUw().notifications.unshift({ id: uid(), recipient_user: user, recipient_unit: unit, recipient_perm: perm, recipient_admin: !!admin, type, title, body: body || '', view, created_at: stamp() }); };
+  const demoNotify = (user, unit, perm, admin, type, title, body, view, record_id=null) => { demoUw().notifications.unshift({ id: uid(), recipient_user: user, recipient_unit: unit, recipient_perm: perm, recipient_admin: !!admin, type, title, body: body || '', view, record_id, created_at: stamp() }); };
   const demoVisible = (n, c) => (n.recipient_admin && c.admin) || (n.recipient_user && n.recipient_user === c.id) || (n.recipient_unit && n.recipient_unit === c.unit && (!n.recipient_perm || c.head || c.has(n.recipient_perm)));
   const demoText = (p, k, max, req, label = 'Alan') => { const v = String(p?.[k] ?? '').trim(); if (!v && req) throw new Error(`${label} boş olamaz.`); if (v.length > max) throw new Error(`${label} en fazla ${max} karakter olabilir.`); return v || null; };
   const demoLink = (p, k) => { const v = String(p?.[k] ?? '').trim(); if (!v) return null; if (!/^https?:\/\/[^\s"'<>]+$/i.test(v)) throw new Error('Bağlantı http:// ya da https:// ile başlayan bir web adresi olmalı.'); return v; };
@@ -6997,7 +7034,11 @@
     .map((t) => ({ ...t, assignee_name: demoName(t.assignee), created_by_name: demoName(t.created_by), done_by_name: demoName(t.done_by) })));
   DEMO_UWR.announcements = (c) => demoUw().anns.filter((a) => c.admin || !a.audience.length || a.audience.includes(c.unit))
     .map((a) => ({ ...a, created_by_name: demoName(a.created_by), read_at: demoUw().reads[`${a.id}:${c.id}`] || null, reads: c.admin ? Object.keys(demoUw().reads).filter((k) => k.startsWith(`${a.id}:`)).length : null }));
-  DEMO_UWR.docs = () => demoUw().docs.map((d) => ({ ...d, created_by_name: demoName(d.created_by) }));
+  DEMO_UWR.docs = (c) => demoUw().docs.filter(d=>c.admin||!d.unit_id||d.unit_id===c.unit).map((d) => ({ ...d, created_by_name: demoName(d.created_by) }));
+  DEMO_UWA.task_archive=(p,c)=>{const t=demoUw().tasks.find(x=>x.id===p.id);if(!t||!(c.admin||c.head&&t.unit_id===c.unit))throw new Error('Arşivleme yetkin yok.');t.archived_at=p.restore?null:stamp();};
+  DEMO_UWA.task_reassign=(p,c)=>{const t=demoUw().tasks.find(x=>x.id===p.id);if(!t||!(c.admin||c.head&&t.unit_id===c.unit)||!db.units.find(u=>u.id===t.unit_id)?.members.some(m=>m.id===p.assignee&&m.status==='active'))throw new Error('Atama yetkin yok.');t.assignee=p.assignee;};
+  DEMO_UWA.doc_search=(p,c)=>{if(!(c.admin||c.head))throw new Error('Belge yetkin yok.');const rows=p.kind==='event'?db.events:p.kind==='task'?DEMO_UWR.tasks(c):p.kind==='campaign'?(DEMO_UWR.campaigns(c)||[]):(demoUw().workItems||[]).filter(w=>c.admin||w.unit_id===c.unit);return rows.filter(x=>(x.title||'').toLocaleLowerCase('tr').includes((p.q||'').toLocaleLowerCase('tr'))).slice(0,30).map(x=>({id:x.id,title:x.title}));};
+  DEMO_UWA.doc_update=(p,c)=>{const d=demoUw().docs.find(x=>x.id===p.id);if(!d||!(c.admin||c.head&&d.unit_id===c.unit))throw new Error('Belge düzenleme yetkin yok.');Object.assign(d,{title:demoText(p,'title',160,true),url:demoLink(p,'url'),note:demoText(p,'note',500),related_kind:p.related_kind,related_id:p.related_id});};
   DEMO_UWR.activity = (c) => (c.head ? demoUw().activity.filter((a) => a.unit_id === c.unit) : null);
   DEMO_UWA.notif_read = (p, c) => { DEMO_UWR.notifications(c).filter((n) => !p.id || n.id === p.id).forEach((n) => { const k = `${n.id}:${c.id}`; demoUw().states[k] = { ...(demoUw().states[k] || {}), read_at: demoUw().states[k]?.read_at || stamp() }; }); };
   DEMO_UWA.notif_hide = (p, c) => { const k = `${p.id}:${c.id}`; demoUw().states[k] = { read_at: stamp(), hidden_at: stamp() }; };
@@ -7013,7 +7054,7 @@
   };
   DEMO_UWA.task_complete = (p, c) => {
     const t = demoUw().tasks.find((x) => x.id === p.id);
-    if (!t || t.unit_id !== c.unit || !(t.assignee === c.id || (!t.assignee && (c.head || c.has('team'))))) throw new Error('Görev bulunamadı.');
+    if (!t || !(c.admin || (t.unit_id === c.unit && (t.assignee === c.id || c.head || c.has('team'))))) throw new Error('Görev bulunamadı.');
     if (t.status !== 'open') throw new Error('Bu görev zaten tamamlanmış.');
     const text = demoText(p, 'text', 2000), link = demoLink(p, 'link'); if (!text && !link) throw new Error('Kısa bir not ya da bağlantı bırak.');
     Object.assign(t, { status: 'done', review_status: 'pending', review_note: null, proof_text: text, proof_link: link, done_by: c.id, done_at: stamp() });
@@ -7023,7 +7064,7 @@
   };
   DEMO_UWA.task_review = (p, c) => {
     const t = demoUw().tasks.find((x) => x.id === p.id); if (!t) throw new Error('Görev bulunamadı.');
-    if (!(t.by_admin ? c.admin : t.unit_id === c.unit && (c.head || c.has('team')))) throw new Error('Bu görevi yalnızca atayan taraf inceleyebilir.');
+    if (!(c.admin || (!t.by_admin && t.unit_id === c.unit && (c.head || c.has('team'))))) throw new Error('Bu görevi yalnızca atayan taraf inceleyebilir.');
     if (t.review_status !== 'pending') throw new Error('İnceleme bekleyen görev bulunamadı.');
     const note = demoText(p, 'note', 500); if (p.status === 'rejected' && !note) throw new Error('Geri göndermek için not yaz.');
     if (p.status === 'approved') Object.assign(t, { review_status: 'approved', review_note: note, reviewed_at: stamp() });
@@ -7037,20 +7078,20 @@
     demoUw().tasks = demoUw().tasks.filter((x) => x.id !== t.id); demoLog('Görevi sildi', t.title);
   };
   DEMO_UWA.ann_create = (p, c) => {
-    if (!c.admin) throw new Error('Birim duyurusunu yalnızca Merkez Yönetim yapar.');
+    if (!c.admin&&!c.head) throw new Error('Duyuru yetkin yok.');
     const title = demoText(p, 'title', 160, true, 'Başlık'), body = demoText(p, 'body', 5000, true, 'Duyuru metni');
-    const audience = (p.audience || []).filter((id) => (db.units || []).some((u) => u.id === id));
-    demoUw().anns.unshift({ id: uid(), title, body, audience, created_by: c.id, created_at: stamp() });
+    const audience = c.admin?(p.audience || []).filter((id) => (db.units || []).some((u) => u.id === id)):[c.unit];
+    demoUw().anns.unshift({ id: uid(), title, body, audience, attachment_url:demoLink(p,'attachment_url'), created_by: c.id, created_at: stamp() });
     (db.units || []).filter((u) => !audience.length || audience.includes(u.id)).forEach((u) => demoNotify(null, u.id, null, false, 'announcement', 'Yeni duyuru', title, 'b-duyurular'));
     demoLog('Birimlere duyuru yaptı', title);
   };
   DEMO_UWA.ann_delete = (p, c) => { if (!c.admin) throw new Error('Yetkin yok.'); demoUw().anns = demoUw().anns.filter((a) => a.id !== p.id); };
   DEMO_UWA.ann_read = (p, c) => { demoUw().reads[`${p.id}:${c.id}`] = stamp(); };
   DEMO_UWA.doc_add = (p, c) => {
-    const title = demoText(p, 'title', 160, true, 'Belge adı'); const url = demoLink(p, 'url'); if (!url) throw new Error('Belgenin bağlantısını yaz.');
+    const title = demoText(p, 'title', 160, true, 'Belge adı'); const url = demoLink(p, 'url')||'';
     let unit = p.unit_id || null;
     if (!c.admin) { if (!c.head) throw new Error('Belgeyi Merkez Yönetim ya da birim başkanı ekler.'); unit = c.unit; }
-    demoUw().docs.unshift({ id: uid(), unit_id: unit, title, url, note: demoText(p, 'note', 500), created_by: c.id, created_at: stamp() }); demoLog('Belge ekledi', title);
+    demoUw().docs.unshift({ id: uid(), unit_id: unit, title, url, note: demoText(p, 'note', 500),related_kind:p.related_kind||null,related_id:p.related_id||null, created_by: c.id, created_at: stamp() }); demoLog('Belge ekledi', title);
   };
   DEMO_UWA.doc_delete = (p, c) => {
     const d = demoUw().docs.find((x) => x.id === p.id);
@@ -7092,7 +7133,7 @@
   const FORMATS = [['post', 'Gönderi'], ['carousel', 'Kaydırmalı'], ['story', 'Hikâye'], ['reel', 'Reels'], ['video', 'Video'], ['text', 'Metin']];
   const CAMP_ST = { draft: ['', 'Taslak'], approval: ['wait', 'Onayda'], approved: ['ok', 'Onaylandı'], rejected: ['no', 'Reddedildi'], done: ['ok', 'Tamamlandı'] };
   const stTag = (map, k) => { const [c, l] = map[k] || ['', k]; return `<span class="tag ${c}">${esc(l)}</span>`; };
-  const uwBoard = () => uwCan('board', 'approve');
+  const uwBoard = () => uwHead() && !uwKindIs('board');
   const uwFmtTime = (iso) => (iso ? new Date(iso).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) : '');
   const platLabel = (k) => (PLATFORMS.find(([p]) => p === k) || [k, k])[1];
   const fmtLabel = (k) => (FORMATS.find(([p]) => p === k) || [k, k])[1];
@@ -7119,7 +7160,7 @@
   const uwReqCard = (r) => `<article class="card item">
       <div class="meta top">${stTag(REQ_ST, r.status)}<span>${esc(REQ_KIND[r.kind] || r.kind)} · ${esc(unitName(r.from_unit))} · ${esc(r.created_by_name || '')} · ${uwWhen(r.created_at)}</span></div>
       <h3>${esc(r.title)}</h3>
-      ${uwReqDetail(r)}
+      ${uwReqDetail(r)}${['post','campaign'].includes(r.kind)?`<button class="btn ghost small" data-act="ur-detail" data-id="${esc(r.kind)}" data-sub="${esc(r.ref_id)}">Tüm alanlar ve revizyon geçmişi</button>`:''}
       ${r.needs_budget ? `<div class="quote"><small>Bütçe</small>${uwText(r.budget_note || 'Bütçe gerekiyor')}</div>` : ''}
       ${r.board_at ? `<div class="meta"><span>YK: ${esc(r.board_by_name || '')} · ${uwWhen(r.board_at)}</span>${r.center_at ? `<span>Merkez: ${esc(r.center_by_name || '')} · ${uwWhen(r.center_at)}</span>` : ''}</div>` : ''}
       ${r.note ? `<div class="quote"><small>Not</small>${uwText(r.note)}</div>` : ''}
@@ -7145,7 +7186,7 @@
 
   /* ---------------- Yayın Akışı (Sosyal Medya) ---------------- */
   const uwPostCard = (p) => {
-    const lead = uwCan('social', 'posts'), boss = lead && uwLead();
+    const lead = uwCan('social', 'posts'), boss = uwAdmin() || (lead && uwLead());
     const r = p.request_id ? uwReqOf(p.request_id) : null;
     const src = p.source === 'announcement' ? 'Kulüp duyurusu' : p.source === 'admin' ? 'Merkez Yönetim' : (p.from_unit && uwUnit(p.from_unit)?.kind !== 'social' ? unitName(p.from_unit) : 'Sosyal Medya');
     const acts = !lead ? '' : {
@@ -7194,7 +7235,7 @@
         <div class="stack">${requests.length ? requests.map(uwPostCard).join('') : empty('Bekleyen paylaşım talebi yok.')}</div>
         <div class="section-head"><h2>Onaylanan kulüp duyuruları (${inboxAnn.length})</h2></div>
         <p class="hint">Merkez’in onayladığı kulüp duyuruları. Akışa alırsan Hazırlanıyor’a düşer; “Gerek yok” dersen listeden kalkar.</p>
-        <div class="stack">${inboxAnn.length ? inboxAnn.map((a) => `<article class="card item"><div class="meta top"><span class="tag">Kulüp duyurusu</span><span>${esc(a.club_name || '')} · ${uwWhen(a.created_at)}</span></div><h3>${esc(a.title)}</h3><p class="body">${uwText(a.body)}</p>
+        <div class="stack">${inboxAnn.length ? inboxAnn.map((a) => `<article class="card item"><div class="meta top"><span class="tag">Kulüp duyurusu</span><span>${esc(a.club_name || '')} · ${uwWhen(a.created_at)}</span></div><h3>${esc(a.title)}</h3><p class="body">${uwText(a.body)}</p>${a.attachment_url?uwLink(a.attachment_url,'Ek'):''}
           ${lead ? `<div class="actions"><button class="btn small" data-act="uw-post-ann" data-id="${esc(a.id)}" data-sub="1">Akışa al</button><button class="btn ghost small" data-act="uw-post-ann" data-id="${esc(a.id)}" data-sub="0">Gerek yok</button></div>` : ''}</article>`).join('') : empty('Akışa alınmamış kulüp duyurusu yok.')}</div>`;
     } else if (tab === 'flow') {
       body = `<div class="uw-board">${col('preparing', 'Hazırlanıyor')}${col('approval', 'Onayda')}${col('planned', 'Planlandı')}${col('published', 'Yayınlandı')}</div>
@@ -7290,7 +7331,7 @@
     'uw-post-edit'(id) {
       const p = uwList('posts').find((x) => x.id === id); if (!p) return;
       const planned = p.status === 'planned';
-      const team = (uwAdmin() ? uwUnitOfKind('sponsor') : uwMyUnit())?.members || [];
+      const team = uwUnitOfKind('social')?.members || [];
       openForm({ title: planned ? 'Yayın tarihi ve sorumlu' : 'İçeriği hazırla', lead: planned ? 'Onaylanan içerik değişmez; yalnızca yayın tarihi ve sorumlu güncellenir.' : (p.brief ? `Talep: ${p.brief.slice(0, 400)}` : ''), submit: 'Kaydet',
         fields: `${planned ? '' : `${field('Başlık', `<input name="title" required maxlength="160" value="${esc(p.title)}">`)}${field('Metin', `<textarea name="body" rows="7" maxlength="5000">${esc(p.body || '')}</textarea>`)}${field('Tasarım dosyası (bağlantı)', `<input name="design_url" type="url" placeholder="https://" value="${esc(p.design_url || '')}">`)}${platformChecks(p.platforms || [])}${field('Format', `<select name="format"><option value="">Seç</option>${FORMATS.map(([k, l]) => `<option value="${k}" ${p.format === k ? 'selected' : ''}>${l}</option>`).join('')}</select>`)}`}
           ${field('Plan tarihi', `<input type="datetime-local" name="plan_at" value="${esc(toLocalInput(p.plan_at))}">`)}${field('Sorumlu', `<select name="assignee"><option value="">—</option>${team.map((m) => `<option value="${esc(m.id)}" ${p.assignee === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select>`)}`,
@@ -7311,7 +7352,7 @@
     'uw-camp-done'(id) { return uwRun('camp_done', { id }, 'Kampanya tamamlandı.'); },
     'uw-camp-delete'(id) { if (!confirm('Kampanya silinsin mi?')) return; return uwRun('camp_delete', { id }, 'Kampanya silindi.'); },
     'uw-report-ask'(unitId) {
-      openForm({ title: `${unitName(unitId)}’ndan rapor iste`, submit: 'İste', fields: `${field('Konu', '<input name="title" required maxlength="160">')}${field('Ayrıntı', '<textarea name="details" rows="4" maxlength="2000"></textarea>')}${field('Son tarih', '<input type="date" name="due_date">')}`,
+      openForm({ title: `${unitName(unitId)}’ndan rapor iste`, submit: 'İste', fields: `${field('Konu', '<input name="title" required maxlength="160">')}${field('Ayrıntı', '<textarea name="details" rows="4" maxlength="2000"></textarea>')}${field('Son tarih', '<input type="date" name="due_date">')}${uwTaskExtraFields()}`,
         onSubmit: uwSubmit('report_ask', (fd) => ({ unit_id: unitId, title: val(fd, 'title'), details: val(fd, 'details'), due_date: val(fd, 'due_date') }), 'Rapor istendi.') });
     },
     'uw-report-answer'(id) {
@@ -7327,13 +7368,13 @@
   /* ---------------- Demo: onay, yayın, kampanya ---------------- */
   const dU = () => demoUw();
   const demoUnitOfKind = (k) => (db.units || []).find((u) => u.kind === k)?.id || null;
-  const demoBoard = (c) => c.kind === 'board' && c.has('approve');
-  const demoCanDecide = (r, c) => (r.status === 'board' ? (r.kind === 'post' ? demoBoard(c) || c.admin : demoBoard(c)) : r.status === 'center' ? c.admin : false);
+  const demoBoard = (c) => c.head && c.kind !== 'board';
+  const demoCanDecide = (r, c) => (r.status === 'board' ? (demoBoard(c) || c.admin) : r.status === 'center' ? c.admin : false);
   const demoReqOpen = (c, kind, ref, title, summary, budget, budgetNote, status) => {
     const r = { id: uid(), kind, ref_id: ref, from_unit: c.unit, title, summary, needs_budget: !!budget, budget_note: budgetNote || null, status, board_by: null, board_at: null, center_by: null, center_at: null, note: null, created_by: c.id, created_at: stamp() };
     (dU().requests ||= []).unshift(r);
     const label = kind === 'post' ? 'Yayın onayı' : kind === 'campaign' ? 'Kampanya onayı' : 'Bütçe onayı';
-    if (status === 'board') { demoNotify(null, demoUnitOfKind('board'), 'approve', false, 'request', `${label} bekliyor`, title, 'b-onaylar'); if (kind === 'post') demoNotify(null, null, null, true, 'request', `${label} bekliyor`, title, 'b-onaylar'); }
+    if (status === 'board') { (db.units || []).filter((u) => u.kind !== 'board').forEach((u) => u.members.filter((m) => m.is_head && m.status === 'active').forEach((m) => demoNotify(m.id, null, null, false, 'request', `${label} bekliyor`, title, 'b-onaylar'))); demoNotify(null, null, null, true, 'request', `${label} bekliyor`, title, 'b-onaylar'); }
     else demoNotify(null, null, null, true, 'request', `${label} bekliyor`, title, 'b-onaylar');
     return r.id;
   };
@@ -7352,7 +7393,7 @@
   DEMO_UWR.campaigns = (c) => (!(c.admin || c.kind === 'pr' || demoBoard(c)) ? null : (dU().campaigns || []).map((x) => ({ ...x, created_by_name: demoName(x.created_by) })));
   DEMO_UWR.reports = (c) => (!c.admin && !c.unit ? null : (dU().reports || []).filter((r) => c.admin || r.unit_id === c.unit).map((r) => ({ ...r, asked_by_name: demoName(r.asked_by), answered_by_name: demoName(r.answered_by) })));
   DEMO_UWR.notes = () => Object.fromEntries(Object.entries(dU().notes || {}).map(([k, n]) => [k, { ...n, updated_by_name: demoName(n.updated_by) }]));
-  const demoSocial = (c) => c.kind === 'social' && c.has('posts');
+  const demoSocial = (c) => c.admin || (c.kind === 'social' && c.has('posts'));
   const needSocial = (c) => { if (!demoSocial(c)) throw new Error('Bu işlem için Sosyal Medya’da paylaşım yetkisi gerekir.'); };
   const demoPost = (id) => (dU().posts || []).find((x) => x.id === id);
   DEMO_UWA.req_decide = (p, c) => {
@@ -7384,8 +7425,8 @@
   };
   DEMO_UWA.post_submit = (p, c) => { needSocial(c); const s = demoPost(p.id); if (!s || s.status !== 'preparing') throw new Error('Yalnızca hazırlanan kart onaya gönderilir.'); if (!s.body || !s.platforms.length) throw new Error('Onaya göndermeden önce metni ve platformu yaz.'); s.request_id = demoReqOpen(c, 'post', s.id, s.title, s.body.slice(0, 300), false, null, 'board'); Object.assign(s, { status: 'approval', note: null }); demoLog('Yayını onaya gönderdi', s.title); };
   DEMO_UWA.post_publish = (p, c) => { needSocial(c); const s = demoPost(p.id); const r = (dU().requests || []).find((x) => x.id === s?.request_id); if (!s || s.status !== 'planned' || r?.status !== 'approved') throw new Error('Onaylanmamış içerik yayınlandı olarak işaretlenemez.'); Object.assign(s, { status: 'published', published_at: stamp(), published_url: demoLink(p, 'url') }); demoNotify(s.requested_by, null, null, false, 'post_status', 'Paylaşım yayınlandı', s.title, 'b-yayin'); demoLog('Yayınlandı olarak işaretledi', s.title); };
-  DEMO_UWA.post_delete = (p, c) => { if (!(demoSocial(c) && (c.head || c.has('team')))) throw new Error('Kartı birim başkanı ya da ekip yöneticisi siler.'); const s = demoPost(p.id); if (!s || !['request', 'preparing', 'declined'].includes(s.status)) throw new Error('Kart bulunamadı ya da silinemez.'); dU().posts = dU().posts.filter((x) => x.id !== s.id); demoLog('Yayın kartını sildi', s.title); };
-  const needPr = (c) => { if (!(c.kind === 'pr' && c.has('campaigns'))) throw new Error('Bu işlem için Halkla İlişkiler’de kampanya yetkisi gerekir.'); };
+  DEMO_UWA.post_delete = (p, c) => { if (!(c.admin || (demoSocial(c) && (c.head || c.has('team'))))) throw new Error('Kartı birim başkanı ya da ekip yöneticisi siler.'); const s = demoPost(p.id); if (!s || !['request', 'preparing', 'declined'].includes(s.status)) throw new Error('Kart bulunamadı ya da silinemez.'); dU().posts = dU().posts.filter((x) => x.id !== s.id); demoLog('Yayın kartını sildi', s.title); };
+  const needPr = (c) => { if (!(c.admin || (c.kind === 'pr' && c.has('campaigns')))) throw new Error('Bu işlem için Halkla İlişkiler’de kampanya yetkisi gerekir.'); };
   const demoCamp = (id) => (dU().campaigns || []).find((x) => x.id === id);
   DEMO_UWA.camp_save = (p, c) => {
     needPr(c); const fields = { title: demoText(p, 'title', 160, true, 'Kampanya adı'), idea: demoText(p, 'idea', 4000), goal: demoText(p, 'goal', 2000), has_budget: !!p.has_budget, budget_note: p.has_budget ? demoText(p, 'budget_note', 1000) : null };
@@ -7479,7 +7520,7 @@
   const COOL_DAYS = 45;   // bu kadar gün temas yoksa "ilişki soğuyor"
   const daysSince = (d) => (d ? Math.floor((Date.now() - parseYmd(String(d).slice(0, 10)).getTime()) / 86400000) : Infinity);
   const uwClubsView = () => {
-    const sub = 'Partner kulüplerle iletişimin devamlılığı. Kota yok; ilişkinin niteliği ve sürekliliği önemli. Kulüp ekleme ve çıkarma Merkez Yönetim’de.';
+    const sub = 'Partner kulüplerle iletişimin devamlılığı. Kota yok; ilişkinin niteliği ve sürekliliği önemli. Aday görüşmeleri ve ağa kabul geçmişi korunur.';
     const wait = uwLoading('Kulüp Ağı', sub); if (wait) return wait;
     const d = UWD().clubnet || { clubs: [], contacts: [], candidates: [] };
     const lead = uwCan('clubs', 'clubs');
@@ -7497,7 +7538,7 @@
         </article>`; }).join('')}</div>` : empty('Ağda kulüp yok.');
     } else if (tab === 'cands') {
       body = `${lead ? '<div class="actions" style="margin-bottom:14px"><button class="btn small" data-act="uw-cl-cand">Aday kulüp ekle</button></div>' : ''}
-        ${d.candidates.length ? `<div class="card">${d.candidates.map((k) => { const [, l, c] = CL_CAND.find(([s]) => s === k.status) || ['', k.status, '']; return `<div class="mini-row"><div><strong>${esc(k.name)}</strong><small>${esc([k.university, k.contact, k.note].filter(Boolean).join(' · '))}</small></div><div class="row"><span class="tag ${c}">${esc(l)}</span>${lead ? `<button class="btn ghost small" data-act="uw-cl-cand" data-id="${esc(k.id)}">Düzenle</button><button class="btn ghost small" data-act="uw-cl-cand-del" data-id="${esc(k.id)}">Sil</button>` : ''}</div></div>`; }).join('')}</div>` : empty('Aday listesi boş.')}`;
+        ${d.candidates.length ? `<div class="card">${d.candidates.map((k) => { const [, l, c] = CL_CAND.find(([s]) => s === k.status) || ['', k.status, '']; return `<div class="mini-row"><div><strong>${esc(k.name)}</strong><small>${esc([k.university, k.contact, k.note].filter(Boolean).join(' · '))}</small></div><div class="row"><span class="tag ${c}">${esc(l)}</span>${lead ? `<button class="btn ghost small" data-act="uw-cl-cand" data-id="${esc(k.id)}">Düzenle</button>${!k.club_id ? `<button class="btn small" data-act="uw-cl-join" data-id="${esc(k.id)}">Ağa kabul et</button>` : ''}` : ''}</div></div>`; }).join('')}</div>` : empty('Aday listesi boş.')}`;
     } else {
       const total = d.clubs.length;
       const new90 = d.clubs.filter((c) => daysSince(c.joined_at) <= 90).length;
@@ -7625,7 +7666,7 @@
       ${list.length ? `<div class="stack">${list.map((t) => `<article class="card item">
         <div class="meta top">${stTag(TK_ST, t.status)}<span>${isAdmin() ? `${esc(unitName(t.unit_id))} · ` : ''}${esc(t.created_by_name || '')} · ${uwWhen(t.updated_at)}</span></div>
         <h3>${esc(t.subject)}</h3>
-        <div class="uw-thread">${t.messages.map((m) => `<div class="quote ${m.from_admin ? 'uw-from-admin' : ''}"><small>${m.from_admin ? 'Merkez Yönetim' : esc(m.author_name || '')} · ${uwWhen(m.created_at)}</small>${uwText(m.body)}</div>`).join('')}</div>
+        <div class="uw-thread">${t.messages.map((m) => `<div class="quote ${m.from_admin ? 'uw-from-admin' : ''}"><small>${m.from_admin ? 'Merkez Yönetim' : esc(m.author_name || '')} · ${uwWhen(m.created_at)}</small>${uwText(m.body)}${m.attachment_url?uwLink(m.attachment_url,'Ek'):''}</div>`).join('')}</div>
         <div class="actions">${t.status !== 'closed' || isAdmin() ? `<button class="btn small" data-act="uw-tk-reply" data-id="${esc(t.id)}">Yanıtla</button>` : ''}${t.status !== 'closed' ? `<button class="btn ghost small" data-act="uw-tk-close" data-id="${esc(t.id)}">Kapat</button>` : isAdmin() ? `<button class="btn ghost small" data-act="uw-tk-close" data-id="${esc(t.id)}" data-sub="reopen">Yeniden aç</button>` : ''}</div>
       </article>`).join('')}</div>` : empty('Destek talebi yok.')}`;
   };
@@ -7633,8 +7674,8 @@
   uwView('b-sponsorlar', { label: () => 'Sponsor Ağı', group: 'birim', order: 12, allow: () => isAdmin() || uwKindIs('sponsor'), render: uwSponsorsView });
   uwView('b-kulupler', { label: () => 'Kulüp Ağı', group: 'birim', order: 13, count: () => (uwKindIs('clubs') ? (UWD().clubnet?.clubs || []).filter((c) => daysSince(c.last_contact) > COOL_DAYS).length : 0), allow: () => isAdmin() || uwKindIs('clubs'), render: uwClubsView });
   uwView('b-denetim', { label: () => 'Denetim Kayıtları', group: 'birim', order: 14, count: () => (uwKindIs('audit') ? auData().events.filter((e) => e.assignees.some((a) => a.user_id === uwMe().id && !a.check_note)).length : 0), allow: () => isAdmin() || uwKindIs('audit'), render: uwAuditView });
-  uwView('b-takvim', { label: () => 'Takvim', group: 'unipakt', order: 4, allow: () => !!state.unitAcc, render: uwCalendarView });
-  uwView('b-destek', { label: () => (isAdmin() ? 'Birim Destek Talepleri' : 'UniPakt Destek'), group: () => (isAdmin() ? 'birim' : 'unipakt'), order: 8, count: () => (isAdmin() ? uwList('support').filter((t) => t.status === 'open').length : uwList('support').filter((t) => t.status === 'answered').length), allow: () => isAdmin() || !!state.unitAcc, render: uwSupportView });
+  uwView('b-takvim', { label: () => 'Takvim', group: 'birim', order: 4, allow: () => !!state.unitAcc, render: uwCalendarView });
+  uwView('b-destek', { label: () => (isAdmin() ? 'Birim Destek Talepleri' : 'UniPakt Destek'), group: 'birim', order: 8, count: () => (isAdmin() ? uwList('support').filter((t) => t.status === 'open').length : uwList('support').filter((t) => t.status === 'answered').length), allow: () => isAdmin() || !!state.unitAcc, render: uwSupportView });
   ['b-sponsorlar', 'b-kulupler', 'b-denetim', 'b-takvim', 'b-destek'].forEach((id) => { views[id] = () => UW_VIEWS[id].render(); });
   UW_HOME_STATS.push(() => [
     ...(uwKindIs('sponsor') ? [{ label: 'Sorumlu olduğun sponsor', n: (spData().rows || []).filter((s) => s.owner === uwMe().id && !['deal', 'lost'].includes(s.stage)).length, go: 'b-sponsorlar' }] : []),
@@ -7669,7 +7710,7 @@
     },
     'uw-sp-edit'(id, cat) {
       const s = (spData().rows || []).find((x) => x.id === id) || { category: cat || SPONSOR_CATS[0] };
-      const team = uwMyUnit()?.members || [];
+      const team = uwUnitOfKind('sponsor')?.members || [];
       const cats = [...new Set([...SPONSOR_CATS, ...(spData().rows || []).map((x) => x.category)])];
       openForm({ title: id ? 'Sponsoru düzenle' : 'Sponsor ekle', submit: 'Kaydet',
         fields: `${field('Kategori', `<select name="category">${cats.map((c) => `<option ${c === s.category ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select>`)}${field('Marka', `<input name="brand" required maxlength="160" value="${esc(s.brand || '')}">`)}
@@ -7692,11 +7733,12 @@
     'uw-cl-note'(clubId) { const c = (UWD().clubnet?.clubs || []).find((x) => x.id === clubId); openForm({ title: `${c?.name || 'Kulüp'} · not`, submit: 'Kaydet', fields: field('Not', `<textarea name="notes" rows="6" maxlength="4000">${esc(c?.notes || '')}</textarea>`), onSubmit: uwSubmit('club_note', (fd) => ({ club_id: clubId, notes: val(fd, 'notes') }), 'Kaydedildi.') }); },
     'uw-cl-cand'(id) {
       const k = (UWD().clubnet?.candidates || []).find((x) => x.id === id) || {};
-      openForm({ title: id ? 'Aday kulübü düzenle' : 'Aday kulüp ekle', lead: 'Ağa katılım kararı ve hesap açma Merkez Yönetim’de.', submit: 'Kaydet',
+      openForm({ title: id ? 'Aday kulübü düzenle' : 'Aday kulüp ekle', lead: 'Ağa kabul işlemi ayrı düğmeyle yapılır; hesap açma Merkez Yönetim’de.', submit: 'Kaydet',
         fields: `${field('Kulüp adı', `<input name="name" required maxlength="160" value="${esc(k.name || '')}">`)}${field('Üniversite', `<input name="university" maxlength="160" value="${esc(k.university || '')}">`)}${field('İletişim', `<input name="contact" maxlength="300" placeholder="Instagram, e-posta…" value="${esc(k.contact || '')}">`)}
-          ${field('Durum', `<select name="status">${CL_CAND.map(([s, l]) => `<option value="${s}" ${k.status === s ? 'selected' : ''}>${l}</option>`).join('')}</select>`)}${field('Not', `<textarea name="note" rows="3" maxlength="2000">${esc(k.note || '')}</textarea>`)}`,
+          ${field('Durum', `<select name="status">${CL_CAND.filter(([s])=>s!=='added'||k.status==='added').map(([s, l]) => `<option value="${s}" ${k.status === s ? 'selected' : ''}>${l}</option>`).join('')}</select>`)}${field('Not', `<textarea name="note" rows="3" maxlength="2000">${esc(k.note || '')}</textarea>`)}`,
         onSubmit: uwSubmit('club_cand_save', (fd) => ({ id: id || null, name: val(fd, 'name'), university: val(fd, 'university'), contact: val(fd, 'contact'), status: val(fd, 'status'), note: val(fd, 'note') }), 'Kaydedildi.') });
     },
+    'uw-cl-join'(id) { const k=(UWD().clubnet?.candidates||[]).find(x=>x.id===id); if(!k)return; openForm({title:'Adayı ağa kabul et',lead:'Görüşme geçmişi korunur. Aynı ad ve üniversite varsa mevcut kulübe bağlanır. Hesap oluşturma Merkez Yönetim’den yapılır.',submit:'Kabul et',fields:`<p>${esc(k.name)} · ${esc(k.university||'')}</p>`,onSubmit:uwSubmit('candidate_join',()=>({id}),'Kulüp ağa kabul edildi.')}); },
     'uw-cl-cand-del'(id) { if (!confirm('Aday silinsin mi?')) return; return uwRun('club_cand_delete', { id }); },
     'uw-au-new'(preset) {
       const [pt, pid] = String(preset || '').split(':');
@@ -7718,7 +7760,7 @@
     },
     'uw-au-seen'(id) { openForm({ title: 'Rapor incelendi', submit: 'Kaydet', fields: field('Not (isteğe bağlı; Denetim’e iletilir)', '<textarea name="note" rows="3" maxlength="2000"></textarea>'), onSubmit: uwSubmit('audit_seen', (fd) => ({ id, note: val(fd, 'note') }), 'İncelendi.') }); },
     'uw-au-assign'(eventId) {
-      const team = uwMyUnit()?.members || [];
+      const team = uwUnitOfKind('audit')?.members || [];
       openForm({ title: 'Etkinliğe sorumlu ata', lead: 'Sorumlu etkinliğe gider, kontrol notunu panelden girer.', submit: 'Ata',
         fields: `${field('Sorumlu', `<select name="user_id" required>${team.map((m) => `<option value="${esc(m.id)}">${esc(m.name)}</option>`).join('')}</select>`)}${field('Görev notu', '<textarea name="note" rows="2" maxlength="1000"></textarea>')}`,
         onSubmit: uwSubmit('audit_assign', (fd) => ({ event_id: eventId, user_id: val(fd, 'user_id'), note: val(fd, 'note') }), 'Sorumlu atandı.') });
@@ -7728,8 +7770,8 @@
       const e = auData().events.find((x) => x.id === eventId); const a = e?.assignees.find((x) => x.user_id === uwMe().id);
       openForm({ title: 'Kontrol notu', lead: e?.title || '', submit: 'Kaydet', fields: field('Not', `<textarea name="note" rows="6" required maxlength="4000">${esc(a?.check_note || '')}</textarea>`), onSubmit: uwSubmit('audit_check', (fd) => ({ event_id: eventId, note: val(fd, 'note') }), 'Kontrol notu kaydedildi.') });
     },
-    'uw-tk-new'() { openForm({ title: 'Destek talebi', submit: 'Gönder', fields: `${field('Konu', '<input name="subject" required maxlength="160">')}${field('Mesaj', '<textarea name="body" rows="6" required maxlength="5000"></textarea>')}`, onSubmit: uwSubmit('support_open', (fd) => ({ subject: val(fd, 'subject'), body: val(fd, 'body') }), 'Talep gönderildi.') }); },
-    'uw-tk-reply'(id) { openForm({ title: 'Yanıtla', submit: 'Gönder', fields: field('Mesaj', '<textarea name="body" rows="5" required maxlength="5000"></textarea>'), onSubmit: uwSubmit('support_reply', (fd) => ({ id, body: val(fd, 'body') }), 'Gönderildi.') }); },
+    'uw-tk-new'() { openForm({ title: 'Destek talebi', submit: 'Gönder', fields: `${field('Konu', '<input name="subject" required maxlength="160">')}${field('Mesaj', '<textarea name="body" rows="6" required maxlength="5000"></textarea>')}${field('Ek bağlantısı','<input name="attachment_url" type="url">')}`, onSubmit: uwSubmit('support_open', (fd) => ({ subject: val(fd, 'subject'), body: val(fd, 'body'),attachment_url:val(fd,'attachment_url') }), 'Talep gönderildi.') }); },
+    'uw-tk-reply'(id) { openForm({ title: 'Yanıtla', submit: 'Gönder', fields: unitUploadField('ticket',id,'attachment_url')+field('Mesaj', '<textarea name="body" rows="5" required maxlength="5000"></textarea>')+field('Ek bağlantısı','<input name="attachment_url" type="url">'), onSubmit: uwSubmit('support_reply', (fd) => ({ id, body: val(fd, 'body'),attachment_url:val(fd,'attachment_url') }), 'Gönderildi.') }); },
     'uw-tk-close'(id, sub) { return uwRun('support_close', { id, reopen: sub === 'reopen' }, sub === 'reopen' ? 'Yeniden açıldı.' : 'Talep kapatıldı.'); },
   });
   // Diyalog içindeki birim düğmeleri (sponsor ayrıntısı, kayıt formları).
@@ -7773,7 +7815,7 @@
   const clubNet = () => (dU().clubnet ||= { rel: {}, contacts: [], candidates: [] });
   DEMO_UWR.clubnet = (c) => (!(c.admin || c.kind === 'clubs') ? null : { clubs: db.clubs.map((k) => { const cs = clubNet().contacts.filter((x) => x.club_id === k.id).sort((a, b) => String(b.at).localeCompare(String(a.at))); return { id: k.id, name: k.name, university: k.uni, category: k.category, joined_at: k.joinedAt || isoOffset(-40), notes: clubNet().rel[k.id] || null, last_contact: cs[0]?.at || null, satisfaction: cs.find((x) => x.satisfaction)?.satisfaction || null }; }),
     contacts: clubNet().contacts.map((x) => ({ ...x, by_name: demoName(x.created_by) })), candidates: clubNet().candidates });
-  const needCl = (c) => { if (!(c.kind === 'clubs' && c.has('clubs'))) throw new Error('Bu işlem için Kulüp İlişkileri’nde kulüp ağı yetkisi gerekir.'); };
+  const needCl = (c) => { if (!(c.admin || (c.kind === 'clubs' && c.has('clubs')))) throw new Error('Bu işlem için Kulüp İlişkileri’nde kulüp ağı yetkisi gerekir.'); };
   DEMO_UWA.club_note = (p, c) => { needCl(c); clubNet().rel[p.club_id] = demoText(p, 'notes', 4000); };
   DEMO_UWA.club_contact = (p, c) => { needCl(c); const s = p.satisfaction ? Number(p.satisfaction) : null; clubNet().contacts.unshift({ id: uid(), club_id: p.club_id, at: p.at || today(), kind: p.kind || 'message', note: demoText(p, 'note', 2000), satisfaction: s, created_by: c.id, created_at: stamp() }); demoLog('Kulüple temas kaydetti', club(p.club_id)?.name || ''); };
   DEMO_UWA.club_contact_delete = (p, c) => { needCl(c); clubNet().contacts = clubNet().contacts.filter((x) => x.id !== p.id); };
@@ -7782,9 +7824,9 @@
   const au = () => (dU().audit ||= { records: [], assign: [] });
   DEMO_UWR.audit = (c) => { if (!(c.admin || c.kind === 'audit')) return null; const full = c.admin || (c.kind === 'audit' && (c.has('audit') || c.has('audit_assign')));
     return { records: full ? au().records.map((r) => ({ ...r, created_by_name: demoName(r.created_by), center_seen_by_name: demoName(r.center_seen_by) })) : [],
-      events: db.events.filter((e) => e.ownerId !== ADMIN).filter((e) => full || au().assign.some((a) => a.event_id === e.id && a.user_id === c.id)).map((e) => ({ id: e.id, title: e.title, date: e.date, time: e.time, place: e.place, status: e.status, club_id: e.ownerId, club_name: club(e.ownerId)?.name || '', assignees: au().assign.filter((a) => a.event_id === e.id).map((a) => ({ ...a, name: demoName(a.user_id) })) })) }; };
+      events: db.events.map((e) => ({ id: e.id, title: e.title, date: e.date, time: e.time, place: e.place, status: e.status, club_id: e.ownerId, club_name: club(e.ownerId)?.name || '', assignees: au().assign.filter((a) => a.event_id === e.id).map((a) => ({ ...a, name: demoName(a.user_id) })) })) }; };
   DEMO_UWA.audit_add = (p, c) => {
-    if (!(c.kind === 'audit' && c.has('audit'))) throw new Error('Bu işlem için Denetim’de denetim kaydı yetkisi gerekir.');
+    if (!(c.admin || (c.kind === 'audit' && c.has('audit')))) throw new Error('Bu işlem için Denetim’de denetim kaydı yetkisi gerekir.');
     const label = p.target_type === 'unit' ? (db.units || []).find((u) => u.id === p.target_id)?.name : p.target_type === 'club' ? club(p.target_id)?.name : (() => { const e = db.events.find((x) => x.id === p.target_id); return e ? `${e.title} · ${who(e.ownerId)}` : null; })();
     if (!label) throw new Error('Denetlenen birim, etkinlik ya da kulüp bulunamadı.');
     const prev = Math.max(-1, ...au().records.filter((r) => r.target_type === p.target_type && r.target_id === p.target_id).map((r) => AU_LADDER.indexOf(r.level))) + 1;
@@ -7794,14 +7836,14 @@
     if (level === 'report') demoNotify(null, null, null, true, 'audit_report', `Denetim raporu: ${label}`, String(p.violation).slice(0, 300), 'b-onaylar');
     demoLog('Denetim kaydı açtı', label); return { level };
   };
-  DEMO_UWA.audit_update = (p, c) => { if (!(c.kind === 'audit' && c.has('audit'))) throw new Error('Yetkin yok.'); const r = au().records.find((x) => x.id === p.id); if (!r) throw new Error('Kayıt bulunamadı.'); const d = demoText(p, 'defense', 4000); Object.assign(r, { defense: d, defense_at: d && d !== r.defense ? stamp() : r.defense_at, evidence: demoText(p, 'evidence', 4000), evidence_url: demoLink(p, 'evidence_url'), drive_url: demoLink(p, 'drive_url') }); };
+  DEMO_UWA.audit_update = (p, c) => { if (!(c.admin || (c.kind === 'audit' && c.has('audit')))) throw new Error('Yetkin yok.'); const r = au().records.find((x) => x.id === p.id); if (!r) throw new Error('Kayıt bulunamadı.'); const d = demoText(p, 'defense', 4000); Object.assign(r, { defense: d, defense_at: d && d !== r.defense ? stamp() : r.defense_at, evidence: demoText(p, 'evidence', 4000), evidence_url: demoLink(p, 'evidence_url'), drive_url: demoLink(p, 'drive_url') }); };
   DEMO_UWA.audit_seen = (p, c) => { if (!c.admin) throw new Error('Bu işlemi Merkez Yönetim yapar.'); const r = au().records.find((x) => x.id === p.id && x.level === 'report'); if (!r) throw new Error('Rapor bulunamadı.'); Object.assign(r, { center_seen_by: c.id, center_seen_at: stamp(), center_note: demoText(p, 'note', 2000) }); demoNotify(null, demoUnitOfKind('audit'), 'audit', false, 'audit_seen', 'Merkez raporu inceledi', r.target_label, 'b-denetim'); };
-  DEMO_UWA.audit_assign = (p, c) => { if (!(c.kind === 'audit' && c.has('audit_assign'))) throw new Error('Bu işlem için Denetim’de sorumlu atama yetkisi gerekir.'); const e = db.events.find((x) => x.id === p.event_id && x.ownerId !== ADMIN); if (!e) throw new Error('Sorumlu yalnızca kulüp etkinliklerine atanır.'); au().assign = au().assign.filter((a) => !(a.event_id === p.event_id && a.user_id === p.user_id)); au().assign.push({ event_id: p.event_id, user_id: p.user_id, note: demoText(p, 'note', 1000), check_note: null, checked_at: null }); demoNotify(p.user_id, null, null, false, 'audit_assign', 'Etkinlik kontrolü sana atandı', e.title, 'b-denetim'); demoLog('Etkinliğe denetim sorumlusu atadı', e.title); };
-  DEMO_UWA.audit_unassign = (p, c) => { if (!(c.kind === 'audit' && c.has('audit_assign'))) throw new Error('Yetkin yok.'); au().assign = au().assign.filter((a) => !(a.event_id === p.event_id && a.user_id === p.user_id)); };
+  DEMO_UWA.audit_assign = (p, c) => { if (!(c.admin || (c.kind === 'audit' && c.has('audit_assign')))) throw new Error('Bu işlem için Denetim’de sorumlu atama yetkisi gerekir.'); const e = db.events.find((x) => x.id === p.event_id); if (!e) throw new Error('Etkinlik bulunamadı.'); au().assign = au().assign.filter((a) => !(a.event_id === p.event_id && a.user_id === p.user_id)); au().assign.push({ event_id: p.event_id, user_id: p.user_id, note: demoText(p, 'note', 1000), check_note: null, checked_at: null }); demoNotify(p.user_id, null, null, false, 'audit_assign', 'Etkinlik kontrolü sana atandı', e.title, 'b-denetim'); demoLog('Etkinliğe denetim sorumlusu atadı', e.title); };
+  DEMO_UWA.audit_unassign = (p, c) => { if (!(c.admin || (c.kind === 'audit' && c.has('audit_assign')))) throw new Error('Yetkin yok.'); au().assign = au().assign.filter((a) => !(a.event_id === p.event_id && a.user_id === p.user_id)); };
   DEMO_UWA.audit_check = (p, c) => { const a = au().assign.find((x) => x.event_id === p.event_id && x.user_id === c.id); if (!a) throw new Error('Bu etkinliğin kontrolü sana atanmamış.'); Object.assign(a, { check_note: demoText(p, 'note', 4000, true, 'Kontrol notu'), checked_at: stamp() }); demoNotify(null, demoUnitOfKind('audit'), 'audit', false, 'audit_check', 'Etkinlik kontrol notu girildi', db.events.find((e) => e.id === p.event_id)?.title || '', 'b-denetim'); };
   DEMO_UWR.support = (c) => (!c.admin && !c.unit ? null : (dU().tickets || []).filter((t) => c.admin || t.created_by === c.id || (c.head && t.unit_id === c.unit)).map((t) => ({ ...t, created_by_name: demoName(t.created_by), messages: t.messages.map((m) => ({ ...m, author_name: demoName(m.author) })) })));
-  DEMO_UWA.support_open = (p, c) => { if (!c.unit) throw new Error('Birim destek talebini birim üyeleri açar.'); const subject = demoText(p, 'subject', 160, true, 'Konu'); (dU().tickets ||= []).unshift({ id: uid(), unit_id: c.unit, created_by: c.id, subject, status: 'open', created_at: stamp(), updated_at: stamp(), messages: [{ id: uid(), author: c.id, from_admin: false, body: demoText(p, 'body', 5000, true, 'Mesaj'), created_at: stamp() }] }); demoNotify(null, null, null, true, 'support', 'Birimden destek talebi', subject, 'b-destek'); };
-  DEMO_UWA.support_reply = (p, c) => { const t = (dU().tickets || []).find((x) => x.id === p.id); if (!t || !(c.admin || t.created_by === c.id || (c.head && t.unit_id === c.unit))) throw new Error('Talep bulunamadı.'); if (t.status === 'closed' && !c.admin) throw new Error('Bu talep kapatıldı.'); t.messages.push({ id: uid(), author: c.id, from_admin: c.admin, body: demoText(p, 'body', 5000, true, 'Mesaj'), created_at: stamp() }); t.status = c.admin ? 'answered' : 'open'; t.updated_at = stamp(); if (c.admin) demoNotify(t.created_by, null, null, false, 'support', 'Destek talebin yanıtlandı', t.subject, 'b-destek'); else demoNotify(null, null, null, true, 'support', 'Destek talebine yeni mesaj', t.subject, 'b-destek'); };
+  DEMO_UWA.support_open = (p, c) => { if (!c.unit) throw new Error('Birim destek talebini birim üyeleri açar.'); const subject = demoText(p, 'subject', 160, true, 'Konu'); (dU().tickets ||= []).unshift({ id: uid(), unit_id: c.unit, created_by: c.id, subject, status: 'open', created_at: stamp(), updated_at: stamp(), messages: [{ id: uid(), author: c.id, from_admin: false, body: demoText(p, 'body', 5000, true, 'Mesaj'),attachment_url:demoLink(p,'attachment_url'), created_at: stamp() }] }); demoNotify(null, null, null, true, 'support', 'Birimden destek talebi', subject, 'b-destek'); };
+  DEMO_UWA.support_reply = (p, c) => { const t = (dU().tickets || []).find((x) => x.id === p.id); if (!t || !(c.admin || t.created_by === c.id || (c.head && t.unit_id === c.unit))) throw new Error('Talep bulunamadı.'); if (t.status === 'closed' && !c.admin) throw new Error('Bu talep kapatıldı.'); t.messages.push({ id: uid(), author: c.id, from_admin: c.admin, body: demoText(p, 'body', 5000, true, 'Mesaj'),attachment_url:demoLink(p,'attachment_url'), created_at: stamp() }); t.status = c.admin ? 'answered' : 'open'; t.updated_at = stamp(); if (c.admin) demoNotify(t.created_by, null, null, false, 'support', 'Destek talebin yanıtlandı', t.subject, 'b-destek'); else demoNotify(null, null, null, true, 'support', 'Destek talebine yeni mesaj', t.subject, 'b-destek'); };
   DEMO_UWA.support_close = (p, c) => { const t = (dU().tickets || []).find((x) => x.id === p.id); if (!t || !(c.admin || t.created_by === c.id)) throw new Error('Talep bulunamadı.'); t.status = p.reopen ? 'open' : 'closed'; t.updated_at = stamp(); };
 
   /* ------------------------------------------------------------------
@@ -8557,6 +8599,112 @@
     if (!session) { renderLogin(); return; }
     await enterPanel();
   };
+  // Unit workspace foundation. Kept together until the panel is split into modules.
+  const UW_PRIORITY = { low: 'Düşük', normal: 'Normal', high: 'Yüksek', urgent: 'Acil' };
+  const UW_PROGRESS = { not_started: 'Başlanmadı', in_progress: 'Sürüyor', blocked: 'Engel var' };
+  const uwTaskCanManage = (t) => uwAdmin() || (t.unit_id === uwMe().unit_id && uwLead());
+  const uwTaskCanEdit = (t) => uwTaskCanManage(t) || (t.unit_id === uwMe().unit_id && t.assignee === uwMe().id);
+  const uwSelect = (name, options, value) => `<select name="${name}">${Object.entries(options).map(([k,l]) => `<option value="${k}" ${value === k ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
+  const docRelationFields=(d={})=>`<fieldset class="field"><legend>İlişkili kayıt</legend><select name="related_kind" aria-label="Belge ilişki türü">${[['','Bağlantı yok'],['event','Etkinlik'],['task','Görev'],['campaign','Kampanya'],['work','Birim kaydı']].map(([k,l])=>`<option value="${k}" ${d.related_kind===k?'selected':''}>${l}</option>`).join('')}</select><div class="toolbar"><input name="doc_query" aria-label="İlişkili kayıt ara" placeholder="Ad veya başlık"><button class="btn ghost small" type="button" data-doc-search>Ara</button></div><select name="related_id" aria-label="İlişkili kayıt"><option value="${esc(d.related_id||'')}">${d.related_id?'Mevcut bağlantı':'Kayıt seç'}</option></select><small data-doc-status role="status"></small></fieldset>`;
+  document.addEventListener('click',async e=>{const b=e.target.closest('[data-doc-search]');if(!b)return;const form=b.closest('form'),msg=form.querySelector('[data-doc-status]');b.disabled=true;try{const rows=await api.uw('doc_search',{kind:form.elements.related_kind.value,q:form.elements.doc_query.value});form.elements.related_id.innerHTML='<option value="">Seç</option>'+rows.map(r=>`<option value="${esc(r.id)}">${esc(r.title)}</option>`).join('');msg.textContent=rows.length+' sonuç';}catch(error){msg.textContent=error.message;}finally{b.disabled=false;}});
+  document.addEventListener('change',e=>{if(e.target.name==='related_kind'&&e.target.form?.querySelector('[data-doc-search]'))e.target.form.elements.related_id.innerHTML='<option value="">Seç</option>';});
+  const unitUploadField=(kind,id,target)=>`<div class="field"><label>Dosya yükle (en fazla 10 MB)<input type="file" data-unit-kind="${esc(kind)}" data-unit-upload="${esc(id)}" data-unit-field="${esc(target)}" accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.docx,.xlsx,.pptx"></label><small role="status"></small></div>`;
+  const uwTaskExtraFields = (t = {}) => field('Öncelik', uwSelect('priority', UW_PRIORITY, t.priority || 'normal')) +
+    field('Ek bağlantısı', `<input type="url" name="attachment_url" maxlength="500" placeholder="https://" value="${esc(t.attachment_url || '')}">`);
+  const uwTaskHistory = (t) => !t.history?.length ? '' : `<details class="card"><summary>Yorumlar ve geçmiş (${t.history.length})</summary>${t.history.map((h) => `<div class="mini-row"><div><strong>${esc(h.actor_name || 'Sistem')} · ${esc(h.action)}</strong><small>${uwWhen(h.created_at)}</small>${h.body ? `<p class="body">${uwText(h.body)}</p>` : ''}${h.changes ? `<p class="hint">${Object.entries(h.changes).map(([k,v]) => `${esc(({due_date:'Son tarih',priority:'Öncelik',progress:'İlerleme',title:'Başlık',description:'Açıklama',status:'Durum',review_status:'Onay durumu',attachment_url:'Ek',proof_text:'Tamamlama notu'})[k] || k)}: ${esc(typeof v.before === 'object' ? JSON.stringify(v.before) : v.before ?? '—')} → ${esc(typeof v.after === 'object' ? JSON.stringify(v.after) : v.after ?? '—')}`).join('<br>')}</p>` : ''}</div></div>`).join('')}</details>`;
+  const WORKSPACE_PAGES = {
+    social: [['inbox','Talep Kutusu'],['flow','İçerik Akışı'],['cal','Yayın Takvimi']],
+    pr: [['camps','Kampanyalar'],['posts','Paylaşım Talepleri'],['reports','Raporlar'],['kit','Şablonlar ve Kaynaklar']],
+    sponsor: [['all','Sponsor Ağı'],['summary','Raporlar']],
+    clubs: [['clubs','Kulüp Listesi'],['cands','Aday Kulüpler'],['stats','Göstergeler']],
+    audit: [['records','Denetim Kayıtları'],['events','Etkinlik Denetimleri'],['mine','Kontrol Görevlerim']],
+  };
+  const workspaceUnitLinks = (kind, item) => (WORKSPACE_PAGES[kind] || [[null,item[1]]]).map(([tab,label]) =>
+    `<button type="button" class="nav-item nav-sub-item${state.view === item[0] && state.uwTab[item[0]] === tab ? ' active' : ''}" data-act="workspace-page" data-id="${esc(item[0])}" data-sub="${esc(tab || '')}">${esc(label)}</button>`).join('') + window.UniPaktWorkflows.unitLinks(kind) + window.UniPaktRecords.unitLinks(kind) + `<button class="nav-item nav-sub-item" data-go="b-genel">Genel Bakış</button><button class="nav-item nav-sub-item" data-go="b-plan">Birim Takvimi</button><button class="nav-item nav-sub-item" data-go="b-raporlar">Birim Raporları</button>`;
+  Object.assign(actions, {
+    'workspace-page'(view, tab) { if (!viewAllowed(view)) return; state.uwTab[view] = tab; go(view); },
+    'uw-task-unfocus'(){state.focusTask=null;render();},
+    'uw-task-archive'(id) {const t=uwList('tasks').find(x=>x.id===id);return uwRun('task_archive',{id,restore:!!t?.archived_at},'Arşiv güncellendi.');},
+    'uw-task-reassign'(id) {const t=uwList('tasks').find(x=>x.id===id);if(!t)return;openForm({title:'Görevi yeniden ata',submit:'Ata',fields:field('Sorumlu',`<select name="assignee">${(uwUnit(t.unit_id)?.members||[]).map(m=>`<option value="${esc(m.id)}">${esc(m.name)}</option>`).join('')}</select>`),onSubmit:uwSubmit('task_reassign',fd=>({id,assignee:val(fd,'assignee')}),'Görev atandı.')});},
+    'uw-task-page'(step) { state.taskPage=Math.max(0,(state.taskPage || 0)+Number(step)); render(); },
+    'uw-task-comment'(id) {
+      if (!uwList('tasks').some((t) => t.id === id)) return;
+      openForm({ title: 'Göreve yorum yaz', submit: 'Gönder', fields: field('Yorum', '<textarea name="body" required maxlength="4000" rows="4"></textarea>'),
+        onSubmit: uwSubmit('task_comment', (fd) => ({ id, body: val(fd,'body') }), 'Yorum eklendi.') });
+    },
+    'uw-task-edit'(id) {
+      const t = uwList('tasks').find((x) => x.id === id); if (!t || !uwTaskCanEdit(t)) return;
+      const manager = uwTaskCanManage(t);
+      openForm({ title: 'Görevi güncelle', submit: 'Kaydet', fields:
+        (manager ? field('Başlık', `<input name="title" required minlength="2" maxlength="160" value="${esc(t.title)}">`) +
+        field('Açıklama', `<textarea name="description" maxlength="2000" rows="4">${esc(t.description || '')}</textarea>`) +
+        field('Son tarih', `<input type="date" name="due_date" value="${esc(t.due_date || '')}">`) + uwTaskExtraFields(t) + unitUploadField('task',t.id,'attachment_url') : '') +
+        field('İlerleme', uwSelect('progress', UW_PROGRESS, t.progress || 'not_started')),
+        onSubmit: uwSubmit('task_update', (fd) => ({ id, progress: val(fd,'progress'), ...(manager ? { title: val(fd,'title'), description: val(fd,'description'), due_date: val(fd,'due_date'), priority: val(fd,'priority'), attachment_url: val(fd,'attachment_url') } : {}) }), 'Görev güncellendi.') });
+    },
+  });
+  // Match the server's task visibility and mutation rules in offline demos.
+  const demoTaskVisible = (t,c) => c.admin || (t.unit_id === c.unit && (c.head || c.has('team') || t.assignee === c.id || !t.assignee));
+  const demoTaskHistory = (t,c,action,body,changes) => (t.history ||= []).push({ id: uid(), actor_id: c.id, actor_name: demoName(c.id), action, body, changes, created_at: stamp() });
+  DEMO_UWA.task_comment = (p,c) => {
+    const t = demoUw().tasks.find((x) => x.id === p.id);
+    if (!t || !demoTaskVisible(t,c)) throw new Error('Görev bulunamadı.');
+    demoTaskHistory(t,c,'Yorum',demoText(p,'body',4000,true,'Yorum'));
+    demoLog('Birim görevine yorum yazdı', t.title);
+    if (t.assignee && t.assignee !== c.id) demoNotify(t.assignee,null,null,false,'task_comment','Görevine yorum eklendi',t.title,'b-gorevler');
+    if (t.created_by !== c.id && t.created_by !== t.assignee) demoNotify(t.created_by,null,null,false,'task_comment','Göreve yorum eklendi',t.title,'b-gorevler');
+  };
+  DEMO_UWA.task_update = (p,c) => {
+    const t = demoUw().tasks.find((x) => x.id === p.id);
+    if (!t || !demoTaskVisible(t,c)) throw new Error('Görev bulunamadı.');
+    const manager = c.admin || (t.unit_id === c.unit && (c.head || c.has('team')));
+    if (!manager && t.assignee !== c.id) throw new Error('Görevi güncelleme yetkin yok.');
+    if (!manager && ['due_date','priority','title','description','attachment_url'].some((k) => k in p)) throw new Error('Görev bilgilerini yalnızca Merkez veya birim yöneticisi günceller.');
+    if (p.progress && !Object.hasOwn(UW_PROGRESS,p.progress)) throw new Error('Geçersiz ilerleme durumu.');
+    if (p.priority && !Object.hasOwn(UW_PRIORITY,p.priority)) throw new Error('Geçersiz öncelik.');
+    const changes = {};
+    const values = { ...p };
+    if ('attachment_url' in p) values.attachment_url = demoLink(p,'attachment_url');
+    if ('title' in p) values.title = demoText(p,'title',160,true,'Başlık');
+    if ('description' in p) values.description = demoText(p,'description',2000);
+    for (const key of ['title','description','due_date','priority','progress','attachment_url']) if (key in values && values[key] !== t[key]) { changes[key] = {before:t[key] ?? null,after:values[key] || null}; t[key] = values[key] || null; }
+    t.updated_at = stamp();
+    demoTaskHistory(t,c,'Görev güncellendi',null,changes);
+    demoLog('Birim görevini güncelledi',t.title);
+    if (t.assignee && t.assignee !== c.id) demoNotify(t.assignee,null,null,false,'task_changed','Görevin güncellendi',t.title,'b-gorevler');
+  };
+  const originalTaskCreate = DEMO_UWA.task_create;
+  DEMO_UWA.task_create = (p,c) => {
+    if (p.priority && !Object.hasOwn(UW_PRIORITY,p.priority)) throw new Error('Geçersiz öncelik.');
+    const attachment = demoLink(p,'attachment_url');
+    const result = originalTaskCreate(p,c), t = demoUw().tasks.find((x) => x.id === result.id);
+    Object.assign(t,{priority:p.priority || 'normal', progress:'not_started', attachment_url:attachment, updated_at:stamp()});
+    demoTaskHistory(t,c,'Görev oluşturuldu'); return result;
+  };
+
+  for (const action of ['task_complete','task_review']) {
+    const original = DEMO_UWA[action];
+    DEMO_UWA[action] = (p,c) => {
+      const t = demoUw().tasks.find((x) => x.id === p.id);
+      const before = t ? { status:t.status, review_status:t.review_status, proof_text:t.proof_text, review_note:t.review_note } : {};
+      const result = original(p,c);
+      const changes = Object.fromEntries(Object.entries(before).filter(([k,v]) => v !== t[k]).map(([k,v]) => [k,{before:v,after:t[k]}]));
+      t.updated_at=stamp(); demoTaskHistory(t,c,'Görev güncellendi',null,changes); return result;
+    };
+  }
+  const workspaceContext={
+    admin:uwAdmin, me:uwMe, units:uwUnits, data:UWD, pending:()=>!state.uw.data&&!!state.unitAcc, esc, field, head, empty, openForm, toast, render,
+    storageUpload:(path,file)=>call(`/storage/v1/object/unit-files/${path}`,{method:'POST',body:file,raw:true,headers:{'Content-Type':file.type||'application/octet-stream','x-upsert':'false'}}),
+    storageSign:async path=>{const r=await call(`/storage/v1/object/sign/unit-files/${path}`,{method:'POST',body:{expiresIn:300}});return `${SUPABASE_URL}/storage/v1${r.signedURL}`;},
+    currentView:()=>state.view, call:(action,data)=>api.uw(action,data),
+    reloadNotifications:()=>{ state.uw.data=null; loadUw(); },
+    shared:ADMIN_UNIT_SHARED_IDS, actions,
+    demo:{enabled:DEMO,registry:DEMO_UWA,store:demoUw,db:()=>db,uid,stamp,name:demoName,notify:demoNotify,readers:DEMO_UWR},
+    register:(id,def)=>{uwView(id,def); views[id]=def.render;}
+  };
+  window.UniPaktWorkflows.install(workspaceContext);
+  window.UniPaktRecords.install(workspaceContext);
+  window.UniPaktFiles.install(workspaceContext);
   start();
 })();
 </script>
