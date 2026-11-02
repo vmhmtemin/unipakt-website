@@ -410,6 +410,11 @@
   .nav-item.active { opacity: 1; background: var(--paper-soft); border-color: var(--border); font-weight: 600; }
   .nav-item.active::before { background: var(--accent-grad); }
   .nav-item .badge { margin-left: auto; }
+  .nav-chevron { margin-left: auto; opacity: .6; font-size: 13px; line-height: 1; }
+  .nav-accordion-body, .nav-accordion-inner { display: grid; gap: 3px; }
+  .nav-accordion-body { margin-left: 8px; padding-left: 8px; border-left: 1px solid var(--border); }
+  .nav-accordion-inner { margin: 0 0 4px 8px; padding-left: 8px; border-left: 1px solid var(--border); }
+  .nav-sub-item { padding-top: 7px; padding-bottom: 7px; font-size: 13.5px; }
   .badge {
     min-width: 22px; padding: 3px 7px; border-radius: 999px; text-align: center;
     background: var(--accent-grad); color: var(--on-accent); font-size: 12px; font-weight: 700; line-height: 1.3;
@@ -2373,6 +2378,9 @@
   const state = {
     user: null,
     navOpen: false,
+    adminUnitsOpen: null,
+    adminCommonOpen: null,
+    adminUnitNavOpen: {},
     profile: { fullName: '', avatarUrl: '' },
     profileMenuOpen: false,
     chat: freshChatState(),
@@ -2824,6 +2832,15 @@
 
   // Sol menü iki grupta: [id, etiket, sayaç, grup]. Kulüp hesabı Onaylamalar, Kulüpler ve Site Mesajları'nı görmez.
   const NAV_GROUPS = [['unipakt', 'UniPakt'], ['birim', 'Birim İşleri'], ['events', 'Etkinlik İşlemleri']];
+  const ADMIN_UNIT_NAV = [
+    ['social', 'Sosyal Medya', 'b-yayin'],
+    ['pr', 'Halkla İlişkiler', 'b-kampanyalar'],
+    ['sponsor', 'Sponsorluk', 'b-sponsorlar'],
+    ['clubs', 'Kulüp İlişkileri', 'b-kulupler'],
+    ['audit', 'Denetim', 'b-denetim'],
+    ['board', 'Yönetim Kurulu', 'b-onaylar'],
+  ];
+  const ADMIN_UNIT_SHARED_IDS = new Set(['b-bildirimler', 'b-gorevler', 'b-duyurular', 'b-belgeler', 'b-destek']);
   const NAV = () => {
     const openMine = visibleTasks().filter((t) => t.status === 'open').length;
     const items = [
@@ -2844,7 +2861,7 @@
       ['gorevler', 'Görevler', isAdmin() ? 0 : openMine, 'unipakt'],
       ['bildirimler', 'Bildirimler', (db.notifications || []).filter(n => !n.readAt).length, 'unipakt'],
       ...(isAdmin() ? [['kulupler', 'Kulüpler', 0, 'unipakt'], ['site-mesajlari', 'Site Mesajları', siteInboxTotal(), 'unipakt'], ['marka', 'Marka rengi', 0, 'unipakt']] : []),
-      ...(isAdmin() || state.unitAcc ? [['birimler', 'Birimler', 0, 'unipakt']] : []),
+      ...(isAdmin() || state.unitAcc ? [['birimler', isAdmin() ? 'Birim Yönetimi' : 'Birimler', 0, 'unipakt']] : []),
       ...(state.unitAcc && (state.unitAcc.perms || []).includes('brand') ? [['marka', 'Marka rengi', 0, 'unipakt']] : []),
       ['destek-taleplerim', isAdmin() ? 'Destek Talepleri' : 'UniPakt Destek', supportNewCount(), 'unipakt'],
       ...(isPresident() ? [['ekip', 'Ekip', 0, 'unipakt']] : []),
@@ -2857,6 +2874,34 @@
   // Menüde görünmeyen ama açılabilen sayfalar.
   const HIDDEN_VIEWS = ['etkinlik-olustur', 'ayarlar', 'hesap', 'dogrulama', 'kayitlar', 'kulup-sayfasi'];
   const knownView = (view) => (HIDDEN_VIEWS.includes(view) && viewAllowed(view)) || NAV().some(([id]) => id === view);
+  const navItemHtml = ([id, label, count], extraClass = '') => `<button class="nav-item${extraClass ? ` ${extraClass}` : ''}${state.view === id ? ' active' : ''}" data-go="${id}" ${state.view === id ? 'aria-current="page"' : ''}>${esc(label)}${count ? `<span class="badge">${count}</span>` : ''}</button>`;
+  const renderNavGroups = (nav) => NAV_GROUPS
+    .filter(([group]) => nav.some((item) => item[3] === group))
+    .map(([group, title]) => {
+      const items = nav.filter((item) => item[3] === group);
+      if (group !== 'birim' || !isAdmin()) {
+        return `<p class="nav-group">${esc(title)}</p>${items.map((item) => navItemHtml(item)).join('')}`;
+      }
+      const shared = items.filter(([id]) => ADMIN_UNIT_SHARED_IDS.has(id));
+      const unitPages = items.filter(([id]) => ADMIN_UNIT_NAV.some(([, , view]) => view === id));
+      const activeUnit = ADMIN_UNIT_NAV.some(([, , view]) => view === state.view);
+      const activeShared = ADMIN_UNIT_SHARED_IDS.has(state.view);
+      const unitsOpen = state.adminUnitsOpen ?? (activeUnit || activeShared);
+      const commonOpen = state.adminCommonOpen ?? activeShared;
+      const unitRows = ADMIN_UNIT_NAV.map(([kind, unitLabel, view]) => {
+        const item = unitPages.find(([id]) => id === view);
+        if (!item) return '';
+        const expanded = state.adminUnitNavOpen[kind] ?? (state.view === view);
+        return `<button type="button" class="nav-item nav-unit-toggle" data-act="admin-unit-nav-toggle" data-id="${kind}" aria-expanded="${expanded ? 'true' : 'false'}"><span>${esc(unitLabel)}</span><span class="nav-chevron" aria-hidden="true">${expanded ? '−' : '+'}</span></button>${expanded ? `<div class="nav-accordion-inner">${navItemHtml(item, 'nav-sub-item')}</div>` : ''}`;
+      }).join('');
+      return `<p class="nav-group">${esc(title)}</p>
+        <button type="button" class="nav-item nav-unit-toggle" data-act="admin-units-nav-toggle" aria-expanded="${unitsOpen ? 'true' : 'false'}"><span>Birimler</span><span class="nav-chevron" aria-hidden="true">${unitsOpen ? '−' : '+'}</span></button>
+        ${unitsOpen ? `<div class="nav-accordion-body">
+          <button type="button" class="nav-item nav-common-toggle" data-act="admin-common-nav-toggle" aria-expanded="${commonOpen ? 'true' : 'false'}"><span>Ortak Birim İşleri</span><span class="nav-chevron" aria-hidden="true">${commonOpen ? '−' : '+'}</span></button>
+          ${commonOpen ? `<div class="nav-accordion-inner">${shared.map((item) => navItemHtml(item, 'nav-sub-item')).join('')}</div>` : ''}
+          ${unitRows}
+        </div>` : ''}`;
+    }).join('');
 
   /* ------------------------------------------------------------------
      SMALL UI HELPERS
@@ -5835,6 +5880,22 @@
     ...regActions,
     ...speakerActions,
     ...designActions,
+    'admin-units-nav-toggle'() {
+      const active = ADMIN_UNIT_NAV.some(([, , view]) => state.view === view) || ADMIN_UNIT_SHARED_IDS.has(state.view);
+      state.adminUnitsOpen = !(state.adminUnitsOpen ?? active);
+      render();
+    },
+    'admin-common-nav-toggle'() {
+      const active = ADMIN_UNIT_SHARED_IDS.has(state.view);
+      state.adminCommonOpen = !(state.adminCommonOpen ?? active);
+      render();
+    },
+    'admin-unit-nav-toggle'(id) {
+      const unit = ADMIN_UNIT_NAV.find(([kind]) => kind === id);
+      if (!unit) return;
+      state.adminUnitNavOpen[id] = !(state.adminUnitNavOpen[id] ?? (state.view === unit[2]));
+      render();
+    },
     'mobile-nav-toggle'() { state.navOpen = !state.navOpen; render(); },
     'profile-menu-toggle'() { state.profileMenuOpen = !state.profileMenuOpen; render(); },
     'profile-avatar-remove'() {
@@ -8213,7 +8274,7 @@
           </div>
           <button class="mobile-nav-toggle" type="button" data-act="mobile-nav-toggle" aria-label="Menüyü aç" aria-expanded="${state.navOpen ? 'true' : 'false'}" aria-controls="panel-navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
           <nav class="side-nav ${state.navOpen ? 'is-open' : ''}" id="panel-navigation" aria-label="Panel">
-            ${NAV_GROUPS.filter(([g]) => nav.some((n) => n[3] === g)).map(([g, title]) => `<p class="nav-group">${esc(title)}</p>${nav.filter((n) => n[3] === g).map(([id, label, count]) => `<button class="nav-item ${state.view === id ? 'active' : ''}" data-go="${id}" ${state.view === id ? 'aria-current="page"' : ''}>${esc(label)}${count ? `<span class="badge">${count}</span>` : ''}</button>`).join('')}`).join('')}
+            ${renderNavGroups(nav)}
           </nav>
           <div class="side-foot">
             <div class="side-user"><strong>${esc(me.name)}</strong><small>${me.role}</small></div>
