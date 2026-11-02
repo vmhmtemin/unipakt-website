@@ -8456,7 +8456,8 @@
       const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
       const target = Math.min(pageScrollTop, maxScroll);
       window.scrollTo(0, target);
-      if (pendingScroll && target === pendingScroll.y) state.pendingViewScroll = null;
+      state.viewScroll[state.view] = target;
+      if (pendingScroll) state.pendingViewScroll = null;
     });
     const sideNav = root.querySelector('.side-nav');
     if (sideNav) {
