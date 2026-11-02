@@ -47,13 +47,13 @@ const PANEL = "https://unipakt.com/panel.html";
 // Ortak yetkiler + birim türüne özel yetkiler (veritabanındaki unit_kind_perms() ile aynı).
 const KIND_PERMS: Record<string, string[]> = {
   social: ["posts", "brand"], pr: ["campaigns"], sponsor: ["sponsors"],
-  clubs: ["clubs", "clubs_accept"], audit: ["audit", "audit_assign"], board: ["approve"],
+  clubs: ["clubs"], audit: ["audit", "audit_assign"], board: ["approve"],
 };
 const KINDS = Object.keys(KIND_PERMS);
 const kindPerms = (kind?: string | null) => ["team", "roles", "chat", ...(KIND_PERMS[kind ?? ""] ?? [])];
 const PERM_TEXT: Record<string, string> = {
   team: "Ekip yönetimi", roles: "Rol yönetimi", chat: "Mesajlar", posts: "Paylaşım talepleri", brand: "Marka rengi",
-  campaigns: "Kampanyalar", sponsors: "Sponsor ağı", clubs: "Kulüp ağı", clubs_accept: "Kulüp kabulü",
+  campaigns: "Kampanyalar", sponsors: "Sponsor ağı", clubs: "Kulüp ağı",
   audit: "Denetim kayıtları", audit_assign: "Etkinliğe sorumlu atama", approve: "YK onayı",
 };
 const MAX_MEMBERS = 40;
