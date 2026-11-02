@@ -51,9 +51,13 @@ const feedLoad=async()=>{if(feed.busy)return;feed.busy=true;try{const start=new 
 const feedView=report=>{
  if(C.pending?.())return C.empty('Yükleniyor…');
  if(feed.owner!==C.me().id)feed={...feed,owner:C.me().id,rows:[],loaded:false,busy:false,error:''};
+ const focusKind=C.unitContext?.()||null;
+ if(feed.contextKind!==focusKind){const selected=C.units().find(u=>u.kind===focusKind);feed={...feed,contextKind:focusKind,unit:selected?.id||'',loaded:false,busy:false,error:''};}
  if(!feed.loaded&&!feed.busy)queueMicrotask(feedLoad);
  const units=Object.fromEntries(C.units().filter(u=>C.admin()||u.id===C.me().unit_id).map(u=>[u.id,u.name]));
- let html=C.head(report?'Birim Raporları':'Birim Takvimi',report?'Seçilen aralıktaki gerçek kayıtların durum, tutar ve performans özeti.':'Görüşmeler, yayınlar, takipler ve denetim tarihleri.')+
+ const unitNames={social:'Sosyal Medya',pr:'Halkla İlişkiler',sponsor:'Sponsorluk',clubs:'Kulüp İlişkileri',audit:'Denetim'};
+ const calendarDescriptions={social:'Paylaşım talepleri, içerik hazırlığı ve yayın tarihleri.',pr:'Kampanya, etkinlik ve kulüp iletişimi için planlanan tarihler.',sponsor:'Sponsor görüşmeleri, takipler ve yenileme tarihleri.',clubs:'Kulüp görüşmeleri, özel etkinlikler ve takip tarihleri.',audit:'Etkinlik kontrolleri, denetim planları ve teslim tarihleri.'};
+ let html=C.head(report?'Birim Raporları':`${units[feed.unit]||unitNames[focusKind]||'Birim'} Takvimi`,report?'Seçilen aralıktaki gerçek kayıtların durum, tutar ve performans özeti.':calendarDescriptions[focusKind]||'Görüşmeler, yayınlar, takipler ve denetim tarihleri.')+
   `<form data-ur-feed class="toolbar uw-report-filters">
    <input name="from" type="date" aria-label="Başlangıç tarihi" value="${feed.from}">
    ${select('mode',{day:'Gün',week:'Hafta',month:'Ay',year:'Yıl'},feed.mode)}

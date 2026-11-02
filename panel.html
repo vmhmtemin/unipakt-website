@@ -409,6 +409,16 @@
   .nav-item:hover { opacity: 1; background: var(--paper-soft); }
   .nav-item.active { opacity: 1; background: var(--paper-soft); border-color: var(--border); font-weight: 600; }
   .nav-item.active::before { background: var(--accent-grad); }
+  .nav-unit-toggle[data-unit-kind], .nav-accordion-inner[data-unit-kind] { --unit-nav-color: #A78BFA; }
+  .nav-unit-toggle[data-unit-kind]::before { background: var(--unit-nav-color); }
+  .nav-accordion-inner[data-unit-kind] { border-left-color: color-mix(in srgb, var(--unit-nav-color) 50%, transparent); }
+  .nav-accordion-inner[data-unit-kind] .nav-item::before { background: var(--nav-link-color, var(--unit-nav-color)); }
+  .nav-accordion-inner[data-unit-kind] .nav-item.active { border-color: color-mix(in srgb, var(--nav-link-color, var(--unit-nav-color)) 45%, transparent); background: color-mix(in srgb, var(--nav-link-color, var(--unit-nav-color)) 12%, var(--paper-soft)); }
+  .nav-accordion-inner[data-unit-kind="social"], .nav-unit-toggle[data-unit-kind="social"] { --unit-nav-color: #E879F9; }
+  .nav-accordion-inner[data-unit-kind="pr"], .nav-unit-toggle[data-unit-kind="pr"] { --unit-nav-color: #60A5FA; }
+  .nav-accordion-inner[data-unit-kind="sponsor"], .nav-unit-toggle[data-unit-kind="sponsor"] { --unit-nav-color: #34D399; }
+  .nav-accordion-inner[data-unit-kind="clubs"], .nav-unit-toggle[data-unit-kind="clubs"] { --unit-nav-color: #FBBF24; }
+  .nav-accordion-inner[data-unit-kind="audit"], .nav-unit-toggle[data-unit-kind="audit"] { --unit-nav-color: #FB7185; }
   .nav-item .badge { margin-left: auto; }
   .nav-chevron { margin-left: auto; opacity: .6; font-size: 13px; line-height: 1; }
   .nav-accordion-body, .nav-accordion-inner { display: grid; gap: 3px; }
@@ -491,6 +501,23 @@
   .uw-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
   .uw-table tr:last-child td { border-bottom: 0; }
   .uw-access-list { gap: 14px; }
+  .main[data-unit-kind] { --unit-context-color: #A78BFA; }
+  .main[data-unit-kind="social"] { --unit-context-color: #E879F9; }
+  .main[data-unit-kind="pr"] { --unit-context-color: #60A5FA; }
+  .main[data-unit-kind="sponsor"] { --unit-context-color: #34D399; }
+  .main[data-unit-kind="clubs"] { --unit-context-color: #FBBF24; }
+  .main[data-unit-kind="audit"] { --unit-context-color: #FB7185; }
+  .main[data-unit-kind] .page-head h1 { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--unit-context-color) 72%, transparent); text-decoration-thickness: 3px; text-underline-offset: 8px; }
+  .main[data-unit-kind] .chip.active { background: color-mix(in srgb, var(--unit-context-color) 75%, #111); border-color: var(--unit-context-color); color: #fff; }
+  .main[data-unit-kind] .cal-day.selected { box-shadow: inset 0 0 0 1.5px var(--unit-context-color); }
+  .main[data-unit-kind] .cal-chip:not(.uw-c-task) { background: color-mix(in srgb, var(--unit-context-color) 24%, var(--surface)); color: var(--ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--unit-context-color) 55%, transparent); }
+  .main[data-unit-kind] .uw-unit-focus { border-color: color-mix(in srgb, var(--unit-context-color) 45%, var(--border)); box-shadow: inset 3px 0 0 var(--unit-context-color); }
+  .main[data-unit-kind] .uw-unit-focus h2, .main[data-unit-kind] .uw-unit-focus h3 { color: var(--unit-context-color); }
+  .uw-unit-focus { margin: 0 0 18px; }
+  .uw-unit-focus .uw-report-breakdowns > button { display: grid; gap: 6px; text-align: left; color: inherit; }
+  .uw-unit-focus .uw-report-breakdowns > button strong { font: 800 26px/1 'Archivo', sans-serif; font-variant-numeric: tabular-nums; }
+  .uw-unit-focus .uw-report-breakdowns > button span { font-size: 13px; opacity: .72; }
+  .uw-unit-focus-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
   .uw-report-filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: end; margin: 24px 0; }
   .uw-report-filters > * { width: 100%; min-width: 0; }
   .uw-report-filters .btn { width: auto; justify-self: start; }
@@ -2407,6 +2434,9 @@
     adminUnitsOpen: null,
     adminCommonOpen: null,
     adminUnitNavOpen: {},
+    selectedUnitKind: null,
+    viewScroll: {},
+    pendingViewScroll: null,
     profile: { fullName: '', avatarUrl: '' },
     profileMenuOpen: false,
     chat: freshChatState(),
@@ -2918,7 +2948,7 @@
         const item = unitPages.find(([id]) => id === view);
         if (!item) return '';
         const expanded = state.adminUnitNavOpen[kind] ?? (unitView === view);
-        return `<button type="button" class="nav-item nav-unit-toggle" data-act="admin-unit-nav-toggle" data-id="${kind}" aria-expanded="${expanded ? 'true' : 'false'}"><span>${esc(unitLabel)}</span><span class="nav-chevron" aria-hidden="true">${expanded ? '−' : '+'}</span></button>${expanded ? `<div class="nav-accordion-inner">${workspaceUnitLinks(kind, item)}</div>` : ''}`;
+        return `<button type="button" class="nav-item nav-unit-toggle" data-unit-kind="${kind}" data-act="admin-unit-nav-toggle" data-id="${kind}" aria-expanded="${expanded ? 'true' : 'false'}"><span>${esc(unitLabel)}</span><span class="nav-chevron" aria-hidden="true">${expanded ? '−' : '+'}</span></button>${expanded ? `<div class="nav-accordion-inner" data-unit-kind="${kind}">${workspaceUnitLinks(kind, item)}</div>` : ''}`;
       }).join('');
       return `<p class="nav-group">${esc(title)}</p>
         <button type="button" class="nav-item nav-unit-toggle" data-act="admin-units-nav-toggle" aria-expanded="${unitsOpen ? 'true' : 'false'}"><span>Birimler</span><span class="nav-chevron" aria-hidden="true">${unitsOpen ? '−' : '+'}</span></button>
@@ -6777,13 +6807,25 @@
   const UW_HOME_STATS = [];
   const uwHomeView = () => {
     const wait = uwLoading('Genel Bakış', 'Birimindeki işler tek ekranda.'); if (wait) return wait;
-    const me = uwMe(), u = uwMyUnit();
-    const tasks = uwList('tasks').filter((t) => t.status === 'open' && (t.assignee === me.id || (!t.assignee && uwLead())));
+    const me = uwMe(), ownUnit = uwMyUnit();
+    const focusKind = ownUnit?.kind || (isAdmin() ? state.selectedUnitKind : null);
+    const focusUnit = ownUnit || uwUnitOfKind(focusKind);
+    const focusUnitId = focusUnit?.id || null;
+    const unitTasks = uwList('tasks').filter((t) => !focusUnitId || t.unit_id === focusUnitId);
+    const unitWork = uwList('workItems').filter((w) => !focusUnitId || w.unit_id === focusUnitId);
+    const tasks = unitTasks.filter((t) => t.status === 'open' && (isAdmin() || t.assignee === me.id || (!t.assignee && uwLead())));
     const review = uwLead() ? uwList('tasks').filter((t) => !t.by_admin && t.review_status === 'pending') : [];
-    const anns = uwList('announcements');
+    const anns = uwList('announcements').filter((a) => !focusUnitId || !a.unit_id || a.unit_id === focusUnitId);
     const unreadAnn = anns.filter((a) => !a.read_at);
     const extra = UW_HOME_STATS.flatMap((f) => f() || []);
-    const workflowStats=UWD().work_stats||{};
+    const workflowStats=isAdmin()&&focusUnitId?{
+      active:unitWork.filter((w)=>!['completed','closed','cancelled','published','rejected'].includes(w.status)).length,
+      overdue:unitWork.filter((w)=>w.due_at&&new Date(w.due_at)<now&&!['completed','closed','cancelled'].includes(w.status)).length,
+      upcoming:unitWork.filter((w)=>w.starts_at&&new Date(w.starts_at)>now&&new Date(w.starts_at)<new Date(now.getTime()+7*86400000)).length,
+      unassigned:unitWork.filter((w)=>!w.assignee).length,
+      approval:unitWork.filter((w)=>w.status==='approval').length,
+      waiting:unitWork.filter((w)=>w.status==='needs_info').length,
+    }:UWD().work_stats||{};
     for(const [key,label] of [['active','Açık birim kaydı'],['overdue','Geciken kayıt'],['upcoming','Bu hafta yaklaşan'],['unassigned','Sorumlu atanmamış'],['approval','Kayıt onayı bekleyen'],['waiting','Bilgi bekleyen']])extra.push({label,n:workflowStats[key]||0,go:'b-plan',hot:key==='overdue'&&workflowStats[key]>0});
     const stats = [
       { label: 'Okunmamış bildirim', n: uwUnread(), go: 'b-bildirimler', hot: uwUnread() > 0 },
@@ -6793,8 +6835,39 @@
       ...extra,
     ];
     const events = upcomingEvents().slice(0, 4);
+    const focusConfig = {
+      social: { title: 'Sosyal Medya çalışma alanı', description: 'İçerik taleplerini, üretim akışını ve yayın tarihlerini buradan izle.', links: [['b-yayin','İçerik akışı'],['b-work-social_template','Şablonlar'],['b-plan','Yayın takvimi']] },
+      pr: { title: 'Halkla İlişkiler çalışma alanı', description: 'Kampanyaları, kulüplerden gelen talepleri ve etkinlik çalışmalarını takip et.', links: [['b-kampanyalar','Kampanyalar'],['b-work-pr_request','Talepler'],['b-plan','Birim takvimi']] },
+      sponsor: { title: 'Sponsorluk çalışma alanı', description: 'Sponsor ağı, görüşme takipleri ve yenileme tarihleri bir arada.', links: [['b-sponsorlar','Sponsor ağı'],['b-work-sponsor_followup','Görüşme takipleri'],['b-plan','Birim takvimi']] },
+      clubs: { title: 'Kulüp İlişkileri çalışma alanı', description: 'Kulüp ağı, adaylar ve planlanan görüşmeler için ortak başlangıç noktası.', links: [['b-kulupler','Kulüp ağı'],['b-work-club_meeting','Görüşmeler'],['b-plan','Birim takvimi']] },
+      audit: { title: 'Denetim çalışma alanı', description: 'Etkinlik kontrollerini, denetim planlarını ve açık bulguları izle.', links: [['b-denetim','Denetim kayıtları'],['b-work-audit_plan','Denetim planları'],['b-plan','Denetim takvimi']] },
+    }[focusKind];
+    const socialPosts = uwList('posts').filter((p) => !focusUnitId || p.from_unit === focusUnitId || p.unit_id === focusUnitId);
+    const socialInbox = uwList('post_inbox').filter((p) => !focusUnitId || p.from_unit === focusUnitId || p.unit_id === focusUnitId);
+    const focusMetrics = focusKind === 'social' ? [
+      ['Bekleyen içerik', socialInbox.length + socialPosts.filter((p) => ['request','approval'].includes(p.status)).length, 'b-yayin'],
+      ['Planlanan yayın', socialPosts.filter((p) => ['preparing','planned'].includes(p.status) || p.plan_at && new Date(p.plan_at) >= now).length, 'b-plan'],
+      ['Açık görev', unitTasks.filter((t) => t.status === 'open').length, 'b-gorevler'],
+    ] : focusKind === 'pr' ? [
+      ['Kampanya / talep', unitWork.filter((w) => ['pr_request','pr_material'].includes(w.kind)).length, 'b-kampanyalar'],
+      ['Açık rapor talebi', uwList('reports').filter((r) => r.status === 'open' && (!focusUnitId || r.unit_id === focusUnitId)).length, 'b-kampanyalar'],
+      ['Açık görev', unitTasks.filter((t) => t.status === 'open').length, 'b-gorevler'],
+    ] : focusKind === 'sponsor' ? [
+      ['Firma', (UWD().sponsors?.rows || []).length, 'b-sponsorlar'],
+      ['Görüşme kaydı', (UWD().sponsors?.contacts || []).length, 'b-sponsorlar'],
+      ['Takip işi', unitWork.filter((w) => w.kind === 'sponsor_followup').length, 'b-work-sponsor_followup'],
+    ] : focusKind === 'clubs' ? [
+      ['Ağdaki kulüp', (UWD().clubnet?.clubs || []).length, 'b-kulupler'],
+      ['Aday kulüp', (UWD().clubnet?.candidates || []).length, 'b-kulupler'],
+      ['Planlı görüşme', unitWork.filter((w) => w.kind === 'club_meeting' && w.starts_at).length, 'b-work-club_meeting'],
+    ] : focusKind === 'audit' ? [
+      ['Etkinlik kontrolü', (UWD().audit?.events || []).length, 'b-denetim'],
+      ['Denetim kaydı', (UWD().audit?.records || []).length, 'b-denetim'],
+      ['Açık görev', unitTasks.filter((t) => t.status === 'open').length, 'b-gorevler'],
+    ] : [];
     return `
-      ${head('Genel Bakış', `${u?.name || state.unitAcc?.unitName || 'Birim'} · ${state.unitAcc?.roleName || ''}`)}
+      ${head('Genel Bakış', `${focusUnit?.name || state.unitAcc?.unitName || 'Birim'} · ${state.unitAcc?.roleName || ''}`)}
+      ${focusConfig ? `<section class="card uw-unit-focus" data-unit-kind="${esc(focusKind)}"><div class="meta top"><span class="tag">${esc(focusUnit?.name || focusKind)}</span><span>Birime özel genel bakış</span></div><h2>${esc(focusConfig.title)}</h2><p class="body">${esc(focusConfig.description)}</p><div class="uw-report-breakdowns">${focusMetrics.map(([label,n,view]) => `<button class="card uw-report-card" data-go="${view}"><strong>${n}</strong><span>${esc(label)}</span></button>`).join('')}</div><div class="uw-unit-focus-links">${focusConfig.links.map(([view,label]) => `<button class="btn ghost small" data-go="${view}">${esc(label)}</button>`).join('')}</div></section>` : ''}
       <div class="stats uw-stats">${stats.map((s) => `<button class="stat ${s.hot ? 'hot' : ''}" data-go="${esc(s.go)}"><b>${s.n}</b><span>${esc(s.label)}</span></button>`).join('')}</div>
       <div class="grid-2" style="margin-top:34px">
         <div>
@@ -7646,18 +7719,40 @@
 
   /* ---------------- Takvim (birim) ---------------- */
   const uwCalendarView = () => {
-    const sub = 'Etkinlikler, planlanan yayınlar, görev son tarihleri, sponsor görüşmeleri ve denetim kontrolleri; görme yetkin olanlar.';
-    const wait = uwLoading('Takvim', sub); if (wait) return wait;
+    const ownUnit = uwMyUnit();
+    const focusKind = ownUnit?.kind || (isAdmin() ? state.selectedUnitKind : null);
+    const focusUnit = ownUnit || uwUnitOfKind(focusKind);
+    const focusUnitId = focusUnit?.id || null;
+    const calendarCopy = {
+      social: 'Yayın tarihleri, içerik hazırlıkları, ilgili etkinlikler ve görev son günleri.',
+      pr: 'Kampanyalar, etkinlik çalışmaları, kulüp talepleri ve teslim tarihleri.',
+      sponsor: 'Sponsor görüşmeleri, takipler, yenilemeler ve destekle ilişkili etkinlikler.',
+      clubs: 'Kulüp görüşmeleri, kulübe özel duyurular, iş birlikleri ve takip tarihleri.',
+      audit: 'Etkinlik denetimleri, kontrol görevleri ve denetim kayıtlarının tarihleri.',
+    }[focusKind] || 'Birim etkinlikleri ve ilgili kayıtların tarihleri.';
+    const calendarTitle = focusUnit ? `${focusUnit.name} Takvimi` : 'Birim Takvimi';
+    const wait = uwLoading(calendarTitle, calendarCopy); if (wait) return wait;
     const st = state.uwFilter['b-takvim'] || { y: now.getFullYear(), m: now.getMonth(), sel: today() };
     const { y, m, sel } = st;
     const items = {};
     const add = (date, x) => { if (date) (items[String(date).slice(0, 10)] ||= []).push(x); };
-    calendarEvents().forEach((e) => add(e.date, { type: 'event', title: e.title, sub: `${e.time || ''} ${e.place || ''}`.trim() }));
-    uwList('posts').filter((p) => p.plan_at && ['preparing', 'approval', 'planned', 'published'].includes(p.status)).forEach((p) => add(ymd(new Date(new Date(p.plan_at).toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }))), { type: 'post', title: p.title, sub: `Yayın · ${POST_ST[p.status][1]}` }));
-    uwList('tasks').filter((t) => t.status === 'open' && t.due_date).forEach((t) => add(t.due_date, { type: 'task', title: t.title, sub: 'Görev son tarihi' }));
-    (spData().contacts || []).forEach((c) => { const s = (spData().rows || []).find((x) => x.id === c.sponsor_id); add(c.at, { type: 'sponsor', title: s?.brand || 'Sponsor', sub: `Sponsor · ${(SP_CONTACT.find(([k]) => k === c.kind) || ['', c.kind])[1]}` }); });
-    auData().events.filter((e) => e.assignees.length).forEach((e) => add(e.date, { type: 'audit', title: e.title, sub: `Denetim · ${e.assignees.map((a) => a.name).join(', ')}` }));
-    uwList('reports').filter((r) => r.status === 'open' && r.due_date).forEach((r) => add(r.due_date, { type: 'task', title: r.title, sub: 'Rapor son tarihi' }));
+    if (focusKind !== 'audit') calendarEvents().forEach((e) => add(e.date, { type: 'event', title: e.title, sub: `${e.time || ''} ${e.place || ''}`.trim() }));
+    if (!focusKind || focusKind === 'social') uwList('posts').filter((p) => p.plan_at && ['preparing', 'approval', 'planned', 'published'].includes(p.status)).forEach((p) => add(ymd(new Date(new Date(p.plan_at).toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }))), { type: 'post', title: p.title, sub: `Yayın · ${POST_ST[p.status][1]}` }));
+    uwList('tasks').filter((t) => (!focusUnitId || t.unit_id === focusUnitId) && t.status === 'open' && t.due_date).forEach((t) => add(t.due_date, { type: 'task', title: t.title, sub: 'Görev son tarihi' }));
+    if (!focusKind || focusKind === 'sponsor') (spData().contacts || []).forEach((c) => { const s = (spData().rows || []).find((x) => x.id === c.sponsor_id); add(c.at, { type: 'sponsor', title: s?.brand || 'Sponsor', sub: `Sponsor · ${(SP_CONTACT.find(([k]) => k === c.kind) || ['', c.kind])[1]}` }); });
+    if (!focusKind || focusKind === 'audit') auData().events.filter((e) => e.assignees.length).forEach((e) => add(e.date, { type: 'audit', title: e.title, sub: `Denetim · ${e.assignees.map((a) => a.name).join(', ')}` }));
+    const calendarKinds = {
+      social: ['social_template','pr_material'],
+      pr: ['pr_request','pr_material','pr_budget'],
+      sponsor: ['sponsor_followup','sponsor_offer','sponsor_package','sponsor_budget'],
+      clubs: ['club_meeting','club_event','club_request','club_collaboration'],
+      audit: ['audit_plan','audit_checklist','audit_finding','audit_response','audit_report'],
+    }[focusKind] || [];
+    uwList('workItems').filter((w) => calendarKinds.includes(w.kind) && (!focusUnitId || w.unit_id === focusUnitId)).forEach((w) => {
+      const kindLabel = window.UniPaktWorkflows.types[w.kind]?.name || 'Birim kaydı';
+      if (w.starts_at) add(ymd(new Date(new Date(w.starts_at).toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }))), { type: focusKind === 'audit' ? 'audit' : 'task', title: w.title, sub: kindLabel });
+      if (w.due_at) add(ymd(new Date(new Date(w.due_at).toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }))), { type: focusKind === 'audit' ? 'audit' : 'task', title: w.title, sub: `${kindLabel} · Son tarih` });
+    });
     const first = new Date(y, m, 1), offset = (first.getDay() + 6) % 7, days = new Date(y, m + 1, 0).getDate(), cells = Math.ceil((offset + days) / 7) * 7;
     let grid = DOW.map((d) => `<div class="cal-dow">${d}</div>`).join('');
     for (let i = 0; i < cells; i++) {
@@ -7666,12 +7761,12 @@
     }
     const selected = items[sel] || [];
     const T = { event: 'Etkinlik', post: 'Yayın', task: 'Son tarih', sponsor: 'Sponsor', audit: 'Denetim' };
-    return `${head('Takvim', sub)}
+    return `<div class="unit-calendar-theme" data-unit-kind="${esc(focusKind || '')}">${head(calendarTitle, calendarCopy)}
       <div class="cal-head"><h2>${MONTHS[m]} ${y}</h2><div class="row"><button class="btn ghost small" data-act="uw-tcal" data-id="-1">‹ Önceki</button><button class="btn ghost small" data-act="uw-tcal" data-id="0">Bugün</button><button class="btn ghost small" data-act="uw-tcal" data-id="1">Sonraki ›</button></div></div>
       <div class="cal-grid">${grid}</div>
       <div class="cal-legend">${Object.entries(T).map(([k, l]) => `<span><i class="uw-c-${k}"></i>${l}</span>`).join('')}</div>
       <div class="section-head"><h2>${fmtDay(sel)}</h2></div>
-      ${selected.length ? `<div class="card">${selected.map((x) => `<div class="mini-row"><div><strong>${esc(x.title)}</strong><small>${esc(x.sub)}</small></div><span class="tag">${T[x.type]}</span></div>`).join('')}</div>` : empty('Bu günde kayıt yok.')}`;
+      ${selected.length ? `<div class="card">${selected.map((x) => `<div class="mini-row"><div><strong>${esc(x.title)}</strong><small>${esc(x.sub)}</small></div><span class="tag">${T[x.type]}</span></div>`).join('')}</div>` : empty('Bu günde kayıt yok.')}</div>`;
   };
 
   /* ---------------- Destek (birim → Merkez) ---------------- */
@@ -7872,6 +7967,10 @@
     if (!knownView(view)) view = homeView();
     if (view !== state.view && !leaveEventPage()) return;
     if (view !== state.view && state.view === 'marka') brandLeave();
+    if (view !== state.view) {
+      state.viewScroll[state.view] = window.scrollY;
+      state.pendingViewScroll = { view, y: state.viewScroll[view] || 0 };
+    }
     state.view = view; state.profileMenuOpen = false; state.navOpen = false;
     if (location.hash !== `#${view}`) history.pushState(null, '', `#${view}`);
     render();
@@ -8322,7 +8421,8 @@
   });
   const render = () => {
     if (!db || !state.user || (state.user !== ADMIN && !state.unitAcc && !club(state.user))) { state.user = null; renderLogin(); return; }
-    const pageScrollTop = window.scrollY;
+    const pendingScroll = state.pendingViewScroll?.view === state.view ? state.pendingViewScroll : null;
+    const pageScrollTop = pendingScroll ? pendingScroll.y : window.scrollY;
     const sideNavScrollTop = root.querySelector('.side-nav')?.scrollTop ?? 0;
     if (state.staff && !state.profile.username && !state.usernameAsked && !dlg.open) { state.usernameAsked = true; setTimeout(askUsername, 0); }
     const nav = NAV();
@@ -8345,24 +8445,26 @@
             ${DEMO ? '<button class="link-btn" data-act="reset">Demo verisini sıfırla</button>' : ''}
           </div>
         </aside>
-        <main class="main ${state.view === 'ims' ? 'is-im' : ''}"><div class="main-inner">
+        <main class="main ${state.view === 'ims' ? 'is-im' : ''}" data-unit-kind="${esc(state.unitAcc ? uwMyUnit()?.kind || '' : state.selectedUnitKind || '')}"><div class="main-inner">
           ${profileMenu()}
           ${DEMO ? '<div class="demo-bar"><span><b>Demo</b> — veriler yalnızca bu tarayıcıda saklanıyor.</span></div>' : ''}
           ${views[state.view]()}
         </div></main>
       </div>`;
     document.documentElement.classList.toggle('nav-lock', !!state.navOpen && matchMedia('(max-width: 900px)').matches);
-    window.scrollTo(0, pageScrollTop);
+    requestAnimationFrame(() => {
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      const target = Math.min(pageScrollTop, maxScroll);
+      window.scrollTo(0, target);
+      if (pendingScroll && target === pendingScroll.y) state.pendingViewScroll = null;
+    });
     const sideNav = root.querySelector('.side-nav');
     if (sideNav) {
       sideNav.scrollTop = sideNavScrollTop;
-      const activeNavItem = sideNav.querySelector('.nav-item.active');
-      if (activeNavItem) {
-        const navBounds = sideNav.getBoundingClientRect();
-        const itemBounds = activeNavItem.getBoundingClientRect();
-        if (itemBounds.top < navBounds.top) sideNav.scrollTop -= navBounds.top - itemBounds.top;
-        else if (itemBounds.bottom > navBounds.bottom) sideNav.scrollTop += itemBounds.bottom - navBounds.bottom;
-      }
+      sideNav.querySelectorAll('.nav-accordion-inner[data-unit-kind]').forEach((group) => group.querySelectorAll('.nav-item').forEach((item, index) => {
+        const base = ({ social: 300, pr: 210, sponsor: 150, clubs: 42, audit: 350 })[group.dataset.unitKind] ?? 270;
+        item.style.setProperty('--nav-link-color', `hsl(${(base + index * 53) % 360} 78% 70%)`);
+      }));
     }
     if (state.member) pruneForMember(root.querySelector('.main'));
     if (state.view === 'ekip' && !state.team.rows && !state.team.loading && !state.team.error) loadTeam();
@@ -8387,11 +8489,18 @@
       document.querySelector('.profile-trigger')?.setAttribute('aria-expanded', 'false');
     }
     const goBtn = e.target.closest('[data-go]');
-    if (goBtn) { go(goBtn.dataset.go); return; }
+    if (goBtn) {
+      const unitGroup = goBtn.closest('.nav-accordion-inner[data-unit-kind]');
+      if (unitGroup && isAdmin()) state.selectedUnitKind = unitGroup.dataset.unitKind;
+      else if (goBtn.closest('.side-nav') && isAdmin()) state.selectedUnitKind = null;
+      go(goBtn.dataset.go); return;
+    }
     const btn = e.target.closest('[data-act]');
     if (!btn || dlg.contains(btn) || btn.disabled) return;
     const run = actions[btn.dataset.act];
     if (!run) return;
+    const unitGroup = btn.closest('.nav-accordion-inner[data-unit-kind]');
+    if (unitGroup && isAdmin()) state.selectedUnitKind = unitGroup.dataset.unitKind;
     if (!actAllowed(btn.dataset.act)) { toast(NO_PERM); return; }
     let result;
     try { result = run(btn.dataset.id, btn.dataset.sub); } catch (error) { fail(error); return; }
@@ -8731,6 +8840,7 @@
   }
   const workspaceContext={
     admin:uwAdmin, me:uwMe, units:uwUnits, data:UWD, pending:()=>!state.uw.data&&!!state.unitAcc, esc, field, head, empty, openForm, toast, render,
+    unitContext:()=>state.unitAcc?uwMyUnit()?.kind||null:state.selectedUnitKind,
     storageUpload:(path,file)=>call(`/storage/v1/object/unit-files/${path}`,{method:'POST',body:file,raw:true,headers:{'Content-Type':file.type||'application/octet-stream','x-upsert':'false'}}),
     storageSign:async path=>{const r=await call(`/storage/v1/object/sign/unit-files/${path}`,{method:'POST',body:{expiresIn:300}});return `${SUPABASE_URL}/storage/v1${r.signedURL}`;},
     currentView:()=>state.view, call:(action,data)=>api.uw(action,data),
