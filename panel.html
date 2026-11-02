@@ -2491,7 +2491,9 @@
   const viewAllowed = (view) => UW_VIEWS[view] ? UW_VIEWS[view].allow() : state.unitAcc ? ((UNIT_VIEWS.includes(view) && (view !== 'ims' || state.unitAcc.chat)) || (view === 'marka' && (state.unitAcc.perms || []).includes('brand'))) : (view === 'marka' ? isAdmin() : view === 'birimler' ? (isAdmin() || !!state.unitAcc) : view === 'kulup-sayfasi' ? isPresident() : view === 'ekip' ? isPresident() : (view === 'ayarlar' || view === 'islem-kaydi') ? !state.member : !VIEW_PERM[view] || can(VIEW_PERM[view]));
   const actPerm = (act) => {
     if (/^profile-avatar/.test(act)) return '';
-    if (/^(team-|club-|activity-)/.test(act)) return 'president';
+    // Kulüp yönetimi ana Kulüpler ekranında yalnızca UniPakt yöneticilerine açıktır.
+    if (/^club-/.test(act)) return 'admin';
+    if (/^(team-|activity-)/.test(act)) return 'president';
     if (/^(reg-|staff-|grant-)/.test(act)) return 'registrations';
     if (/^(event-|ev-|app-|notif-app-|partner-|rejected-event)/.test(act)) return 'events';
     if (act === 'ann-new') return 'announcements';
@@ -2500,7 +2502,7 @@
     if (/^ims-new/.test(act)) return 'chat';
     return '';
   };
-  const actAllowed = (act) => { const p = actPerm(act); return !p || (p === 'president' ? isPresident() : can(p)); };
+  const actAllowed = (act) => { const p = actPerm(act); return !p || (p === 'admin' ? isAdmin() : p === 'president' ? isPresident() : can(p)); };
   const NO_PERM = 'Bu işlem için yetkin yok. Kulüp başkanından yetki iste.';
   // Demo: ekip üyesi olarak giriş "member:<id>" diye saklanır.
   const applyDemoUser = () => {
