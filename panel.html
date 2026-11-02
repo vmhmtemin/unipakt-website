@@ -8632,8 +8632,13 @@
     clubs: [['clubs','Kulüp Listesi'],['cands','Aday Kulüpler'],['stats','Göstergeler']],
     audit: [['records','Denetim Kayıtları'],['events','Etkinlik Denetimleri'],['mine','Kontrol Görevlerim']],
   };
-  const workspaceUnitLinks = (kind, item) => (WORKSPACE_PAGES[kind] || [[null,item[1]]]).map(([tab,label]) =>
-    `<button type="button" class="nav-item nav-sub-item${state.view === item[0] && state.uwTab[item[0]] === tab ? ' active' : ''}" data-act="workspace-page" data-id="${esc(item[0])}" data-sub="${esc(tab || '')}">${esc(label)}</button>`).join('') + window.UniPaktWorkflows.unitLinks(kind) + window.UniPaktRecords.unitLinks(kind) + `<button class="nav-item nav-sub-item" data-go="b-genel">Genel Bakış</button><button class="nav-item nav-sub-item" data-go="b-plan">Birim Takvimi</button><button class="nav-item nav-sub-item" data-go="b-raporlar">Birim Raporları</button>`;
+  const workspaceUnitLinks = (kind, item) =>
+    `<button class="nav-item nav-sub-item${state.view === 'b-genel' ? ' active' : ''}" data-go="b-genel">Genel Bakış</button>` +
+    (WORKSPACE_PAGES[kind] || [[null,item[1]]]).map(([tab,label]) =>
+      `<button type="button" class="nav-item nav-sub-item${state.view === item[0] && state.uwTab[item[0]] === tab ? ' active' : ''}" data-act="workspace-page" data-id="${esc(item[0])}" data-sub="${esc(tab || '')}">${esc(label)}</button>`).join('') +
+    window.UniPaktWorkflows.unitLinks(kind) + window.UniPaktRecords.unitLinks(kind) +
+    `<button class="nav-item nav-sub-item${state.view === 'b-plan' ? ' active' : ''}" data-go="b-plan">Birim Takvimi</button>` +
+    `<button class="nav-item nav-sub-item${state.view === 'b-raporlar' ? ' active' : ''}" data-go="b-raporlar">Birim Raporları</button>`;
   Object.assign(actions, {
     'workspace-page'(view, tab) { if (!viewAllowed(view)) return; state.uwTab[view] = tab; go(view); },
     'uw-task-unfocus'(){state.focusTask=null;render();},
