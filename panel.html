@@ -489,7 +489,7 @@
   .uw-row { cursor: pointer; }
   .uw-row:hover td { background: var(--paper-soft); }
   .uw-notes { max-width: 220px; opacity: .8; }
-  .uw-sponsor-stats { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+  .stats.uw-sponsor-stats { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
   .uw-sponsor-list, .uw-sponsor-summary { display: flex; flex-direction: column; gap: 12px; }
   .uw-sponsor-card h3 { margin: 4px 0 12px; overflow-wrap: anywhere; }
   .uw-sponsor-fields, .uw-sponsor-breakdown { display: flex; flex-direction: column; gap: 0; }
@@ -7346,7 +7346,7 @@
         <h3>${esc(s.brand)}</h3>
         <div class="uw-sponsor-fields">
           ${s.email ? `<div class="uw-sponsor-field"><small class="hint">Mail</small><a href="mailto:${esc(s.email)}" data-stop>${esc(s.email)}</a></div>` : ''}
-          ${s.web ? `<div class="uw-sponsor-field"><small class="hint">İletişim formu / web</small><a href="${esc(s.web)}" target="_blank" rel="noopener noreferrer" data-stop>${esc(s.web.replace(/^https?:\/\/(www\.)?/i, '').slice(0, 80))}</a></div>` : ''}
+          ${s.web ? `<div class="uw-sponsor-field"><small class="hint">İletişim formu / web</small><div>${esc(s.web.replace(/^https?:\/\/(www\.)?/i, '').slice(0, 80))}</div></div>` : ''}
           ${s.contact_person ? `<div class="uw-sponsor-field"><small class="hint">Yetkili kişi</small><div>${esc(s.contact_person)}</div></div>` : ''}
           <div class="uw-sponsor-field"><small class="hint">Sorumlu</small><div>${esc(s.owner ? s.owner_name || '' : 'Atanmadı')}</div></div>
           <div class="uw-sponsor-field"><small class="hint">Son işlem</small><div>${s.last_action ? uwDate(s.last_action) : 'Henüz işlem yok'}</div></div>
