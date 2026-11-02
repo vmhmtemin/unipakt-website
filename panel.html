@@ -5737,7 +5737,7 @@
 
   const unitActions = {
     'unit-reload'() { reloadUnits(); render(); },
-    'unit-open'(id) { state.units.open = id; loadUnitEmails(id); render(); window.scrollTo(0, 0); },
+    'unit-open'(id) { state.units.open = id; loadUnitEmails(id); render(); },
     'unit-back'() { state.units.open = ''; render(); },
     'unit-passive-toggle'() { state.units.showPassive = !state.units.showPassive; render(); },
     'unit-new'() {
@@ -7855,7 +7855,7 @@
     if (view !== state.view && state.view === 'marka') brandLeave();
     state.view = view; state.profileMenuOpen = false; state.navOpen = false;
     if (location.hash !== `#${view}`) history.pushState(null, '', `#${view}`);
-    render(); window.scrollTo(0, 0);
+    render();
   };
 
   const renderPasswordReset = (message = '') => {
@@ -8303,6 +8303,8 @@
   });
   const render = () => {
     if (!db || !state.user || (state.user !== ADMIN && !state.unitAcc && !club(state.user))) { state.user = null; renderLogin(); return; }
+    const pageScrollTop = window.scrollY;
+    const sideNavScrollTop = root.querySelector('.side-nav')?.scrollTop ?? 0;
     if (state.staff && !state.profile.username && !state.usernameAsked && !dlg.open) { state.usernameAsked = true; setTimeout(askUsername, 0); }
     const nav = NAV();
     if (!knownView(state.view)) state.view = homeView();
@@ -8331,7 +8333,18 @@
         </div></main>
       </div>`;
     document.documentElement.classList.toggle('nav-lock', !!state.navOpen && matchMedia('(max-width: 900px)').matches);
-    root.querySelector('.nav-item.active')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+    window.scrollTo(0, pageScrollTop);
+    const sideNav = root.querySelector('.side-nav');
+    if (sideNav) {
+      sideNav.scrollTop = sideNavScrollTop;
+      const activeNavItem = sideNav.querySelector('.nav-item.active');
+      if (activeNavItem) {
+        const navBounds = sideNav.getBoundingClientRect();
+        const itemBounds = activeNavItem.getBoundingClientRect();
+        if (itemBounds.top < navBounds.top) sideNav.scrollTop -= navBounds.top - itemBounds.top;
+        else if (itemBounds.bottom > navBounds.bottom) sideNav.scrollTop += itemBounds.bottom - navBounds.bottom;
+      }
+    }
     if (state.member) pruneForMember(root.querySelector('.main'));
     if (state.view === 'ekip' && !state.team.rows && !state.team.loading && !state.team.error) loadTeam();
     if (state.view === 'islem-kaydi' && !state.activity.rows && !state.activity.loading && !state.activity.error) loadActivity();
