@@ -491,12 +491,22 @@
   .uw-notes { max-width: 220px; opacity: .8; }
   .stats.uw-sponsor-stats { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
   .uw-sponsor-list, .uw-sponsor-summary { display: flex; flex-direction: column; gap: 12px; }
-  .uw-sponsor-card h3 { margin: 4px 0 12px; overflow-wrap: anywhere; }
-  .uw-sponsor-fields, .uw-sponsor-breakdown { display: flex; flex-direction: column; gap: 0; }
-  .uw-sponsor-field, .uw-sponsor-breakdown-row { min-width: 0; padding: 9px 0; border-top: 1px solid var(--border); overflow-wrap: anywhere; }
-  .uw-sponsor-field small, .uw-sponsor-breakdown-row small { display: block; margin-bottom: 3px; }
-  .uw-sponsor-breakdown-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .uw-sponsor-card { padding: 14px 18px; }
+  .uw-sponsor-card .meta { margin-bottom: 4px; }
+  .uw-sponsor-card h3 { margin: 2px 0 8px; font-size: 18px; overflow-wrap: anywhere; }
+  .uw-sponsor-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; }
+  .uw-sponsor-breakdown { display: flex; flex-direction: column; gap: 0; }
+  .uw-sponsor-field { display: grid; grid-template-columns: minmax(90px, 120px) minmax(0, 1fr); align-items: baseline; column-gap: 8px; min-width: 0; padding: 6px 0; border-top: 1px solid var(--border); overflow-wrap: anywhere; }
+  .uw-sponsor-field small { display: block; margin: 0; }
+  .uw-sponsor-notes { grid-column: 1 / -1; }
+  .uw-sponsor-breakdown-row { min-width: 0; padding: 9px 0; border-top: 1px solid var(--border); overflow-wrap: anywhere; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
   .uw-sponsor-breakdown-row strong { font-variant-numeric: tabular-nums; }
+  @media (max-width: 700px) {
+    .uw-sponsor-card { padding: 12px 14px; }
+    .uw-sponsor-fields { grid-template-columns: minmax(0, 1fr); column-gap: 0; }
+    .uw-sponsor-notes { grid-column: auto; }
+    .uw-sponsor-field { grid-template-columns: minmax(82px, 105px) minmax(0, 1fr); }
+  }
   .uw-cat-tabs { flex-wrap: wrap; }
   .uw-mini { padding: 10px 14px; margin-top: 10px; }
   .uw-steps { display: flex; gap: 5px; }
@@ -7351,7 +7361,7 @@
           <div class="uw-sponsor-field"><small class="hint">Sorumlu</small><div>${esc(s.owner ? s.owner_name || '' : 'Atanmadı')}</div></div>
           <div class="uw-sponsor-field"><small class="hint">Son işlem</small><div>${s.last_action ? uwDate(s.last_action) : 'Henüz işlem yok'}</div></div>
           <div class="uw-sponsor-field"><small class="hint">Paket / etkinlik</small><div>${[spPack(s.package), s.event_label].filter(Boolean).map(esc).join(' · ') || '—'}</div></div>
-          ${s.notes ? `<div class="uw-sponsor-field"><small class="hint">Notlar</small><div>${uwText((s.notes || '').slice(0, 180))}${s.notes.length > 180 ? '…' : ''}</div></div>` : ''}
+          ${s.notes ? `<div class="uw-sponsor-field uw-sponsor-notes"><small class="hint">Notlar</small><div>${uwText((s.notes || '').slice(0, 180))}${s.notes.length > 180 ? '…' : ''}</div></div>` : ''}
         </div>
         ${lead ? `<div class="actions"><button type="button" class="btn ghost small" data-act="uw-sp-edit" data-id="${esc(s.id)}">Düzenle</button><button type="button" class="btn small" data-act="uw-sp-open" data-id="${esc(s.id)}">Detay ve görüşmeler</button></div>` : ''}
       </article>`).join('')}
