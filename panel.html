@@ -87,6 +87,15 @@
   .unit-card { display: flex; flex-direction: column; gap: 14px; text-align: left; cursor: pointer; color: inherit; font: inherit; transition: border-color .2s, transform .2s; }
   .unit-card:hover { border-color: var(--accent); transform: translateY(-2px); }
   .unit-card.is-mine { border-color: var(--accent); }
+  .unit-card[data-unit-kind] { --unit-card-color: #A78BFA; box-shadow: inset 3px 0 0 var(--unit-card-color); }
+  .unit-card[data-unit-kind="social"] { --unit-card-color: #E879F9; }
+  .unit-card[data-unit-kind="pr"] { --unit-card-color: #60A5FA; }
+  .unit-card[data-unit-kind="sponsor"] { --unit-card-color: #34D399; }
+  .unit-card[data-unit-kind="clubs"] { --unit-card-color: #FBBF24; }
+  .unit-card[data-unit-kind="audit"] { --unit-card-color: #FB7185; }
+  .unit-card[data-unit-kind="board"] { --unit-card-color: #A78BFA; }
+  .unit-card[data-unit-kind]:hover, .unit-card[data-unit-kind].is-mine { border-color: var(--unit-card-color); }
+  .unit-card[data-unit-kind] .unit-name { color: var(--unit-card-color); }
   .unit-name { font: 800 19px/1.25 'Archivo', sans-serif; }
   .unit-head { display: flex; align-items: center; gap: 10px; min-height: 40px; }
   .unit-head span { display: flex; flex-direction: column; }
@@ -409,16 +418,19 @@
   .nav-item:hover { opacity: 1; background: var(--paper-soft); }
   .nav-item.active { opacity: 1; background: var(--paper-soft); border-color: var(--border); font-weight: 600; }
   .nav-item.active::before { background: var(--accent-grad); }
-  .nav-unit-toggle[data-unit-kind], .nav-accordion-inner[data-unit-kind] { --unit-nav-color: #A78BFA; }
+  .nav-unit-toggle[data-unit-kind], .nav-accordion-inner[data-unit-kind], .nav-unit-flat[data-unit-kind] { --unit-nav-color: #A78BFA; }
   .nav-unit-toggle[data-unit-kind]::before { background: var(--unit-nav-color); }
   .nav-accordion-inner[data-unit-kind] { border-left-color: color-mix(in srgb, var(--unit-nav-color) 50%, transparent); }
-  .nav-accordion-inner[data-unit-kind] .nav-item::before { background: var(--nav-link-color, var(--unit-nav-color)); }
-  .nav-accordion-inner[data-unit-kind] .nav-item.active { border-color: color-mix(in srgb, var(--nav-link-color, var(--unit-nav-color)) 45%, transparent); background: color-mix(in srgb, var(--nav-link-color, var(--unit-nav-color)) 12%, var(--paper-soft)); }
-  .nav-accordion-inner[data-unit-kind="social"], .nav-unit-toggle[data-unit-kind="social"] { --unit-nav-color: #E879F9; }
-  .nav-accordion-inner[data-unit-kind="pr"], .nav-unit-toggle[data-unit-kind="pr"] { --unit-nav-color: #60A5FA; }
-  .nav-accordion-inner[data-unit-kind="sponsor"], .nav-unit-toggle[data-unit-kind="sponsor"] { --unit-nav-color: #34D399; }
-  .nav-accordion-inner[data-unit-kind="clubs"], .nav-unit-toggle[data-unit-kind="clubs"] { --unit-nav-color: #FBBF24; }
-  .nav-accordion-inner[data-unit-kind="audit"], .nav-unit-toggle[data-unit-kind="audit"] { --unit-nav-color: #FB7185; }
+  .nav-accordion-inner[data-unit-kind] .nav-item::before,
+  .nav-unit-flat[data-unit-kind] .nav-item::before { background: var(--unit-nav-color); }
+  .nav-accordion-inner[data-unit-kind] .nav-item.active,
+  .nav-unit-flat[data-unit-kind] .nav-item.active { border-color: color-mix(in srgb, var(--unit-nav-color) 45%, transparent); background: color-mix(in srgb, var(--unit-nav-color) 12%, var(--paper-soft)); }
+  .nav-accordion-inner[data-unit-kind="social"], .nav-unit-toggle[data-unit-kind="social"], .nav-unit-flat[data-unit-kind="social"] { --unit-nav-color: #E879F9; }
+  .nav-accordion-inner[data-unit-kind="pr"], .nav-unit-toggle[data-unit-kind="pr"], .nav-unit-flat[data-unit-kind="pr"] { --unit-nav-color: #60A5FA; }
+  .nav-accordion-inner[data-unit-kind="sponsor"], .nav-unit-toggle[data-unit-kind="sponsor"], .nav-unit-flat[data-unit-kind="sponsor"] { --unit-nav-color: #34D399; }
+  .nav-accordion-inner[data-unit-kind="clubs"], .nav-unit-toggle[data-unit-kind="clubs"], .nav-unit-flat[data-unit-kind="clubs"] { --unit-nav-color: #FBBF24; }
+  .nav-accordion-inner[data-unit-kind="audit"], .nav-unit-toggle[data-unit-kind="audit"], .nav-unit-flat[data-unit-kind="audit"] { --unit-nav-color: #FB7185; }
+  .nav-accordion-inner[data-unit-kind="board"], .nav-unit-toggle[data-unit-kind="board"], .nav-unit-flat[data-unit-kind="board"] { --unit-nav-color: #A78BFA; }
   .nav-item .badge { margin-left: auto; }
   .nav-chevron { margin-left: auto; opacity: .6; font-size: 13px; line-height: 1; }
   .nav-accordion-body, .nav-accordion-inner { display: grid; gap: 3px; }
@@ -440,7 +452,7 @@
   .link-btn:hover { opacity: 1; }
 
   .main { padding: clamp(24px, 4vw, 56px); min-width: 0; }
-  .main-inner { max-width: 1080px; }
+  .main-inner { width: 100%; max-width: 1080px; min-width: 0; }
   /* z-index below the sticky mobile header (20), so the button slides under it on scroll. */
   .profile-menu { position: relative; z-index: 15; display: flex; justify-content: flex-end; margin: -10px 0 22px; }
   .profile-trigger { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 5px 14px 5px 6px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--ink); font-weight: 650; }
@@ -464,10 +476,12 @@
   }
   .demo-bar b { color: var(--accent); font-weight: 600; }
 
-  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: clamp(24px, 3vw, 38px); }
-  .page-head h1 { font: 900 clamp(36px, 4.6vw, 58px)/1 'Archivo', sans-serif; letter-spacing: -0.04em; }
+  .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px 20px; flex-wrap: wrap; margin-bottom: clamp(22px, 3vw, 32px); }
+  .page-head > :first-child { flex: 1 1 360px; min-width: 0; }
+  .page-head > .btn, .page-head > .head-actions { flex: 0 0 auto; margin-top: 0; }
+  .page-head h1 { font: 800 clamp(25px, 2.5vw, 32px)/1.15 'Archivo', sans-serif; letter-spacing: -0.025em; overflow-wrap: anywhere; }
   .page-head h1 span { color: var(--accent); }
-  .page-head p { margin-top: 12px; max-width: 60ch; opacity: .68; }
+  .page-head p { margin-top: 6px; max-width: 68ch; opacity: .68; line-height: 1.5; }
 
   .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 34px 0 14px; }
   .section-head:first-child { margin-top: 0; }
@@ -480,7 +494,7 @@
   .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
   .head-actions { display: flex; flex-wrap: wrap; gap: 8px; }
   .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; align-items: start; }
-  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; min-width: 0; }
   /* Birim çalışma alanı */
   fieldset.field { border: 0; padding: 0; margin: 0; min-width: 0; }
   .check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px 16px; margin-top: 8px; }
@@ -507,6 +521,7 @@
   .main[data-unit-kind="sponsor"] { --unit-context-color: #34D399; }
   .main[data-unit-kind="clubs"] { --unit-context-color: #FBBF24; }
   .main[data-unit-kind="audit"] { --unit-context-color: #FB7185; }
+  .main[data-unit-kind="board"] { --unit-context-color: #A78BFA; }
   .main[data-unit-kind] .page-head h1 { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--unit-context-color) 72%, transparent); text-decoration-thickness: 3px; text-underline-offset: 8px; }
   .main[data-unit-kind] .chip.active { background: color-mix(in srgb, var(--unit-context-color) 75%, #111); border-color: var(--unit-context-color); color: #fff; }
   .main[data-unit-kind] .cal-day.selected { box-shadow: inset 0 0 0 1.5px var(--unit-context-color); }
@@ -521,7 +536,9 @@
   .uw-report-filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: end; margin: 24px 0; }
   .uw-report-filters > * { width: 100%; min-width: 0; }
   .uw-report-filters .btn { width: auto; justify-self: start; }
-  .stats.uw-stats { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); align-items: stretch; }
+  .stats.uw-stats { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); align-items: stretch; width: 100%; }
+  .stats.uw-home-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .stats.uw-report-stats { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
   .uw-stats .stat { min-width: 0; }
   .uw-stats .stat b { overflow-wrap: anywhere; font-size: clamp(28px, 2.5vw, 44px); line-height: 1.1; }
   .uw-stats .stat span { line-height: 1.4; }
@@ -569,16 +586,18 @@
   .cal-chip.uw-c-task, .cal-legend i.uw-c-task { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--border-strong); }
   .cal-chip.uw-c-sponsor, .cal-legend i.uw-c-sponsor { background: var(--ok); color: #0C0C0D; }
   .cal-chip.uw-c-audit, .cal-legend i.uw-c-audit { background: var(--no); color: #0C0C0D; }
-  .stat { text-align: left; background: var(--surface); border: 1px solid transparent; border-radius: 20px; padding: 22px; transition: border-color .2s ease, background .2s ease; }
+  .stat { min-width: 0; text-align: left; background: var(--surface); border: 1px solid transparent; border-radius: 20px; padding: 22px; transition: border-color .2s ease, background .2s ease; }
   button.stat:hover { border-color: var(--border-strong); }
-  .stat b { display: block; font: 900 44px/1 'Archivo', sans-serif; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
-  .stat span { display: block; margin-top: 10px; font-size: 13.5px; opacity: .68; }
+  .stat b { display: block; font: 900 clamp(30px, 3vw, 40px)/1.08 'Archivo', sans-serif; letter-spacing: -0.035em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .stat span { display: block; margin-top: 9px; font-size: 13.5px; line-height: 1.4; opacity: .72; overflow-wrap: anywhere; }
   .stat.hot b { color: var(--accent); }
 
   .item h3 { font: 700 18px/1.3 'Archivo', sans-serif; letter-spacing: -0.01em; overflow-wrap: anywhere; }
   .item .body { margin-top: 8px; opacity: .82; white-space: pre-line; overflow-wrap: anywhere; }
   .item .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 14px; font-size: 13px; opacity: .62; }
-  .item .meta.top { margin: 0 0 10px; opacity: 1; }
+  .item > .meta:first-child { margin: 0 0 14px; }
+  .item > .tag:first-child { margin: 0 0 14px; }
+  .item .meta.top { margin: 0 0 14px; opacity: 1; }
   .item .meta.top > span:not(.tag) { opacity: .62; }
   .item .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
   .tag { display: inline-block; font-size: 12px; font-weight: 600; line-height: 1; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--border-strong); white-space: nowrap; }
@@ -609,6 +628,8 @@
   /* ---- Filters ---- */
   .toolbar input:not([type="checkbox"]):not([type="radio"]) { min-width:0; max-width:100%; padding:11px 14px; border:1px solid var(--border-strong); border-radius:12px; background:var(--surface); color:var(--ink); font:inherit; }
   .toolbar select { max-width:100%; min-width:0; }
+  .toolbar > input[type="search"] { flex: 1 1 280px; min-width: min(100%, 180px); }
+  .toolbar > select { flex: 0 1 auto; }
   .toolbar input:focus-visible, .toolbar select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
   .card p, .card a { overflow-wrap:anywhere; }
   .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 18px; }
@@ -711,6 +732,11 @@
   .checks label[hidden] { display: none; }
   .checks-empty { margin: 6px 8px; font-size: 13px; opacity: .6; }
   .pick-count { font-style: normal; font-weight: 500; opacity: .6; margin-left: 6px; }
+  .club-picker { gap: 9px; }
+  .club-picker legend { padding: 0; font-size: 13px; font-weight: 600; opacity: .8; }
+  .club-picker .muted { margin: 0; }
+  .club-picker > input[type="search"] { width: 100%; min-width: 0; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 11px; background: var(--surface); color: var(--ink); }
+  .club-picker .checks { margin: 0; max-height: 220px; }
   #clubFilter { margin-bottom: 8px; }
   .checks input { width: 17px; height: 17px; accent-color: var(--accent); flex: none; }
   .form-error { color: var(--no); font-size: 13px; }
@@ -767,6 +793,7 @@
     .side-foot { flex: none; padding-top: 12px; gap: 8px; }
   }
   .nav-group:first-child { margin-top: 0; }
+  .nav-unit-flat { display: grid; gap: 3px; min-width: 0; }
 
   /* ---- Etkinlik oluşturma sayfası ---- */
   .evp-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 22px; }
@@ -1092,6 +1119,7 @@
     .mobile-nav-toggle svg { width: 21px; height: 21px; }
     .main { padding: 22px 16px 60px; }
     .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .stats.uw-home-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .stat b { font-size: 36px; }
     .grid-2, .grid-3 { grid-template-columns: minmax(0, 1fr); }
     .mobile-user { display: none; }
@@ -1099,6 +1127,10 @@
   @media (min-width: 901px) { .mobile-user { display: none; } }
   .mobile-user { margin-bottom: 18px; font-size: 13px; opacity: .65; }
   @media (max-width: 640px) {
+    .page-head { gap: 12px; margin-bottom: 22px; }
+    .page-head > :first-child { flex-basis: 100%; }
+    .page-head > .btn, .page-head > .head-actions { width: 100%; }
+    .stats.uw-home-stats, .stats.uw-report-stats { grid-template-columns: minmax(0, 1fr); }
     .event { grid-template-columns: 58px minmax(0, 1fr); gap: 14px; }
     .date-block b { font-size: 24px; }
     .card { padding: 18px; }
@@ -2434,6 +2466,7 @@
     adminUnitsOpen: null,
     adminCommonOpen: null,
     adminUnitNavOpen: {},
+    renderVersion: 0,
     selectedUnitKind: null,
     viewScroll: {},
     pendingViewScroll: null,
@@ -2909,14 +2942,14 @@
       ...(isAdmin() ? [['onaylar', 'Onaylamalar', pendingCount(), 'events']] : []),
       ['basvuru', 'Başvurular', 0, 'events'],
       ['genel', 'Genel Bakış', 0, 'unipakt'],
-      ...uwNavItems('unipakt'),
+      ...uwNavItems('unipakt').map(([id, label, count, group]) => [id, id === 'b-genel' && isAdmin() ? 'Birim Özeti' : label, count, group]),
       ['ims', IM_TITLE, imUnreadTotal(), 'unipakt'],
       ['vanguard', 'UniPakt.Vanguard', 0, 'unipakt'],
       ['duyurular', 'Duyurular', 0, 'unipakt'],
       ['gorevler', 'Görevler', isAdmin() ? 0 : openMine, 'unipakt'],
       ['bildirimler', 'Bildirimler', (db.notifications || []).filter(n => !n.readAt).length, 'unipakt'],
       ...(isAdmin() ? [['kulupler', 'Kulüpler', 0, 'unipakt'], ['site-mesajlari', 'Site Mesajları', siteInboxTotal(), 'unipakt'], ['marka', 'Marka rengi', 0, 'unipakt']] : []),
-      ...(isAdmin() || state.unitAcc ? [['birimler', isAdmin() ? 'Birim Yönetimi' : 'Birimler', 0, 'unipakt']] : []),
+      ...(isAdmin() || state.unitAcc ? [['birimler', isAdmin() ? 'Birim Yönetimi' : 'Birimim', 0, 'unipakt']] : []),
       ...(state.unitAcc && (state.unitAcc.perms || []).includes('brand') ? [['marka', 'Marka rengi', 0, 'unipakt']] : []),
       ['destek-taleplerim', isAdmin() ? 'Destek Talepleri' : 'UniPakt Destek', supportNewCount(), 'unipakt'],
       ...(isPresident() ? [['ekip', 'Ekip', 0, 'unipakt']] : []),
@@ -2936,7 +2969,14 @@
       const unitView = window.UniPaktRecords.baseView(window.UniPaktWorkflows.baseView(state.view));
       const items = nav.filter((item) => item[3] === group);
       if (group !== 'birim') {
-        return `<p class="nav-group">${esc(title)}</p>${items.map((item) => navItemHtml(item)).join('')}`;
+        const kind = state.unitAcc ? uwMyUnit()?.kind || '' : '';
+        return `<p class="nav-group">${esc(title)}</p>${items.map((item) => state.unitAcc && item[0] === 'b-genel'
+          ? `<div class="nav-unit-flat" data-unit-kind="${esc(kind)}">${navItemHtml(item)}</div>`
+          : navItemHtml(item)).join('')}`;
+      }
+      if (state.unitAcc) {
+        const kind = uwMyUnit()?.kind || '';
+        return `<p class="nav-group">${esc(title)}</p><div class="nav-unit-flat" data-unit-kind="${esc(kind)}">${items.map((item) => navItemHtml(item)).join('')}</div>`;
       }
       const shared = items.filter(([id]) => ADMIN_UNIT_SHARED_IDS.has(id));
       const unitPages = items.filter(([id]) => ADMIN_UNIT_NAV.some(([, , view]) => view === id));
@@ -5670,10 +5710,12 @@
 
   const unitsView = () => {
     const u = state.units, me = unitMe();
+    const openUnit = u.open && unitById(u.open);
+    const title = me.admin || openUnit?.id !== me.unit_id ? 'Birimler' : 'Birimim';
     const intro = me.admin
       ? 'UniPakt birimleri. Başkanı atarsın, başkan kendi ekibini kurar. Her birimin tek başkanı olur; birimden çıkarılan kişi silinmez, pasife alınır.'
       : 'Kendi birimini yetkin ölçüsünde yönetirsin; diğer birimleri yalnızca görürsün.';
-    const top = head('Birimler', intro, me.admin && !u.open ? '<button class="btn" data-act="unit-new">Birim ekle</button>' : '');
+    const top = head(title, intro, me.admin && !u.open ? '<button class="btn" data-act="unit-new">Birim ekle</button>' : '');
     if (u.error) return `${top}<section class="card"><p class="body">${esc(u.error)}</p><button class="btn small" data-act="unit-reload">Tekrar dene</button></section>`;
     if (!u.data) return `${top}<section class="card"><p class="body">Yükleniyor…</p></section>`;
     const open = u.open && unitById(u.open);
@@ -5681,7 +5723,7 @@
     if (!u.data.units.length) return `${top}${empty('Henüz birim yok.')}`;
     return `${top}<div class="unit-grid">${u.data.units.map((x) => {
       const h = unitHead(x), active = x.members.filter((m) => m.status === 'active');
-      return `<button class="card unit-card ${x.id === me.unit_id ? 'is-mine' : ''}" data-act="unit-open" data-id="${esc(x.id)}">
+      return `<button class="card unit-card ${x.id === me.unit_id ? 'is-mine' : ''}" data-unit-kind="${esc(x.kind || '')}" data-act="unit-open" data-id="${esc(x.id)}">
         <span class="unit-name">${esc(x.name)}${x.id === me.unit_id ? ' <span class="tag ok">Birimin</span>' : ''}</span>
         <span class="unit-head">${h ? `${avatarMarkup(h.avatar_url, personName(h), 'small')}<span><strong>${esc(personName(h))}</strong><small>Birim Başkanı</small></span>` : '<span class="unit-nohead">Başkan atanmadı</span>'}</span>
         <span class="unit-count">${active.length} kişi</span>
@@ -6529,6 +6571,7 @@
     // Demo only: pick an account, no password.
     login(id) {
       if (!DEMO) return;
+      resetUnitSessionState();
       state.user = id; state.view = 'genel';
       try { sessionStorage.setItem(SESSION, id); } catch (_) {}
       applyDemoUser(); state.team = { rows: null, loading: false, error: '' }; state.activity = freshActivity();
@@ -6537,6 +6580,7 @@
     },
     logout() {
       stopMatrix();
+      resetUnitSessionState();
       state.user = null; state.member = null; state.team = { rows: null, loading: false, error: '' }; state.activity = freshActivity();
       if (DEMO) { try { sessionStorage.removeItem(SESSION); } catch (_) {} }
       else { remote.logout(); db = null; }
@@ -6725,6 +6769,7 @@
     root.innerHTML = '<main class="login"><p class="loading">Yükleniyor…</p></main>';
     try {
       if (!DEMO && !(await passMfaGate())) return;
+      resetUnitSessionState();
       await loadRemote(); lastSync = Date.now();
       if (!knownView(state.view)) state.view = homeView();
       render(); window.scrollTo(0, 0);
@@ -6745,6 +6790,16 @@
   state.uw = { data: null, loading: false, error: '' };
   state.uwTab = {};          // görünüm başına seçili sekme
   state.uwFilter = {};       // görünüm başına süzgeç
+  const resetUnitSessionState = () => {
+    state.uw = { data: null, loading: false, error: '' };
+    state.uwTab = {};
+    state.uwFilter = {};
+    state.units = freshUnits();
+    state.selectedUnitKind = null;
+    state.adminUnitsOpen = null;
+    state.adminCommonOpen = null;
+    state.adminUnitNavOpen = {};
+  };
   const UWD = () => state.uw.data || {};
   const uwMe = () => UWD().me || { admin: isAdmin(), perms: [], unit_id: null, is_head: false, units: [] };
   const uwUnits = () => uwMe().units || [];
@@ -6809,7 +6864,7 @@
     const wait = uwLoading('Genel Bakış', 'Birimindeki işler tek ekranda.'); if (wait) return wait;
     const me = uwMe(), ownUnit = uwMyUnit();
     const focusKind = ownUnit?.kind || (isAdmin() ? state.selectedUnitKind : null);
-    const focusUnit = ownUnit || uwUnitOfKind(focusKind);
+    const focusUnit = ownUnit || (focusKind ? uwUnitOfKind(focusKind) : null);
     const focusUnitId = focusUnit?.id || null;
     const unitTasks = uwList('tasks').filter((t) => !focusUnitId || t.unit_id === focusUnitId);
     const unitWork = uwList('workItems').filter((w) => !focusUnitId || w.unit_id === focusUnitId);
@@ -6865,10 +6920,11 @@
       ['Denetim kaydı', (UWD().audit?.records || []).length, 'b-denetim'],
       ['Açık görev', unitTasks.filter((t) => t.status === 'open').length, 'b-gorevler'],
     ] : [];
+    const summaryTitle = ownUnit ? 'Genel Bakış' : focusUnit ? `${focusUnit.name} Özeti` : 'Birim Özeti';
     return `
-      ${head('Genel Bakış', `${focusUnit?.name || state.unitAcc?.unitName || 'Birim'} · ${state.unitAcc?.roleName || ''}`)}
+      ${head(summaryTitle, `${focusUnit?.name || state.unitAcc?.unitName || 'Birim'} · ${state.unitAcc?.roleName || ''}`)}
       ${focusConfig ? `<section class="card uw-unit-focus" data-unit-kind="${esc(focusKind)}"><div class="meta top"><span class="tag">${esc(focusUnit?.name || focusKind)}</span><span>Birime özel genel bakış</span></div><h2>${esc(focusConfig.title)}</h2><p class="body">${esc(focusConfig.description)}</p><div class="uw-report-breakdowns">${focusMetrics.map(([label,n,view]) => `<button class="card uw-report-card" data-go="${view}"><strong>${n}</strong><span>${esc(label)}</span></button>`).join('')}</div><div class="uw-unit-focus-links">${focusConfig.links.map(([view,label]) => `<button class="btn ghost small" data-go="${view}">${esc(label)}</button>`).join('')}</div></section>` : ''}
-      <div class="stats uw-stats">${stats.map((s) => `<button class="stat ${s.hot ? 'hot' : ''}" data-go="${esc(s.go)}"><b>${s.n}</b><span>${esc(s.label)}</span></button>`).join('')}</div>
+      <div class="stats uw-stats uw-home-stats">${stats.map((s) => `<button class="stat ${s.hot ? 'hot' : ''}" data-go="${esc(s.go)}"><b>${s.n}</b><span>${esc(s.label)}</span></button>`).join('')}</div>
       <div class="grid-2" style="margin-top:34px">
         <div>
           <div class="section-head"><h2>Görevlerim</h2><button class="link-btn" data-go="b-gorevler">Tümü</button></div>
@@ -7721,7 +7777,7 @@
   const uwCalendarView = () => {
     const ownUnit = uwMyUnit();
     const focusKind = ownUnit?.kind || (isAdmin() ? state.selectedUnitKind : null);
-    const focusUnit = ownUnit || uwUnitOfKind(focusKind);
+    const focusUnit = ownUnit || (focusKind ? uwUnitOfKind(focusKind) : null);
     const focusUnitId = focusUnit?.id || null;
     const calendarCopy = {
       social: 'Yayın tarihleri, içerik hazırlıkları, ilgili etkinlikler ve görev son günleri.',
@@ -7974,6 +8030,14 @@
     state.view = view; state.profileMenuOpen = false; state.navOpen = false;
     if (location.hash !== `#${view}`) history.pushState(null, '', `#${view}`);
     render();
+  };
+
+  const mainUnitKind = () => {
+    if (state.unitAcc) return uwMyUnit()?.kind || '';
+    if (state.view === 'birimler' && state.units.open) return unitById(state.units.open)?.kind || '';
+    if (state.selectedUnitKind && ['b-genel', 'b-plan', 'b-raporlar'].includes(state.view)) return state.selectedUnitKind;
+    const baseView = window.UniPaktRecords.baseView(window.UniPaktWorkflows.baseView(state.view));
+    return ADMIN_UNIT_NAV.find(([kind, , view]) => view === baseView)?.[0] || '';
   };
 
   const renderPasswordReset = (message = '') => {
@@ -8421,6 +8485,7 @@
   });
   const render = () => {
     if (!db || !state.user || (state.user !== ADMIN && !state.unitAcc && !club(state.user))) { state.user = null; renderLogin(); return; }
+    const renderVersion = ++state.renderVersion;
     const pendingScroll = state.pendingViewScroll?.view === state.view ? state.pendingViewScroll : null;
     const pageScrollTop = pendingScroll ? pendingScroll.y : window.scrollY;
     const sideNavScrollTop = root.querySelector('.side-nav')?.scrollTop ?? 0;
@@ -8445,7 +8510,7 @@
             ${DEMO ? '<button class="link-btn" data-act="reset">Demo verisini sıfırla</button>' : ''}
           </div>
         </aside>
-        <main class="main ${state.view === 'ims' ? 'is-im' : ''}" data-unit-kind="${esc(state.unitAcc ? uwMyUnit()?.kind || '' : state.selectedUnitKind || '')}"><div class="main-inner">
+        <main class="main ${state.view === 'ims' ? 'is-im' : ''}"${mainUnitKind() ? ` data-unit-kind="${esc(mainUnitKind())}"` : ''}><div class="main-inner">
           ${profileMenu()}
           ${DEMO ? '<div class="demo-bar"><span><b>Demo</b> — veriler yalnızca bu tarayıcıda saklanıyor.</span></div>' : ''}
           ${views[state.view]()}
@@ -8453,19 +8518,16 @@
       </div>`;
     document.documentElement.classList.toggle('nav-lock', !!state.navOpen && matchMedia('(max-width: 900px)').matches);
     requestAnimationFrame(() => {
+      if (renderVersion !== state.renderVersion) return;
       const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
       const target = Math.min(pageScrollTop, maxScroll);
       window.scrollTo(0, target);
       state.viewScroll[state.view] = target;
-      if (pendingScroll) state.pendingViewScroll = null;
+      if (pendingScroll && state.pendingViewScroll === pendingScroll) state.pendingViewScroll = null;
     });
     const sideNav = root.querySelector('.side-nav');
     if (sideNav) {
       sideNav.scrollTop = sideNavScrollTop;
-      sideNav.querySelectorAll('.nav-accordion-inner[data-unit-kind]').forEach((group) => group.querySelectorAll('.nav-item').forEach((item, index) => {
-        const base = ({ social: 300, pr: 210, sponsor: 150, clubs: 42, audit: 350 })[group.dataset.unitKind] ?? 270;
-        item.style.setProperty('--nav-link-color', `hsl(${(base + index * 53) % 360} 78% 70%)`);
-      }));
     }
     if (state.member) pruneForMember(root.querySelector('.main'));
     if (state.view === 'ekip' && !state.team.rows && !state.team.loading && !state.team.error) loadTeam();
@@ -8762,7 +8824,7 @@
     audit: [['records','Denetim Kayıtları'],['events','Etkinlik Denetimleri'],['mine','Kontrol Görevlerim']],
   };
   const workspaceUnitLinks = (kind, item) =>
-    `<button class="nav-item nav-sub-item${state.view === 'b-genel' ? ' active' : ''}" data-go="b-genel">Genel Bakış</button>` +
+    `<button class="nav-item nav-sub-item${state.view === 'b-genel' ? ' active' : ''}" data-go="b-genel">${esc(`${ADMIN_UNIT_NAV.find(([unitKind]) => unitKind === kind)?.[1] || 'Birim'} Özeti`)}</button>` +
     (WORKSPACE_PAGES[kind] || [[null,item[1]]]).map(([tab,label]) =>
       `<button type="button" class="nav-item nav-sub-item${state.view === item[0] && state.uwTab[item[0]] === tab ? ' active' : ''}" data-act="workspace-page" data-id="${esc(item[0])}" data-sub="${esc(tab || '')}">${esc(label)}</button>`).join('') +
     window.UniPaktWorkflows.unitLinks(kind) + window.UniPaktRecords.unitLinks(kind) +
