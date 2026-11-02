@@ -7219,7 +7219,7 @@
     'uw-post-edit'(id) {
       const p = uwList('posts').find((x) => x.id === id); if (!p) return;
       const planned = p.status === 'planned';
-      const team = uwMyUnit()?.members || [];
+      const team = (uwAdmin() ? uwUnitOfKind('sponsor') : uwMyUnit())?.members || [];
       openForm({ title: planned ? 'Yayın tarihi ve sorumlu' : 'İçeriği hazırla', lead: planned ? 'Onaylanan içerik değişmez; yalnızca yayın tarihi ve sorumlu güncellenir.' : (p.brief ? `Talep: ${p.brief.slice(0, 400)}` : ''), submit: 'Kaydet',
         fields: `${planned ? '' : `${field('Başlık', `<input name="title" required maxlength="160" value="${esc(p.title)}">`)}${field('Metin', `<textarea name="body" rows="7" maxlength="5000">${esc(p.body || '')}</textarea>`)}${field('Tasarım dosyası (bağlantı)', `<input name="design_url" type="url" placeholder="https://" value="${esc(p.design_url || '')}">`)}${platformChecks(p.platforms || [])}${field('Format', `<select name="format"><option value="">Seç</option>${FORMATS.map(([k, l]) => `<option value="${k}" ${p.format === k ? 'selected' : ''}>${l}</option>`).join('')}</select>`)}`}
           ${field('Plan tarihi', `<input type="datetime-local" name="plan_at" value="${esc(toLocalInput(p.plan_at))}">`)}${field('Sorumlu', `<select name="assignee"><option value="">—</option>${team.map((m) => `<option value="${esc(m.id)}" ${p.assignee === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select>`)}`,
