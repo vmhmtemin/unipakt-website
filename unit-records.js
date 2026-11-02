@@ -49,14 +49,50 @@ const detail=async(k,id)=>{
 let feed={rows:[],loaded:false,busy:false,error:'',from:new Date().toISOString().slice(0,10),mode:'week',unit:'',status:'',assignee:'',platform:''};
 const feedLoad=async()=>{if(feed.busy)return;feed.busy=true;try{const start=new Date(feed.from+'T00:00:00'),end=new Date(start);end.setDate(end.getDate()+(feed.mode==='day'?1:feed.mode==='week'?7:feed.mode==='month'?31:365));Object.assign(feed,await C.call('workspace_feed',{from:start.toISOString(),to:end.toISOString()}),{loaded:true,error:''});}catch(e){feed.error=e.message;feed.loaded=true;}finally{feed.busy=false;C.render();}};
 const feedView=report=>{
- if(C.pending?.())return C.empty('Yükleniyor…');if(feed.owner!==C.me().id)feed={...feed,owner:C.me().id,rows:[],loaded:false,busy:false,error:''};if(!feed.loaded&&!feed.busy)queueMicrotask(feedLoad);
+ if(C.pending?.())return C.empty('Yükleniyor…');
+ if(feed.owner!==C.me().id)feed={...feed,owner:C.me().id,rows:[],loaded:false,busy:false,error:''};
+ if(!feed.loaded&&!feed.busy)queueMicrotask(feedLoad);
  const units=Object.fromEntries(C.units().filter(u=>C.admin()||u.id===C.me().unit_id).map(u=>[u.id,u.name]));
- let html=C.head(report?'Birim Raporları':'Birim Takvimi',report?'Seçilen aralıktaki gerçek kayıtların durum, tutar ve performans özeti.':'Görüşmeler, yayınlar, takipler ve denetim tarihleri.')+`<form data-ur-feed class="toolbar"><input name="from" type="date" aria-label="Başlangıç tarihi" value="${feed.from}">${select('mode',{day:'Gün',week:'Hafta',month:'Ay',year:'Yıl'},feed.mode)}${select('unit',{'':'Tüm yetkili birimler',...units},feed.unit)}${select('status',{'':'Tüm durumlar',...LABEL},feed.status)}<input name="platform" placeholder="Platform" aria-label="Platform" value="${esc(feed.platform)}">${select('assignee',{'':'Tüm sorumlular',...Object.fromEntries(C.units().flatMap(u=>(u.members||[]).map(m=>[m.id,m.name])))},feed.assignee)}<button class="btn ghost">Göster</button></form>`;
- if(feed.busy||!feed.loaded)return html+C.empty('Yükleniyor…');if(feed.error)return html+`<p role="alert">${esc(feed.error)}</p>`;
+ let html=C.head(report?'Birim Raporları':'Birim Takvimi',report?'Seçilen aralıktaki gerçek kayıtların durum, tutar ve performans özeti.':'Görüşmeler, yayınlar, takipler ve denetim tarihleri.')+
+  `<form data-ur-feed class="toolbar uw-report-filters">
+   <input name="from" type="date" aria-label="Başlangıç tarihi" value="${feed.from}">
+   ${select('mode',{day:'Gün',week:'Hafta',month:'Ay',year:'Yıl'},feed.mode)}
+   ${select('unit',{'':'Tüm yetkili birimler',...units},feed.unit)}
+   ${select('status',{'':'Tüm durumlar',...LABEL},feed.status)}
+   <input name="platform" placeholder="Platform" aria-label="Platform" value="${esc(feed.platform)}">
+   ${select('assignee',{'':'Tüm sorumlular',...Object.fromEntries(C.units().flatMap(u=>(u.members||[]).map(m=>[m.id,m.name])))},feed.assignee)}
+   <button class="btn ghost" type="submit">Göster</button>
+  </form>`;
+ if(feed.busy||!feed.loaded)return html+C.empty('Yükleniyor…');
+ if(feed.error)return html+`<p role="alert">${esc(feed.error)}</p>`;
  const rows=feed.rows.filter(r=>(!feed.unit||r.unit_id===feed.unit)&&(!feed.status||r.status===feed.status)&&(!feed.assignee||r.assignee===feed.assignee)&&(!feed.platform||(r.data?.platforms||[r.data?.platform]).includes(feed.platform))).sort((a,b)=>String(a.starts_at||a.due_at||a.created_at).localeCompare(String(b.starts_at||b.due_at||b.created_at)));
  if(feed.limited)html+='<p role="status">Yoğun aralık: tüm kayıtları görmek için tarih aralığını daralt.</p>';
- if(report){const currencies={};rows.forEach(r=>{if(r.amount!==null&&r.amount!==undefined){const currency=r.data?.currency||'TL';currencies[currency]=(currencies[currency]||0)+Number(r.amount);}});const groups={};rows.forEach(r=>groups[r.status]=(groups[r.status]||0)+1);const done=rows.filter(r=>['done','completed','closed','published','deal'].includes(r.status)),elapsed=done.map(r=>(new Date(r.updated_at)-new Date(r.created_at))/86400000);html+=`<div class="stats uw-stats"><div class="stat"><b>${rows.length}</b><span>Kayıt</span></div><div class="stat"><b>${done.length}</b><span>Tamamlanan / anlaşma</span></div><div class="stat"><b>${Object.entries(currencies).map(([c,n])=>esc(n.toLocaleString('tr-TR')+' '+c)).join(' / ')||'—'}</b><span>Para birimine göre kayıt tutarı</span></div><div class="stat"><b>${elapsed.length?(elapsed.reduce((a,b)=>a+b,0)/elapsed.length).toFixed(1):'—'}</b><span>Son güncellemeye kadar ortalama gün</span></div></div><div class="card">${Object.entries(groups).map(([k,n])=>`<p>${esc(LABEL[k]||k)}: <strong>${n}</strong></p>`).join('')}<p>Manuel yayın görüntülenmeleri: ${rows.reduce((n,r)=>n+Number(r.data?.views||0),0)}</p></div>`;
- const dimensions=['unit','category','city','university','severity'];for(const dim of dimensions){const groups={};rows.forEach(r=>{const value=dim==='unit'?C.units().find(u=>u.id===r.unit_id)?.name:r.data?.[dim];if(value)groups[value]=(groups[value]||0)+1;});if(Object.keys(groups).length)html+=`<div class="card"><h3>${esc({unit:'Birim',category:'Kategori',city:'Şehir',university:'Üniversite',severity:'Önem seviyesi'}[dim])}</h3>${Object.entries(groups).map(([v,n])=>`<p>${esc(v)}: ${n}</p>`).join('')}</div>`;}
+ if(report){
+  const currencies={};
+  rows.forEach(r=>{if(r.amount!==null&&r.amount!==undefined){const currency=r.data?.currency||'TL';currencies[currency]=(currencies[currency]||0)+Number(r.amount);}});
+  const statuses={};rows.forEach(r=>statuses[r.status]=(statuses[r.status]||0)+1);
+  const done=rows.filter(r=>['done','completed','closed','published','deal'].includes(r.status));
+  const elapsed=done.map(r=>(new Date(r.updated_at)-new Date(r.created_at))/86400000);
+  const currencyText=Object.entries(currencies).map(([c,n])=>esc(n.toLocaleString('tr-TR')+' '+c)).join(' / ')||'—';
+  const views=rows.reduce((n,r)=>n+Number(r.data?.views||0),0);
+  html+=`<div class="stats uw-stats">
+   <div class="stat"><b>${rows.length}</b><span>Kayıt</span></div>
+   <div class="stat"><b>${done.length}</b><span>Tamamlanan / anlaşma</span></div>
+   <div class="stat"><b class="uw-report-stat-value">${currencyText}</b><span>Para birimine göre kayıt tutarı</span></div>
+   <div class="stat"><b>${elapsed.length?(elapsed.reduce((a,b)=>a+b,0)/elapsed.length).toLocaleString('tr-TR',{maximumFractionDigits:1}):'—'}</b><span>Son güncellemeye kadar ortalama gün</span></div>
+  </div>
+  <div class="uw-report-summary">
+   <section class="card uw-report-card"><h3>Durum dağılımı</h3><div class="uw-report-list">${Object.entries(statuses).map(([k,n])=>`<div><span>${esc(LABEL[k]||k)}</span><strong>${n}</strong></div>`).join('')||'<p class="hint">Seçili aralıkta kayıt yok.</p>'}</div></section>
+   <section class="card uw-report-card"><h3>Yayın performansı</h3><div class="uw-report-list"><div><span>Manuel görüntülenme</span><strong>${views.toLocaleString('tr-TR')}</strong></div></div></section>
+  </div>`;
+  const dimensions=['unit','category','city','university','severity'];
+  const breakdowns=[];
+  for(const dim of dimensions){
+   const groups={};
+   rows.forEach(r=>{const value=dim==='unit'?C.units().find(u=>u.id===r.unit_id)?.name:r.data?.[dim];if(value)groups[value]=(groups[value]||0)+1;});
+   if(Object.keys(groups).length)breakdowns.push(`<section class="card uw-report-card"><h3>${esc({unit:'Birim',category:'Kategori',city:'Şehir',university:'Üniversite',severity:'Önem seviyesi'}[dim])}</h3><div class="uw-report-list">${Object.entries(groups).map(([v,n])=>`<div><span>${esc(v)}</span><strong>${n}</strong></div>`).join('')}</div></section>`);
+  }
+  if(breakdowns.length)html+=`<div class="uw-report-breakdowns">${breakdowns.join('')}</div>`;
  }
  const collisions=new Map();rows.forEach(r=>{const key=r.starts_at&&r.starts_at.slice(0,16);if(key)collisions.set(key,(collisions.get(key)||0)+1);});
  return html+(rows.length?`<div class="stack">${rows.map(r=>`<article class="card item"><div class="meta">${dt(r.starts_at||r.due_at||r.created_at)} · ${esc(LABEL[r.status]||r.status)}${r.starts_at&&collisions.get(r.starts_at.slice(0,16))>1?' · Aynı saatte başka kayıt var':''}</div><h3>${esc(r.title)}</h3>${r.due_at?`<p>Son tarih: ${dt(r.due_at)}</p>`:''}<button class="btn ghost small" data-go="${esc(r.view)}">İlgili kayıtları aç</button></article>`).join('')}</div>`:C.empty('Bu tarih ve filtrelerde kayıt yok.'));

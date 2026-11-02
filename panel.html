@@ -490,6 +490,25 @@
   .uw-table th { text-align: left; font-weight: 600; font-size: 12px; letter-spacing: .02em; color: var(--ink); opacity: .7; padding: 11px 12px; border-bottom: 1px solid var(--border-strong); white-space: nowrap; position: sticky; top: 0; background: var(--surface); }
   .uw-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
   .uw-table tr:last-child td { border-bottom: 0; }
+  .uw-access-list { gap: 14px; }
+  .uw-report-filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: end; margin: 24px 0; }
+  .uw-report-filters > * { width: 100%; min-width: 0; }
+  .uw-report-filters .btn { width: auto; justify-self: start; }
+  .stats.uw-stats { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); align-items: stretch; }
+  .uw-stats .stat { min-width: 0; }
+  .uw-stats .stat b { overflow-wrap: anywhere; font-size: clamp(28px, 2.5vw, 44px); line-height: 1.1; }
+  .uw-stats .stat span { line-height: 1.4; }
+  .uw-report-summary, .uw-report-breakdowns { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-top: 14px; }
+  .uw-report-card { min-width: 0; }
+  .uw-report-card h3 { margin-bottom: 14px; }
+  .uw-report-list { display: flex; flex-direction: column; gap: 0; }
+  .uw-report-list > div { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 10px 0; border-top: 1px solid var(--border); }
+  .uw-report-list > div:first-child { border-top: 0; padding-top: 0; }
+  .uw-report-list span { min-width: 0; overflow-wrap: anywhere; }
+  .uw-report-list strong { flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+  .uw-report-stat-value { font-size: clamp(22px, 2vw, 34px) !important; }
+  @media (max-width: 900px) { .uw-report-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 640px) { .uw-report-filters { grid-template-columns: minmax(0, 1fr); } .uw-report-filters .btn { width: 100%; } }
   .uw-table td a { color: inherit; text-decoration: underline; text-decoration-color: var(--border-strong); overflow-wrap: anywhere; }
   .uw-row { cursor: pointer; }
   .uw-row:hover td { background: var(--paper-soft); }
@@ -6946,9 +6965,9 @@
     allow: () => uwAdmin(), render: () => {
       const wait = uwLoading('Birim Sayfaları', 'Birimlerin etkin rol ve sayfa erişimleri.'); if (wait) return wait;
       return head('Birim Sayfaları', 'Başkan kendi biriminin tüm işlevlerine erişir. YK onayı aktif birim başkanlarına aittir.') +
-        uwUnits().filter((u) => u.kind !== 'board').map((u) => `<section class="card item"><h3>${esc(u.name)}</h3>
+        `<div class="stack uw-access-list">${uwUnits().filter((u) => u.kind !== 'board').map((u) => `<section class="card item"><h3>${esc(u.name)}</h3>
           <p class="body">${esc((WORKSPACE_PAGES[u.kind] || []).map((x) => x[1]).join(' · ') || 'Ortak birim sayfaları')}</p>
-          ${(u.members || []).map((m) => `<div class="mini-row"><div><strong>${esc(m.name)}${m.is_head ? ' · Başkan' : ''}</strong><small>${esc((m.perms || []).map(unitPermLabel).join(', ') || 'Ek birim yetkisi yok')}</small></div></div>`).join('') || '<p class="hint">Aktif ekip üyesi yok.</p>'}</section>`).join('');
+          ${(u.members || []).map((m) => `<div class="mini-row"><div><strong>${esc(m.name)}${m.is_head ? ' · Başkan' : ''}</strong><small>${esc((m.perms || []).map(unitPermLabel).join(', ') || 'Ek birim yetkisi yok')}</small></div></div>`).join('') || '<p class="hint">Aktif ekip üyesi yok.</p>'}</section>`).join('')}</div>`;
     } });
   views['b-erisimler'] = () => UW_VIEWS['b-erisimler'].render();
 
