@@ -30,7 +30,9 @@ jobs:
         with:
           version: 11
       - name: Install chat SDK dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile
+      - name: Verify unit workspace permissions and migrations
+        run: pnpm test
       - name: Build chat SDK bundle
         run: pnpm run build:matrix
       - name: Build QR helpers (event page QR, kontrol.html scanner)

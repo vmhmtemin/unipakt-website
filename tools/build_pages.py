@@ -52,7 +52,7 @@ UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]
 SAFE_IMG = re.compile(r"^https://[A-Za-z0-9.-]+\.supabase\.co/storage/v1/object/public/[^\s\"'<>]+$")
 
 # Never published: source-only files.
-SKIP = {".git", ".github", ".gitignore", "_site", "supabase", "tools", "README.md"}
+SKIP = {".git", ".github", ".gitignore", "_site", "supabase", "tools", "README.md", "tests", "docs", "node_modules", "package.json", "pnpm-lock.yaml"}
 SKIP_SUFFIXES = {".code-workspace"}
 
 

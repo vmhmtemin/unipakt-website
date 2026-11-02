@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "build:matrix": "vite build --config vite.matrix.config.js",
-    "build:qr": "vite build --config vite.qr.config.js"
+    "build:qr": "vite build --config vite.qr.config.js",
+    "test": "node --test tests/*.test.js",
+    "test:browser": "node tests/browser-workspace.js"
   },
   "dependencies": {
     "@zxing/browser": "0.2.1",
@@ -12,6 +14,8 @@
     "qrcode": "1.5.4"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.14",
+    "playwright": "1.62.1",
     "vite": "8.3.5"
   }
 }
