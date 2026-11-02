@@ -7424,7 +7424,10 @@
   const AU_LEVEL = { note: ['', 'Tespit notu'], verbal1: ['wait', '1. sözlü uyarı'], verbal2: ['wait', '2. sözlü uyarı'], written: ['no', 'Yazılı uyarı'], report: ['no', 'Merkez’e rapor'] };
   const AU_TYPE = { unit: 'Birim', event: 'Etkinlik', club: 'Kulüp' };
   const auData = () => UWD().audit || { records: [], events: [] };
-  const auNext = (type, id) => { const n = auData().records.filter((r) => r.target_type === type && r.target_id === id && r.level !== 'note').length; return ['verbal1', 'verbal2', 'written', 'report'][Math.min(n, 3)]; };
+  const AU_LADDER = ['verbal1', 'verbal2', 'written', 'report'];
+  // Sıradaki basamak, hedefin ulaştığı en yüksek basamaktan bir sonrakidir (atlanan basamaklar geri gelmez).
+  const auTop = (type, id) => Math.max(-1, ...auData().records.filter((r) => r.target_type === type && r.target_id === id).map((r) => AU_LADDER.indexOf(r.level)));
+  const auNext = (type, id) => AU_LADDER[Math.min(auTop(type, id) + 1, 3)];
   const uwAuditCard = (r, { admin = false } = {}) => `<article class="card item">
       <div class="meta top">${stTag(AU_LEVEL, r.level)}${r.skipped ? '<span class="tag no">Basamak atlandı</span>' : ''}<span>${esc(AU_TYPE[r.target_type])} · ${uwDate(r.occurred_on)} · ${esc(r.created_by_name || '')}</span></div>
       <h3>${esc(r.target_label)}</h3>
@@ -7454,7 +7457,7 @@
       const map = new Map();
       d.records.forEach((r) => { const k = `${r.target_type}:${r.target_id}`; const x = map.get(k) || { r, n: 0, notes: 0 }; if (r.level === 'note') x.notes++; else x.n++; map.set(k, x); });
       const rows = [...map.values()].sort((a, b) => b.n - a.n);
-      body = rows.length ? `<div class="card">${rows.map(({ r, n, notes }) => { const nx = auNext(r.target_type, r.target_id); return `<div class="mini-row"><div><strong>${esc(r.target_label)}</strong><small>${esc(AU_TYPE[r.target_type])} · ${n} uyarı${notes ? ` · ${notes} tespit notu` : ''} · Sıradaki: ${esc(AU_LEVEL[nx][1])}</small></div><div class="uw-steps">${['verbal1', 'verbal2', 'written', 'report'].map((s, i) => `<i class="${i < n ? 'on' : ''}" title="${esc(AU_LEVEL[s][1])}"></i>`).join('')}</div></div>`; }).join('')}</div>` : empty('Henüz uyarı alan yok.');
+      body = rows.length ? `<div class="card">${rows.map(({ r, n, notes }) => { const nx = auNext(r.target_type, r.target_id); return `<div class="mini-row"><div><strong>${esc(r.target_label)}</strong><small>${esc(AU_TYPE[r.target_type])} · ${n} uyarı${notes ? ` · ${notes} tespit notu` : ''} · Sıradaki: ${esc(AU_LEVEL[nx][1])}</small></div><div class="uw-steps">${AU_LADDER.map((s, i) => `<i class="${i <= auTop(r.target_type, r.target_id) ? 'on' : ''}" title="${esc(AU_LEVEL[s][1])}"></i>`).join('')}</div></div>`; }).join('')}</div>` : empty('Henüz uyarı alan yok.');
     } else if (tab === 'events') {
       const canAssign = uwCan('audit', 'audit_assign');
       const up = d.events.filter((e) => e.date >= today()).sort((a, b) => a.date.localeCompare(b.date)), past = d.events.filter((e) => e.date < today());
@@ -7683,7 +7686,7 @@
     if (!(c.kind === 'audit' && c.has('audit'))) throw new Error('Bu işlem için Denetim’de denetim kaydı yetkisi gerekir.');
     const label = p.target_type === 'unit' ? (db.units || []).find((u) => u.id === p.target_id)?.name : p.target_type === 'club' ? club(p.target_id)?.name : (() => { const e = db.events.find((x) => x.id === p.target_id); return e ? `${e.title} · ${who(e.ownerId)}` : null; })();
     if (!label) throw new Error('Denetlenen birim, etkinlik ya da kulüp bulunamadı.');
-    const prev = au().records.filter((r) => r.target_type === p.target_type && r.target_id === p.target_id && r.level !== 'note').length;
+    const prev = Math.max(-1, ...au().records.filter((r) => r.target_type === p.target_type && r.target_id === p.target_id).map((r) => AU_LADDER.indexOf(r.level))) + 1;
     let level, skipped = false;
     if (p.mode === 'note') level = 'note'; else if (p.mode === 'skip') { level = p.level; if (!['verbal2', 'written', 'report'].includes(level)) throw new Error('Atlanacak basamağı seç.'); if (!demoText(p, 'skip_reason', 1000)) throw new Error('Basamak atlamak için gerekçe yaz.'); skipped = true; } else level = ['verbal1', 'verbal2', 'written', 'report'][Math.min(prev, 3)];
     au().records.unshift({ id: uid(), target_type: p.target_type, target_id: p.target_id, target_label: label, level, skipped, skip_reason: skipped ? p.skip_reason : null, violation: demoText(p, 'violation', 4000, true, 'Tespit'), evidence: demoText(p, 'evidence', 4000), evidence_url: demoLink(p, 'evidence_url'), occurred_on: p.occurred_on || today(), defense: null, defense_at: null, drive_url: demoLink(p, 'drive_url'), created_by: c.id, created_at: stamp() });
