@@ -739,6 +739,13 @@
   .club-picker .checks { margin: 0; max-height: 220px; }
   #clubFilter { margin-bottom: 8px; }
   .checks input { width: 17px; height: 17px; accent-color: var(--accent); flex: none; }
+  .partner-share-method { gap: 8px; }
+  .partner-share-method legend { padding: 0; font-size: 13px; font-weight: 600; opacity: .8; }
+  .partner-share-method label { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid var(--border-strong); border-radius: 13px; cursor: pointer; }
+  .partner-share-method label:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .partner-share-method label > input[type="radio"] { width: 17px; height: 17px; padding: 0; margin: 3px 0 0; border: 0; background: transparent; accent-color: var(--accent); flex: none; }
+  .partner-share-method label > span { display: grid; gap: 3px; font-size: 13px; font-weight: 650; }
+  .partner-share-method label small { font-size: 12px; line-height: 1.4; font-weight: 450; opacity: .65; }
   .form-error { color: var(--no); font-size: 13px; }
   .item .meta a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
   .item .meta a:hover { color: var(--accent); }
@@ -1571,7 +1578,7 @@
 
   // Formdaki adı → events sütunu. onlyPresent: düzenleme talebinde olmayan alan hiç yazılmaz,
   // böylece bu alanlardan önce gönderilmiş eski talepler onaylanınca hiçbir şey sıfırlanmaz.
-  const EXTRA_COLS = [['endDate', 'end_date'], ['endTime', 'end_time'], ['bannerUrl', 'banner_url'], ['city', 'city'], ['category', 'category'],
+  const EXTRA_COLS = [['endDate', 'end_date'], ['endTime', 'end_time'], ['bannerUrl', 'banner_url'], ['city', 'city'], ['category', 'category'], ['kind', 'kind'], ['seeking', 'seeking'],
     ['biletimgo', 'biletimgo_url'], ['instagram', 'instagram_url'], ['facebook', 'facebook_url'], ['x', 'x_url'], ['youtube', 'youtube_url'], ['capacity', 'capacity'], ['speakers', 'speakers'], ['design', 'design']];
   const extraPayload = (f, onlyPresent = false) => {
     const out = {};
@@ -1632,7 +1639,7 @@
       eventVisibilityRequests: (eventVisibilityRequests || []).map((r) => ({ id: r.id, eventId: r.event_id, clubId: r.club_id, desiredVisible: !!r.desired_visible, note: r.note || '', status: r.status, createdAt: r.created_at, decidedAt: r.decided_at })),
       eventComments: (eventComments || []).map((c) => ({ id: c.id, eventId: c.event_id, name: c.name, email: c.email || '', body: c.body, status: c.status, createdAt: c.created_at })),
       eventEdits: (eventEditRequests || []).map((r) => ({ id:r.id, eventId:r.event_id, clubId:r.club_id, changes:r.changes || {}, note:r.note || '', status:r.status, createdAt:r.created_at, decidedAt:r.decided_at })),
-      notifications: (notifications || []).filter((n) => !myNotif.get(n.id)?.hidden_at).map((n) => ({ id:n.id, type:n.type, title:n.title, body:n.body || '', eventId:n.event_id || '', applicationId:n.application_id || '', taskId:n.task_id || '', actionable: !!n.actionable, resolved: !!n.resolved, createdAt:n.created_at, readAt: myNotif.get(n.id)?.read_at || n.read_at })),
+      notifications: (notifications || []).filter((n) => !myNotif.get(n.id)?.hidden_at).map((n) => ({ id:n.id, type:n.type, title:n.title, body:n.body || '', eventId:n.event_id || '', applicationId:n.application_id || '', taskId:n.task_id || '', recipientClubId:n.recipient_club_id || '', recipientUserId:n.recipient_user_id || '', actionable: !!n.actionable, resolved: !!n.resolved, createdAt:n.created_at, readAt: myNotif.get(n.id)?.read_at || n.read_at })),
       supportCreators: [],
       supportTickets: [],
       tasks: tasks.map((t) => ({ id: t.id, title: t.title, desc: t.description || '', due: t.due_date || '', clubId: t.club_id, status: t.status,
@@ -1966,6 +1973,55 @@
       e.applications.push({ id: uid(), clubId: state.user, note, status: 'pending', createdAt: stamp() });
       db.notifications ||= []; db.notifications.unshift({id:uid(),type:'partnership_application',title:'Yeni ortaklık başvurusu',body:`${club(state.user)?.name || 'Bir kulüp'} “${e.title}” etkinliğine ortak olmak istiyor.`,eventId:e.id,applicationId:e.applications.at(-1).id,actionable:true,resolved:false,createdAt:stamp()}); save();
     },
+    async sendPartnershipOffer(eventId, recipientUserId, note) {
+      const e = db.events.find((x) => x.id === eventId);
+      const recipient = partnershipPeople().find((p) => p.id === recipientUserId);
+      if (!e || (!isAdmin() && e.ownerId !== state.user)) throw new Error('Bu etkinlik için teklif gönderme yetkin yok.');
+      if (!recipient) throw new Error('Teklif gönderilecek kişi bulunamadı.');
+      if (e.applications.some((p) => p.clubId === recipient.clubId && p.status === 'approved')) throw new Error('Bu kulüp etkinliğe zaten ortak.');
+      if ((db.notifications || []).some((n) => n.type === 'partnership_offer' && n.eventId === eventId && n.recipientUserId === recipientUserId && n.actionable && !n.resolved)) throw new Error('Bu kişiye zaten bekleyen bir teklif gönderdin.');
+      const at = stamp();
+      db.notifications ||= [];
+      db.notifications.unshift({ id: uid(), type: 'partnership_offer', title: 'Sana ortaklık teklifi var', body: `“${e.title}” etkinliği için ${who(e.ownerId)} sana ortaklık teklifi gönderdi.\n\n${note}`, eventId, recipientUserId, actionable: true, resolved: false, createdAt: at, offerNote: note });
+      save();
+    },
+    async respondPartnershipOffer(notificationId, accept) {
+      const n = (db.notifications || []).find((x) => x.id === notificationId && x.type === 'partnership_offer');
+      if (!n || n.recipientUserId !== state.user || !n.actionable || n.resolved) throw new Error('Bu teklif artık yanıtlanamıyor.');
+      const e = db.events.find((x) => x.id === n.eventId);
+      const profile = (db.panelProfiles || []).find((p) => p.id === n.recipientUserId);
+      const recipientClubId = profile?.clubId || n.recipientUserId;
+      if (!e || !club(recipientClubId)) throw new Error('Etkinlik veya kulüp hesabı bulunamadı.');
+      n.actionable = false; n.resolved = true; n.readAt = stamp();
+      db.notifications ||= [];
+      if (accept) {
+        let app = e.applications.find((p) => p.clubId === recipientClubId);
+        if (app) Object.assign(app, { status: 'approved', note: n.offerNote || 'Kişiye özel ortaklık teklifi kabul edildi.', decidedAt: stamp() });
+        else { app = { id: uid(), clubId: recipientClubId, note: n.offerNote || 'Kişiye özel ortaklık teklifi kabul edildi.', status: 'approved', createdAt: stamp(), decidedAt: stamp() }; e.applications.push(app); }
+        n.title = 'Ortaklık teklifini kabul ettin';
+        n.body = `“${e.title}” etkinliğinde ortak oldun.`;
+        n.applicationId = app.id;
+        db.notifications.unshift({ id: uid(), type: 'partnership_offer_response', title: 'Ortaklık teklifin kabul edildi', body: `${who(recipientClubId)} “${e.title}” etkinliğin için gönderdiğin teklifi kabul etti.`, eventId: e.id, recipientClubId: e.ownerId, actionable: false, resolved: true, createdAt: stamp() });
+      } else {
+        n.title = 'Ortaklık teklifini reddettin';
+        n.body = `“${e.title}” etkinliği için gönderilen teklifi reddettin.`;
+        db.notifications.unshift({ id: uid(), type: 'partnership_offer_response', title: 'Ortaklık teklifin reddedildi', body: `${who(recipientClubId)} “${e.title}” etkinliğin için gönderdiğin teklifi reddetti.`, eventId: e.id, recipientClubId: e.ownerId, actionable: false, resolved: true, createdAt: stamp() });
+      }
+      save();
+    },
+    async shareEventForPartnership(eventId, seeking) {
+      const e = db.events.find((x) => x.id === eventId);
+      if (!e || (!isAdmin() && e.ownerId !== state.user)) throw new Error('Bu etkinlik için paylaşım yetkin yok.');
+      if (e.kind === 'partner') return;
+      if (e.status !== 'published') throw new Error('Etkinliğin onaylandığında herkese açık paylaşabilirsin. Şimdilik kişiye özel teklif gönderebilirsin.');
+      if (isAdmin()) Object.assign(e, { kind: 'partner', seeking });
+      else {
+        db.eventEdits ||= [];
+        if (db.eventEdits.some((q) => q.eventId === eventId && q.status === 'pending')) throw new Error('Bu etkinlik için zaten bekleyen bir düzenleme talebi var.');
+        db.eventEdits.push({ id: uid(), eventId, clubId: state.user, changes: { kind: 'partner', seeking }, status: 'pending', createdAt: stamp(), note: '' });
+      }
+      save();
+    },
     async decideApplication(eventId, appId, status, note='') {
       const e=db.events.find(x=>x.id===eventId); const p=e?.applications.find(x=>x.id===appId); if(!p) return;
       if(!isAdmin() && e.ownerId!==state.user) throw new Error('Bu başvuruyu yalnızca etkinlik sahibi yönetebilir.');
@@ -2174,6 +2230,20 @@
     async setCalendar(id, value, note = '') { await restMust(`events?${eq(id)}`, { method: 'PATCH', body: { calendar: value, note: note || null } }); },
     async applyEvent(eventId, note) {
       await rest('rpc/submit_event_application', { method:'POST', body:{ p_event:eventId, p_note:note } });
+    },
+    async sendPartnershipOffer(eventId, recipientUserId, note) {
+      await rest('rpc/send_partnership_offer', { method:'POST', body:{ p_event:eventId, p_recipient:recipientUserId, p_note:note } });
+    },
+    async respondPartnershipOffer(notificationId, accept) {
+      await rest('rpc/respond_partnership_offer', { method:'POST', body:{ p_notification:notificationId, p_accept:!!accept } });
+    },
+    async shareEventForPartnership(eventId, seeking) {
+      const e = db.events.find((x) => x.id === eventId);
+      if (!e || (!isAdmin() && e.ownerId !== state.user)) throw new Error('Bu etkinlik için paylaşım yetkin yok.');
+      if (e.kind === 'partner') return;
+      if (e.status !== 'published') throw new Error('Etkinliğin onaylandığında herkese açık paylaşabilirsin. Şimdilik kişiye özel teklif gönderebilirsin.');
+      if (isAdmin()) await restMust(`events?${eq(eventId)}`, { method:'PATCH', body:{ kind:'partner', seeking } });
+      else await remote.requestEventEdit(eventId, { kind:'partner', seeking });
     },
     async decideApplication(eventId, appId, status, note='') {
       await rest('rpc/decide_event_application', { method:'POST', body:{ p_application:appId, p_status:status, p_note:note } });
@@ -2470,6 +2540,7 @@
     selectedUnitKind: null,
     viewScroll: {},
     pendingViewScroll: null,
+    partnerFollowupEventId: '',
     profile: { fullName: '', avatarUrl: '' },
     profileMenuOpen: false,
     chat: freshChatState(),
@@ -3150,6 +3221,10 @@
 
   const notificationApplication = (n) => n.applicationId ? db.events.flatMap(e => e.applications.map(p => ({ e, p }))).find(x => x.p.id === n.applicationId) : null;
   const notificationAction = (n) => {
+    if (n.type === 'partnership_offer') {
+      if (n.actionable && !n.resolved) return `<button class="btn small" data-act="partner-offer-accept" data-id="${esc(n.id)}">Teklifi kabul et</button><button class="btn ghost small" data-act="partner-offer-reject" data-id="${esc(n.id)}">Reddet</button>`;
+      return '';
+    }
     if (n.type === 'partnership_application') {
       const found = notificationApplication(n);
       if (found?.p.status === 'approved') return `<span class="notif-result success">Bu başvuruyu onayladınız.</span><button class="btn small" disabled>Onayla</button><button class="btn ghost small" disabled>Reddet</button>`;
@@ -3184,6 +3259,105 @@
     const host = e.ownerId === ADMIN ? (e.university || 'UniPakt') : (club(e.ownerId)?.uni || e.university || who(e.ownerId));
     const partners = e.applications.filter(p => p.status === 'approved').map(p => club(p.clubId)?.uni || who(p.clubId));
     return [host, ...partners].filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i);
+  };
+
+  const partnershipPeople = () => {
+    const ownClubId = isAdmin() ? '' : state.user;
+    const currentProfileId = DEMO ? state.user : (session?.user_id || '');
+    const profiles = (db.panelProfiles || []).filter((p) => ['club','member'].includes(p.role) && p.clubId && p.id !== currentProfileId && p.clubId !== ownClubId);
+    if (DEMO) {
+      const known = new Set(profiles.map((p) => p.clubId));
+      db.clubs.filter((c) => c.id !== ownClubId && !known.has(c.id)).forEach((c) => profiles.push({ id:c.id, role:'club', clubId:c.id, fullName:c.name }));
+    }
+    return profiles.sort((a,b) => (a.fullName || club(a.clubId)?.name || '').localeCompare(b.fullName || club(b.clubId)?.name || '', 'tr'));
+  };
+
+  const partnerFlowEvents = () => db.events
+    .filter((e) => (isAdmin() || e.ownerId === state.user) && ['published','pending'].includes(e.status))
+    .sort((a,b) => String(a.date).localeCompare(String(b.date)) || a.title.localeCompare(b.title, 'tr'));
+
+  const openPartnershipFlow = () => {
+    const choices = partnerFlowEvents();
+    const eventOptions = choices.map((e) => `<option value="${esc(e.id)}">${esc(e.title)} · ${fmtDay(e.date)} · ${e.status === 'pending' ? 'Onay bekliyor' : 'Yayında'}</option>`).join('');
+    openForm({
+      title:'Ortaklık başlat',
+      lead:'Kendi etkinliklerinden birini seçebilir veya ortak aramak için yeni bir etkinlik oluşturabilirsin.',
+      fields:`${choices.length ? field('Mevcut etkinlik', `<select name="event" required><option value="">Etkinlik seç</option>${eventOptions}</select>`) : '<p class="hint">Seçebileceğin mevcut etkinlik yok. Yeni bir ortak etkinlik oluşturabilirsin.</p>'}
+        <button type="button" class="btn ghost small" data-partner-create>Yeni etkinlik oluştur</button>`,
+      submit:choices.length ? 'Seçilen etkinlikle devam et' : 'Etkinlik seç',
+      onSubmit:(fd) => {
+        const id = val(fd,'event');
+        if (!id) return 'Önce bir etkinlik seç veya yeni etkinlik oluştur.';
+        state.partnerFollowupEventId = id;
+      },
+    });
+    dlgForm.querySelector('[data-partner-create]')?.addEventListener('click', () => {
+      dlg.close();
+      openEventPage('new', { kind:'partner', partnerFlow:true });
+    });
+  };
+
+  const openPartnershipOptions = (eventId) => {
+    const e = db.events.find((x) => x.id === eventId);
+    if (!e || (!isAdmin() && e.ownerId !== state.user)) return toast('Bu etkinlik bulunamadı veya sana ait değil.');
+    const people = partnershipPeople();
+    const personOptions = people.map((p) => {
+      const person = p.fullName || club(p.clubId)?.name || 'Kulüp temsilcisi';
+      const org = club(p.clubId);
+      return `<option value="${esc(p.id)}">${esc(person)}${org ? ` · ${esc(org.name)} · ${esc(org.uni)}` : ''}</option>`;
+    }).join('');
+    const canPublic = e.kind === 'partner' || e.status === 'published';
+    const shareInfo = e.kind === 'partner'
+      ? (e.status === 'published' ? 'Bu etkinlik zaten Ortak Arama’da herkese açık.' : 'Etkinlik UniPakt tarafından onaylandığında Ortak Arama’da herkese açık olacak.')
+      : (isAdmin() ? 'Etkinlik Ortak Arama’da hemen yayınlanır.' : 'Herkese açık ilan UniPakt onayına gönderilir.');
+    openForm({
+      title:'Ortaklık teklifini paylaş',
+      lead:`“${e.title}” etkinliği için bir yol seç.`,
+      fields:`<fieldset class="field partner-share-method"><legend>Paylaşım türü</legend>
+          <label><input type="radio" name="share_mode" value="direct" ${people.length ? 'checked' : 'disabled'}><span>Kişiye özel teklif<small>Seçtiğin kişi kabul ederse kulübü etkinliğe ortak olur.</small></span></label>
+          <label><input type="radio" name="share_mode" value="public" ${people.length ? '' : 'checked'} ${canPublic ? '' : 'disabled'}><span>Ortak Arama’da herkese açık paylaş<small>${esc(shareInfo)}</small></span></label>
+        </fieldset>
+        <div data-partner-direct>${people.length ? field('Teklif gönderilecek kişi', `<select name="recipient"><option value="">Kişi seç</option>${personOptions}</select>`) + field('Teklif mesajı', '<textarea name="offer_note" maxlength="500" placeholder="Birlikte nasıl çalışabileceğinizi kısaca anlat."></textarea>') : '<p class="hint">Teklif gönderilebilecek başka kulüp hesabı bulunamadı.</p>'}</div>
+        <div data-partner-public hidden>${e.kind === 'partner' ? `<p class="hint">${esc(shareInfo)}</p>` : field('Nasıl bir ortak arıyorsun?', `<input name="seeking" maxlength="200" value="${esc(e.seeking || '')}" placeholder="Örn. Tasarım ve duyuru desteği">`)}</div>`,
+      submit:'Devam et',
+      onSubmit:async (fd) => {
+        const mode = val(fd,'share_mode');
+        if (mode === 'direct') {
+          const recipient = val(fd,'recipient');
+          const note = val(fd,'offer_note');
+          if (!recipient) return 'Teklif göndereceğin kişiyi seç.';
+          if (!note) return 'Teklif mesajını yaz.';
+          await api.sendPartnershipOffer(eventId, recipient, note);
+          toast('Kişiye özel ortaklık teklifi gönderildi.');
+          return;
+        }
+        if (mode !== 'public') return 'Paylaşım türünü seç.';
+        if (!canPublic) return 'Etkinlik onaylandıktan sonra herkese açık paylaşabilirsin.';
+        if (e.kind === 'partner') {
+          toast(e.status === 'published' ? 'Etkinlik zaten Ortak Arama’da herkese açık.' : 'Etkinlik onaylandığında Ortak Arama’da görünür olacak.');
+          return;
+        }
+        const seeking = val(fd,'seeking');
+        if (!seeking) return 'Nasıl bir ortak aradığını yaz.';
+        await api.shareEventForPartnership(eventId, seeking);
+        toast(isAdmin() ? 'Etkinlik Ortak Arama’da yayınlandı.' : 'Herkese açık paylaşım talebin UniPakt onayına gönderildi.');
+      },
+    });
+    const sync = () => {
+      const mode = dlgForm.querySelector('[name="share_mode"]:checked')?.value || (people.length ? 'direct' : 'public');
+      const direct = dlgForm.querySelector('[data-partner-direct]');
+      const publicBlock = dlgForm.querySelector('[data-partner-public]');
+      if (direct) direct.hidden = mode !== 'direct';
+      if (publicBlock) publicBlock.hidden = mode !== 'public';
+      const recipient = dlgForm.querySelector('[name="recipient"]');
+      const note = dlgForm.querySelector('[name="offer_note"]');
+      const seeking = dlgForm.querySelector('[name="seeking"]');
+      if (recipient) recipient.required = mode === 'direct';
+      if (note) note.required = mode === 'direct';
+      if (seeking) seeking.required = mode === 'public';
+    };
+    dlgForm.querySelectorAll('[name="share_mode"]').forEach((input) => input.addEventListener('change', sync));
+    sync();
   };
 
   // page: 'etkinlik' (the calendar list), 'ortak' (partner search) or 'mine' (the club's own requests)
@@ -3329,7 +3503,7 @@
      Sağda canlı önizleme; yarım form bu tarayıcıda taslak olarak saklanır.
      ------------------------------------------------------------------ */
   const EV_CATEGORIES = CLUB_CATEGORIES;
-  const evForm = { mode: 'new', kind: 'event', id: '', fee: '', back: 'etkinlikler', values: null, images: { poster: null, banner: null }, dirty: false, restored: false };
+  const evForm = { mode: 'new', kind: 'event', id: '', fee: '', back: 'etkinlikler', values: null, images: { poster: null, banner: null }, dirty: false, restored: false, partnerFlow: false };
   const busy = () => dlg.open || state.view === 'etkinlik-olustur';
 
   // Kaydedilmemiş değişiklik varken sayfadan çıkmadan önce sorar. true: çıkılabilir.
@@ -3605,9 +3779,9 @@
   };
 
   // Sayfayı açar. Yeni etkinlikte tür seçimiyle başlar; taslak varsa tür seçilince geri yüklenir.
-  const openEventPage = (mode, { kind = 'event', id = '' } = {}) => {
+  const openEventPage = (mode, { kind = 'event', id = '', partnerFlow = false } = {}) => {
     const back = HIDDEN_VIEWS.includes(state.view) ? evForm.back : state.view;
-    Object.assign(evForm, { mode, kind, id, fee: '', back: back || 'etkinlikler', values: null, images: { poster: null, banner: null }, dirty: false, restored: false, reg: freshRegDraft() });
+    Object.assign(evForm, { mode, kind, id, fee: '', back: back || 'etkinlikler', values: null, images: { poster: null, banner: null }, dirty: false, restored: false, partnerFlow, reg: freshRegDraft() });
     if (mode === 'edit') {
       const e = db.events.find((x) => x.id === id);
       evForm.kind = e.kind || 'event';
@@ -4054,7 +4228,10 @@
         await saveEvent(v);
         clearDraft(); evForm.dirty = false;
         const target = evForm.back && evForm.back !== 'etkinlik-olustur' ? evForm.back : (isAdmin() ? 'etkinlikler' : 'etkinliklerim');
+        const followupId = state.partnerFollowupEventId;
+        state.partnerFollowupEventId = '';
         go(target);
+        if (followupId) setTimeout(() => openPartnershipOptions(followupId), 0);
       } catch (error) {
         if (!state.user) { render(); return; }
         err.textContent = error.message || 'Kaydedilemedi.'; err.hidden = false; status.textContent = '';
@@ -4086,6 +4263,8 @@
       const regProblem = reg ? validateRegDraft(reg) : '';
       if (regProblem) throw new Error(regProblem);
       const newId = await api.addEvent({ ...f, kind: evForm.kind, visible });
+      if (!db.events.some((e) => e.id === newId)) db.events.unshift({ id:newId, title:f.title, desc:f.desc, date:f.date, time:f.time, place:f.place, seeking:f.seeking || '', kind:evForm.kind, ownerId:isAdmin() ? ADMIN : state.user, status:isAdmin() ? 'published' : 'pending', calendar:isAdmin() && evForm.kind === 'event' ? 'on' : 'none', visible, createdAt:stamp(), applications:[] });
+      if (evForm.partnerFlow) state.partnerFollowupEventId = newId;
       if (reg?.enabled && newId) {
         try { await api.setRegistration(newId, { enabled: true, open: true, deadline: fromLocalInput(reg.deadline), questions: cleanRegQuestions(reg), columns: [], reminders: reg.reminders || [] }); }
         catch (error) { toast(`Etkinlik kaydedildi ama kayıt formu kaydedilemedi: ${error.message}. Etkinliklerim → Kayıtlar’dan tekrar dene.`); }
@@ -4325,7 +4504,8 @@
     'destek-taleplerim'() { return renderSupportTickets(); },
 
     bildirimler() {
-      const list = [...(db.notifications || [])].filter(n=>!n.recipientClubId||n.recipientClubId===state.user).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+      const currentProfileId = DEMO ? state.user : (session?.user_id || '');
+      const list = [...(db.notifications || [])].filter(n=>n.recipientUserId ? n.recipientUserId===currentProfileId : (!n.recipientClubId||n.recipientClubId===state.user)).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
       const row = (n) => { const app = notificationApplication(n); const pending = n.type === 'partnership_application' ? !!(app?.p.status === 'pending') : (n.actionable && !n.resolved); return `<article class="card item notification ${!n.readAt ? 'unread' : ''}"><div class="meta top"><span class="tag ${pending?'wait':'ok'}">${pending?'İşlem bekliyor':'Bilgi'}</span><span>${fmtStamp(n.createdAt)}</span></div><h3>${esc(n.title)}</h3><p class="body notif-body">${esc(n.body)}</p><div class="actions">${n.type === 'partnership_application' ? notificationAction(n) : (pending ? notificationAction(n) : '')}${!n.readAt ? `<button class="btn ghost small" data-act="notif-read" data-id="${esc(n.id)}">Okundu</button>` : ''}${!pending ? `<button class="btn ghost small" data-act="notif-delete" data-id="${esc(n.id)}">Sil</button>` : ''}</div></article>`; };
       return `${head('Bildirimler','Talepler, sonuçlar ve seninle ilgili önemli gelişmeler. Sonuçlandırılmamış talepler silinemez.')}${list.length ? `<div class="stack">${list.map(row).join('')}</div>` : empty('Henüz bildirimin yok.')}`;
     },
@@ -4370,9 +4550,9 @@
       const past = list.filter((e) => e.date < today()).reverse();
       return `
         ${head('Ortak Arama',
-          isAdmin() ? 'Ortak arayan etkinlikler. Ortaklık başvurularını onayla; bir etkinliği “Yayına al” ile takvime gönder.'
-                    : 'Ortak arayan etkinlikler. Birine ortak olmak için başvur. Kendi etkinliğini takvime almak için yayına alma talebi gönder.',
-          `<button class="btn" data-act="event-new" data-id="partner">${isAdmin() ? 'Yeni ortak etkinlik' : 'Ortak arıyorum'}</button>`)}
+          isAdmin() ? 'Ortak arayan etkinlikleri yönet; mevcut bir etkinlik seç veya yeni ortak etkinlik oluştur.'
+                    : 'Bir ilana başvurabilir ya da kendi etkinliğin için mevcut etkinliği seçip kişiye özel teklif gönderebilir veya herkese açık paylaşabilirsin.',
+          `<button class="btn" data-act="partner-flow">${isAdmin() ? 'Ortaklık oluştur' : 'Ortak arıyorum'}</button>`)}
         <div class="stack">${upcoming.length ? upcoming.map((e) => eventCard(e, 'ortak')).join('') : empty('Şu an ortak arayan etkinlik yok.')}</div>
         ${past.length ? `<div class="section-head"><h2>Geçmiş</h2></div><div class="stack">${past.map((e) => eventCard(e, 'ortak')).join('')}</div>` : ''}`;
     },
@@ -6152,6 +6332,13 @@
     'ann-remove'(id) { confirmRemove('Duyuruyu kaldır', 'Duyuru tüm kulüplerin panelinden kalkar.', () => api.removeAnnouncement(id)); },
 
     'event-new'(kind) { openEventPage('new', { kind: kind === 'event' ? 'event' : 'partner' }); },
+    'partner-flow'() { openPartnershipFlow(); },
+    async 'partner-offer-accept'(id) { await api.respondPartnershipOffer(id, true); toast('Ortaklık teklifi kabul edildi.'); render(); },
+    'partner-offer-reject'(id) {
+      const n = (db.notifications || []).find((x) => x.id === id && x.type === 'partnership_offer');
+      if (!n || !confirm(`“${n.title}” teklifini reddetmek istiyor musun?`)) return;
+      return api.respondPartnershipOffer(id, false).then(() => { toast('Ortaklık teklifi reddedildi.'); render(); });
+    },
     'ev-type'(fee) { evForm.fee = fee === 'paid' ? 'paid' : 'free'; evForm.values = null; applyDraft(); render(); window.scrollTo(0, 0); },
     'ev-draft-discard'() { if (!confirm('Taslak silinsin mi?')) return; clearDraft(); render(); },
     'ev-cancel'() { go(evForm.back && evForm.back !== 'etkinlik-olustur' ? evForm.back : 'etkinlikler'); },
@@ -8539,6 +8726,11 @@
     if (state.view === 'gorevliler' && !state.staffView.staff && !state.staffView.loading && !state.staffView.error) loadStaffView();
     fitImViewport();
     if (state.view === 'ims') { mountIm(); if (!document.getElementById('imMsgs')) refreshChatProfiles(); }
+    if (state.partnerFollowupEventId && !dlg.open && state.view !== 'etkinlik-olustur') {
+      const eventId = state.partnerFollowupEventId;
+      state.partnerFollowupEventId = '';
+      setTimeout(() => openPartnershipOptions(eventId), 0);
+    }
   };
 
   // A failed action says why; if it signed the user out, the login screen follows.
