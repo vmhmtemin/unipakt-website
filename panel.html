@@ -1977,9 +1977,9 @@
       const e = db.events.find((x) => x.id === eventId);
       const recipient = partnershipPeople().find((p) => p.id === recipientUserId);
       if (!e || (!isAdmin() && e.ownerId !== state.user)) throw new Error('Bu etkinlik için teklif gönderme yetkin yok.');
-      if (!recipient) throw new Error('Teklif gönderilecek kişi bulunamadı.');
+      if (!recipient) throw new Error('Teklif gönderilecek kulüp bulunamadı.');
       if (e.applications.some((p) => p.clubId === recipient.clubId && p.status === 'approved')) throw new Error('Bu kulüp etkinliğe zaten ortak.');
-      if ((db.notifications || []).some((n) => n.type === 'partnership_offer' && n.eventId === eventId && n.recipientUserId === recipientUserId && n.actionable && !n.resolved)) throw new Error('Bu kişiye zaten bekleyen bir teklif gönderdin.');
+      if ((db.notifications || []).some((n) => n.type === 'partnership_offer' && n.eventId === eventId && n.recipientUserId === recipientUserId && n.actionable && !n.resolved)) throw new Error('Bu kulübe zaten bekleyen bir teklif gönderdin.');
       const at = stamp();
       db.notifications ||= [];
       db.notifications.unshift({ id: uid(), type: 'partnership_offer', title: 'Sana ortaklık teklifi var', body: `“${e.title}” etkinliği için ${who(e.ownerId)} sana ortaklık teklifi gönderdi.\n\n${note}`, eventId, recipientUserId, actionable: true, resolved: false, createdAt: at, offerNote: note });
@@ -1996,8 +1996,8 @@
       db.notifications ||= [];
       if (accept) {
         let app = e.applications.find((p) => p.clubId === recipientClubId);
-        if (app) Object.assign(app, { status: 'approved', note: n.offerNote || 'Kişiye özel ortaklık teklifi kabul edildi.', decidedAt: stamp() });
-        else { app = { id: uid(), clubId: recipientClubId, note: n.offerNote || 'Kişiye özel ortaklık teklifi kabul edildi.', status: 'approved', createdAt: stamp(), decidedAt: stamp() }; e.applications.push(app); }
+        if (app) Object.assign(app, { status: 'approved', note: n.offerNote || 'Kulübe özel ortaklık teklifi kabul edildi.', decidedAt: stamp() });
+        else { app = { id: uid(), clubId: recipientClubId, note: n.offerNote || 'Kulübe özel ortaklık teklifi kabul edildi.', status: 'approved', createdAt: stamp(), decidedAt: stamp() }; e.applications.push(app); }
         n.title = 'Ortaklık teklifini kabul ettin';
         n.body = `“${e.title}” etkinliğinde ortak oldun.`;
         n.applicationId = app.id;
@@ -2013,7 +2013,7 @@
       const e = db.events.find((x) => x.id === eventId);
       if (!e || (!isAdmin() && e.ownerId !== state.user)) throw new Error('Bu etkinlik için paylaşım yetkin yok.');
       if (e.kind === 'partner') return;
-      if (e.status !== 'published') throw new Error('Etkinliğin onaylandığında herkese açık paylaşabilirsin. Şimdilik kişiye özel teklif gönderebilirsin.');
+      if (e.status !== 'published') throw new Error('Etkinliğin onaylandığında herkese açık paylaşabilirsin. Şimdilik kulübe özel teklif gönderebilirsin.');
       if (isAdmin()) Object.assign(e, { kind: 'partner', seeking });
       else {
         db.eventEdits ||= [];
@@ -2232,7 +2232,12 @@
       await rest('rpc/submit_event_application', { method:'POST', body:{ p_event:eventId, p_note:note } });
     },
     async sendPartnershipOffer(eventId, recipientUserId, note) {
-      await rest('rpc/send_partnership_offer', { method:'POST', body:{ p_event:eventId, p_recipient:recipientUserId, p_note:note } });
+      try {
+        await rest('rpc/send_partnership_offer', { method:'POST', body:{ p_event:eventId, p_recipient:recipientUserId, p_note:note } });
+      } catch (error) {
+        if (/Bu kişiye zaten bekleyen/.test(error.message || '')) throw new Error('Bu kulübe zaten bekleyen bir teklif gönderdin.');
+        throw error;
+      }
     },
     async respondPartnershipOffer(notificationId, accept) {
       await rest('rpc/respond_partnership_offer', { method:'POST', body:{ p_notification:notificationId, p_accept:!!accept } });
@@ -2241,7 +2246,7 @@
       const e = db.events.find((x) => x.id === eventId);
       if (!e || (!isAdmin() && e.ownerId !== state.user)) throw new Error('Bu etkinlik için paylaşım yetkin yok.');
       if (e.kind === 'partner') return;
-      if (e.status !== 'published') throw new Error('Etkinliğin onaylandığında herkese açık paylaşabilirsin. Şimdilik kişiye özel teklif gönderebilirsin.');
+      if (e.status !== 'published') throw new Error('Etkinliğin onaylandığında herkese açık paylaşabilirsin. Şimdilik kulübe özel teklif gönderebilirsin.');
       if (isAdmin()) await restMust(`events?${eq(eventId)}`, { method:'PATCH', body:{ kind:'partner', seeking } });
       else await remote.requestEventEdit(eventId, { kind:'partner', seeking });
     },
@@ -4554,7 +4559,7 @@
       return `
         ${head('Ortak Arama',
           isAdmin() ? 'Ortak arayan etkinlikleri yönet; mevcut bir etkinlik seç veya yeni ortak etkinlik oluştur.'
-                    : 'Bir ilana başvurabilir ya da kendi etkinliğin için mevcut etkinliği seçip kişiye özel teklif gönderebilir veya herkese açık paylaşabilirsin.',
+                    : 'Bir ilana başvurabilir ya da kendi etkinliğin için mevcut etkinliği seçip kulübe özel teklif gönderebilir veya herkese açık paylaşabilirsin.',
           `<button class="btn" data-act="partner-flow">${isAdmin() ? 'Ortaklık oluştur' : 'Ortak arıyorum'}</button>`)}
         <div class="stack">${upcoming.length ? upcoming.map((e) => eventCard(e, 'ortak')).join('') : empty('Şu an ortak arayan etkinlik yok.')}</div>
         ${past.length ? `<div class="section-head"><h2>Geçmiş</h2></div><div class="stack">${past.map((e) => eventCard(e, 'ortak')).join('')}</div>` : ''}`;
