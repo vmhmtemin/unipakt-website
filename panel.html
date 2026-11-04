@@ -1610,7 +1610,7 @@
       if (mfa && mfa.enabled && !mfa.verified) { const e = new Error('Bu tarayıcı için iki adımlı doğrulama gerekli.'); e.mfa = true; throw e; }
       throw signedOut('Bu hesaba panel yetkisi verilmemiş. UniPakt ile iletişime geç.');
     }
-    const [clubs, anns, events, apps, tasks, points, eventVisibilityRequests, eventEditRequests, notifications, board, eventComments, panelProfiles, notificationStates] = await Promise.all([
+    const [clubs, anns, events, apps, tasks, points, eventVisibilityRequests, eventEditRequests, notifications, board, panelProfiles, eventComments, notificationStates] = await Promise.all([
       rest('clubs?select=*&order=name'), rest('announcements?select=*'), rest('events?select=*,event_occurrences(date,time)&order=event_date'),
       rest('event_applications?select=*&order=created_at'), rest('tasks?select=*'), rest('point_entries?select=*'),
       rest('event_visibility_requests?select=*&order=created_at.desc'),
@@ -3265,11 +3265,15 @@
     const ownClubId = isAdmin() ? '' : state.user;
     const currentProfileId = DEMO ? state.user : (session?.user_id || '');
     const profiles = (db.panelProfiles || []).filter((p) => ['club','member'].includes(p.role) && p.clubId && p.id !== currentProfileId && p.clubId !== ownClubId);
+    const byClub = new Map();
+    profiles.forEach((p) => {
+      const previous = byClub.get(p.clubId);
+      if (!previous || (p.role === 'club' && previous.role !== 'club')) byClub.set(p.clubId, p);
+    });
     if (DEMO) {
-      const known = new Set(profiles.map((p) => p.clubId));
-      db.clubs.filter((c) => c.id !== ownClubId && !known.has(c.id)).forEach((c) => profiles.push({ id:c.id, role:'club', clubId:c.id, fullName:c.name }));
+      db.clubs.filter((c) => c.id !== ownClubId && !byClub.has(c.id)).forEach((c) => byClub.set(c.id, { id:c.id, role:'club', clubId:c.id, fullName:c.name }));
     }
-    return profiles.sort((a,b) => (a.fullName || club(a.clubId)?.name || '').localeCompare(b.fullName || club(b.clubId)?.name || '', 'tr'));
+    return [...byClub.values()].sort((a,b) => (club(a.clubId)?.name || a.fullName || '').localeCompare(club(b.clubId)?.name || b.fullName || '', 'tr'));
   };
 
   const partnerFlowEvents = () => db.events
@@ -3302,9 +3306,8 @@
     if (!e || (!isAdmin() && e.ownerId !== state.user)) return toast('Bu etkinlik bulunamadı veya sana ait değil.');
     const people = partnershipPeople();
     const personOptions = people.map((p) => {
-      const person = p.fullName || club(p.clubId)?.name || 'Kulüp temsilcisi';
       const org = club(p.clubId);
-      return `<option value="${esc(p.id)}">${esc(person)}${org ? ` · ${esc(org.name)} · ${esc(org.uni)}` : ''}</option>`;
+      return `<option value="${esc(p.id)}">${esc(org?.name || p.fullName || 'Kulüp')}${org?.uni ? ` · ${esc(org.uni)}` : ''}</option>`;
     }).join('');
     const canPublic = e.kind === 'partner' || e.status === 'published';
     const shareInfo = e.kind === 'partner'
@@ -3314,10 +3317,10 @@
       title:'Ortaklık teklifini paylaş',
       lead:`“${e.title}” etkinliği için bir yol seç.`,
       fields:`<fieldset class="field partner-share-method"><legend>Paylaşım türü</legend>
-          <label><input type="radio" name="share_mode" value="direct" ${people.length ? 'checked' : 'disabled'}><span>Kişiye özel teklif<small>Seçtiğin kişi kabul ederse kulübü etkinliğe ortak olur.</small></span></label>
+          <label><input type="radio" name="share_mode" value="direct" ${people.length ? 'checked' : 'disabled'}><span>Kulübe özel teklif<small>Teklif seçtiğin kulübün panel hesabına iletilir. Kabul edilirse kulüp etkinliğe ortak olur.</small></span></label>
           <label><input type="radio" name="share_mode" value="public" ${people.length ? '' : 'checked'} ${canPublic ? '' : 'disabled'}><span>Ortak Arama’da herkese açık paylaş<small>${esc(shareInfo)}</small></span></label>
         </fieldset>
-        <div data-partner-direct>${people.length ? field('Teklif gönderilecek kişi', `<select name="recipient"><option value="">Kişi seç</option>${personOptions}</select>`) + field('Teklif mesajı', '<textarea name="offer_note" maxlength="500" placeholder="Birlikte nasıl çalışabileceğinizi kısaca anlat."></textarea>') : '<p class="hint">Teklif gönderilebilecek başka kulüp hesabı bulunamadı.</p>'}</div>
+        <div data-partner-direct>${people.length ? field('Teklif gönderilecek kulüp', `<select name="recipient"><option value="">Kulüp seç</option>${personOptions}</select>`) + field('Teklif mesajı', '<textarea name="offer_note" maxlength="500" placeholder="Birlikte nasıl çalışabileceğinizi kısaca anlat."></textarea>') : '<p class="hint">Teklif gönderilebilecek başka aktif kulüp hesabı bulunamadı.</p>'}</div>
         <div data-partner-public hidden>${e.kind === 'partner' ? `<p class="hint">${esc(shareInfo)}</p>` : field('Nasıl bir ortak arıyorsun?', `<input name="seeking" maxlength="200" value="${esc(e.seeking || '')}" placeholder="Örn. Tasarım ve duyuru desteği">`)}</div>`,
       submit:'Devam et',
       onSubmit:async (fd) => {
@@ -3328,7 +3331,7 @@
           if (!recipient) return 'Teklif göndereceğin kişiyi seç.';
           if (!note) return 'Teklif mesajını yaz.';
           await api.sendPartnershipOffer(eventId, recipient, note);
-          toast('Kişiye özel ortaklık teklifi gönderildi.');
+          toast('Kulübe özel ortaklık teklifi gönderildi.');
           return;
         }
         if (mode !== 'public') return 'Paylaşım türünü seç.';
