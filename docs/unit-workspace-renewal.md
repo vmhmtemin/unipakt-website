@@ -9,7 +9,7 @@ Merkez ve Kulüp panelleri korunur. Mevcut hesaplar, görevler, adaylar, kulüpl
 
 Uygulama statik HTML/JavaScript, Supabase Auth, PostgreSQL RPC ve Storage kullanır.
 Mevcut `unit_workspace()` okuma kapısı ve MFA kontrollü `uw(action, data)` işlem kapısı korunur.
-Yeni sayfalar `panel.html` ile `unit-workflows.js`, `unit-records.js`, `unit-files.js` üzerinden çalışır.
+Birim sayfaları `panel.html` içindedir; dosya ekleri `unit-files.js` üzerinden yüklenir.
 
 - Merkez: bütün birim kayıtlarını okur ve yönetir; bütçe kararlarını verir.
 - Başkan: kendi birimini yönetir, ekibe görev atar, kayıt arşivler ve kendi ekibine duyuru yayımlar.

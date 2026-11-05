@@ -144,6 +144,7 @@
   /* Marka gradyanı: büyük vurgulu yazılarda yazının kendisi gradyan */
   .wordmark span, .kicker, .page-head h1 span, .evp-head h1 span, .im-side-head h2 span { background: var(--accent-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
   h1, h2, h3, p { margin: 0; }
+  html { overflow-anchor: none; }
   button, input, select, textarea { font: inherit; color: inherit; }
   button { cursor: pointer; }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -401,8 +402,8 @@
   /* ---- App shell ---- */
   .app { display: grid; grid-template-columns: var(--side-w) minmax(0, 1fr); min-height: calc(100vh - 64px); }
   .side {
-    position: sticky; top: 0; height: 100vh; height: 100dvh; overflow-y: auto;
-    display: flex; flex-direction: column; gap: 26px;
+    position: sticky; top: 0; height: 100vh; height: 100dvh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; overscroll-behavior: contain;
+    display: flex; flex-direction: column; gap: 22px;
     padding: 30px 18px 22px; border-right: 1px solid var(--border);
   }
   .side-brand { padding: 0 12px; }
@@ -418,30 +419,29 @@
   .nav-item:hover { opacity: 1; background: var(--paper-soft); }
   .nav-item.active { opacity: 1; background: var(--paper-soft); border-color: var(--border); font-weight: 600; }
   .nav-item.active::before { background: var(--accent-grad); }
-  .nav-unit-toggle[data-unit-kind], .nav-accordion-inner[data-unit-kind], .nav-unit-flat[data-unit-kind] { --unit-nav-color: #A78BFA; }
-  .nav-unit-toggle[data-unit-kind]::before { background: var(--unit-nav-color); }
-  .nav-accordion-inner[data-unit-kind] { border-left-color: color-mix(in srgb, var(--unit-nav-color) 50%, transparent); }
-  .nav-accordion-inner[data-unit-kind] .nav-item::before,
-  .nav-unit-flat[data-unit-kind] .nav-item::before { background: var(--unit-nav-color); }
-  .nav-accordion-inner[data-unit-kind] .nav-item.active,
-  .nav-unit-flat[data-unit-kind] .nav-item.active { border-color: color-mix(in srgb, var(--unit-nav-color) 45%, transparent); background: color-mix(in srgb, var(--unit-nav-color) 12%, var(--paper-soft)); }
-  .nav-accordion-inner[data-unit-kind="social"], .nav-unit-toggle[data-unit-kind="social"], .nav-unit-flat[data-unit-kind="social"] { --unit-nav-color: #E879F9; }
-  .nav-accordion-inner[data-unit-kind="pr"], .nav-unit-toggle[data-unit-kind="pr"], .nav-unit-flat[data-unit-kind="pr"] { --unit-nav-color: #60A5FA; }
-  .nav-accordion-inner[data-unit-kind="sponsor"], .nav-unit-toggle[data-unit-kind="sponsor"], .nav-unit-flat[data-unit-kind="sponsor"] { --unit-nav-color: #34D399; }
-  .nav-accordion-inner[data-unit-kind="clubs"], .nav-unit-toggle[data-unit-kind="clubs"], .nav-unit-flat[data-unit-kind="clubs"] { --unit-nav-color: #FBBF24; }
-  .nav-accordion-inner[data-unit-kind="audit"], .nav-unit-toggle[data-unit-kind="audit"], .nav-unit-flat[data-unit-kind="audit"] { --unit-nav-color: #FB7185; }
-  .nav-accordion-inner[data-unit-kind="board"], .nav-unit-toggle[data-unit-kind="board"], .nav-unit-flat[data-unit-kind="board"] { --unit-nav-color: #A78BFA; }
+  /* Birim renkleri: her birimin tek rengi, bütün alt sayfalarında aynı. */
+  [data-unit-kind] { --unit: #A78BFA; }
+  [data-unit-kind="social"] { --unit: #E879F9; }
+  [data-unit-kind="pr"] { --unit: #60A5FA; }
+  [data-unit-kind="sponsor"] { --unit: #34D399; }
+  [data-unit-kind="clubs"] { --unit: #FBBF24; }
+  [data-unit-kind="audit"] { --unit: #FB7185; }
   .nav-item .badge { margin-left: auto; }
-  .nav-chevron { margin-left: auto; opacity: .6; font-size: 13px; line-height: 1; }
-  .nav-accordion-body, .nav-accordion-inner { display: grid; gap: 3px; }
-  .nav-accordion-body { margin-left: 8px; padding-left: 8px; border-left: 1px solid var(--border); }
-  .nav-accordion-inner { margin: 0 0 4px 8px; padding-left: 8px; border-left: 1px solid var(--border); }
-  .nav-sub-item { padding-top: 7px; padding-bottom: 7px; font-size: 13.5px; }
+  .nav-unit { display: grid; gap: 2px; margin: 0 0 10px; }
+  .nav-unit-toggle + .nav-unit { margin-left: 12px; }
+  .nav-unit .nav-item::before { background: var(--unit, var(--border-strong)); opacity: .55; }
+  .nav-unit .nav-item.active::before { background: var(--unit, var(--accent)); opacity: 1; }
+  .nav-unit .nav-item.active { background: color-mix(in srgb, var(--unit, var(--ink)) 13%, var(--paper-soft)); border-color: color-mix(in srgb, var(--unit, var(--ink)) 35%, transparent); }
+  .nav-unit-toggle::before { background: var(--unit, var(--border-strong)); }
+  .nav-unit-toggle[aria-expanded="true"] { opacity: 1; font-weight: 600; }
+  .nav-chevron { margin-left: auto; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translate(-2px, -2px); opacity: .55; transition: transform .2s ease; }
+  .nav-unit-toggle[aria-expanded="true"] .nav-chevron { transform: rotate(225deg) translate(-2px, -2px); }
+  .nav-unit-toggle + .nav-unit .nav-sub-item { font-size: 14px; }
   .badge {
     min-width: 22px; padding: 3px 7px; border-radius: 999px; text-align: center;
     background: var(--accent-grad); color: var(--on-accent); font-size: 12px; font-weight: 700; line-height: 1.3;
   }
-  .side-foot { margin-top: auto; padding: 16px 12px 0; border-top: 1px solid var(--border); display: grid; gap: 12px; }
+  .side-foot { padding: 16px 12px 0; border-top: 1px solid var(--border); display: grid; gap: 12px; }
   .side-user strong { display: block; font-weight: 600; line-height: 1.3; }
   .side-user small { opacity: .6; font-size: 13px; }
   button.side-user { width: 100%; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
@@ -515,19 +515,25 @@
   .uw-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
   .uw-table tr:last-child td { border-bottom: 0; }
   .uw-access-list { gap: 14px; }
-  .main[data-unit-kind] { --unit-context-color: #A78BFA; }
-  .main[data-unit-kind="social"] { --unit-context-color: #E879F9; }
-  .main[data-unit-kind="pr"] { --unit-context-color: #60A5FA; }
-  .main[data-unit-kind="sponsor"] { --unit-context-color: #34D399; }
-  .main[data-unit-kind="clubs"] { --unit-context-color: #FBBF24; }
-  .main[data-unit-kind="audit"] { --unit-context-color: #FB7185; }
-  .main[data-unit-kind="board"] { --unit-context-color: #A78BFA; }
-  .main[data-unit-kind] .page-head h1 { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--unit-context-color) 72%, transparent); text-decoration-thickness: 3px; text-underline-offset: 8px; }
-  .main[data-unit-kind] .chip.active { background: color-mix(in srgb, var(--unit-context-color) 75%, #111); border-color: var(--unit-context-color); color: #fff; }
-  .main[data-unit-kind] .cal-day.selected { box-shadow: inset 0 0 0 1.5px var(--unit-context-color); }
-  .main[data-unit-kind] .cal-chip:not(.uw-c-task) { background: color-mix(in srgb, var(--unit-context-color) 24%, var(--surface)); color: var(--ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--unit-context-color) 55%, transparent); }
-  .main[data-unit-kind] .uw-unit-focus { border-color: color-mix(in srgb, var(--unit-context-color) 45%, var(--border)); box-shadow: inset 3px 0 0 var(--unit-context-color); }
-  .main[data-unit-kind] .uw-unit-focus h2, .main[data-unit-kind] .uw-unit-focus h3 { color: var(--unit-context-color); }
+  .main[data-unit-kind] { --unit-context-color: var(--unit); }
+  .main[data-unit-kind] .page-head h1::before { content: ''; display: inline-block; width: 12px; height: 12px; margin: 0 12px 0 2px; border-radius: 50%; background: var(--unit); vertical-align: .14em; }
+  .main[data-unit-kind] .chip.active { background: var(--unit); border-color: var(--unit); color: #0C0C0D; }
+  .main[data-unit-kind] .stat.hot b { color: var(--unit); }
+  .main[data-unit-kind] .cal-day.selected { box-shadow: inset 0 0 0 1.5px var(--unit); }
+  .main[data-unit-kind] .cal-chip:not(.uw-c-task) { background: color-mix(in srgb, var(--unit) 24%, var(--surface)); color: var(--ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--unit) 55%, transparent); }
+  .chip-n { margin-left: 6px; font-variant-numeric: tabular-nums; opacity: .75; }
+  .uw-tabs { margin: -6px 0 26px; }
+  .uw-home-grid { margin-top: 30px; row-gap: 30px; }
+  .uw-list { padding: 6px 22px; }
+  .uw-list .mini-row { padding: 14px 0; }
+  .uw-list .mini-row:first-child { padding-top: 14px; }
+  .uw-list .mini-row:last-child { padding-bottom: 14px; }
+  @media (max-width: 640px) {
+    .main .stats.uw-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .main .uw-stats .stat { padding: 16px; border-radius: 16px; }
+    .main .uw-stats .stat b { font-size: 28px; }
+    .uw-list { padding: 4px 16px; }
+  }
   .uw-unit-focus { margin: 0 0 18px; }
   .uw-unit-focus .uw-report-breakdowns > button { display: grid; gap: 6px; text-align: left; color: inherit; }
   .uw-unit-focus .uw-report-breakdowns > button strong { font: 800 26px/1 'Archivo', sans-serif; font-variant-numeric: tabular-nums; }
@@ -794,7 +800,7 @@
   /* Masaüstü: kenar çubuğu ekran boyunda; logo ve alttaki kullanıcı/Çıkış hep görünür, gerekirse yalnızca menü listesi kayar. */
   @media (min-width: 901px) {
     .side { overflow: hidden; gap: 10px; padding-top: 18px; padding-bottom: 14px; }
-    .side-nav { flex: 1 1 auto; min-height: 0; overflow-y: auto; gap: 2px; align-content: start; scrollbar-width: thin; }
+    .side-nav { flex: 0 1 auto; min-height: 0; overflow-y: auto; gap: 2px; align-content: start; scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; overscroll-behavior: contain; }
     .side-nav .nav-item { padding: 6px 12px; font-size: 14.5px; line-height: 1.4; }
     .side-brand .kicker { margin-top: 0; }
     .side-foot { flex: none; padding-top: 12px; gap: 8px; }
@@ -1230,9 +1236,7 @@
 </style>
     <meta name="unipakt-theme-baked" content="#8F244D,#A94B86|135">
     <script src="/theme.js?v=1"></script>
-    <script src="/unit-workflows.js?v=1"></script>
-<script src="/unit-records.js?v=1"></script>
-<script src="/unit-files.js?v=1"></script>
+    <script src="/unit-files.js?v=1"></script>
 </head>
 <body>
 <div class="pf-intro" id="pfIntro" aria-hidden="true" hidden>
@@ -1688,7 +1692,7 @@
       const u = dir?.units?.find((x) => x.id === dir.me?.unit_id);
       if (!u) throw signedOut('Birim üyeliğin pasif ya da kaldırılmış. Birim başkanına ya da UniPakt Merkez Yönetim’e yaz.');
       const m = u.members.find((x) => x.id === session.user_id);
-      state.unitAcc = { id: session.user_id, unitId: u.id, unitName: u.name, roleName: m?.is_head ? 'Birim Başkanı' : (u.roles.find((r) => r.id === m?.role_id)?.name || 'Üye'), chat: (dir.me.perms || []).includes('chat'), perms: dir.me.perms || [] };
+      state.unitAcc = { id: session.user_id, unitId: u.id, unitName: u.name, kind: u.kind || null, roleName: m?.is_head ? 'Birim Başkanı' : (u.roles.find((r) => r.id === m?.role_id)?.name || 'Üye'), chat: (dir.me.perms || []).includes('chat'), perms: dir.me.perms || [] };
       state.units = { ...state.units, data: dir, open: state.units.open || u.id };
     }
     // Merkez Yönetim: kişisel yönetici hesabı (yetkileri UniPakt ile aynı; mesajlaşmada kendi adıyla görünür).
@@ -2542,7 +2546,7 @@
     adminCommonOpen: null,
     adminUnitNavOpen: {},
     renderVersion: 0,
-    selectedUnitKind: null,
+    selectedUnitId: null,
     viewScroll: {},
     pendingViewScroll: null,
     partnerFollowupEventId: '',
@@ -2679,7 +2683,7 @@
   const UNIT_VIEWS = ['birimler', 'ims', 'ayarlar', 'hesap', 'dogrulama'];
   const homeView = () => (state.unitAcc ? 'b-genel' : 'genel');
   const VIEW_PERM = { etkinliklerim: 'events', basvuru: 'events', 'etkinlik-olustur': 'events', gorevliler: 'registrations', kayitlar: 'registrations', ims: 'chat', 'destek-taleplerim': 'support', gorevler: 'tasks' };
-  const viewAllowed = (view) => UW_VIEWS[view] ? UW_VIEWS[view].allow() : state.unitAcc ? ((UNIT_VIEWS.includes(view) && (view !== 'ims' || state.unitAcc.chat)) || (view === 'marka' && (state.unitAcc.perms || []).includes('brand'))) : (view === 'marka' ? isAdmin() : view === 'birimler' ? (isAdmin() || !!state.unitAcc) : view === 'kulup-sayfasi' ? isPresident() : view === 'ekip' ? isPresident() : (view === 'ayarlar' || view === 'islem-kaydi') ? !state.member : !VIEW_PERM[view] || can(VIEW_PERM[view]));
+  const viewAllowed = (view) => UW_VIEWS[view] ? UW_VIEWS[view].allow() : state.unitAcc ? ((UNIT_VIEWS.includes(view) && (view !== 'ims' || state.unitAcc.chat)) || (view === 'marka' && (state.unitAcc.perms || []).includes('brand')) || (view === 'vanguard' && ['clubs', 'audit'].includes(state.unitAcc.kind))) : (view === 'marka' ? isAdmin() : view === 'birimler' ? (isAdmin() || !!state.unitAcc) : view === 'kulup-sayfasi' ? isPresident() : view === 'ekip' ? isPresident() : (view === 'ayarlar' || view === 'islem-kaydi') ? !state.member : !VIEW_PERM[view] || can(VIEW_PERM[view]));
   const actPerm = (act) => {
     if (/^profile-avatar/.test(act)) return '';
     // Kulüp yönetimi ana Kulüpler ekranında yalnızca UniPakt yöneticilerine açıktır.
@@ -2704,7 +2708,7 @@
       const m = u?.members.find((x) => x.id === raw.slice(5));
       if (!m) { state.user = null; return; }
       const perms = m.is_head ? (u.kind_perms || ['team', 'roles', 'chat']) : [...new Set([...(u.roles.find((r) => r.id === m.role_id)?.permissions || []), ...m.permissions])];
-      state.unitAcc = { id: m.id, unitId: u.id, unitName: u.name, roleName: m.is_head ? 'Birim Başkanı' : (u.roles.find((r) => r.id === m.role_id)?.name || 'Üye'), chat: perms.includes('chat'), perms };
+      state.unitAcc = { id: m.id, unitId: u.id, unitName: u.name, kind: u.kind || null, roleName: m.is_head ? 'Birim Başkanı' : (u.roles.find((r) => r.id === m.role_id)?.name || 'Üye'), chat: perms.includes('chat'), perms };
       state.profile = { ...state.profile, fullName: m.full_name, avatarUrl: m.avatar_url || '' };
       state.meId = m.id;
       return;
@@ -2995,18 +2999,33 @@
   })).sort((a, b) => b.points - a.points || a.name.localeCompare(b.name, 'tr'));
   const signed = (n) => `${n >= 0 ? '+' : '−'}${Math.abs(n)}`;
 
-  // Sol menü üç grupta: [id, etiket, sayaç, grup]. Kulüp hesabı Onaylamalar, Kulüpler ve Site Mesajları'nı görmez.
-  const NAV_GROUPS = [['unipakt', 'UniPakt'], ['events', 'Etkinlik İşlemleri'], ['birim', 'Birim İşleri']];
-  const ADMIN_UNIT_NAV = [
-    ['social', 'Sosyal Medya', 'b-yayin'],
-    ['pr', 'Halkla İlişkiler', 'b-kampanyalar'],
-    ['sponsor', 'Sponsorluk', 'b-sponsorlar'],
-    ['clubs', 'Kulüp İlişkileri', 'b-kulupler'],
-    ['audit', 'Denetim', 'b-denetim'],
-  ];
-  const ADMIN_UNIT_SHARED_IDS = new Set(['b-erisimler', 'b-onaylar', 'b-bildirimler', 'b-gorevler', 'b-duyurular', 'b-belgeler', 'b-destek', 'b-islem', 'b-takvim']);
+  // Sol menü: [id, etiket, sayaç, grup]. Kulüp hesabı Onaylamalar, Kulüpler ve Site Mesajları'nı görmez.
+  // Birimler menüde ayrı başlıklardır. Her birimin sayfaları UNIT_PAGES'te [görünüm, sekme, etiket, sayaç] olarak
+  // tanımlıdır; Genel Bakış her birimde en üstte ve bir kez durur, Görevler, Takvim ve Ekip en sondadır.
+  const NAV_GROUPS = [['unipakt', 'UniPakt'], ['events', 'Etkinlik İşlemleri']];
+  const UNIT_PAGES = {
+    social: [['b-yayin', 'inbox', 'Talepler', true], ['b-yayin', 'flow', 'Yayın Akışı'], ['b-yayin', 'kit', 'Kaynaklar']],
+    pr: [['b-kampanyalar', 'camps', 'Kampanyalar'], ['b-kampanyalar', 'requests', 'Talepler', true], ['b-kampanyalar', 'kit', 'Materyaller']],
+    sponsor: [['b-sponsorlar', 'net', 'Sponsor Ağı'], ['b-sponsorlar', 'meetings', 'Görüşmeler'], ['b-sponsorlar', 'offers', 'Teklifler ve Paketler']],
+    clubs: [['b-kulupler', 'clubs', 'Kulüpler', true], ['b-kulupler', 'cands', 'Aday Kulüpler'], ['b-kulupler', 'meetings', 'Görüşmeler'], ['b-kulupler', 'notices', 'Kulübe Özel Duyurular'], ['vanguard', '', 'UniPakt.Vanguard']],
+    audit: [['b-denetim', 'events', 'Etkinlikler', true], ['b-denetim', 'records', 'Denetim Kayıtları'], ['vanguard', '', 'UniPakt.Vanguard']],
+  };
+  const UNIT_TAB_DEFAULT = { 'b-yayin': 'inbox', 'b-kampanyalar': 'camps', 'b-sponsorlar': 'net', 'b-kulupler': 'clubs', 'b-denetim': 'events' };
+  // Birim hesabında Bildirimler, Duyurular, Belgeler ve İşlem Kaydı Genel Bakış'ın sekmeleridir.
+  const UNIT_HOME_VIEWS = ['b-genel', 'b-bildirimler', 'b-duyurular', 'b-belgeler', 'b-islem'];
+  const unitPagesOf = (kind) => [['b-genel', '', 'Genel Bakış'], ...(UNIT_PAGES[kind] || []), ['b-gorevler', '', 'Görevler'], ['b-takvim', '', 'Takvim'], ['birimler', '', 'Ekip']];
+  // Sekmeli birim sayfasının başlığı menüdeki etiketiyle aynıdır.
+  const unitPageTitle = (view) => {
+    const tab = state.uwTab[view] || UNIT_TAB_DEFAULT[view];
+    for (const pages of Object.values(UNIT_PAGES)) { const p = pages.find(([v, t]) => v === view && t === tab); if (p) return p[2]; }
+    return '';
+  };
+  // Merkez Yönetim'in ortak birim işleri.
+  const ADMIN_UNIT_SHARED = ['b-erisimler', 'b-onaylar', 'b-gorevler', 'b-duyurular', 'b-bildirimler', 'b-destek', 'b-islem'];
+  const ADMIN_UNIT_SHARED_IDS = new Set(ADMIN_UNIT_SHARED);
   const NAV = () => {
     const openMine = visibleTasks().filter((t) => t.status === 'open').length;
+    const uwCount = (id) => (UW_VIEWS[id]?.count ? UW_VIEWS[id].count() : 0);
     const items = [
       ['etkinlikler', 'Etkinlikler', 0, 'events'],
       ['ortak', 'Ortak Arama', 0, 'events'],
@@ -3018,62 +3037,65 @@
       ...(isAdmin() ? [['onaylar', 'Onaylamalar', pendingCount(), 'events']] : []),
       ['basvuru', 'Başvurular', 0, 'events'],
       ['genel', 'Genel Bakış', 0, 'unipakt'],
-      ...uwNavItems('unipakt').map(([id, label, count, group]) => [id, id === 'b-genel' && isAdmin() ? 'Birim Özeti' : label, count, group]),
       ['ims', IM_TITLE, imUnreadTotal(), 'unipakt'],
+      ...(state.unitAcc ? [['b-onaylar', 'Birim Onayları', uwCount('b-onaylar'), 'unipakt']] : []),
       ['vanguard', 'UniPakt.Vanguard', 0, 'unipakt'],
       ['duyurular', 'Duyurular', 0, 'unipakt'],
       ['gorevler', 'Görevler', isAdmin() ? 0 : openMine, 'unipakt'],
       ['bildirimler', 'Bildirimler', (db.notifications || []).filter(n => !n.readAt).length, 'unipakt'],
-      ...(isAdmin() ? [['kulupler', 'Kulüpler', 0, 'unipakt'], ['site-mesajlari', 'Site Mesajları', siteInboxTotal(), 'unipakt'], ['marka', 'Marka rengi', 0, 'unipakt']] : []),
-      ...(isAdmin() || state.unitAcc ? [['birimler', isAdmin() ? 'Birim Yönetimi' : 'Birimim', 0, 'unipakt']] : []),
+      ...(isAdmin() ? [['kulupler', 'Kulüpler', 0, 'unipakt'], ['site-mesajlari', 'Site Mesajları', siteInboxTotal(), 'unipakt'], ['marka', 'Marka rengi', 0, 'unipakt'], ['birimler', 'Birim Yönetimi', 0, 'unipakt']] : []),
       ...(state.unitAcc && (state.unitAcc.perms || []).includes('brand') ? [['marka', 'Marka rengi', 0, 'unipakt']] : []),
-      ['destek-taleplerim', isAdmin() ? 'Destek Talepleri' : 'UniPakt Destek', supportNewCount(), 'unipakt'],
-      ...(isPresident() ? [['ekip', 'Ekip', 0, 'unipakt']] : []),
+      ...(state.unitAcc ? [['b-destek', 'UniPakt Destek', uwCount('b-destek'), 'unipakt']] : [['destek-taleplerim', isAdmin() ? 'Destek Talepleri' : 'UniPakt Destek', supportNewCount(), 'unipakt']]),
+      ...(isPresident() ? [['kulup-sayfasi', 'Kulüp Sayfası', 0, 'unipakt'], ['ekip', 'Ekip', 0, 'unipakt']] : []),
       ...(state.member ? [] : [['islem-kaydi', 'İşlem Kaydı', 0, 'unipakt']]),
-
-      ...uwNavItems('birim'),
     ];
-    return items.filter(([id]) => viewAllowed(id));
+    // Birim hesabında Vanguard birimin altında durur.
+    return items.filter(([id]) => viewAllowed(id) && !(state.unitAcc && id === 'vanguard'));
   };
   // Menüde görünmeyen ama açılabilen sayfalar.
   const HIDDEN_VIEWS = ['etkinlik-olustur', 'ayarlar', 'hesap', 'dogrulama', 'kayitlar', 'kulup-sayfasi'];
-  const knownView = (view) => (HIDDEN_VIEWS.includes(view) && viewAllowed(view)) || NAV().some(([id]) => id === view);
+  const knownView = (view) => (HIDDEN_VIEWS.includes(view) && viewAllowed(view)) || NAV().some(([id]) => id === view)
+    || ((!!UW_VIEWS[view] || view === 'birimler' || view === 'vanguard') && viewAllowed(view));
   const navItemHtml = ([id, label, count], extraClass = '') => `<button class="nav-item${extraClass ? ` ${extraClass}` : ''}${state.view === id ? ' active' : ''}" data-go="${id}" ${state.view === id ? 'aria-current="page"' : ''}>${esc(label)}${count ? `<span class="badge">${count}</span>` : ''}</button>`;
-  const renderNavGroups = (nav) => NAV_GROUPS
-    .filter(([group]) => nav.some((item) => item[3] === group))
-    .map(([group, title]) => {
-      const unitView = window.UniPaktRecords.baseView(window.UniPaktWorkflows.baseView(state.view));
-      const items = nav.filter((item) => item[3] === group);
-      if (group !== 'birim') {
-        const kind = state.unitAcc ? uwMyUnit()?.kind || '' : '';
-        return `<p class="nav-group">${esc(title)}</p>${items.map((item) => state.unitAcc && item[0] === 'b-genel'
-          ? `<div class="nav-unit-flat" data-unit-kind="${esc(kind)}">${navItemHtml(item)}</div>`
-          : navItemHtml(item)).join('')}`;
-      }
-      if (state.unitAcc) {
-        const kind = uwMyUnit()?.kind || '';
-        return `<p class="nav-group">${esc(title)}</p><div class="nav-unit-flat" data-unit-kind="${esc(kind)}">${items.map((item) => navItemHtml(item)).join('')}</div>`;
-      }
-      const shared = items.filter(([id]) => ADMIN_UNIT_SHARED_IDS.has(id));
-      const unitPages = items.filter(([id]) => ADMIN_UNIT_NAV.some(([, , view]) => view === id));
-      const activeUnit = ADMIN_UNIT_NAV.some(([, , view]) => view === unitView);
-      const activeShared = ADMIN_UNIT_SHARED_IDS.has(state.view);
-      const unitsOpen = state.adminUnitsOpen ?? (activeUnit || activeShared);
-      const commonOpen = state.adminCommonOpen ?? activeShared;
-      const unitRows = ADMIN_UNIT_NAV.map(([kind, unitLabel, view]) => {
-        const item = unitPages.find(([id]) => id === view);
-        if (!item) return '';
-        const expanded = state.adminUnitNavOpen[kind] ?? (unitView === view);
-        return `<button type="button" class="nav-item nav-unit-toggle" data-unit-kind="${kind}" data-act="admin-unit-nav-toggle" data-id="${kind}" aria-expanded="${expanded ? 'true' : 'false'}"><span>${esc(unitLabel)}</span><span class="nav-chevron" aria-hidden="true">${expanded ? '−' : '+'}</span></button>${expanded ? `<div class="nav-accordion-inner" data-unit-kind="${kind}">${workspaceUnitLinks(kind, item)}</div>` : ''}`;
-      }).join('');
-      return `<p class="nav-group">${esc(title)}</p>
-        <button type="button" class="nav-item nav-unit-toggle" data-act="admin-units-nav-toggle" aria-expanded="${unitsOpen ? 'true' : 'false'}"><span>Birimler</span><span class="nav-chevron" aria-hidden="true">${unitsOpen ? '−' : '+'}</span></button>
-        ${unitsOpen ? `<div class="nav-accordion-body">
-          <button type="button" class="nav-item nav-common-toggle" data-act="admin-common-nav-toggle" aria-expanded="${commonOpen ? 'true' : 'false'}"><span>Ortak Birim İşleri</span><span class="nav-chevron" aria-hidden="true">${commonOpen ? '−' : '+'}</span></button>
-          ${commonOpen ? `<div class="nav-accordion-inner">${shared.map((item) => navItemHtml(item, 'nav-sub-item')).join('')}</div>` : ''}
-          ${unitRows}
-        </div>` : ''}`;
-    }).join('');
+  // Birim sayfası menüde etkin mi? Merkez'de ayrıca menüden seçilen birim aynı olmalı.
+  const unitPageActive = (unit, view, tab) => {
+    if (isAdmin() && state.selectedUnitId !== unit.id) return false;
+    if (view === 'b-genel' && state.unitAcc) return UNIT_HOME_VIEWS.includes(state.view);
+    if (view === 'birimler') return state.view === 'birimler' && (!isAdmin() || state.units.open === unit.id);
+    return state.view === view && (!tab || (state.uwTab[view] || UNIT_TAB_DEFAULT[view]) === tab);
+  };
+  const unitNavLinks = (unit) => unitPagesOf(unit.kind).filter(([view]) => view !== 'vanguard' || state.unitAcc || isAdmin()).map(([view, tab, label, counted]) => {
+    const active = unitPageActive(unit, view, tab);
+    const n = state.unitAcc && (counted || view === 'b-genel') ? (view === 'b-genel' ? uwUnread() : UW_VIEWS[view]?.count?.() || 0) : 0;
+    return `<button type="button" class="nav-item nav-sub-item${active ? ' active' : ''}" data-act="unit-page" data-id="${esc(unit.id)}" data-sub="${esc(`${view}|${tab}`)}" ${active ? 'aria-current="page"' : ''}>${esc(label)}${n ? `<span class="badge">${n}</span>` : ''}</button>`;
+  }).join('');
+  const unitNavHtml = () => {
+    if (state.unitAcc) {
+      const unit = uwMyUnit() || { id: state.unitAcc.unitId, name: state.unitAcc.unitName, kind: state.unitAcc.kind };
+      return `<p class="nav-group">${esc(unit.name)}</p><div class="nav-unit" data-unit-kind="${esc(unit.kind || 'general')}">${unitNavLinks(unit)}</div>`;
+    }
+    if (!isAdmin()) return '';
+    const units = uwUnits().filter((u) => u.kind !== 'board');
+    const sharedActive = ADMIN_UNIT_SHARED_IDS.has(state.view) && !state.selectedUnitId;
+    const commonOpen = state.adminCommonOpen ?? sharedActive;
+    const shared = ADMIN_UNIT_SHARED.filter((id) => viewAllowed(id)).map((id) => [id, UW_VIEWS[id].label(), UW_VIEWS[id].count ? UW_VIEWS[id].count() : 0]);
+    const isActive = (id) => state.view === id && !state.selectedUnitId;
+    return `<p class="nav-group">Birimler</p>
+      <button type="button" class="nav-item nav-unit-toggle" data-act="admin-common-nav-toggle" aria-expanded="${commonOpen ? 'true' : 'false'}"><span>Ortak Birim İşleri</span><span class="nav-chevron" aria-hidden="true"></span></button>
+      ${commonOpen ? `<div class="nav-unit">${shared.map(([id, label, n]) => `<button type="button" class="nav-item nav-sub-item${isActive(id) ? ' active' : ''}" data-go="${id}" ${isActive(id) ? 'aria-current="page"' : ''}>${esc(label)}${n ? `<span class="badge">${n}</span>` : ''}</button>`).join('')}</div>` : ''}
+      ${units.map((u) => {
+        const open = state.adminUnitNavOpen[u.id] ?? (state.selectedUnitId === u.id);
+        return `<button type="button" class="nav-item nav-unit-toggle" data-unit-kind="${esc(u.kind || 'general')}" data-act="admin-unit-nav-toggle" data-id="${esc(u.id)}" aria-expanded="${open ? 'true' : 'false'}"><span>${esc(u.name)}</span><span class="nav-chevron" aria-hidden="true"></span></button>
+          ${open ? `<div class="nav-unit" data-unit-kind="${esc(u.kind || 'general')}">${unitNavLinks(u)}</div>` : ''}`;
+      }).join('')}`;
+  };
+  const renderNavGroups = (nav) => {
+    const groups = NAV_GROUPS
+      .filter(([group]) => nav.some((item) => item[3] === group))
+      .map(([group, title]) => `<p class="nav-group">${esc(title)}</p>${nav.filter((item) => item[3] === group).map((item) => navItemHtml(item)).join('')}`);
+    // Birim hesabı önce kendi birimini görür; Merkez'de birimler en sonda.
+    return state.unitAcc ? unitNavHtml() + groups.join('') : groups.join('') + unitNavHtml();
+  };
 
   /* ------------------------------------------------------------------
      SMALL UI HELPERS
@@ -3243,11 +3265,16 @@
   /* ------------------------------------------------------------------
      VIEWS
      ------------------------------------------------------------------ */
-  const head = (title, sub, action = '') => `
+  // Sayfa başlığı. Birim hesabının Genel Bakış sekmeleri başlığı uwHeadOverride ile ortaklaştırır.
+  const head = (title, sub, action = '') => {
+    const o = uwHeadOverride;
+    if (o) { title = o.title; sub = o.sub; }
+    return `
     <div class="page-head">
       <div><h1>${esc(title).replace(/^UniPakt\.Vanguard$/, 'UniPakt<span>.</span>Vanguard')}</h1>${sub ? `<p>${esc(sub)}</p>` : ''}</div>
       ${action}
-    </div>`;
+    </div>${o?.after || ''}`;
+  };
 
   const announcementCard = (a, { mine = false } = {}) => `
     <article class="card item">
@@ -5899,7 +5926,7 @@
   const unitsView = () => {
     const u = state.units, me = unitMe();
     const openUnit = u.open && unitById(u.open);
-    const title = me.admin || openUnit?.id !== me.unit_id ? 'Birimler' : 'Birimim';
+    const title = me.admin ? (openUnit ? `${openUnit.name} · Ekip` : 'Birimler') : openUnit?.id !== me.unit_id ? 'Birimler' : 'Ekip';
     const intro = me.admin
       ? 'UniPakt birimleri. Başkanı atarsın, başkan kendi ekibini kurar. Her birimin tek başkanı olur; birimden çıkarılan kişi silinmez, pasife alınır.'
       : 'Kendi birimini yetkin ölçüsünde yönetirsin; diğer birimleri yalnızca görürsün.';
@@ -6166,21 +6193,21 @@
     ...regActions,
     ...speakerActions,
     ...designActions,
-    'admin-units-nav-toggle'() {
-      const active = ADMIN_UNIT_NAV.some(([, , view]) => state.view === view) || ADMIN_UNIT_SHARED_IDS.has(state.view);
-      state.adminUnitsOpen = !(state.adminUnitsOpen ?? active);
-      render();
-    },
     'admin-common-nav-toggle'() {
-      const active = ADMIN_UNIT_SHARED_IDS.has(state.view);
-      state.adminCommonOpen = !(state.adminCommonOpen ?? active);
+      state.adminCommonOpen = !(state.adminCommonOpen ?? (ADMIN_UNIT_SHARED_IDS.has(state.view) && !state.selectedUnitId));
       render();
     },
     'admin-unit-nav-toggle'(id) {
-      const unit = ADMIN_UNIT_NAV.find(([kind]) => kind === id);
-      if (!unit) return;
-      state.adminUnitNavOpen[id] = !(state.adminUnitNavOpen[id] ?? (state.view === unit[2]));
+      state.adminUnitNavOpen[id] = !(state.adminUnitNavOpen[id] ?? (state.selectedUnitId === id));
       render();
+    },
+    // Birim sayfası: Merkez'de birimi seçer, sekmeli sayfada sekmeyi açar; yeni sayfa en üstten açılır.
+    'unit-page'(unitId, sub) {
+      const [view, tab] = String(sub || '').split('|');
+      if (isAdmin()) state.selectedUnitId = unitId;
+      if (view === 'birimler') state.units.open = isAdmin() ? unitId : null;
+      if (tab) state.uwTab[view] = tab;
+      go(view, { top: true });
     },
     'mobile-nav-toggle'() { state.navOpen = !state.navOpen; render(); },
     'profile-menu-toggle'() { state.profileMenuOpen = !state.profileMenuOpen; render(); },
@@ -6990,7 +7017,7 @@
     state.uwTab = {};
     state.uwFilter = {};
     state.units = freshUnits();
-    state.selectedUnitKind = null;
+    state.selectedUnitId = null;
     state.adminUnitsOpen = null;
     state.adminCommonOpen = null;
     state.adminUnitNavOpen = {};
@@ -7001,6 +7028,8 @@
   const uwUnit = (id) => uwUnits().find((u) => u.id === id);
   const uwMyUnit = () => uwUnit(uwMe().unit_id);
   const uwUnitOfKind = (k) => uwUnits().find((u) => u.kind === k);
+  // Odaktaki birim: birim hesabında kendi birimi, Merkez'de menüden seçilen birim (yoksa tüm birimler).
+  const uwFocusUnit = () => uwMyUnit() || (isAdmin() && state.selectedUnitId ? uwUnit(state.selectedUnitId) : null);
   const uwAdmin = () => isAdmin();
   const uwHead = () => !!state.unitAcc && !!uwMe().is_head;
   const uwHas = (perm) => !!state.unitAcc && (uwMe().is_head || (uwMe().perms || []).includes(perm) || (state.unitAcc.perms || []).includes(perm));
@@ -7013,8 +7042,9 @@
   const uwUnread = () => uwList('notifications').filter((n) => !n.read_at).length;
   const uwDate = (v) => (v ? fmtDay(String(v).slice(0, 10)) : '');
   const uwWhen = (v) => (v ? fmtStamp(v) : '');
-  const uwTabOf = (view, def) => state.uwTab[view] || def;
-  const uwTabs = (view, tabs, def) => `<div class="toolbar">${tabs.map(([id, label, n]) => `<button class="chip ${uwTabOf(view, def) === id ? 'active' : ''}" data-act="uw-tab" data-id="${esc(view)}" data-sub="${esc(id)}">${esc(label)}${n !== undefined ? ` (${n})` : ''}</button>`).join('')}</div>`;
+  // Menüden açılan birim sayfalarında sekme menüdedir; sayfa içinde ikinci bir sekme çubuğu çizilmez.
+  const uwTabOf = (view, def) => state.uwTab[view] || UNIT_TAB_DEFAULT[view] || def;
+  const uwTabs = (view, tabs, def) => UNIT_TAB_DEFAULT[view] ? '' : `<div class="toolbar">${tabs.map(([id, label, n]) => `<button class="chip ${uwTabOf(view, def) === id ? 'active' : ''}" data-act="uw-tab" data-id="${esc(view)}" data-sub="${esc(id)}">${esc(label)}${n !== undefined ? ` (${n})` : ''}</button>`).join('')}</div>`;
   const uwLoading = (title, sub) => {
     const top = head(title, sub);
     if (state.uw.error) return `${top}<section class="card"><p class="body">${esc(state.uw.error)}</p><button class="btn small" data-act="uw-reload">Tekrar dene</button></section>`;
@@ -7026,7 +7056,7 @@
   const loadUw = async () => {
     if (state.uw.loading) return;
     state.uw.loading = true; state.uw.error = '';
-    try { await api.uw('due_refresh',{}); state.uw.data = await api.workspace(); window.UniPaktRecords?.invalidate(); window.UniPaktWorkflows?.invalidate(); }
+    try { await api.uw('due_refresh',{}); state.uw.data = await api.workspace(); }
     catch (error) { state.uw.error = error.message || 'Birim verileri yüklenemedi.'; }
     state.uw.loading = false;
     if(state.uw.data)window.UniPaktFiles?.openPending();
@@ -7035,7 +7065,7 @@
   // Yazma: sunucuya gönder, ardından çalışma alanını yeniden oku.
   const uwDo = async (action, data = {}) => {
     const result = await api.uw(action, data);
-    try { await api.uw('due_refresh',{}); state.uw.data = await api.workspace(); window.UniPaktRecords?.invalidate(); window.UniPaktWorkflows?.invalidate(); } catch (_) { /* bir sonraki açılışta yenilenir */ }
+    try { await api.uw('due_refresh',{}); state.uw.data = await api.workspace(); } catch (_) { /* bir sonraki açılışta yenilenir */ }
     return result;
   };
   // Form gönderimi: hata metni döner (openForm gösterir), başarıda bildirim çıkar.
@@ -7055,84 +7085,57 @@
   /* ---------------- Genel Bakış (birim hesabı) ---------------- */
   // Birim sayfaları kendi sayaçlarını buraya ekler: () => [{ label, n, go, hot }]
   const UW_HOME_STATS = [];
+  // Birim hesabında Genel Bakış ve sekmeleri (Bildirimler, Duyurular, Belgeler, İşlem Kaydı) tek başlık altında durur.
+  let uwHeadOverride = null;
+  const uwHomeTabs = () => {
+    const tabs = [['b-genel', 'Özet'], ['b-bildirimler', 'Bildirimler', uwUnread()], ['b-duyurular', 'Duyurular', uwList('announcements').filter((a) => !a.read_at).length], ['b-belgeler', 'Belgeler'], ...(uwHead() ? [['b-islem', 'İşlem Kaydı']] : [])];
+    return `<div class="toolbar uw-tabs" role="tablist">${tabs.map(([id, label, n]) => `<button type="button" role="tab" class="chip ${state.view === id ? 'active' : ''}" aria-selected="${state.view === id}" data-go="${id}">${esc(label)}${n ? ` <span class="chip-n">${n}</span>` : ''}</button>`).join('')}</div>`;
+  };
+  const uwWithHomeTabs = (render) => () => {
+    if (!state.unitAcc) return render();
+    uwHeadOverride = { title: 'Genel Bakış', sub: `${state.unitAcc.unitName} · ${state.unitAcc.roleName}`, after: uwHomeTabs() };
+    try { return render(); } finally { uwHeadOverride = null; }
+  };
+  // Birim türüne göre özet sayıları: [etiket, sayı, menü sayfası (görünüm|sekme), dikkat].
+  const uwUnitMetrics = (unit) => {
+    if (!unit) return [];
+    const k = unit.kind, open = uwList('tasks').filter((t) => t.unit_id === unit.id && t.status === 'open' && !t.archived_at).length;
+    const posts = uwList('posts'), sp = spData(), cn = UWD().clubnet || { clubs: [], candidates: [] }, au = auData();
+    const rows = {
+      social: [['Gelen talep', posts.filter((p) => p.status === 'request').length + uwList('post_inbox').length, 'b-yayin|inbox', true], ['Hazırlanan içerik', posts.filter((p) => ['preparing', 'approval'].includes(p.status)).length, 'b-yayin|flow'], ['Planlanan yayın', posts.filter((p) => p.status === 'planned').length, 'b-yayin|flow']],
+      pr: [['Onaydaki kampanya', uwList('campaigns').filter((c) => c.status === 'approval').length, 'b-kampanyalar|camps'], ['Yürüyen kampanya', uwList('campaigns').filter((c) => c.status === 'approved').length, 'b-kampanyalar|camps'], ['Açık rapor talebi', uwList('reports').filter((r) => r.unit_id === unit.id && r.status === 'open').length, 'b-kampanyalar|requests', true]],
+      sponsor: [['Firma', (sp.rows || []).length, 'b-sponsorlar|net'], ['Görüşme kaydı', (sp.contacts || []).length, 'b-sponsorlar|meetings'], ['Teklif aşamasında', (sp.rows || []).filter((x) => x.stage === 'offer').length, 'b-sponsorlar|offers']],
+      clubs: [['Ağdaki kulüp', cn.clubs.length, 'b-kulupler|clubs'], ['İlişkisi soğuyan', cn.clubs.filter((c) => daysSince(c.last_contact) > COOL_DAYS).length, 'b-kulupler|clubs', true], ['Aday kulüp', cn.candidates.filter((c) => !c.club_id).length, 'b-kulupler|cands']],
+      audit: [['Yaklaşan etkinlik', au.events.filter((e) => e.date >= today()).length, 'b-denetim|events'], ['Sorumlusuz etkinlik', au.events.filter((e) => e.date >= today() && !e.assignees.length).length, 'b-denetim|events', true], ['Denetim kaydı', au.records.length, 'b-denetim|records']],
+    }[k] || [];
+    return [...rows, ['Açık görev', open, 'b-gorevler|']];
+  };
   const uwHomeView = () => {
-    const wait = uwLoading('Genel Bakış', 'Birimindeki işler tek ekranda.'); if (wait) return wait;
-    const me = uwMe(), ownUnit = uwMyUnit();
-    const focusKind = ownUnit?.kind || (isAdmin() ? state.selectedUnitKind : null);
-    const focusUnit = ownUnit || (focusKind ? uwUnitOfKind(focusKind) : null);
-    const focusUnitId = focusUnit?.id || null;
-    const unitTasks = uwList('tasks').filter((t) => !focusUnitId || t.unit_id === focusUnitId);
-    const unitWork = uwList('workItems').filter((w) => !focusUnitId || w.unit_id === focusUnitId);
-    const tasks = unitTasks.filter((t) => t.status === 'open' && (isAdmin() || t.assignee === me.id || (!t.assignee && uwLead())));
-    const review = uwLead() ? uwList('tasks').filter((t) => !t.by_admin && t.review_status === 'pending') : [];
-    const anns = uwList('announcements').filter((a) => !focusUnitId || !a.unit_id || a.unit_id === focusUnitId);
-    const unreadAnn = anns.filter((a) => !a.read_at);
-    const extra = UW_HOME_STATS.flatMap((f) => f() || []);
-    const workflowStats=isAdmin()&&focusUnitId?{
-      active:unitWork.filter((w)=>!['completed','closed','cancelled','published','rejected'].includes(w.status)).length,
-      overdue:unitWork.filter((w)=>w.due_at&&new Date(w.due_at)<now&&!['completed','closed','cancelled'].includes(w.status)).length,
-      upcoming:unitWork.filter((w)=>w.starts_at&&new Date(w.starts_at)>now&&new Date(w.starts_at)<new Date(now.getTime()+7*86400000)).length,
-      unassigned:unitWork.filter((w)=>!w.assignee).length,
-      approval:unitWork.filter((w)=>w.status==='approval').length,
-      waiting:unitWork.filter((w)=>w.status==='needs_info').length,
-    }:UWD().work_stats||{};
-    for(const [key,label] of [['active','Açık birim kaydı'],['overdue','Geciken kayıt'],['upcoming','Bu hafta yaklaşan'],['unassigned','Sorumlu atanmamış'],['approval','Kayıt onayı bekleyen'],['waiting','Bilgi bekleyen']])extra.push({label,n:workflowStats[key]||0,go:'b-plan',hot:key==='overdue'&&workflowStats[key]>0});
-    const stats = [
-      { label: 'Okunmamış bildirim', n: uwUnread(), go: 'b-bildirimler', hot: uwUnread() > 0 },
-      { label: 'Açık görevim', n: tasks.length, go: 'b-gorevler', hot: tasks.some((t) => t.due_date && t.due_date <= today()) },
-      ...(uwLead() ? [{ label: 'İncelemeni bekleyen görev', n: review.length, go: 'b-gorevler', hot: review.length > 0 }] : []),
-      { label: 'Yeni duyuru', n: unreadAnn.length, go: 'b-duyurular', hot: unreadAnn.length > 0 },
-      ...extra,
-    ];
+    const unit = uwFocusUnit();
+    const title = state.unitAcc || !unit ? 'Genel Bakış' : `${unit.name} · Genel Bakış`;
+    const wait = uwLoading(title, ''); if (wait) return wait;
+    const me = uwMe();
+    if (!unit) return `${head('Birim Özeti', 'Bütün birimlerin ekibi ve açık işleri.')}${uwAdminSummary()}`;
+    const stat = ([label, n, page, hot]) => { const [view, tab] = page.split('|'); return `<button type="button" class="stat ${hot && n ? 'hot' : ''}" data-act="unit-page" data-id="${esc(unit.id)}" data-sub="${esc(`${view}|${tab}`)}"><b>${n}</b><span>${esc(label)}</span></button>`; };
+    const metrics = uwUnitMetrics(unit);
+    if (uwBoard()) metrics.unshift(['YK onayını bekleyen', uwReqs().filter((r) => r.can_decide).length, 'b-onaylar|', true]);
+    const tasks = uwList('tasks').filter((t) => t.unit_id === unit.id && t.status === 'open' && !t.archived_at && (isAdmin() || t.assignee === me.id || (!t.assignee && uwLead()))).sort((a, b) => String(a.due_date || '9').localeCompare(String(b.due_date || '9')));
+    const anns = uwList('announcements').filter((a) => !a.audience?.length || a.audience.includes(unit.id));
+    const notes = uwList('notifications').slice(0, 5);
     const events = upcomingEvents().slice(0, 4);
-    const focusConfig = {
-      social: { title: 'Sosyal Medya çalışma alanı', description: 'İçerik taleplerini, üretim akışını ve yayın tarihlerini buradan izle.', links: [['b-yayin','İçerik akışı'],['b-work-social_template','Şablonlar'],['b-plan','Yayın takvimi']] },
-      pr: { title: 'Halkla İlişkiler çalışma alanı', description: 'Kampanyaları, kulüplerden gelen talepleri ve etkinlik çalışmalarını takip et.', links: [['b-kampanyalar','Kampanyalar'],['b-work-pr_request','Talepler'],['b-plan','Birim takvimi']] },
-      sponsor: { title: 'Sponsorluk çalışma alanı', description: 'Sponsor ağı, görüşme takipleri ve yenileme tarihleri bir arada.', links: [['b-sponsorlar','Sponsor ağı'],['b-work-sponsor_followup','Görüşme takipleri'],['b-plan','Birim takvimi']] },
-      clubs: { title: 'Kulüp İlişkileri çalışma alanı', description: 'Kulüp ağı, adaylar ve planlanan görüşmeler için ortak başlangıç noktası.', links: [['b-kulupler','Kulüp ağı'],['b-work-club_meeting','Görüşmeler'],['b-plan','Birim takvimi']] },
-      audit: { title: 'Denetim çalışma alanı', description: 'Etkinlik kontrollerini, denetim planlarını ve açık bulguları izle.', links: [['b-denetim','Denetim kayıtları'],['b-work-audit_plan','Denetim planları'],['b-plan','Denetim takvimi']] },
-    }[focusKind];
-    const socialPosts = uwList('posts').filter((p) => !focusUnitId || p.from_unit === focusUnitId || p.unit_id === focusUnitId);
-    const socialInbox = uwList('post_inbox').filter((p) => !focusUnitId || p.from_unit === focusUnitId || p.unit_id === focusUnitId);
-    const focusMetrics = focusKind === 'social' ? [
-      ['Bekleyen içerik', socialInbox.length + socialPosts.filter((p) => ['request','approval'].includes(p.status)).length, 'b-yayin'],
-      ['Planlanan yayın', socialPosts.filter((p) => ['preparing','planned'].includes(p.status) || p.plan_at && new Date(p.plan_at) >= now).length, 'b-plan'],
-      ['Açık görev', unitTasks.filter((t) => t.status === 'open').length, 'b-gorevler'],
-    ] : focusKind === 'pr' ? [
-      ['Kampanya / talep', unitWork.filter((w) => ['pr_request','pr_material'].includes(w.kind)).length, 'b-kampanyalar'],
-      ['Açık rapor talebi', uwList('reports').filter((r) => r.status === 'open' && (!focusUnitId || r.unit_id === focusUnitId)).length, 'b-kampanyalar'],
-      ['Açık görev', unitTasks.filter((t) => t.status === 'open').length, 'b-gorevler'],
-    ] : focusKind === 'sponsor' ? [
-      ['Firma', (UWD().sponsors?.rows || []).length, 'b-sponsorlar'],
-      ['Görüşme kaydı', (UWD().sponsors?.contacts || []).length, 'b-sponsorlar'],
-      ['Takip işi', unitWork.filter((w) => w.kind === 'sponsor_followup').length, 'b-work-sponsor_followup'],
-    ] : focusKind === 'clubs' ? [
-      ['Ağdaki kulüp', (UWD().clubnet?.clubs || []).length, 'b-kulupler'],
-      ['Aday kulüp', (UWD().clubnet?.candidates || []).length, 'b-kulupler'],
-      ['Planlı görüşme', unitWork.filter((w) => w.kind === 'club_meeting' && w.starts_at).length, 'b-work-club_meeting'],
-    ] : focusKind === 'audit' ? [
-      ['Etkinlik kontrolü', (UWD().audit?.events || []).length, 'b-denetim'],
-      ['Denetim kaydı', (UWD().audit?.records || []).length, 'b-denetim'],
-      ['Açık görev', unitTasks.filter((t) => t.status === 'open').length, 'b-gorevler'],
-    ] : [];
-    const summaryTitle = ownUnit ? 'Genel Bakış' : focusUnit ? `${focusUnit.name} Özeti` : 'Birim Özeti';
-    return `
-      ${head(summaryTitle, `${focusUnit?.name || state.unitAcc?.unitName || 'Birim'} · ${state.unitAcc?.roleName || ''}`)}
-      ${focusConfig ? `<section class="card uw-unit-focus" data-unit-kind="${esc(focusKind)}"><div class="meta top"><span class="tag">${esc(focusUnit?.name || focusKind)}</span><span>Birime özel genel bakış</span></div><h2>${esc(focusConfig.title)}</h2><p class="body">${esc(focusConfig.description)}</p><div class="uw-report-breakdowns">${focusMetrics.map(([label,n,view]) => `<button class="card uw-report-card" data-go="${view}"><strong>${n}</strong><span>${esc(label)}</span></button>`).join('')}</div><div class="uw-unit-focus-links">${focusConfig.links.map(([view,label]) => `<button class="btn ghost small" data-go="${view}">${esc(label)}</button>`).join('')}</div></section>` : ''}
-      <div class="stats uw-stats uw-home-stats">${stats.map((s) => `<button class="stat ${s.hot ? 'hot' : ''}" data-go="${esc(s.go)}"><b>${s.n}</b><span>${esc(s.label)}</span></button>`).join('')}</div>
-      <div class="grid-2" style="margin-top:34px">
-        <div>
-          <div class="section-head"><h2>Görevlerim</h2><button class="link-btn" data-go="b-gorevler">Tümü</button></div>
-          ${tasks.length ? `<div class="card">${tasks.slice(0, 5).map((t) => `<div class="mini-row"><div><strong>${esc(t.title)}</strong><small>${t.due_date ? `Son tarih ${uwDate(t.due_date)} · ` : ''}${t.by_admin ? 'Merkez Yönetim' : esc(t.created_by_name || '')}</small></div>${t.due_date && t.due_date < today() ? '<span class="tag no">Gecikti</span>' : '<span class="tag wait">Açık</span>'}</div>`).join('')}</div>` : empty('Açık görevin yok.')}
-        </div>
-        <div>
-          <div class="section-head"><h2>Duyurular</h2><button class="link-btn" data-go="b-duyurular">Tümü</button></div>
-          ${anns.length ? `<div class="card">${anns.slice(0, 4).map((a) => `<div class="mini-row"><div><strong>${esc(a.title)}</strong><small>${uwWhen(a.created_at)} · ${esc(a.created_by_name || 'Merkez Yönetim')}</small></div>${a.read_at ? '' : '<span class="tag wait">Yeni</span>'}</div>`).join('')}</div>` : empty('Duyuru yok.')}
-        </div>
-        <div>
-          <div class="section-head"><h2>Yaklaşan etkinlikler</h2><button class="link-btn" data-go="b-takvim">Takvim</button></div>
-          ${events.length ? `<div class="card">${events.map((e) => `<div class="mini-row"><div><strong>${esc(e.title)}</strong><small>${fmtDay(e.date)}${e.time ? ` · ${esc(e.time)}` : ''} · ${esc(who(e.ownerId))}</small></div></div>`).join('')}</div>` : empty('Yaklaşan etkinlik yok.')}
-        </div>
+    const list = (rows, none) => (rows.length ? `<div class="card uw-list">${rows.join('')}</div>` : empty(none));
+    const row = (title, sub, tagHtml = '') => `<div class="mini-row"><div><strong>${esc(title)}</strong><small>${sub}</small></div>${tagHtml}</div>`;
+    return `${head(title, state.unitAcc ? '' : `${(unit.members || []).length} aktif kişi`)}
+      <div class="stats uw-stats">${metrics.slice(0, 4).map(stat).join('')}</div>
+      <div class="grid-2 uw-home-grid">
+        <section><div class="section-head"><h2>${isAdmin() ? 'Açık görevler' : 'Görevlerim'}</h2><button class="link-btn" data-act="unit-page" data-id="${esc(unit.id)}" data-sub="b-gorevler|">Tümü</button></div>
+          ${list(tasks.slice(0, 5).map((t) => row(t.title, `${t.due_date ? `Son tarih ${uwDate(t.due_date)} · ` : ''}${esc(t.assignee_name || 'Birime')}`, t.due_date && t.due_date < today() ? '<span class="tag no">Gecikti</span>' : '')), 'Açık görev yok.')}</section>
+        <section><div class="section-head"><h2>Duyurular</h2>${state.unitAcc ? '<button class="link-btn" data-go="b-duyurular">Tümü</button>' : ''}</div>
+          ${list(anns.slice(0, 4).map((a) => row(a.title, `${uwWhen(a.created_at)} · ${esc(a.created_by_name || 'Merkez Yönetim')}`, state.unitAcc && !a.read_at ? '<span class="tag wait">Yeni</span>' : '')), 'Duyuru yok.')}</section>
+        ${state.unitAcc ? `<section><div class="section-head"><h2>Son bildirimler</h2><button class="link-btn" data-go="b-bildirimler">Tümü</button></div>
+          ${list(notes.map((n) => row(n.title, `${uwWhen(n.created_at)}${n.body ? ` · ${esc(n.body.slice(0, 80))}` : ''}`, n.read_at ? '' : '<span class="tag wait">Yeni</span>')), 'Bildirim yok.')}</section>` : ''}
+        <section><div class="section-head"><h2>Yaklaşan etkinlikler</h2><button class="link-btn" data-act="unit-page" data-id="${esc(unit.id)}" data-sub="b-takvim|">Takvim</button></div>
+          ${list(events.map((e) => row(e.title, `${fmtDay(e.date)}${e.time ? ` · ${esc(e.time)}` : ''} · ${esc(who(e.ownerId))}`)), 'Yaklaşan etkinlik yok.')}</section>
       </div>`;
   };
 
@@ -7182,12 +7185,13 @@
     </article>`;
   };
   const uwTasksView = () => {
-    const title = uwAdmin() ? 'Birim Görevleri' : 'Görevler';
+    const focus = uwAdmin() && state.selectedUnitId ? uwUnit(state.selectedUnitId) : null;
+    const title = focus ? `${focus.name} · Görevler` : uwAdmin() ? 'Birim Görevleri' : 'Görevler';
     const sub = uwAdmin() ? 'Birimlere ya da birimdeki bir kişiye görev ata; tamamlananları incele.' : (uwLead() ? 'Sana atanan görevler ve ekibine atadıkların. Tamamlanan görevi sen incelersin.' : 'Sana atanan görevler. Bitirince kısa bir not ya da bağlantı bırak.');
     const wait = uwLoading(title, sub); if (wait) return wait;
     let list = uwList('tasks');
     if(state.focusTask)list=list.filter(t=>t.id===state.focusTask);
-    const unitFilter = state.uwFilter['b-gorevler'] || '';
+    const unitFilter = focus ? focus.id : state.uwFilter['b-gorevler'] || '';
     if (uwAdmin() && unitFilter) list = list.filter((t) => t.unit_id === unitFilter);
     const search = (state.uwFilter['tasks-q'] || '').toLocaleLowerCase('tr-TR');
     const priority = state.uwFilter['tasks-priority'] || '';
@@ -7205,7 +7209,7 @@
     return `${head(title, sub, uwAdmin() || uwLead() ? '<button class="btn" data-act="uw-task-new">Görev ata</button>' : '')}${state.focusTask?'<button class="btn ghost small" data-act="uw-task-unfocus">Tüm görevleri göster</button>':''}
       <div class="toolbar">
         ${[['open', 'Açık', open.length], ['review', 'İncelemede', pending.length], ['done', 'Onaylanan', done.length],['archive','Arşiv',list.filter(t=>t.archived_at).length]].map(([id, label, n]) => `<button class="chip ${tab === id ? 'active' : ''}" data-act="uw-tab" data-id="b-gorevler" data-sub="${id}">${label} (${n})</button>`).join('')}
-        ${uwAdmin() ? `<select data-uw-filter="b-gorevler" aria-label="Birime göre süz">${uwUnitOptions(unitFilter, { all: 'Tüm birimler' })}</select>` : ''}
+        ${uwAdmin() && !focus ? `<select data-uw-filter="b-gorevler" aria-label="Birime göre süz">${uwUnitOptions(unitFilter, { all: 'Tüm birimler' })}</select>` : ''}
       </div>
       <div class="toolbar"><input type="search" data-uw-search="tasks-q" aria-label="Görev ara" placeholder="Başlık, açıklama veya sorumlu ara" value="${esc(state.uwFilter['tasks-q'] || '')}"><select data-uw-filter="tasks-priority" aria-label="Öncelik filtresi"><option value="">Tüm öncelikler</option>${Object.entries(UW_PRIORITY).map(([k,l]) => `<option value="${k}" ${priority===k?'selected':''}>${esc(l)}</option>`).join('')}</select></div>
       ${pages>1 ? `<div class="toolbar"><button class="btn ghost small" data-act="uw-task-page" data-id="-1" ${!state.taskPage?'disabled':''}>Önceki</button><span>Sayfa ${state.taskPage+1} / ${pages} · ${matching.length} görev</span><button class="btn ghost small" data-act="uw-task-page" data-id="1" ${state.taskPage===pages-1?'disabled':''}>Sonraki</button></div>`:''}
@@ -7271,18 +7275,14 @@
   // [id, etiket (fonksiyon), sayaç, grup, izin, çizim]
   const UW_VIEWS = {};
   const uwView = (id, def) => { UW_VIEWS[id] = def; };
-  uwView('b-genel', { label: () => 'Genel Bakış', group: 'unipakt', order: 0, allow: () => isAdmin() || !!state.unitAcc, render: uwHomeView });
-  uwView('b-bildirimler', { label: () => (isAdmin() ? 'Birim Bildirimleri' : 'Bildirimler'), group: 'birim', order: 1, count: uwUnread, allow: () => isAdmin() || !!state.unitAcc, render: uwNotifView });
+  uwView('b-genel', { label: () => 'Genel Bakış', group: 'unipakt', order: 0, allow: () => isAdmin() || !!state.unitAcc, render: uwWithHomeTabs(uwHomeView) });
+  uwView('b-bildirimler', { label: () => (isAdmin() ? 'Birim Bildirimleri' : 'Bildirimler'), group: 'birim', order: 1, count: uwUnread, allow: () => isAdmin() || !!state.unitAcc, render: uwWithHomeTabs(uwNotifView) });
   uwView('b-gorevler', { label: () => (isAdmin() ? 'Birim Görevleri' : 'Görevler'), group: 'birim', order: 2,
     count: () => (isAdmin() ? uwList('tasks').filter((t) => t.by_admin && t.review_status === 'pending').length : uwList('tasks').filter((t) => (t.status === 'open' && (t.assignee === uwMe().id || (!t.assignee && uwLead()))) || (uwLead() && !t.by_admin && t.review_status === 'pending')).length),
     allow: () => isAdmin() || !!state.unitAcc, render: uwTasksView });
-  uwView('b-duyurular', { label: () => (isAdmin() ? 'Birim Duyuruları' : 'Duyurular'), group: 'birim', order: 3, count: () => (isAdmin() ? 0 : uwList('announcements').filter((a) => !a.read_at).length), allow: () => isAdmin() || !!state.unitAcc, render: uwAnnView });
-  uwView('b-belgeler', { label: () => 'Belgeler', group: 'birim', order: 5, allow: () => isAdmin() || !!state.unitAcc, render: uwDocsView });
-  uwView('b-islem', { label: () => 'İşlem Kaydı', group: 'birim', order: 7, allow: () => uwAdmin() || !!state.unitAcc && uwHead(), render: uwActivityView });
-  const uwNavItems = (group) => Object.entries(UW_VIEWS)
-    .filter(([, d]) => (typeof d.group === 'function' ? d.group() : d.group) === group)
-    .sort((a, b) => (a[1].order ?? 50) - (b[1].order ?? 50))
-    .map(([id, d]) => [id, d.label(), d.count ? d.count() : 0, group]);
+  uwView('b-duyurular', { label: () => (isAdmin() ? 'Birim Duyuruları' : 'Duyurular'), group: 'birim', order: 3, count: () => (isAdmin() ? 0 : uwList('announcements').filter((a) => !a.read_at).length), allow: () => isAdmin() || !!state.unitAcc, render: uwWithHomeTabs(uwAnnView) });
+  uwView('b-belgeler', { label: () => 'Belgeler', group: 'birim', order: 5, allow: () => isAdmin() || !!state.unitAcc, render: uwWithHomeTabs(uwDocsView) });
+  uwView('b-islem', { label: () => 'İşlem Kaydı', group: 'birim', order: 7, allow: () => uwAdmin() || !!state.unitAcc && uwHead(), render: uwWithHomeTabs(uwActivityView) });
   Object.entries(UW_VIEWS).forEach(([id, d]) => { views[id] = () => d.render(); });
 
   uwView('b-erisimler', { label: () => 'Birim Sayfaları', group: 'birim', order: -2,
@@ -7290,7 +7290,7 @@
       const wait = uwLoading('Birim Sayfaları', 'Birimlerin etkin rol ve sayfa erişimleri.'); if (wait) return wait;
       return head('Birim Sayfaları', 'Başkan kendi biriminin tüm işlevlerine erişir. YK onayı aktif birim başkanlarına aittir.') +
         `<div class="stack uw-access-list">${uwUnits().filter((u) => u.kind !== 'board').map((u) => `<section class="card item"><h3>${esc(u.name)}</h3>
-          <p class="body">${esc((WORKSPACE_PAGES[u.kind] || []).map((x) => x[1]).join(' · ') || 'Ortak birim sayfaları')}</p>
+          <p class="body">${esc(unitPagesOf(u.kind).map((x) => x[2]).join(' · '))}</p>
           ${(u.members || []).map((m) => `<div class="mini-row"><div><strong>${esc(m.name)}${m.is_head ? ' · Başkan' : ''}</strong><small>${esc((m.perms || []).map(unitPermLabel).join(', ') || 'Ek birim yetkisi yok')}</small></div></div>`).join('') || '<p class="hint">Aktif ekip üyesi yok.</p>'}</section>`).join('')}</div>`;
     } });
   views['b-erisimler'] = () => UW_VIEWS['b-erisimler'].render();
@@ -7372,6 +7372,7 @@
   // Birim sayfaları kendi okuma bölümlerini ve işlemlerini buraya ekler.
   const DEMO_UWR = {};
   const DEMO_UWA = {};
+  DEMO_UWA.due_refresh = () => ({ added: 0 });
   DEMO_UWR.notifications = (c) => demoUw().notifications.filter((n) => demoVisible(n, c) && !demoUw().states[`${n.id}:${c.id}`]?.hidden_at).map((n) => ({ ...n, read_at: demoUw().states[`${n.id}:${c.id}`]?.read_at || null }));
   DEMO_UWR.tasks = (c) => (!c.admin && !c.unit ? null : demoUw().tasks.filter((t) => c.admin || (t.unit_id === c.unit && (c.head || c.has('team') || t.assignee === c.id || !t.assignee)))
     .map((t) => ({ ...t, assignee_name: demoName(t.assignee), created_by_name: demoName(t.created_by), done_by_name: demoName(t.done_by) })));
@@ -7969,10 +7970,11 @@
   UW_ADMIN_PENDING.push(() => auData().records.filter((r) => r.level === 'report' && !r.center_seen_at).length);
 
   /* ---------------- Takvim (birim) ---------------- */
+  const WORK_KIND_LABEL = { club_meeting: 'Kulüp görüşmesi', club_event: 'Kulübe özel duyuru' };
   const uwCalendarView = () => {
     const ownUnit = uwMyUnit();
-    const focusKind = ownUnit?.kind || (isAdmin() ? state.selectedUnitKind : null);
-    const focusUnit = ownUnit || (focusKind ? uwUnitOfKind(focusKind) : null);
+    const focusUnit = uwFocusUnit();
+    const focusKind = focusUnit?.kind || null;
     const focusUnitId = focusUnit?.id || null;
     const calendarCopy = {
       social: 'Yayın tarihleri, içerik hazırlıkları, ilgili etkinlikler ve görev son günleri.',
@@ -8000,7 +8002,7 @@
       audit: ['audit_plan','audit_checklist','audit_finding','audit_response','audit_report'],
     }[focusKind] || [];
     uwList('workItems').filter((w) => calendarKinds.includes(w.kind) && (!focusUnitId || w.unit_id === focusUnitId)).forEach((w) => {
-      const kindLabel = window.UniPaktWorkflows.types[w.kind]?.name || 'Birim kaydı';
+      const kindLabel = WORK_KIND_LABEL[w.kind] || 'Birim kaydı';
       if (w.starts_at) add(ymd(new Date(new Date(w.starts_at).toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }))), { type: focusKind === 'audit' ? 'audit' : 'task', title: w.title, sub: kindLabel });
       if (w.due_at) add(ymd(new Date(new Date(w.due_at).toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }))), { type: focusKind === 'audit' ? 'audit' : 'task', title: w.title, sub: `${kindLabel} · Son tarih` });
     });
@@ -8039,7 +8041,7 @@
   uwView('b-sponsorlar', { label: () => 'Sponsor Ağı', group: 'birim', order: 12, allow: () => isAdmin() || uwKindIs('sponsor'), render: uwSponsorsView });
   uwView('b-kulupler', { label: () => 'Kulüp Ağı', group: 'birim', order: 13, count: () => (uwKindIs('clubs') ? (UWD().clubnet?.clubs || []).filter((c) => daysSince(c.last_contact) > COOL_DAYS).length : 0), allow: () => isAdmin() || uwKindIs('clubs'), render: uwClubsView });
   uwView('b-denetim', { label: () => 'Denetim Kayıtları', group: 'birim', order: 14, count: () => (uwKindIs('audit') ? auData().events.filter((e) => e.assignees.some((a) => a.user_id === uwMe().id && !a.check_note)).length : 0), allow: () => isAdmin() || uwKindIs('audit'), render: uwAuditView });
-  uwView('b-takvim', { label: () => 'Takvim', group: 'birim', order: 4, allow: () => !!state.unitAcc, render: uwCalendarView });
+  uwView('b-takvim', { label: () => 'Takvim', group: 'birim', order: 4, allow: () => isAdmin() || !!state.unitAcc, render: uwCalendarView });
   uwView('b-destek', { label: () => (isAdmin() ? 'Birim Destek Talepleri' : 'UniPakt Destek'), group: 'birim', order: 8, count: () => (isAdmin() ? uwList('support').filter((t) => t.status === 'open').length : uwList('support').filter((t) => t.status === 'answered').length), allow: () => isAdmin() || !!state.unitAcc, render: uwSupportView });
   ['b-sponsorlar', 'b-kulupler', 'b-denetim', 'b-takvim', 'b-destek'].forEach((id) => { views[id] = () => UW_VIEWS[id].render(); });
   UW_HOME_STATS.push(() => [
@@ -8214,25 +8216,24 @@
   /* ------------------------------------------------------------------
      RENDER
      ------------------------------------------------------------------ */
-  const go = (view) => {
+  // Başka bir sayfaya geçiş en üstten açılır; aynı sayfada yeniden çizim kaydırma konumunu korur.
+  const go = (view, { top = false } = {}) => {
     if (!knownView(view)) view = homeView();
     if (view !== state.view && !leaveEventPage()) return;
     if (view !== state.view && state.view === 'marka') brandLeave();
-    if (view !== state.view) {
-      state.viewScroll[state.view] = window.scrollY;
-      state.pendingViewScroll = { view, y: state.viewScroll[view] || 0 };
-    }
+    if (view !== state.view || top) state.pendingViewScroll = { view, y: 0 };
     state.view = view; state.profileMenuOpen = false; state.navOpen = false;
     if (location.hash !== `#${view}`) history.pushState(null, '', `#${view}`);
     render();
   };
 
+  // Ana alanın birim rengi: birim hesabında kendi birimi, Merkez'de menüden seçilen birimin sayfaları.
   const mainUnitKind = () => {
-    if (state.unitAcc) return uwMyUnit()?.kind || '';
-    if (state.view === 'birimler' && state.units.open) return unitById(state.units.open)?.kind || '';
-    if (state.selectedUnitKind && ['b-genel', 'b-plan', 'b-raporlar'].includes(state.view)) return state.selectedUnitKind;
-    const baseView = window.UniPaktRecords.baseView(window.UniPaktWorkflows.baseView(state.view));
-    return ADMIN_UNIT_NAV.find(([kind, , view]) => view === baseView)?.[0] || '';
+    if (state.unitAcc) return state.unitAcc.kind || uwMyUnit()?.kind || 'general';
+    if (!isAdmin()) return '';
+    if (state.view === 'birimler') return state.units.open ? (unitById(state.units.open)?.kind || 'general') : '';
+    const unit = state.selectedUnitId ? uwUnit(state.selectedUnitId) : null;
+    return unit && (UW_VIEWS[state.view] || state.view === 'vanguard') ? (unit.kind || 'general') : '';
   };
 
   const renderPasswordReset = (message = '') => {
@@ -8682,7 +8683,10 @@
     if (!db || !state.user || (state.user !== ADMIN && !state.unitAcc && !club(state.user))) { state.user = null; renderLogin(); return; }
     const renderVersion = ++state.renderVersion;
     const pendingScroll = state.pendingViewScroll?.view === state.view ? state.pendingViewScroll : null;
+    state.pendingViewScroll = null;
     const pageScrollTop = pendingScroll ? pendingScroll.y : window.scrollY;
+    // Yeniden çizim sırasında sayfa kısa süre kısalıp kaydırma konumu kırpılmasın.
+    root.style.minHeight = pendingScroll ? '' : `${root.offsetHeight}px`;
     const sideNavScrollTop = root.querySelector('.side-nav')?.scrollTop ?? 0;
     if (state.staff && !state.profile.username && !state.usernameAsked && !dlg.open) { state.usernameAsked = true; setTimeout(askUsername, 0); }
     const nav = NAV();
@@ -8712,14 +8716,9 @@
         </div></main>
       </div>`;
     document.documentElement.classList.toggle('nav-lock', !!state.navOpen && matchMedia('(max-width: 900px)').matches);
-    requestAnimationFrame(() => {
-      if (renderVersion !== state.renderVersion) return;
-      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-      const target = Math.min(pageScrollTop, maxScroll);
-      window.scrollTo(0, target);
-      state.viewScroll[state.view] = target;
-      if (pendingScroll && state.pendingViewScroll === pendingScroll) state.pendingViewScroll = null;
-    });
+    // Konum aynı görev içinde geri yüklenir; tarayıcı ara bir konumu hiç çizmez.
+    window.scrollTo(0, pageScrollTop);
+    root.style.minHeight = '';
     const sideNav = root.querySelector('.side-nav');
     if (sideNav) {
       sideNav.scrollTop = sideNavScrollTop;
@@ -8753,17 +8752,13 @@
     }
     const goBtn = e.target.closest('[data-go]');
     if (goBtn) {
-      const unitGroup = goBtn.closest('.nav-accordion-inner[data-unit-kind]');
-      if (unitGroup && isAdmin()) state.selectedUnitKind = unitGroup.dataset.unitKind;
-      else if (goBtn.closest('.side-nav') && isAdmin()) state.selectedUnitKind = null;
+      if (goBtn.closest('.side-nav') && isAdmin()) state.selectedUnitId = null;
       go(goBtn.dataset.go); return;
     }
     const btn = e.target.closest('[data-act]');
     if (!btn || dlg.contains(btn) || btn.disabled) return;
     const run = actions[btn.dataset.act];
     if (!run) return;
-    const unitGroup = btn.closest('.nav-accordion-inner[data-unit-kind]');
-    if (unitGroup && isAdmin()) state.selectedUnitKind = unitGroup.dataset.unitKind;
     if (!actAllowed(btn.dataset.act)) { toast(NO_PERM); return; }
     let result;
     try { result = run(btn.dataset.id, btn.dataset.sub); } catch (error) { fail(error); return; }
@@ -8956,7 +8951,7 @@
     if (next === state.view) return;
     // Geri tuşuyla kaydedilmemiş formdan çıkılıyorsa önce sor; vazgeçerse adresi geri al.
     if (!leaveEventPage()) { history.pushState(null, '', '#etkinlik-olustur'); return; }
-    state.view = next; state.profileMenuOpen = false; if (state.user) render();
+    state.view = next; state.profileMenuOpen = false; state.pendingViewScroll = { view: next, y: 0 }; if (state.user) render();
   });
   window.addEventListener('beforeunload', (e) => { if (state.view === 'etkinlik-olustur' && evForm.dirty) { e.preventDefault(); e.returnValue = ''; } });
 
@@ -9016,22 +9011,7 @@
   const uwTaskExtraFields = (t = {}) => field('Öncelik', uwSelect('priority', UW_PRIORITY, t.priority || 'normal')) +
     field('Ek bağlantısı', `<input type="url" name="attachment_url" maxlength="500" placeholder="https://" value="${esc(t.attachment_url || '')}">`);
   const uwTaskHistory = (t) => !t.history?.length ? '' : `<details class="card"><summary>Yorumlar ve geçmiş (${t.history.length})</summary>${t.history.map((h) => `<div class="mini-row"><div><strong>${esc(h.actor_name || 'Sistem')} · ${esc(h.action)}</strong><small>${uwWhen(h.created_at)}</small>${h.body ? `<p class="body">${uwText(h.body)}</p>` : ''}${h.changes ? `<p class="hint">${Object.entries(h.changes).map(([k,v]) => `${esc(({due_date:'Son tarih',priority:'Öncelik',progress:'İlerleme',title:'Başlık',description:'Açıklama',status:'Durum',review_status:'Onay durumu',attachment_url:'Ek',proof_text:'Tamamlama notu'})[k] || k)}: ${esc(typeof v.before === 'object' ? JSON.stringify(v.before) : v.before ?? '—')} → ${esc(typeof v.after === 'object' ? JSON.stringify(v.after) : v.after ?? '—')}`).join('<br>')}</p>` : ''}</div></div>`).join('')}</details>`;
-  const WORKSPACE_PAGES = {
-    social: [['inbox','Talep Kutusu'],['flow','İçerik Akışı'],['cal','Yayın Takvimi']],
-    pr: [['camps','Kampanyalar'],['posts','Paylaşım Talepleri'],['reports','Raporlar'],['kit','Şablonlar ve Kaynaklar']],
-    sponsor: [['all','Sponsor Ağı'],['summary','Raporlar']],
-    clubs: [['clubs','Kulüp Listesi'],['cands','Aday Kulüpler'],['stats','Göstergeler']],
-    audit: [['records','Denetim Kayıtları'],['events','Etkinlik Denetimleri'],['mine','Kontrol Görevlerim']],
-  };
-  const workspaceUnitLinks = (kind, item) =>
-    `<button class="nav-item nav-sub-item${state.view === 'b-genel' ? ' active' : ''}" data-go="b-genel">${esc(`${ADMIN_UNIT_NAV.find(([unitKind]) => unitKind === kind)?.[1] || 'Birim'} Özeti`)}</button>` +
-    (WORKSPACE_PAGES[kind] || [[null,item[1]]]).map(([tab,label]) =>
-      `<button type="button" class="nav-item nav-sub-item${state.view === item[0] && state.uwTab[item[0]] === tab ? ' active' : ''}" data-act="workspace-page" data-id="${esc(item[0])}" data-sub="${esc(tab || '')}">${esc(label)}</button>`).join('') +
-    window.UniPaktWorkflows.unitLinks(kind) + window.UniPaktRecords.unitLinks(kind) +
-    `<button class="nav-item nav-sub-item${state.view === 'b-plan' ? ' active' : ''}" data-go="b-plan">Birim Takvimi</button>` +
-    `<button class="nav-item nav-sub-item${state.view === 'b-raporlar' ? ' active' : ''}" data-go="b-raporlar">Birim Raporları</button>`;
   Object.assign(actions, {
-    'workspace-page'(view, tab) { if (!viewAllowed(view)) return; state.uwTab[view] = tab; go(view); },
     'uw-task-unfocus'(){state.focusTask=null;render();},
     'uw-task-archive'(id) {const t=uwList('tasks').find(x=>x.id===id);return uwRun('task_archive',{id,restore:!!t?.archived_at},'Arşiv güncellendi.');},
     'uw-task-reassign'(id) {const t=uwList('tasks').find(x=>x.id===id);if(!t)return;openForm({title:'Görevi yeniden ata',submit:'Ata',fields:field('Sorumlu',`<select name="assignee">${(uwUnit(t.unit_id)?.members||[]).map(m=>`<option value="${esc(m.id)}">${esc(m.name)}</option>`).join('')}</select>`),onSubmit:uwSubmit('task_reassign',fd=>({id,assignee:val(fd,'assignee')}),'Görev atandı.')});},
@@ -9103,7 +9083,7 @@
   }
   const workspaceContext={
     admin:uwAdmin, me:uwMe, units:uwUnits, data:UWD, pending:()=>!state.uw.data&&!!state.unitAcc, esc, field, head, empty, openForm, toast, render,
-    unitContext:()=>state.unitAcc?uwMyUnit()?.kind||null:state.selectedUnitKind,
+    unitContext:()=>uwFocusUnit()?.kind||null,
     storageUpload:(path,file)=>call(`/storage/v1/object/unit-files/${path}`,{method:'POST',body:file,raw:true,headers:{'Content-Type':file.type||'application/octet-stream','x-upsert':'false'}}),
     storageSign:async path=>{const r=await call(`/storage/v1/object/sign/unit-files/${path}`,{method:'POST',body:{expiresIn:300}});return `${SUPABASE_URL}/storage/v1${r.signedURL}`;},
     currentView:()=>state.view, call:(action,data)=>api.uw(action,data),
@@ -9112,8 +9092,6 @@
     demo:{enabled:DEMO,registry:DEMO_UWA,store:demoUw,db:()=>db,uid,stamp,name:demoName,notify:demoNotify,readers:DEMO_UWR},
     register:(id,def)=>{uwView(id,def); views[id]=def.render;}
   };
-  window.UniPaktWorkflows.install(workspaceContext);
-  window.UniPaktRecords.install(workspaceContext);
   window.UniPaktFiles.install(workspaceContext);
   start();
 })();
