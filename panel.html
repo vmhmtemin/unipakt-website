@@ -6036,7 +6036,8 @@
       .sort((a, b) => (b.is_head - a.is_head) || ((a.status === 'passive') - (b.status === 'passive')));
     const passiveCount = u.members.filter((m) => m.status === 'passive').length;
     const emails = state.units.emails;
-    const back = '<button class="btn ghost small" data-act="unit-back">← Tüm birimler</button>';
+    // Birim menüsündeki Ekip sayfasından genel birim listesine dönüş yok; yalnız Birim Yönetimi'nde var.
+    const back = state.unitAcc || state.selectedUnitId ? '' : '<button class="btn ghost small" data-act="unit-back">← Tüm birimler</button>';
     const memberRow = (m) => {
       const isMe = !!state.meId && m.id === state.meId;
       const btns = [];
