@@ -486,6 +486,7 @@
   .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 34px 0 14px; }
   .section-head:first-child { margin-top: 0; }
   .section-head h2 { font: 700 19px/1.2 'Archivo', sans-serif; letter-spacing: -0.01em; }
+  .section-head h2 .hint { margin-left: 6px; font: 500 15px/1 'Inter', sans-serif; opacity: .5; }
   .section-head .link-btn { opacity: .7; }
 
   /* ---- Cards & lists ---- */
@@ -503,6 +504,12 @@
   .uw-board { display: grid; grid-template-columns: repeat(4, minmax(240px, 1fr)); gap: 14px; overflow-x: auto; padding-bottom: 6px; }
   .uw-col { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
   .uw-col > h3 { font-size: 14px; letter-spacing: .02em; margin: 0 0 4px; display: flex; gap: 8px; align-items: baseline; }
+  .uw-col .card.item { padding: 16px; border-radius: 16px; }
+  .uw-col .item h3 { font-size: 15.5px; }
+  .uw-col .item .meta.top { margin-bottom: 10px; }
+  .uw-col .item .actions { margin-top: 12px; gap: 6px; }
+  .uw-col-empty { padding: 18px 12px; border-radius: 14px; background: color-mix(in srgb, var(--ink) 3%, transparent); text-align: center; font-size: 13.5px; opacity: .55; }
+  .uw-home-posts { margin-top: 34px; }
   .uw-card h3 { font-size: 16px; }
   .uw-card .body { font-size: 14px; }
   .uw-swatches { display: flex; flex-wrap: wrap; gap: 14px; }
@@ -7204,7 +7211,8 @@
           ${list(notes.map((n) => row(n.title, `${uwWhen(n.created_at)}${n.body ? ` · ${esc(n.body.slice(0, 80))}` : ''}`, n.read_at ? '' : '<span class="tag wait">Yeni</span>')), 'Bildirim yok.')}</section>` : ''}
         <section><div class="section-head"><h2>Yaklaşan etkinlikler</h2><button class="link-btn" data-act="unit-page" data-id="${esc(unit.id)}" data-sub="b-takvim|">Takvim</button></div>
           ${list(events.map((e) => row(e.title, `${fmtDay(e.date)}${e.time ? ` · ${esc(e.time)}` : ''} · ${esc(who(e.ownerId))}`)), 'Yaklaşan etkinlik yok.')}</section>
-      </div>`;
+      </div>
+      ${state.unitAcc && uwCanRequestPost() && !['social', 'pr'].includes(unit.kind) ? `<div class="uw-home-posts">${uwMyPostsHtml(unit.id)}</div>` : ''}`;
   };
 
   /* ---------------- Bildirimler ---------------- */
@@ -7402,7 +7410,7 @@
     'uw-doc-new'() {
       openForm({ title: 'Belge ekle', lead: 'Bağlantı ekleyebilir veya boş bırakıp kaydı oluşturduktan sonra Düzenle ile özel dosya yükleyebilirsin. Dış bağlantıların erişimi ilgili hizmetten yönetilir.', submit: 'Ekle',
         fields: `${field('Belge adı', '<input name="title" required maxlength="160">')}${field('Bağlantı (isteğe bağlı)', '<input name="url" type="url" placeholder="https://drive.google.com/…">')}${field('Kısa not', '<input name="note" maxlength="500">')}
-          ${docRelationFields()}${uwAdmin() ? field('Nereye', `<select name="unit_id">${uwUnitOptions('', { all: 'Tüm UniPakt' })}</select>`) : ''}`,
+          ${docRelationFields()}${uwAdmin() ? field('Nereye', `<select name="unit_id">${uwUnitOptions(uwFocusUnit()?.id || '', { all: 'Tüm UniPakt' })}</select>`) : ''}`,
         onSubmit: uwSubmit('doc_add', (fd) => ({ title: val(fd, 'title'), url: val(fd, 'url'), note: val(fd, 'note'), unit_id: val(fd, 'unit_id') || null,related_kind:val(fd,'related_kind')||null,related_id:val(fd,'related_id')||null }), 'Belge eklendi.') });
     },
     'uw-doc-edit'(id) { const d=uwList('docs').find(x=>x.id===id);if(!d)return;openForm({title:'Belgeyi düzenle',submit:'Kaydet',fields:unitUploadField('doc',id,'url')+docRelationFields(d)+field('Başlık',`<input name="title" required maxlength="160" value="${esc(d.title)}">`)+field('Bağlantı',`<input name="url" type="url" required value="${esc(d.url)}">`)+field('Not',`<textarea name="note" maxlength="500">${esc(d.note||'')}</textarea>`),onSubmit:uwSubmit('doc_update',fd=>({id,title:val(fd,'title'),url:val(fd,'url'),note:val(fd,'note'),related_kind:val(fd,'related_kind')||null,related_id:val(fd,'related_id')||null}),'Belge güncellendi.')}); },
@@ -7555,10 +7563,10 @@
 
   // Sosyal Medya'ya paylaşım talebi: YK, PR, Sponsorluk, Sosyal Medya ve Merkez.
   const uwCanRequestPost = () => isAdmin() || uwBoard() || uwCan('pr', 'campaigns') || uwCan('sponsor', 'sponsors') || uwCan('social', 'posts');
-  const uwMyPostsHtml = () => {
-    const mine = uwList('posts').filter((p) => p.from_unit && p.from_unit === uwMe().unit_id && !uwKindIs('social'));
-    return `<div class="section-head"><h2>Sosyal Medya’ya gönderdiğin paylaşım talepleri</h2>${uwCanRequestPost() ? '<button class="btn small" data-act="uw-post-request">Paylaşım talebi gönder</button>' : ''}</div>
-      ${mine.length ? `<div class="card">${mine.map((p) => `<div class="mini-row"><div><strong>${esc(p.title)}</strong><small>${uwWhen(p.created_at)} · ${esc(p.requested_by_name || '')}${p.plan_at ? ` · Plan: ${uwFmtTime(p.plan_at)}` : ''}${p.note && p.status === 'declined' ? ` · Not: ${esc(p.note)}` : ''}</small></div><div class="row">${p.published_url ? uwLink(p.published_url, 'Gönderi') : ''}${stTag(POST_ST, p.status)}</div></div>`).join('')}</div>` : empty('Henüz paylaşım talebi göndermedin.')}`;
+  const uwMyPostsHtml = (unitId = uwMe().unit_id) => {
+    const mine = uwList('posts').filter((p) => p.from_unit && p.from_unit === unitId && uwUnit(unitId)?.kind !== 'social');
+    return `<div class="section-head"><h2>Sosyal Medya’ya paylaşım talepleri</h2>${uwCanRequestPost() ? '<button class="btn ghost small" data-act="uw-post-request">Paylaşım talebi gönder</button>' : ''}</div>
+      ${mine.length ? `<div class="card uw-list">${mine.map((p) => `<div class="mini-row"><div><strong>${esc(p.title)}</strong><small>${uwWhen(p.created_at)} · ${esc(p.requested_by_name || '')}${p.plan_at ? ` · Plan: ${uwFmtTime(p.plan_at)}` : ''}${p.note && p.status === 'declined' ? ` · Not: ${esc(p.note)}` : ''}</small></div><div class="row">${p.published_url ? uwLink(p.published_url, 'Gönderi') : ''}${stTag(POST_ST, p.status)}</div></div>`).join('')}</div>` : empty('Henüz paylaşım talebi gönderilmedi.')}`;
   };
 
   /* ---------------- Birim Onayları ---------------- */
@@ -7632,29 +7640,39 @@
     return `<div class="cal-head"><h2>${MONTHS[m]} ${y}</h2><div class="row"><button class="btn ghost small" data-act="uw-cal" data-id="-1">‹ Önceki</button><button class="btn ghost small" data-act="uw-cal" data-id="0">Bugün</button><button class="btn ghost small" data-act="uw-cal" data-id="1">Sonraki ›</button></div></div>
       <div class="cal-grid">${grid}</div><div class="cal-legend"><span><i class="task"></i>Hazırlanıyor / onayda / planlandı</span><span><i></i>Yayınlandı</span></div>`;
   };
+  // Birimin belgeleri (Kaynaklar / Materyaller sayfalarında).
+  const uwUnitDocsHtml = (unitId, title = 'Belgeler ve bağlantılar') => {
+    const docs = uwList('docs').filter((d) => d.unit_id === unitId);
+    const canEdit = uwAdmin() || (uwHead() && unitId === uwMe().unit_id);
+    return `<div class="section-head"><h2>${esc(title)}</h2>${canEdit ? '<button class="btn ghost small" data-act="uw-doc-new">Belge ekle</button>' : ''}</div>
+      ${docs.length ? `<div class="card uw-list">${docs.map((d) => `<div class="mini-row"><div><strong>${esc(d.title)}</strong><small>${d.note ? `${esc(d.note)} · ` : ''}${esc(d.created_by_name || '')} · ${uwWhen(d.created_at)}</small></div><div class="row">${d.url ? uwLink(d.url, 'Aç') : ''}${canEdit ? `<button class="btn ghost small" data-act="uw-doc-edit" data-id="${esc(d.id)}">Düzenle</button>` : ''}</div></div>`).join('')}</div>` : empty('Henüz belge eklenmedi. Şablonlar, Drive klasörleri ve kılavuzlar burada durur.')}`;
+  };
   const uwPostsView = () => {
-    const sub = 'Kulüp duyuruları ve birimlerin paylaşım talepleri buraya düşer. İçerik YK ya da Merkez onayı almadan Yayınlandı olamaz.';
-    const wait = uwLoading('Yayın Akışı', sub); if (wait) return wait;
+    const tab = uwTabOf('b-yayin', 'inbox');
+    const title = unitPageTitle('b-yayin') || 'Yayın Akışı';
+    const sub = { inbox: 'Kulüp duyuruları ve birimlerin paylaşım talepleri. Kabul ettiğin talep Yayın Akışı’na düşer.', flow: 'İçerik YK ya da Merkez onayı almadan Yayınlandı olamaz.', kit: 'Marka renkleri, logolar, marka dili ve birimin şablonları.' }[tab];
+    const wait = uwLoading(title, sub); if (wait) return wait;
     const lead = uwCan('social', 'posts');
     const posts = uwList('posts');
     const inboxAnn = uwList('post_inbox');
     const requests = posts.filter((p) => p.status === 'request');
-    const tab = uwTabOf('b-yayin', 'inbox');
-    const col = (st, label) => { const l = posts.filter((p) => p.status === st); return `<section class="uw-col"><h3>${esc(label)} <span class="hint">${l.length}</span></h3>${l.length ? l.map(uwPostCard).join('') : '<p class="hint">Boş</p>'}</section>`; };
+    const unit = uwUnitOfKind('social');
+    const col = (st, label) => { const l = posts.filter((p) => p.status === st); return `<section class="uw-col"><h3>${esc(label)} <span class="hint">${l.length}</span></h3>${l.length ? l.map(uwPostCard).join('') : '<p class="uw-col-empty">Boş</p>'}</section>`; };
     let body;
     if (tab === 'inbox') {
-      body = `<div class="section-head"><h2>Paylaşım talepleri (${requests.length})</h2></div>
-        <div class="stack">${requests.length ? requests.map(uwPostCard).join('') : empty('Bekleyen paylaşım talebi yok.')}</div>
-        <div class="section-head"><h2>Onaylanan kulüp duyuruları (${inboxAnn.length})</h2></div>
-        <p class="hint">Merkez’in onayladığı kulüp duyuruları. Akışa alırsan Hazırlanıyor’a düşer; “Gerek yok” dersen listeden kalkar.</p>
-        <div class="stack">${inboxAnn.length ? inboxAnn.map((a) => `<article class="card item"><div class="meta top"><span class="tag">Kulüp duyurusu</span><span>${esc(a.club_name || '')} · ${uwWhen(a.created_at)}</span></div><h3>${esc(a.title)}</h3><p class="body">${uwText(a.body)}</p>${a.attachment_url?uwLink(a.attachment_url,'Ek'):''}
-          ${lead ? `<div class="actions"><button class="btn small" data-act="uw-post-ann" data-id="${esc(a.id)}" data-sub="1">Akışa al</button><button class="btn ghost small" data-act="uw-post-ann" data-id="${esc(a.id)}" data-sub="0">Gerek yok</button></div>` : ''}</article>`).join('') : empty('Akışa alınmamış kulüp duyurusu yok.')}</div>`;
+      body = `<div class="section-head"><h2>Paylaşım talepleri <span class="hint">${requests.length}</span></h2></div>
+        ${requests.length ? `<div class="stack">${requests.map(uwPostCard).join('')}</div>` : empty('Bekleyen paylaşım talebi yok.')}
+        <div class="section-head"><h2>Onaylanan kulüp duyuruları <span class="hint">${inboxAnn.length}</span></h2></div>
+        ${inboxAnn.length ? `<div class="stack">${inboxAnn.map((a) => `<article class="card item"><div class="meta top"><span class="tag">Kulüp duyurusu</span><span>${esc(a.club_name || '')} · ${uwWhen(a.created_at)}</span></div><h3>${esc(a.title)}</h3><p class="body">${uwText(a.body)}</p>${a.attachment_url ? uwLink(a.attachment_url, 'Ek') : ''}
+          ${lead ? `<div class="actions"><button class="btn small" data-act="uw-post-ann" data-id="${esc(a.id)}" data-sub="1">Akışa al</button><button class="btn ghost small" data-act="uw-post-ann" data-id="${esc(a.id)}" data-sub="0">Gerek yok</button></div>` : ''}</article>`).join('')}</div>` : empty('Merkez’in onayladığı, akışa alınmamış kulüp duyurusu yok.')}`;
     } else if (tab === 'flow') {
-      body = `<div class="uw-board">${col('preparing', 'Hazırlanıyor')}${col('approval', 'Onayda')}${col('planned', 'Planlandı')}${col('published', 'Yayınlandı')}</div>
+      const published = posts.filter((p) => p.status === 'published');
+      const month = published.filter((p) => String(p.published_at || p.plan_at || '').slice(0, 7) === today().slice(0, 7)).length;
+      body = `<p class="uw-summary"><b>${posts.filter((p) => ['preparing', 'approval', 'planned'].includes(p.status)).length}</b> içerik yolda · bu ay <b>${month}</b> yayın · toplam <b>${published.length}</b> yayın</p>
+        <div class="uw-board">${col('preparing', 'Hazırlanıyor')}${col('approval', 'Onayda')}${col('planned', 'Planlandı')}${col('published', 'Yayınlandı')}</div>
         ${posts.some((p) => p.status === 'declined') ? `<div class="section-head"><h2>Geri çevrilenler</h2></div><div class="stack">${posts.filter((p) => p.status === 'declined').map(uwPostCard).join('')}</div>` : ''}`;
-    } else body = uwPostCalendar(posts);
-    return `${head('Yayın Akışı', sub, lead ? '<button class="btn" data-act="uw-post-request">Yeni içerik</button>' : '')}
-      ${uwTabs('b-yayin', [['inbox', 'Gelen talepler', requests.length + inboxAnn.length], ['flow', 'Akış'], ['cal', 'İçerik takvimi']], 'inbox')}${body}`;
+    } else body = unit ? `${uwBrandKitHtml(unit.id)}${uwUnitDocsHtml(unit.id, 'Şablonlar ve kaynaklar')}` : empty('Sosyal Medya birimi yok.');
+    return `${head(title, sub, lead && tab !== 'kit' ? '<button class="btn" data-act="uw-post-request">Yeni içerik</button>' : '')}${body}`;
   };
 
   /* ---------------- Kampanyalar (Halkla İlişkiler) ---------------- */
@@ -7700,19 +7718,18 @@
       <div class="card">${note?.body ? `<p class="body">${uwText(note.body)}</p><p class="hint">${esc(note.updated_by_name || '')} · ${uwWhen(note.updated_at)}</p>` : '<p class="hint">Henüz marka dili notu yazılmadı: ses tonu, hitap, kullanılan ve kaçınılan ifadeler, hashtag’ler…</p>'}</div>`;
   };
   const uwCampaignsView = () => {
-    const sub = 'Her kampanya YK onayına gider; bütçeliyse YK’dan sonra Merkez onayına geçer. Sosyal medya yayını için Sosyal Medya’ya paylaşım talebi gönder.';
-    const wait = uwLoading('Kampanyalar', sub); if (wait) return wait;
+    const tab = uwTabOf('b-kampanyalar', 'camps');
+    const title = unitPageTitle('b-kampanyalar') || 'Kampanyalar';
+    const sub = { camps: 'Her kampanya YK onayına gider; bütçeliyse ardından Merkez onayına geçer.', requests: 'Merkez Yönetim’in rapor talepleri ve Sosyal Medya’ya gönderilen paylaşım talepleri.', kit: 'Marka renkleri, logolar, marka dili ve birimin materyalleri.' }[tab];
+    const wait = uwLoading(title, sub); if (wait) return wait;
     const prUnit = uwUnitOfKind('pr');
     const list = uwList('campaigns');
-    const tab = uwTabOf('b-kampanyalar', 'camps');
-    const openReports = uwList('reports').filter((r) => r.unit_id === prUnit?.id && r.status === 'open').length;
     const groups = [['Taslak ve reddedilen', list.filter((c) => ['draft', 'rejected'].includes(c.status))], ['Onayda', list.filter((c) => c.status === 'approval')], ['Onaylanan', list.filter((c) => c.status === 'approved')], ['Tamamlanan', list.filter((c) => c.status === 'done')]];
-    const body = tab === 'camps' ? (list.length ? groups.filter(([, l]) => l.length).map(([t, l]) => `<div class="section-head"><h2>${esc(t)} (${l.length})</h2></div><div class="stack">${l.map(uwCampCard).join('')}</div>`).join('') : empty('Henüz kampanya yok.'))
-      : tab === 'posts' ? uwMyPostsHtml()
-      : tab === 'reports' ? (prUnit ? uwReportsHtml(prUnit.id) : empty('Halkla İlişkiler birimi yok.'))
-      : (prUnit ? uwBrandKitHtml(prUnit.id) : '');
-    return `${head('Kampanyalar', sub, uwCan('pr', 'campaigns') ? '<button class="btn" data-act="uw-camp-new">Yeni kampanya</button>' : '')}
-      ${uwTabs('b-kampanyalar', [['camps', 'Kampanyalar', list.length], ...(state.unitAcc ? [['posts', 'Paylaşım talepleri']] : []), ['reports', 'Rapor talepleri', openReports], ['kit', 'Marka kiti']], 'camps')}${body}`;
+    const body = !prUnit ? empty('Halkla İlişkiler birimi yok.')
+      : tab === 'camps' ? (list.length ? groups.filter(([, l]) => l.length).map(([t, l]) => `<div class="section-head"><h2>${esc(t)} <span class="hint">${l.length}</span></h2></div><div class="stack">${l.map(uwCampCard).join('')}</div>`).join('') : empty('Henüz kampanya yok.'))
+      : tab === 'requests' ? `${uwReportsHtml(prUnit.id)}${uwMyPostsHtml(prUnit.id)}`
+      : `${uwBrandKitHtml(prUnit.id)}${uwUnitDocsHtml(prUnit.id, 'Materyaller')}`;
+    return `${head(title, sub, tab === 'camps' && uwCan('pr', 'campaigns') ? '<button class="btn" data-act="uw-camp-new">Yeni kampanya</button>' : '')}${body}`;
   };
 
   uwView('b-onaylar', { label: () => 'Birim Onayları', group: 'birim', order: -1, count: () => uwReqs().filter((r) => r.can_decide).length, allow: () => isAdmin() || uwBoard(), render: uwApprovalsView });
