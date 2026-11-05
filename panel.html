@@ -643,6 +643,74 @@
   .chip:hover { border-color: var(--ink); }
   .chip.active { background: var(--accent-grad); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
 
+
+  /* ---- Seçim kutuları: tasarıma uygun ok, tek yükseklik ---- */
+  .field select, .toolbar select, .act-filters select, .uw-filters select, .sp-table select {
+    appearance: none; -webkit-appearance: none; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23F2F1EE' stroke-opacity='.6' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; padding-right: 38px;
+  }
+  .field select option, .toolbar select option, .uw-filters select option, .sp-table select option { background: #161618; color: #F2F1EE; }
+  /* ---- Birim sayfası süzgeç çubuğu ---- */
+  .uw-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 18px; }
+  .uw-filters input, .uw-filters select { height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid var(--border-strong); background-color: var(--surface); color: var(--ink); font: inherit; font-size: 14.5px; outline: none; min-width: 0; }
+  .uw-filters select { padding-right: 38px; flex: 0 1 220px; }
+  .uw-filters input { flex: 1 1 280px; }
+  .uw-filters input:focus, .uw-filters select:focus { border-color: var(--unit, var(--accent)); }
+  .uw-count { margin-left: auto; font-size: 13.5px; opacity: .6; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .uw-summary { margin: -8px 0 18px; font-size: 14.5px; opacity: .78; }
+  .uw-summary b { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .uw-note { margin: 14px 0 0; }
+  .uw-more { display: flex; justify-content: center; margin-top: 16px; }
+  /* ---- Düzenlenebilir tablo (Sponsor Ağı vb.) ---- */
+  .main[data-view="b-sponsorlar"] .main-inner { max-width: 1480px; }
+  .sp-wrap { border-radius: 18px; background: var(--surface); overflow: hidden; }
+  .sp-table { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: auto; }
+  .sp-table th { text-align: left; font-size: 12.5px; font-weight: 600; opacity: .6; padding: 14px 12px; white-space: nowrap; border-bottom: 1px solid var(--border); }
+  .sp-table td { padding: 6px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; overflow-wrap: anywhere; }
+  .sp-table:not(.is-edit) td { padding-top: 13px; padding-bottom: 13px; }
+  .sp-table tbody tr:last-child td { border-bottom: 0; }
+  .sp-table tbody tr:hover td { background: color-mix(in srgb, var(--ink) 3%, transparent); }
+  .sp-table th:first-child, .sp-table td:first-child { padding-left: 20px; }
+  .sp-table th:last-child, .sp-table td:last-child { padding-right: 16px; }
+  .sp-table .num { text-align: center; }
+  .sp-table .sp-act { width: 1%; white-space: nowrap; text-align: right; }
+  .sp-table .sp-brand { font-weight: 600; }
+  .sp-table .sp-note { max-width: 420px; opacity: .85; }
+  .sp-table input, .sp-table select { width: 100%; min-width: 0; height: 38px; padding: 0 10px; border-radius: 10px; border: 1px solid transparent; background-color: transparent; color: var(--ink); font: inherit; outline: none; transition: border-color .15s ease, background-color .15s ease; }
+  .sp-table select { padding-right: 10px; background-position: right 8px center; background-size: 10px auto; background-image: none; }
+  .sp-table select:hover, .sp-table select:focus { padding-right: 24px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23F2F1EE' stroke-opacity='.6' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+  .sp-table input:hover, .sp-table select:hover { border-color: var(--border-strong); }
+  .sp-table input:focus, .sp-table select:focus { border-color: var(--unit, var(--accent)); background-color: var(--paper); }
+  .sp-table.is-edit { table-layout: fixed; }
+  .sp-table.is-edit td { padding-left: 6px; padding-right: 6px; }
+  .sp-table.is-edit th { padding-left: 16px; padding-right: 6px; }
+  .sp-table .sp-brand input { font-weight: 600; }
+  .sp-table input, .sp-table select { text-overflow: ellipsis; }
+  .sp-table .sp-date { white-space: nowrap; font-variant-numeric: tabular-nums; opacity: .8; padding-left: 16px; }
+  .sp-table input.is-saving, .sp-table select.is-saving { opacity: .5; }
+  .sp-table tr.sp-stage-deal td.sp-stage select { color: var(--ok); }
+  .sp-table tr.sp-stage-lost td.sp-stage select { color: var(--no); }
+  .sp-count { min-width: 34px; height: 30px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--border-strong); background: transparent; color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .sp-count:hover { border-color: var(--unit, var(--ink)); }
+  /* Dar ekranda her satır kendi kartı olur; etiketler hücrenin üstünde. */
+  @media (max-width: 1100px) {
+    .sp-wrap { background: transparent; border-radius: 0; overflow: visible; }
+    .sp-table, .sp-table tbody { display: block; }
+    .sp-table thead { display: none; }
+    .sp-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; padding: 14px 16px; margin-bottom: 10px; border-radius: 16px; background: var(--surface); }
+    .sp-table td { display: block; padding: 0 !important; border: 0; width: auto !important; text-align: left !important; }
+    .sp-table td::before { content: attr(data-label); display: block; font-size: 12px; font-weight: 600; opacity: .55; margin: 6px 0 2px; }
+    .sp-table td[data-label=""]::before { display: none; }
+    .sp-table td.sp-brand, .sp-table td.sp-note { grid-column: 1 / -1; }
+    .sp-table td.sp-act { align-self: end; justify-self: end; }
+    .sp-table input, .sp-table select { border-color: var(--border); padding-left: 10px; }
+    .sp-table tbody tr:hover td { background: transparent; }
+  }
+  @media (max-width: 640px) {
+    .uw-filters select { flex: 1 1 calc(50% - 5px); }
+    .uw-count { margin-left: 0; }
+  }
   /* ---- Calendar ---- */
   .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
   .cal-head h2 { font: 900 26px/1 'Archivo', sans-serif; letter-spacing: -0.03em; }
@@ -7796,67 +7864,105 @@
   const spStage = (k) => SP_STAGES.find(([s]) => s === k) || ['', k, ''];
   const spPack = (k) => (SP_PACKS.find(([s]) => s === k) || [null, ''])[1];
   const spData = () => UWD().sponsors || { rows: [], contacts: [] };
-  const uwSponsorTable = (rows, lead) => `<div class="stack uw-sponsor-list">
-      ${rows.map((s) => `<article class="card item uw-sponsor-card uw-row" data-act="uw-sp-open" data-id="${esc(s.id)}">
-        <div class="meta top"><span class="tag">${esc(s.category)}</span><span class="tag ${spStage(s.stage)[2]}">${esc(spStage(s.stage)[1])}</span>${s.contacts ? `<span class="hint">${s.contacts} görüşme</span>` : ''}</div>
-        <h3>${esc(s.brand)}</h3>
-        <div class="uw-sponsor-fields">
-          ${s.email ? `<div class="uw-sponsor-field"><small class="hint">Mail</small><a href="mailto:${esc(s.email)}" data-stop>${esc(s.email)}</a></div>` : ''}
-          ${s.web ? `<div class="uw-sponsor-field"><small class="hint">İletişim formu / web</small><div>${esc(s.web.replace(/^https?:\/\/(www\.)?/i, '').slice(0, 80))}</div></div>` : ''}
-          ${s.contact_person ? `<div class="uw-sponsor-field"><small class="hint">Yetkili kişi</small><div>${esc(s.contact_person)}</div></div>` : ''}
-          <div class="uw-sponsor-field"><small class="hint">Sorumlu</small><div>${esc(s.owner ? s.owner_name || '' : 'Atanmadı')}</div></div>
-          <div class="uw-sponsor-field"><small class="hint">Son işlem</small><div>${s.last_action ? uwDate(s.last_action) : 'Henüz işlem yok'}</div></div>
-          <div class="uw-sponsor-field"><small class="hint">Paket / etkinlik</small><div>${[spPack(s.package), s.event_label].filter(Boolean).map(esc).join(' · ') || '—'}</div></div>
-          ${s.notes ? `<div class="uw-sponsor-field uw-sponsor-notes"><small class="hint">Notlar</small><div>${uwText((s.notes || '').slice(0, 180))}${s.notes.length > 180 ? '…' : ''}</div></div>` : ''}
-        </div>
-        ${lead ? `<div class="actions"><button type="button" class="btn ghost small" data-act="uw-sp-edit" data-id="${esc(s.id)}">Düzenle</button><button type="button" class="btn small" data-act="uw-sp-open" data-id="${esc(s.id)}">Detay ve görüşmeler</button></div>` : ''}
-      </article>`).join('')}
+  const spCats = (rows) => [...SPONSOR_CATS, ...[...new Set(rows.map((s) => s.category))].filter((c) => !SPONSOR_CATS.includes(c))];
+  const spTeam = () => uwUnitOfKind('sponsor')?.members || [];
+  const spOpts = (pairs, value, none) => `${none !== undefined ? `<option value="">${esc(none)}</option>` : ''}${pairs.map(([k, l]) => `<option value="${esc(k)}" ${k === value ? 'selected' : ''}>${esc(l)}</option>`).join('')}`;
+  // Süzgeç çubuğu: arama + seçim kutuları, hepsi aynı yükseklikte; sağda sonuç sayısı.
+  const uwFilterBar = (search, selects, count) => `<div class="uw-filters">
+      ${search ? `<input type="search" data-uw-search="${esc(search.key)}" value="${esc(state.uwFilter[search.key] || '')}" placeholder="${esc(search.placeholder)}" aria-label="${esc(search.placeholder)}">` : ''}
+      ${selects.map(({ key, label, options }) => `<select data-uw-filter="${esc(key)}" aria-label="${esc(label)}">${spOpts(options, state.uwFilter[key] || '', label)}</select>`).join('')}
+      ${count !== undefined ? `<span class="uw-count">${count}</span>` : ''}
     </div>`;
-  const uwSponsorSummary = (rows) => {
-    const cats = [...SPONSOR_CATS, ...[...new Set(rows.map((s) => s.category))].filter((c) => !SPONSOR_CATS.includes(c))];
-    const owners = [...new Map(rows.filter((s) => s.owner).map((s) => [s.owner, s.owner_name])).entries()];
+  // Sponsor Ağı: her firma tek satır; yetkili kişi hücreleri yerinde düzenler (değişince kaydedilir).
+  const uwSponsorRow = (s, lead, team, cats) => {
+    const cell = (label, html, cls = '') => `<td data-label="${esc(label)}"${cls ? ` class="${cls}"` : ''}>${html}</td>`;
+    const txt = (key, label, type = 'text', max = 200) => lead ? `<input type="${type}" data-sp="${key}" data-id="${esc(s.id)}" maxlength="${max}" value="${esc(s[key] || '')}" aria-label="${esc(label)}"${key === 'brand' ? ' required' : ''}>` : esc(s[key] || '—');
+    const sel = (key, label, pairs, none) => lead ? `<select data-sp="${key}" data-id="${esc(s.id)}" aria-label="${esc(label)}">${spOpts(pairs, s[key] || '', none)}</select>` : esc((pairs.find(([k]) => k === s[key]) || [, none || '—'])[1]);
+    const stage = spStage(s.stage);
+    return `<tr class="sp-stage-${esc(s.stage)}">
+      ${cell('Marka', txt('brand', 'Marka', 'text', 160), 'sp-brand')}
+      ${cell('Kategori', sel('category', 'Kategori', cats.map((c) => [c, c])))}
+      ${cell('Yetkili kişi', txt('contact_person', 'Yetkili kişi'))}
+      ${cell('E-posta', txt('email', 'E-posta', 'email'))}
+      ${cell('Sorumlu', sel('owner', 'Sorumlu', team.map((m) => [m.id, m.name]), 'Atanmadı'))}
+      ${cell('Aşama', lead ? sel('stage', 'Aşama', SP_STAGES.map(([k, l]) => [k, l])) : `<span class="tag ${stage[2]}">${esc(stage[1])}</span>`, 'sp-stage')}
+      ${cell('Paket', sel('package', 'Paket', SP_PACKS, '—'))}
+      ${cell('Görüşme', `<button type="button" class="sp-count" data-act="uw-sp-open" data-id="${esc(s.id)}" title="Detay ve görüşmeler" aria-label="${esc(s.brand)}: detay ve ${s.contacts || 0} görüşme">${s.contacts || 0}</button>`, 'num')}
+    </tr>`;
+  };
+  const SP_PAGE = 60;
+  const uwSponsorNet = (rows, lead) => {
+    const cats = spCats(rows), team = spTeam();
+    const q = (state.uwFilter['sp-q'] || '').toLocaleLowerCase('tr-TR');
+    const cat = state.uwFilter['sp-cat'] || '', stage = state.uwFilter['sp-stage'] || '', owner = state.uwFilter['sp-owner'] || '';
+    let shown = rows.filter((s) => (!cat || s.category === cat) && (!stage || s.stage === stage) && (!owner || (owner === 'none' ? !s.owner : s.owner === owner)));
+    if (q) shown = shown.filter((s) => [s.brand, s.email, s.contact_person, s.notes, s.event_label, s.web].join(' ').toLocaleLowerCase('tr-TR').includes(q));
+    const limit = state.uwFilter['sp-limit'] || SP_PAGE;
     const deals = rows.filter((s) => s.stage === 'deal').length, reached = rows.filter((s) => s.stage !== 'research').length;
-    const metric = (label, value) => `<div class="stat"><b>${value}</b><span>${label}</span></div>`;
-    return `<div class="stats uw-sponsor-stats">
-        ${metric('Firma', rows.length)}
-        ${metric('Görüşme kaydı', spData().contacts.length)}
-        ${metric('İletişime geçilen', reached)}
-        ${metric(`Anlaşma · dönüşüm %${reached ? Math.round((deals / reached) * 100) : 0}`, deals)}
+    return `<p class="uw-summary"><b>${rows.length}</b> firma · <b>${reached}</b> iletişime geçilen · <b>${deals}</b> anlaşma · dönüşüm %${reached ? Math.round((deals / reached) * 100) : 0} · <b>${rows.filter((s) => !s.owner).length}</b> sorumlusuz</p>
+      ${uwFilterBar({ key: 'sp-q', placeholder: 'Marka, kişi, e-posta ya da not ara' }, [
+        { key: 'sp-cat', label: 'Tüm kategoriler', options: cats.map((c) => [c, `${c} (${rows.filter((s) => s.category === c).length})`]) },
+        { key: 'sp-stage', label: 'Tüm aşamalar', options: SP_STAGES.map(([k, l]) => [k, l]) },
+        { key: 'sp-owner', label: 'Tüm sorumlular', options: [['none', 'Sorumlusuz'], ...team.map((m) => [m.id, m.name])] },
+      ], `${shown.length} firma`)}
+      ${shown.length ? `<div class="sp-wrap"><table class="sp-table${lead ? ' is-edit' : ''}">
+        <colgroup><col style="width:19%"><col style="width:16%"><col style="width:14%"><col style="width:20%"><col style="width:12%"><col style="width:11%"><col style="width:8%"><col style="width:82px"></colgroup>
+        <thead><tr><th>Marka</th><th>Kategori</th><th>Yetkili kişi</th><th>E-posta</th><th>Sorumlu</th><th>Aşama</th><th>Paket</th><th class="num">Görüşme</th></tr></thead>
+        <tbody>${shown.slice(0, limit).map((s) => uwSponsorRow(s, lead, team, cats)).join('')}</tbody></table></div>
+        ${shown.length > limit ? `<div class="uw-more"><button type="button" class="btn ghost" data-act="uw-sp-more">Daha fazla göster (${shown.length - limit} firma daha)</button></div>` : ''}`
+        : empty('Bu süzgece uyan firma yok.')}`;
+  };
+  const uwSponsorMeetings = (rows, lead) => {
+    const byId = new Map(rows.map((s) => [s.id, s]));
+    const q = (state.uwFilter['spm-q'] || '').toLocaleLowerCase('tr-TR'), kind = state.uwFilter['spm-kind'] || '';
+    const list = (spData().contacts || []).filter((c) => (!kind || c.kind === kind) && (!q || [byId.get(c.sponsor_id)?.brand, c.note, c.by_name].join(' ').toLocaleLowerCase('tr-TR').includes(q)))
+      .sort((a, b) => String(b.at).localeCompare(String(a.at)));
+    return `${uwFilterBar({ key: 'spm-q', placeholder: 'Firma, not ya da kişi ara' }, [{ key: 'spm-kind', label: 'Tüm görüşme türleri', options: SP_CONTACT }], `${list.length} görüşme`)}
+      ${list.length ? `<div class="sp-wrap"><table class="sp-table"><thead><tr><th>Tarih</th><th>Firma</th><th>Tür</th><th>Not</th><th>Kaydeden</th><th><span class="sr-only">İşlem</span></th></tr></thead><tbody>
+        ${list.map((c) => `<tr><td data-label="Tarih">${uwDate(c.at)}</td><td data-label="Firma" class="sp-brand"><button type="button" class="link-btn" data-act="uw-sp-open" data-id="${esc(c.sponsor_id)}">${esc(byId.get(c.sponsor_id)?.brand || 'Firma')}</button></td><td data-label="Tür">${esc((SP_CONTACT.find(([k]) => k === c.kind) || ['', c.kind])[1])}</td><td data-label="Not" class="sp-note">${uwText(c.note || '—')}</td><td data-label="Kaydeden">${esc(c.by_name || '')}</td><td class="sp-act">${lead ? `<button type="button" class="btn ghost small" data-act="uw-sp-contact-del" data-id="${esc(c.id)}">Sil</button>` : ''}</td></tr>`).join('')}
+      </tbody></table></div>` : empty('Görüşme kaydı yok. Görüşme kaydettikçe sayı ve son işlem tarihi kendiliğinden güncellenir.')}`;
+  };
+  const uwSponsorOffers = (rows) => {
+    const active = rows.filter((s) => ['offer', 'deal'].includes(s.stage) || s.package);
+    const deals = rows.filter((s) => s.stage === 'deal').length, offers = rows.filter((s) => s.stage === 'offer').length, reached = rows.filter((s) => s.stage !== 'research').length;
+    const groups = [...SP_PACKS, ['', 'Paket seçilmedi']].map(([k, l]) => [l, active.filter((s) => (s.package || '') === k)]).filter(([, l]) => l.length);
+    return `<div class="stats uw-stats">
+        <div class="stat"><b>${offers}</b><span>Teklif aşamasında</span></div>
+        <div class="stat"><b>${deals}</b><span>Anlaşma</span></div>
+        <div class="stat"><b>%${reached ? Math.round((deals / reached) * 100) : 0}</b><span>Dönüşüm (anlaşma / iletişime geçilen)</span></div>
+        <div class="stat"><b>${rows.filter((s) => s.stage === 'lost').length}</b><span>Olumsuz</span></div>
       </div>
-      <div class="stack uw-sponsor-summary" style="margin-top:22px">${cats.map((c) => {
-        const l = rows.filter((s) => s.category === c);
-        if (!l.length) return '';
-        const details = [
-          ['Firma', l.length],
-          ['Maili olan', l.filter((s) => s.email).length],
-          ['Sorumlusuz', l.filter((s) => !s.owner).length],
-          ...SP_STAGES.map(([k, label]) => [label, l.filter((s) => s.stage === k).length]),
-          ...owners.map(([id, name]) => [`Sorumlu · ${name}`, l.filter((s) => s.owner === id).length]),
-        ];
-        return `<article class="card item uw-row" data-act="uw-tab" data-id="b-sponsorlar" data-sub="${esc(c)}">
-          <div class="meta top"><h3>${esc(c)}</h3><span class="tag">${l.length} firma</span></div>
-          <div class="uw-sponsor-breakdown">${details.map(([label, value]) => `<div class="uw-sponsor-breakdown-row"><small>${esc(label)}</small><strong>${value}</strong></div>`).join('')}</div>
-        </article>`;
-      }).join('')}</div>`;
+      <p class="hint uw-note">Bütçe gerektiren işler firmanın detayından Merkez onayına gönderilir; finans yetkisi Merkez Yönetim’dedir.</p>
+      ${groups.length ? groups.map(([label, l]) => `<div class="section-head"><h2>${esc(label)} <span class="hint">${l.length}</span></h2></div>
+        <div class="sp-wrap"><table class="sp-table"><thead><tr><th>Marka</th><th>Aşama</th><th>Etkinlik</th><th>Sorumlu</th><th>Son işlem</th><th><span class="sr-only">İşlem</span></th></tr></thead><tbody>
+        ${l.map((s) => `<tr><td data-label="Marka" class="sp-brand">${esc(s.brand)}</td><td data-label="Aşama"><span class="tag ${spStage(s.stage)[2]}">${esc(spStage(s.stage)[1])}</span></td><td data-label="Etkinlik">${esc(s.event_label || '—')}</td><td data-label="Sorumlu">${esc(s.owner ? s.owner_name || '' : 'Atanmadı')}</td><td data-label="Son işlem">${s.last_action ? uwDate(s.last_action) : '—'}</td><td class="sp-act"><button type="button" class="btn ghost small" data-act="uw-sp-open" data-id="${esc(s.id)}">Detay</button></td></tr>`).join('')}
+        </tbody></table></div>`).join('') : empty('Teklif ya da anlaşma aşamasında firma yok. Sponsor Ağı’nda aşamayı “Teklif” yaptığında burada görünür.')}`;
   };
   const uwSponsorsView = () => {
-    const sub = 'Sponsorship File’dan aktarılan sponsor ağı; aynı düzen, ek olarak paket ve etkinlik. Görüşme kaydı girdikçe sayı ve son işlem tarihi kendiliğinden güncellenir. Bütçe kısmı Merkez onayına gider.';
-    const wait = uwLoading('Sponsor Ağı', sub); if (wait) return wait;
+    const tab = uwTabOf('b-sponsorlar', 'net');
+    const title = unitPageTitle('b-sponsorlar') || 'Sponsor Ağı';
+    const sub = { net: 'Sponsorship File’dan aktarılan firmalar. Hücreyi değiştirdiğinde kendiliğinden kaydedilir.', meetings: 'Firmalarla yapılan bütün görüşmeler, en yeniden eskiye.', offers: 'Teklif ve anlaşma aşamasındaki firmalar, pakete göre.' }[tab];
+    const wait = uwLoading(title, sub); if (wait) return wait;
     const rows = spData().rows || [];
     const lead = uwSponsorManager();
-    const cats = [...SPONSOR_CATS, ...[...new Set(rows.map((s) => s.category))].filter((c) => !SPONSOR_CATS.includes(c))];
-    const tab = uwTabOf('b-sponsorlar', 'summary');
-    const q = (state.uwFilter['b-sponsorlar-q'] || '').toLocaleLowerCase('tr-TR');
-    const stage = state.uwFilter['b-sponsorlar-stage'] || '';
-    let shown = tab === 'summary' ? rows : tab === 'all' ? rows : rows.filter((s) => s.category === tab);
-    if (q) shown = shown.filter((s) => [s.brand, s.email, s.contact_person, s.notes, s.event_label].join(' ').toLocaleLowerCase('tr-TR').includes(q));
-    if (stage) shown = shown.filter((s) => s.stage === stage);
-    return `${head('Sponsor Ağı', sub, lead ? `<div class="head-actions"><button class="btn" data-act="uw-sp-edit" data-sub="${esc(cats.includes(tab) ? tab : '')}">Sponsor ekle</button>${uwCanRequestPost() ? '<button class="btn ghost" data-act="uw-post-request">Paylaşım talebi</button>' : ''}</div>` : '')}
-      <div class="toolbar uw-cat-tabs">${[['summary', 'Özet'], ['all', 'Tümü'], ...cats.map((c) => [c, c])].map(([id, l]) => `<button class="chip ${tab === id ? 'active' : ''}" data-act="uw-tab" data-id="b-sponsorlar" data-sub="${esc(id)}">${esc(l)}${id !== 'summary' ? ` (${id === 'all' ? rows.length : rows.filter((s) => s.category === id).length})` : ''}</button>`).join('')}</div>
-      ${tab === 'summary' ? uwSponsorSummary(rows) : `<div class="act-filters"><input type="search" data-uw-search="b-sponsorlar-q" value="${esc(state.uwFilter['b-sponsorlar-q'] || '')}" placeholder="Marka, mail, kişi ya da not ara"><select data-uw-filter="b-sponsorlar-stage"><option value="">Tüm durumlar</option>${SP_STAGES.map(([k, l]) => `<option value="${k}" ${stage === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
-        ${shown.length ? uwSponsorTable(shown, lead) : empty('Bu süzgece uyan sponsor yok.')}`}
-      ${state.unitAcc && uwKindIs('sponsor') ? `<div style="margin-top:34px">${uwMyPostsHtml()}</div>` : ''}`;
+    const action = !lead ? '' : tab === 'net' ? '<button class="btn" data-act="uw-sp-edit">Sponsor ekle</button>' : tab === 'meetings' ? '<button class="btn" data-act="uw-sp-contact-new">Görüşme kaydet</button>' : '';
+    const body = tab === 'meetings' ? uwSponsorMeetings(rows, lead) : tab === 'offers' ? uwSponsorOffers(rows) : uwSponsorNet(rows, lead);
+    return `${head(title, sub, action)}${body}`;
   };
+  // Yerinde düzenleme: değişen hücre firmanın bütün alanlarıyla birlikte kaydedilir.
+  document.addEventListener('change', async (e) => {
+    const el = e.target.closest?.('[data-sp]'); if (!el) return;
+    const s = (spData().rows || []).find((x) => x.id === el.dataset.id); if (!s) return;
+    const key = el.dataset.sp, v = String(el.value || '').trim();
+    if (key === 'brand' && !v) { toast('Marka boş olamaz.'); el.value = s.brand; return; }
+    const p = { id: s.id, category: s.category, brand: s.brand, email: s.email || '', web: s.web || '', contact_person: s.contact_person || '', owner: s.owner || null, stage: s.stage, last_action: s.last_action ? String(s.last_action).slice(0, 10) : '', package: s.package || '', event_label: s.event_label || '', notes: s.notes || '' };
+    p[key] = key === 'owner' ? (v || null) : v;
+    el.classList.add('is-saving');
+    try { await uwDo('sponsor_save', p); toast(`${p.brand} kaydedildi.`); }
+    catch (error) { toast(error.message || 'Kaydedilemedi.'); }
+    finally { render(); }
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.matches?.('input[data-sp]')) { e.preventDefault(); e.target.blur(); } });
 
   /* ---------------- Kulüp Ağı ---------------- */
   const CL_CONTACT = [['message', 'Mesaj'], ['call', 'Telefon'], ['meeting', 'Görüşme'], ['event', 'Etkinlik'], ['other', 'Diğer']];
@@ -8059,6 +8165,17 @@
   Object.assign(actions, {
     'uw-tcal'(d) { const st = state.uwFilter['b-takvim'] || { y: now.getFullYear(), m: now.getMonth(), sel: today() }; if (d === '0') state.uwFilter['b-takvim'] = { y: new Date().getFullYear(), m: new Date().getMonth(), sel: today() }; else { const x = new Date(st.y, st.m + Number(d), 1); state.uwFilter['b-takvim'] = { ...st, y: x.getFullYear(), m: x.getMonth() }; } render(); },
     'uw-tcal-pick'(key) { const st = state.uwFilter['b-takvim'] || { y: now.getFullYear(), m: now.getMonth() }; state.uwFilter['b-takvim'] = { ...st, sel: key }; render(); },
+    'uw-sp-more'() { state.uwFilter['sp-limit'] = (state.uwFilter['sp-limit'] || SP_PAGE) + SP_PAGE; render(); },
+    'uw-sp-contact-new'() {
+      const rows = [...(spData().rows || [])].sort((a, b) => a.brand.localeCompare(b.brand, 'tr'));
+      if (!rows.length) { toast('Önce Sponsor Ağı’na firma ekle.'); return; }
+      openForm({ title: 'Görüşme kaydet', lead: 'Görüşme sayısı ve firmanın son işlem tarihi kendiliğinden güncellenir.', submit: 'Kaydet',
+        fields: `${field('Firma', `<select name="sponsor_id" required><option value="">Firma seç</option>${rows.map((s) => `<option value="${esc(s.id)}">${esc(s.brand)}</option>`).join('')}</select>`)}
+          <div class="field-row">${field('Tarih', `<input type="date" name="at" required value="${today()}">`)}${field('Tür', `<select name="kind">${SP_CONTACT.map(([x, l]) => `<option value="${x}">${l}</option>`).join('')}</select>`)}</div>
+          ${field('Not', '<textarea name="note" rows="3" maxlength="2000"></textarea>')}`,
+        onSubmit: uwSubmit('sponsor_contact', (fd) => ({ sponsor_id: val(fd, 'sponsor_id'), at: val(fd, 'at'), kind: val(fd, 'kind'), note: val(fd, 'note') }), 'Görüşme kaydedildi.') });
+    },
+    'uw-sp-contact-del'(id) { if (!confirm('Görüşme kaydı silinsin mi?')) return; return uwRun('sponsor_contact_delete', { id }, 'Görüşme silindi.'); },
     'uw-sp-open'(id) {
       const s = (spData().rows || []).find((x) => x.id === id); if (!s) return;
       const lead = uwSponsorManager();
@@ -8076,7 +8193,7 @@
       dlgSubmit = null; dlg.showModal();
     },
     'uw-sp-edit'(id, cat) {
-      const s = (spData().rows || []).find((x) => x.id === id) || { category: cat || SPONSOR_CATS[0] };
+      const s = (spData().rows || []).find((x) => x.id === id) || { category: cat || state.uwFilter['sp-cat'] || SPONSOR_CATS[0] };
       const team = uwUnitOfKind('sponsor')?.members || [];
       const cats = [...new Set([...SPONSOR_CATS, ...(spData().rows || []).map((x) => x.category)])];
       openForm({ title: id ? 'Sponsoru düzenle' : 'Sponsor ekle', submit: 'Kaydet',
@@ -8709,7 +8826,7 @@
             ${DEMO ? '<button class="link-btn" data-act="reset">Demo verisini sıfırla</button>' : ''}
           </div>
         </aside>
-        <main class="main ${state.view === 'ims' ? 'is-im' : ''}"${mainUnitKind() ? ` data-unit-kind="${esc(mainUnitKind())}"` : ''}><div class="main-inner">
+        <main class="main ${state.view === 'ims' ? 'is-im' : ''}" data-view="${esc(state.view)}"${mainUnitKind() ? ` data-unit-kind="${esc(mainUnitKind())}"` : ''}><div class="main-inner">
           ${profileMenu()}
           ${DEMO ? '<div class="demo-bar"><span><b>Demo</b> — veriler yalnızca bu tarayıcıda saklanıyor.</span></div>' : ''}
           ${views[state.view]()}
