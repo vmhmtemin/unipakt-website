@@ -6263,7 +6263,7 @@
     @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .ev-biletimgo img { filter: invert(1); } }
     .ev-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: clamp(18px, 3vw, 32px); align-items: start; }
     .ev-main { display: grid; gap: clamp(18px, 3vw, 26px); min-width: 0; }
-    .ev-poster { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 20px; border: 1px solid var(--border); background: var(--paper-soft); }
+    .ev-poster { display: block; width: auto; height: auto; max-width: 100%; max-height: min(85vh, 960px); border-radius: 20px; border: 1px solid var(--border); background: var(--paper-soft); } /* afiş kendi oranında, kırpılmadan; çerçeve görseli sarar */
     .ev-detail h2, .ev-card h2 { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(20px, 2.2vw, 24px); letter-spacing: -0.02em; margin: 0 0 14px; display: flex; align-items: center; gap: 10px; }
     .ev-detail h2::before, .ev-card h2::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-grad); flex: none; }
     .ev-md { line-height: 1.7; overflow-wrap: anywhere; }
