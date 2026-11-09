@@ -825,7 +825,8 @@
         max-width: 54ch;
     }
 
-    .section-title .impact-slogan {
+    /* "What the pakt?": aşağıdaki "UniPakt for impact" ile aynı yazı stili ve boyutu */
+    .section-title .impact-slogan, .what-slogan {
         margin: 0 0 8px;
         font-size: clamp(36px, 4.6vw, 52px);
         opacity: .72;
@@ -2324,7 +2325,7 @@
             max-width: 100%;
         }
 
-        .section-title .impact-slogan {
+        .section-title .impact-slogan, .what-slogan {
             font-size: clamp(30px, 8vw, 38px);
         }
 
@@ -2912,6 +2913,15 @@
                  Same identity (black/white, dots, Archivo + Caveat + Inter);
                  tighter type scale, clearer actions and small motion details.
                  ============================================================ */
+
+    /* Marka gradyanı: büyük vurgulu yazılarda yazının kendisi gradyan */
+    .eyebrow-split .b, .section-title .impact-slogan, .what-slogan, .site-footer .footer-kicker, .hero .note,
+    .ev-fee, .sp-count, .sp-brand b span, .hf-day h3, .mx-days h3, .mx-p-lead .mx-hl, .mx-d-acc, .hf-months li:last-child {
+        background: var(--accent-grad);
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent; color: transparent;
+        -webkit-box-decoration-break: clone; box-decoration-break: clone;
+    }
 
     ::selection {
         background: var(--ink);
@@ -3752,7 +3762,7 @@
 
     /* ---------- KVKK onay kutusu ve penceresi ---------- */
     .kvkk-consent { display: flex; gap: 12px; align-items: flex-start; margin: 6px 0 22px; font-size: 14.5px; line-height: 1.5; cursor: pointer; color: color-mix(in srgb, var(--ink) 80%, transparent); }
-    .kvkk-consent input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; cursor: pointer; accent-color: var(--accent, #FF5A1F); }
+    .kvkk-consent input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; cursor: pointer; accent-color: var(--accent); }
     .kvkk-consent a { color: inherit; text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 3px; }
     .kvkk-consent a:hover { text-decoration-color: currentColor; }
     .kvkk-dialog { width: min(1040px, calc(100vw - 40px)); height: min(90dvh, 1000px); max-height: 90dvh; padding: 0; border: 1px solid var(--border-strong); border-radius: 20px; background: var(--paper); color: var(--ink); overflow: hidden; }
@@ -4334,18 +4344,22 @@
                  of the UniPakt metro), never for large surfaces.
                  ============================================================ */
 
+    /*brand:start — marka rengi (panel › Marka rengi). tools/build_pages.py bu bloğu canlı temayla yeniden yazar; theme.js de tarayıcıda günceller. */
+    :root { --brand-grad: linear-gradient(135deg, #8F244D, #A94B86); --brand-on-dark: #A94B86; --brand-on-light: #8F244D; --brand-on-accent: #FFFFFF; }
+    /*brand:end*/
     :root {
-        --accent: #FF5A1F;
-        --on-accent: #000;
+        --accent: var(--brand-on-dark);
+        --accent-grad: var(--brand-grad);
+        --on-accent: var(--brand-on-accent);
     }
 
     :root[data-theme="light"] {
-        --accent: #F04A0F;
+        --accent: var(--brand-on-light);
     }
 
     @media (prefers-color-scheme: light) {
         :root:not([data-theme="dark"]) {
-            --accent: #F04A0F;
+            --accent: var(--brand-on-light);
         }
     }
 
@@ -4355,11 +4369,11 @@
     }
 
     .scroll-progress {
-        background: var(--accent);
+        background: var(--accent-grad);
     }/* Actions */
 
     .btn-pill, .minimal-form .btn-pill {
-        background: var(--accent);
+        background: var(--accent-grad);
         border-color: var(--accent);
         color: var(--on-accent);
     }
@@ -4371,7 +4385,7 @@
     }
 
     nav.links a[data-route="katil"] {
-        background: var(--accent);
+        background: var(--accent-grad);
         color: var(--on-accent);
         box-shadow: inset 0 0 0 1.5px var(--accent);
     }
@@ -4386,7 +4400,7 @@
     }
 
     .club-chip.active {
-        background: var(--accent);
+        background: var(--accent-grad);
         border-color: var(--accent);
         color: var(--on-accent);
     }
@@ -4425,7 +4439,7 @@
     }/* Hero orbit: an opened club lights up */
 
     .orbit-club.open {
-        background: var(--accent);
+        background: var(--accent-grad);
         color: var(--on-accent);
         box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 22%, transparent);
     }/* Campus network: the cursor node is the accent */
@@ -4439,7 +4453,7 @@
     }/* Hakkımızda: the very first club is the accent dot */
 
     .grow-row:first-child .dots i {
-        background: var(--accent);
+        background: var(--accent-grad);
     }/* The Story: pull quote rule */
 
     .story-after-copy p:has( > strong:only-child) {
@@ -4447,7 +4461,7 @@
     }/* Club list: the dot marker lights up on hover / open */
 
     .club-row:hover .dotmark, .club-item.expanded .club-row .dotmark {
-        background: var(--accent);
+        background: var(--accent-grad);
     }/* Spam trap: invisible to people, filled in by bots. */
 
     .hp-field {
@@ -4952,7 +4966,7 @@
         width: 10px;
         height: 10px;
         border-radius: 50%;
-        background: var(--accent);
+        background: var(--accent-grad);
     }
 
     .story-hint-dot::after {
@@ -5245,7 +5259,7 @@
         display: block;
         padding: 3px 8px;
         border-radius: 7px;
-        background: var(--accent);
+        background: var(--accent-grad);
         color: var(--on-accent);
         font-size: 12px;
         font-weight: 600;
@@ -6175,7 +6189,7 @@
     .ev-hero.is-placeholder::after { background: radial-gradient(#ffffff30 1px, transparent 1.3px) 0 0 / 18px 18px, rgba(0, 0, 0, .78); }
     .ev-hero-in { display: grid; justify-items: center; gap: 12px; }
     .ev-hero h1 { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(30px, 4.6vw, 60px); line-height: 1.05; letter-spacing: -0.03em; max-width: 22ch; overflow-wrap: anywhere; margin: 0; }
-    .ev-bar { display: block; width: 56px; height: 4px; border-radius: 2px; background: var(--accent); margin: 6px 0 2px; }
+    .ev-bar { display: block; width: 56px; height: 4px; border-radius: 2px; background: var(--accent-grad); margin: 6px 0 2px; }
     .ev-hero-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; font-size: clamp(14px, 1.5vw, 17px); margin: 0; }
     .ev-hero-meta > span { display: inline-flex; align-items: center; gap: 8px; opacity: .92; }
     .ev-hero-meta svg { width: 18px; height: 18px; color: var(--accent); flex: none; }
@@ -6195,6 +6209,53 @@
     .ev-fee { font-family: 'Archivo', sans-serif; font-size: clamp(20px, 2.6vw, 26px); color: var(--accent); }
     .ev-ticket-act { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
     .ev-cta { text-decoration: none; }
+    /* ---- UniPakt kayıt formu (etkinlik sayfası) ---- */
+    .ev-reg-note { flex-basis: 100%; margin: 0; font-size: 13px; color: color-mix(in srgb, var(--ink) 62%, transparent); }
+    .ev-reg-closed { font-size: 14px; font-weight: 600; color: color-mix(in srgb, var(--ink) 70%, transparent); }
+    .reg-dialog { width: min(560px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); padding: 0; border: 1px solid var(--border-strong); border-radius: 22px; background: var(--paper); color: var(--ink); overflow: auto; overscroll-behavior: contain; }
+    .reg-dialog::backdrop { background: rgba(0, 0, 0, .62); backdrop-filter: blur(3px); }
+    .reg-in { display: grid; gap: 16px; padding: clamp(20px, 4vw, 30px); }
+    .reg-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+    .reg-head h2 { margin: 0; font-size: clamp(24px, 4vw, 30px); line-height: 1.1; }
+    .reg-head small { display: block; margin-top: 6px; font-size: 14px; color: color-mix(in srgb, var(--ink) 62%, transparent); }
+    .reg-x { flex: none; width: 38px; height: 38px; border: 1px solid var(--border-strong); border-radius: 50%; background: transparent; color: var(--ink); font-size: 20px; line-height: 1; cursor: pointer; }
+    .reg-field { display: grid; gap: 7px; }
+    .reg-field > span { font-size: 14px; font-weight: 600; }
+    .reg-field > span em { font-style: normal; font-weight: 500; color: color-mix(in srgb, var(--ink) 55%, transparent); }
+    .reg-field input[type="text"], .reg-field input[type="email"], .reg-field textarea {
+        box-sizing: border-box; width: 100%; padding: 13px 16px; border: 1px solid var(--border-strong); border-radius: 14px;
+        background: color-mix(in srgb, var(--ink) 4%, transparent); color: var(--ink); font: inherit; font-size: 16px; }
+    .reg-field textarea { min-height: 90px; resize: vertical; }
+    .reg-field input:focus, .reg-field textarea:focus { outline: none; border-color: var(--accent); }
+    .reg-choices { display: flex; flex-wrap: wrap; gap: 8px; }
+    .reg-choices label { position: relative; }
+    .reg-choices input { position: absolute; opacity: 0; pointer-events: none; }
+    .reg-choices span { display: inline-block; padding: 9px 16px; border: 1px solid var(--border-strong); border-radius: 999px; font-size: 14.5px; cursor: pointer; }
+    .reg-choices input:checked + span { background: var(--accent-grad); border-color: var(--accent); color: var(--on-accent, #000); }
+    .reg-choices input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .reg-error { margin: 0; min-height: 20px; font-size: 14px; color: #F87171; }
+    .reg-danger { background: #E5484D; border-color: #E5484D; color: #fff; }
+    .ev-reg-cancel { font-size: 13px; padding: 0; opacity: .7; }
+    .reg-done > .reg-link { justify-self: center; font-size: 13.5px; opacity: .65; }
+    .reg-hint { font-size: 12.5px; color: color-mix(in srgb, var(--ink) 55%, transparent); }
+    .reg-lead { margin: 0; line-height: 1.55; color: color-mix(in srgb, var(--ink) 75%, transparent); }
+    .reg-lead b { color: var(--ink); }
+    .reg-field input.reg-otp { font: 800 30px/1 'Archivo', sans-serif; letter-spacing: .5em; text-align: center; padding: 14px 10px 14px calc(10px + .5em); }
+    .reg-links { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .reg-link { background: none; border: 0; padding: 4px 0; color: var(--ink); font: inherit; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; opacity: .8; }
+    .reg-link:disabled { opacity: .4; cursor: default; text-decoration: none; }
+    .reg-people { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+    .reg-person { padding: 7px 14px; border: 1px solid var(--border-strong); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; }
+    .reg-person[aria-selected="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .ev-ticket-act .ev-reg-mine { background: transparent; color: var(--ink); border: 1px solid var(--border-strong); }
+    .reg-done { text-align: center; }
+    .reg-qr { width: min(240px, 70vw); margin: 4px auto 0; padding: 12px; border-radius: 18px; background: #fff; }
+    .reg-qr svg { display: block; width: 100%; height: auto; }
+    .reg-code { margin: 6px 0 0; font: 800 clamp(34px, 9vw, 44px)/1 'Archivo', sans-serif; letter-spacing: .18em; padding-left: .18em; }
+    .reg-done p { margin: 0; color: color-mix(in srgb, var(--ink) 70%, transparent); }
+    .reg-done .reg-name { color: var(--ink); font-weight: 600; font-size: 17px; }
+    .reg-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .reg-actions .btn-pill.ghost { background: transparent; color: var(--ink); border: 1px solid var(--border-strong); }
     .ev-biletimgo { display: inline-flex; align-items: center; padding: 8px 4px; }
     .ev-biletimgo img { display: block; height: 26px; width: auto; transition: opacity .2s ease; }
     .ev-biletimgo:hover img { opacity: .75; }
@@ -6202,9 +6263,9 @@
     @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .ev-biletimgo img { filter: invert(1); } }
     .ev-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: clamp(18px, 3vw, 32px); align-items: start; }
     .ev-main { display: grid; gap: clamp(18px, 3vw, 26px); min-width: 0; }
-    .ev-poster { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 20px; border: 1px solid var(--border); background: var(--paper-soft); }
+    .ev-poster { display: block; width: auto; height: auto; max-width: 100%; max-height: min(85vh, 960px); border-radius: 20px; border: 1px solid var(--border); background: var(--paper-soft); } /* afiş kendi oranında, kırpılmadan; çerçeve görseli sarar */
     .ev-detail h2, .ev-card h2 { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(20px, 2.2vw, 24px); letter-spacing: -0.02em; margin: 0 0 14px; display: flex; align-items: center; gap: 10px; }
-    .ev-detail h2::before, .ev-card h2::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; }
+    .ev-detail h2::before, .ev-card h2::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-grad); flex: none; }
     .ev-md { line-height: 1.7; overflow-wrap: anywhere; }
     .ev-md p { margin: 0 0 12px; }
     .ev-md ul { margin: 0 0 12px; padding-left: 20px; }
@@ -6213,7 +6274,7 @@
     .ev-info { position: sticky; top: calc(var(--nav-h, 86px) + 16px); display: grid; gap: 14px; }
     .ev-info h2 { margin-bottom: 2px; }
     .ev-info-row { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; align-items: start; }
-    .ev-info-row > svg { width: 20px; height: 20px; color: var(--accent); margin-top: 2px; }
+    .ev-info-row > svg { width: 20px; height: 20px; color: #FFFFFF; margin-top: 2px; }
     .ev-info-row small { display: block; font-size: 12px; opacity: .55; margin-bottom: 2px; }
     .ev-info-val { overflow-wrap: anywhere; }
     .ev-info-val a { color: inherit; }
@@ -6233,6 +6294,10 @@
     .ev-rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
     .ev-rules li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; align-items: start; overflow-wrap: anywhere; }
     .ev-rules svg { width: 18px; height: 18px; color: var(--accent); margin-top: 3px; }
+    .ev-speakers li > span { font-weight: 600; }
+    .ev-sp-link { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border-bottom: 1px solid transparent; transition: border-color .2s ease, color .2s ease; }
+    .ev-sp-link:hover, .ev-sp-link:focus-visible { color: var(--accent); border-bottom-color: currentColor; }
+    .ev-rules .ev-sp-in { width: 15px; height: 15px; margin-top: 0; opacity: .7; }
     .ev-feedback { margin-top: 18px; }
     .ev-msg { text-align: center; justify-items: center; padding-top: calc(var(--nav-h, 86px) + 70px); min-height: 50vh; align-content: start; }
     .ev-msg h1 { font-family: 'Archivo', sans-serif; font-size: clamp(30px, 5vw, 52px); margin: 0; }
@@ -6294,8 +6359,8 @@
     .cal3-day:hover { background: var(--paper); }
     .cal3-day.out { opacity: .3; }
     .cal3-day.today { box-shadow: inset 0 0 0 1.5px var(--accent); }
-    .cal3-day.selected { background: var(--accent); color: var(--on-accent, #000); }
-    .cal3-day.has::after { content: ''; position: absolute; left: 50%; bottom: 4px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--accent); }
+    .cal3-day.selected { background: var(--accent-grad); color: var(--on-accent, #000); }
+    .cal3-day.has::after { content: ''; position: absolute; left: 50%; bottom: 4px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--accent-grad); }
     .cal3-day.selected.has::after { background: var(--on-accent, #000); }
     .cal3-hint { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: var(--paper); font-size: 13px; opacity: .9; }
     .cal3-hint button { border: 0; background: none; padding: 0; color: var(--accent); font: inherit; cursor: pointer; }
@@ -6341,7 +6406,7 @@
     .story-stage.story-complete .story-switch { display: flex; width: max-content; margin: clamp(28px, 4vw, 44px) auto 0; padding: 4px; gap: 4px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--paper-soft); position: relative; z-index: 3; }
     .story-switch-btn { border: 0; border-radius: 999px; padding: 10px 26px; background: transparent; color: inherit; font: inherit; font-size: 15px; font-weight: 600; opacity: .7; cursor: pointer; transition: background .2s ease, color .2s ease, opacity .2s ease; }
     .story-switch-btn:hover { opacity: 1; }
-    .story-switch-btn.is-active { background: var(--accent); color: var(--on-accent, #000); opacity: 1; }
+    .story-switch-btn.is-active { background: var(--accent-grad); color: var(--on-accent, #000); opacity: 1; }
     .story-stage.story-complete .story-switch ~ .story-team { padding-top: 48px; }
     .story-stage.show-mission .story-team, .story-stage.show-mission .story-after-content { display: none !important; }
     .story-mission { padding-top: clamp(40px, 6vw, 80px); padding-bottom: clamp(80px, 10vw, 140px); }
@@ -6352,7 +6417,7 @@
        SPONSORLAR — sitenin geri kalanından ayrışan, beyaz zeminli kurumsal sayfa.
        Girişte noktalar düşer, çizgilerle ağa bağlanır, sponsor logosu ağın merkezinde belirir.
        ============================================================ */
-    .sp-page { background: #fff; color: #0a0a0a; --sp-accent: #F04A0F; }
+    .sp-page { background: #fff; color: #0a0a0a; --sp-accent: var(--brand-on-light); --sp-grad: var(--brand-grad); }
     .sp-hero { position: relative; min-height: calc(100svh - var(--nav-h, 86px)); overflow: hidden; display: flex; align-items: flex-start; }
     .sp-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
     /* Yazının arkasındaki ağı yumuşatan beyaz geçiş. */
@@ -6382,13 +6447,14 @@
     .sp-brand-logo { display: block; height: 26px; width: auto; }
     .sp-hero h1 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(54px, 10vw, 150px); line-height: .92; letter-spacing: -0.05em; }
     .sp-lead { margin: 14px 0 0; max-width: 34ch; font-size: clamp(16px, 1.6vw, 20px); color: #0a0a0aa6; }
-    .sp-down { pointer-events: auto; margin-top: 26px; padding: 13px 24px; border-radius: 999px; border: 1.5px solid #0a0a0a; background: #0a0a0a; color: #fff; font: inherit; font-weight: 600; cursor: pointer; transition: background .2s ease, color .2s ease, border-color .2s ease; }
-    .sp-down:hover { background: var(--sp-accent); border-color: var(--sp-accent); color: #0a0a0a; }
+    .sp-down { pointer-events: auto; margin-top: 26px; padding: 13px 24px; border-radius: 999px; border: 1.5px solid #0a0a0a; background-color: #0a0a0a; background-image: none; color: #fff; font: inherit; font-weight: 600; cursor: pointer; transition: color .2s ease, border-color .2s ease; }
+    /* Gradyan geçiş animasyonu yapılamaz; yalnızca resim değişir, zemin rengi hep koyu kalır (beyaz yanıp sönme olmaz). */
+    .sp-down:hover { background-image: var(--sp-grad); border-color: var(--sp-accent); color: var(--brand-on-accent); }
     /* Sıradaki büyük etkinlik kartı: hero'nun sol altındaki boşluğu doldurur, sponsorluk mailine götürür. */
     .sp-next { pointer-events: auto; display: grid; gap: 8px; width: min(400px, 100%); margin-top: clamp(48px, 12vh, 140px); padding: 22px 24px; border: 1px solid #0a0a0a1f; border-radius: 18px; background: #fff; color: #0a0a0a; text-decoration: none; transition: border-color .2s ease, transform .25s ease, box-shadow .25s ease; }
     .sp-next:hover { border-color: #0a0a0a; transform: translateY(-2px); box-shadow: 0 10px 30px #0a0a0a12; }
     .sp-next-kick { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #0a0a0a8c; }
-    .sp-next-kick i { width: 8px; height: 8px; background: var(--sp-accent); display: inline-block; }
+    .sp-next-kick i { width: 8px; height: 8px; background: var(--sp-grad); display: inline-block; }
     .sp-next-title { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(24px, 2.4vw, 32px); letter-spacing: -0.03em; line-height: 1.05; }
     .sp-next-meta { font-size: 14px; color: #0a0a0aa6; }
     .sp-next-meta > span { white-space: nowrap; }
@@ -6401,7 +6467,7 @@
     .sp-join-in { display: grid; justify-items: start; gap: 12px; padding-top: clamp(56px, 8vw, 110px); padding-bottom: clamp(56px, 8vw, 110px); }
     .sp-join h2 { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(32px, 5vw, 64px); letter-spacing: -0.04em; line-height: 1; }
     .sp-join p { margin: 0 0 10px; color: #0a0a0aa6; font-size: 17px; }
-    .sp-mail { display: inline-block; padding: 15px 28px; border-radius: 999px; background: var(--sp-accent); color: #0a0a0a; font-weight: 700; text-decoration: none; transition: transform .2s ease; }
+    .sp-mail { display: inline-block; padding: 15px 28px; border-radius: 999px; background: var(--sp-grad); color: var(--brand-on-accent); font-weight: 700; text-decoration: none; transition: transform .2s ease; }
     .sp-mail:hover { transform: translateY(-2px); }
     @media (max-width: 720px) {
         .sp-hub { left: 50%; top: 74%; }
@@ -6414,7 +6480,7 @@
 
     /* ---- Sponsorlar "ayrı dünya": sitenin üst menüsü ve footer'ı gizlenir, sayfanın kendi menüsü ve alt kısmı gelir ---- */
     /* Sponsorlar sayfasında site menüsü ve footer aynı kalır ama beyaz paletle: zemin beyaz, yazı siyah, turuncu vurgu. */
-    html.sp-mode[data-theme] { --ink: #0a0a0a; --paper: #FFFFFF; --paper-soft: #F6F6F4; --border: #0000001a; --border-strong: #00000030; --dot: #00000070; --dot-soft: #00000030; --accent: #F04A0F; color-scheme: light; }
+    html.sp-mode[data-theme] { --ink: #0a0a0a; --paper: #FFFFFF; --paper-soft: #F6F6F4; --border: #0000001a; --border-strong: #00000030; --dot: #00000070; --dot-soft: #00000030; --accent: var(--brand-on-light); color-scheme: light; }
     html.sp-mode .logo-img, html.sp-mode .site-footer .footer-wordmark, html.sp-mode .site-footer .footer-brand-logo { filter: none !important; }
     /* Menü yazıları açılışta karışık karakterlerden çözülür; asıl metin altta durur, üstte geçici bir katman oynar. */
     .nav-scramble { position: relative; }
@@ -6430,7 +6496,7 @@
     .nav-scramble-layer { position: absolute; left: 0; top: 0; display: flex; align-items: center; justify-content: center; white-space: nowrap; pointer-events: none; font-variant-numeric: tabular-nums; }
     .nav-scramble > .nav-scramble-text { display: inline-block; }
     html.sp-mode, html.sp-mode body { background: #fff; }
-    html.sp-mode .scroll-progress { background: #F04A0F; }
+    html.sp-mode .scroll-progress { background: var(--accent-grad); }
     .sp-nav { position: sticky; top: 0; z-index: 40; background: #ffffffe6; backdrop-filter: blur(10px); border-bottom: 1px solid #0a0a0a14; }
     .sp-nav-in { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 64px; }
     .sp-brand { display: inline-flex; align-items: center; gap: 12px; color: #0a0a0a; text-decoration: none; }
@@ -6439,7 +6505,7 @@
     .sp-brand em { font-style: normal; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: #0a0a0a8c; }
     .sp-menu { display: flex; align-items: center; gap: clamp(6px, 2vw, 22px); }
     .sp-menu button, .sp-menu a { position: relative; border: 0; background: none; padding: 8px 2px; color: #0a0a0a; font: inherit; font-size: 15px; text-decoration: none; cursor: pointer; }
-    .sp-menu button::after { content: ''; position: absolute; left: 0; right: 0; bottom: 2px; height: 2px; background: var(--sp-accent); transform: scaleX(0); transform-origin: left; transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
+    .sp-menu button::after { content: ''; position: absolute; left: 0; right: 0; bottom: 2px; height: 2px; background: var(--sp-grad); transform: scaleX(0); transform-origin: left; transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
     .sp-menu button:hover::after { transform: scaleX(1); }
     .sp-menu .sp-back { padding: 8px 16px; border-radius: 999px; border: 1px solid #0a0a0a; transition: background .2s ease, color .2s ease; }
     .sp-menu .sp-back:hover { background: #0a0a0a; color: #fff; }
@@ -6451,14 +6517,14 @@
     .sp-item { border-bottom: 1px solid #0a0a0a1f; opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .7s cubic-bezier(.2, .8, .2, 1); }
     .sp-item.is-in { opacity: 1; transform: none; }
     .sp-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto 40px; align-items: center; gap: clamp(12px, 2.5vw, 32px); padding: clamp(22px, 3vw, 34px) 12px; color: #0a0a0a; text-decoration: none; position: relative; isolation: isolate; transition: color .35s ease; }
-    .sp-row::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; z-index: -1; background: var(--sp-accent); transform: scaleY(0); transform-origin: bottom; transition: transform .4s cubic-bezier(.2, .8, .2, 1); }
+    .sp-row::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; z-index: -1; background: var(--sp-grad); transform: scaleY(0); transform-origin: bottom; transition: transform .4s cubic-bezier(.2, .8, .2, 1); }
     .sp-row::after { content: ''; position: absolute; inset: 0; z-index: -2; background: #f6f6f4; opacity: 0; transition: opacity .3s ease; }
     .sp-row:hover::after, .sp-row:focus-visible::after { opacity: 1; }
     .sp-row:hover::before, .sp-row:focus-visible::before { transform: scaleY(1); }
     .sp-idx { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 15px; color: #0a0a0a66; transition: color .35s ease; }
     .sp-row:hover .sp-idx { color: var(--sp-accent); }
     .sp-logo img { display: block; height: clamp(30px, 3.6vw, 46px); width: auto; max-width: 100%; filter: invert(1); transition: filter .35s ease; }
-    /* Renkli logolar (ör. FMJ Software'in turuncu yaprak ve noktası) olduğu gibi gösterilir. */
+    /* Renkli logolar (ör. FMJ Apps'in turuncu noktası) olduğu gibi gösterilir. */
     .sp-logo img.sp-logo-raw { filter: none; }
     .sp-name { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(24px, 3.4vw, 44px); letter-spacing: -0.035em; line-height: 1; }
     .sp-role { justify-self: end; font-size: 14px; padding: 7px 14px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; transition: color .3s ease, border-color .3s ease; }
@@ -6487,11 +6553,11 @@
        Açılışta logo jenerik gibi kurulur: önce Hackfest27, sonra UniPakt (saydamdan opağa),
        sonra el yazısı Mixit (~2,1 sn). Katmanlar aynı kareden kesildi; sonunda tam logoya geçilir.
        ============================================================ */
-    html.hf-mode[data-theme] { --ink: #F2F1EE; --paper: #0C0C0D; --paper-soft: #161618; --border: #FFFFFF1F; --border-strong: #FFFFFF33; --dot: #FFFFFF80; --dot-soft: #FFFFFF40; --accent: #FF5A1F; color-scheme: dark; }
+    html.hf-mode[data-theme] { --ink: #F2F1EE; --paper: #0C0C0D; --paper-soft: #161618; --border: #FFFFFF1F; --border-strong: #FFFFFF33; --dot: #FFFFFF80; --dot-soft: #FFFFFF40; --accent: var(--brand-on-dark); color-scheme: dark; }
     html.hf-mode, html.hf-mode body { background: #0C0C0D; }
     html.hf-mode .logo-img:not(.logo-alt), html.hf-mode .site-footer .footer-brand-logo { filter: invert(1) !important; }
     html.hf-mode .site-footer .footer-wordmark { filter: invert(1) hue-rotate(180deg) !important; }
-    html.hf-mode .scroll-progress { background: #FF5A1F; }
+    html.hf-mode .scroll-progress { background: var(--accent-grad); }
     /* ================= Tutarlılık (Ekim 2026) =================
        Taste Skill renk/çizgi kuralları: turuncu yalnız eylemde (buton, aktif menü noktası, el yazısı notlar,
        seçili/üzerine gelinen kontroller); süs amaçlı turuncu mürekkebe döner. Bölücü 1px çizgiler kalkar,
@@ -6527,6 +6593,124 @@
     .ev-count div { border-color: color-mix(in srgb, #fff 35%, transparent); }
     .ev-ended { border-color: currentColor; color: inherit; }
     .ev-fee { color: inherit; font-weight: 700; }
+    /* ---- Takvim: geçmiş etkinlikler arşivi ---- */
+    .cal-past { margin-top: clamp(40px, 6vw, 72px); display: grid; gap: 18px; }
+    .cal-past-head { display: flex; align-items: baseline; gap: 12px; }
+    .cal-past-count { font-size: 14px; opacity: .55; }
+    .cal-past-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+    .cal-past-card { display: grid; gap: 10px; color: inherit; text-decoration: none; }
+    .cal-past-img { display: grid; place-items: center; aspect-ratio: 1; border-radius: 16px; overflow: hidden; background: var(--paper-soft); border: 1px solid var(--border); }
+    .cal-past-img img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(.35); transition: filter .3s ease, transform .4s ease; }
+    .cal-past-card:hover .cal-past-img img { filter: none; transform: scale(1.03); }
+    .cal-past-date { display: grid; justify-items: center; line-height: 1; opacity: .6; }
+    .cal-past-date b { font: 900 46px/1 'Archivo', sans-serif; }
+    .cal-past-date small { margin-top: 6px; font-size: 13px; letter-spacing: .06em; }
+    .cal-past-text { display: grid; gap: 3px; }
+    .cal-past-text strong { font-size: 15px; overflow-wrap: anywhere; }
+    .cal-past-text small { font-size: 13px; opacity: .6; }
+    .cal-past-more { justify-self: center; background: transparent; color: var(--ink); border: 1px solid var(--border-strong); }
+    @media (max-width: 520px) { .cal-past-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } }
+    /* ---- Kulüp sayfası ---- */
+    .cl-hero { position: relative; isolation: isolate; overflow: hidden; color: #fff; background: #0C0C0D; text-align: center; padding: clamp(70px, 7vw, 100px) 0 clamp(40px, 5vw, 64px); }
+    .cl-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(#ffffff26 1px, transparent 1.3px) 0 0 / 18px 18px; }
+    .cl-hero-in { display: grid; justify-items: center; gap: 10px; position: relative; }
+    .cl-back { position: absolute; left: 0; top: calc(-1 * clamp(50px, 5vw, 76px)); }
+    .cl-logo { position: relative; width: clamp(96px, 12vw, 128px); height: clamp(96px, 12vw, 128px); border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: #1E1E21; border: 1px solid #ffffff2e; font: 900 clamp(40px, 5vw, 54px)/1 'Archivo', sans-serif; color: #F2F1EE; }
+    .cl-logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .cl-hero h1 { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(30px, 4.6vw, 56px); line-height: 1.05; letter-spacing: -0.03em; margin: 8px 0 0; max-width: 22ch; overflow-wrap: anywhere; }
+    .cl-sub { margin: 0; opacity: .8; font-size: clamp(14px, 1.5vw, 17px); }
+    .cl-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: clamp(18px, 3vw, 32px); align-items: start; }
+    .cl-bio { margin: 0; line-height: 1.7; white-space: pre-line; overflow-wrap: anywhere; }
+    .cl-evs { display: grid; gap: 8px; }
+    .cl-ev { display: grid; grid-template-columns: 54px minmax(0, 1fr) auto auto; gap: 14px; align-items: center; padding: 12px 14px; border-radius: 14px; background: var(--paper); color: inherit; text-decoration: none; transition: background .2s ease; }
+    .cl-ev:hover { background: color-mix(in srgb, var(--ink) 6%, var(--paper)); }
+    .cl-ev-date { display: grid; justify-items: center; line-height: 1; }
+    .cl-ev-date b { font: 800 24px/1 'Archivo', sans-serif; }
+    .cl-ev-date small { font-size: 11px; opacity: .6; margin-top: 4px; letter-spacing: .04em; }
+    .cl-ev-text { display: grid; gap: 3px; min-width: 0; }
+    .cl-ev-text strong { overflow-wrap: anywhere; }
+    .cl-ev-text small { font-size: 13px; opacity: .65; }
+    .cl-ev-tag { padding: 3px 9px; border: 1px solid var(--border-strong); border-radius: 999px; font-size: 11.5px; }
+    .cl-ev-go { opacity: .5; }
+    .cl-evs.past .cl-ev { opacity: .75; }
+    .cl-empty { margin: 0; opacity: .6; }
+    .cl-contact .club-contact-tiles { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+    .cl-contact .club-contact-tile { aspect-ratio: auto; flex-direction: row; justify-content: flex-start; text-align: left; gap: 12px; padding: 12px 14px; border-radius: 14px; display: grid; grid-template-columns: 26px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 12px; row-gap: 2px; }
+    .cl-contact .club-contact-icon { width: 24px; height: 24px; grid-row: 1 / 3; align-self: center; }
+    .cl-contact .club-contact-tile .club-contact-label { font-size: 14px; }
+    .cl-contact .club-contact-tile .club-contact-value { font-size: 13px; }
+    .cl-contact .club-contact-tile:hover { transform: none; }
+    .club-page-link { display: inline-flex; gap: 6px; margin-top: 14px; font-weight: 600; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+    @media (max-width: 860px) { .cl-grid { grid-template-columns: minmax(0, 1fr); } }
+    /* ---- Kulüp sayfası tasarımı (kulübün panelde seçtiği; boşsa yukarıdaki varsayılan) ---- */
+    .cl-hero { color: var(--cl-ink, #fff); }
+    .cl-hero::before { content: ''; position: absolute; inset: 0; z-index: -2; background: var(--cl-banner, none) center / cover no-repeat; display: none; }
+    .cl-hero.cl-has-banner, .cl-hero.cl-bg-clear, .cl-hero.cl-bg-blur { padding-top: clamp(110px, 12vw, 170px); }
+    .cl-hero.cl-has-banner::before, .cl-hero.cl-bg-clear::before, .cl-hero.cl-bg-blur::before { display: block; }
+    .cl-hero.cl-has-banner::after { background: radial-gradient(#ffffff30 1px, transparent 1.3px) 0 0 / 18px 18px, rgba(0, 0, 0, .62); }
+    .cl-hero.cl-bg-clear::after { background: linear-gradient(180deg, rgba(0, 0, 0, .12) 0%, rgba(0, 0, 0, .7) 100%); }
+    .cl-hero.cl-bg-blur::before { filter: blur(38px) saturate(1.35); transform: scale(1.25); }
+    .cl-hero.cl-bg-blur::after { background: radial-gradient(#ffffff26 1px, transparent 1.3px) 0 0 / 18px 18px, rgba(0, 0, 0, .42); }
+    .cl-hero.cl-bg-color { background: var(--cl-bgc); }
+    .cl-hero.cl-bg-gradient { background: linear-gradient(135deg, var(--cl-bgc) 0%, var(--cl-grad2) 100%); }
+    .cl-hero.cl-bg-color::after, .cl-hero.cl-bg-gradient::after { background: radial-gradient(color-mix(in srgb, var(--cl-ink) 20%, transparent) 1px, transparent 1.3px) 0 0 / 18px 18px; }
+    .cl-hero.cl-hero-light .cl-back { color: #0C0C0D; background: rgba(255, 255, 255, .45); border-color: rgba(0, 0, 0, .2); }
+    .cl-hero.cl-title-left { text-align: left; }
+    .cl-hero.cl-title-left .cl-hero-in { justify-items: start; }
+    .cl-hero.cl-title-left h1 { font-size: clamp(36px, 6vw, 78px); max-width: 16ch; }
+    .cl-hero.cl-title-compact h1 { font-size: clamp(24px, 3.2vw, 40px); font-weight: 800; letter-spacing: -0.02em; }
+    .cl-hero.cl-title-outline h1 { color: transparent; -webkit-text-stroke: clamp(1px, .14vw, 2px) var(--cl-ink, #fff); }
+    @supports not (-webkit-text-stroke: 1px #fff) { .cl-hero.cl-title-outline h1 { color: inherit; } }
+    .cl-hero.cl-title-caps h1 { text-transform: uppercase; font-weight: 800; letter-spacing: .05em; font-size: clamp(24px, 3.8vw, 48px); }
+    .cl-hero.cl-title-hand h1 { font-family: 'Caveat', cursive; font-weight: 700; letter-spacing: 0; line-height: 1; font-size: clamp(44px, 6.6vw, 86px); }
+    .cl-skin.has-acc .cl-logo { border: 3px solid var(--ev-acc-read); }
+    .cl-skin.has-acc .cl-ev-date b, .cl-skin.has-acc .cl-ev:hover .cl-ev-go { color: var(--ev-acc-read); opacity: 1; }
+    .cl-skin.has-acc .cl-ev:hover { box-shadow: inset 3px 0 0 var(--ev-acc-read); }
+    .cl-skin.has-acc .cl-ev-tag { border-color: var(--ev-acc-read); color: var(--ev-acc-read); }
+    .cl-skin.has-acc .cl-contact .club-contact-icon { color: var(--ev-acc-read); }
+    .cl-skin.has-acc .cl-contact .club-contact-tile:hover { border-color: var(--ev-acc-read); }
+    /* ---- Etkinlik sayfası tasarımı (kulübün panelde seçtiği; boşsa yukarıdaki varsayılan) ---- */
+    .ev-org-line { display: inline-flex; align-items: center; gap: 10px; }
+    .ev-org-logo { width: 32px; height: 32px; flex: none; border-radius: 50%; object-fit: cover; background: var(--paper); border: 1px solid var(--border-strong); }
+    /* Kulübün vurgu rengi bu sayfadaki (ve kayıt penceresindeki) bütün düğme ve vurgulu yazılara geçer.
+       --ev-acc-read: koyu zeminde okunacak kadar açılmış hâli (designAttrs hesaplar). */
+    .ev-skin.has-acc { --accent: var(--ev-acc-read); --accent-grad: linear-gradient(var(--ev-acc-read), var(--ev-acc-read)); --on-accent: var(--ev-on-acc-read); --hf-acc: var(--ev-acc-read); }
+    .ev-skin.has-acc .ev-bar, .ev-skin.has-acc .ev-detail h2::before, .ev-skin.has-acc .ev-card h2::before { background: var(--ev-acc-read); }
+    .ev-skin.has-acc .ev-count div { border-color: var(--ev-acc-read); }
+    .ev-skin.has-acc .ev-ticket { border-color: color-mix(in srgb, var(--ev-acc-read) 60%, transparent); }
+    .ev-skin.has-acc .ev-cta { background: var(--ev-acc-read); border-color: var(--ev-acc-read); color: var(--ev-on-acc-read); }
+    .ev-skin.has-acc .ev-act:hover, .ev-skin.has-acc .ev-social a:hover, .ev-skin.has-acc .ev-back-top:hover { border-color: var(--ev-acc-read); color: inherit; }
+    .ev-skin.has-acc .ev-org:hover, .ev-skin.has-acc .ev-sp-link:hover { color: inherit; text-decoration-color: var(--ev-acc-read); border-bottom-color: var(--ev-acc-read); }
+    .ev-skin.has-acc .ev-org-logo { border-color: var(--ev-acc-read); }
+    .ev-skin.has-acc .btn-pill.ghost, .ev-skin.has-acc .ev-ticket .btn-pill.ghost { border-color: var(--ev-acc-read); color: var(--ev-acc-read); }
+    /* Etkinlik bilgilerindeki ikonlar her zaman beyaz (kulübün rengi koyuysa kaybolmasın). */
+    .ev-info-row > svg, .ev-rules svg { color: #FFFFFF; opacity: .9; }
+    .ev-hero { color: var(--ev-hero-ink, #fff); }
+    /* Arka plan: görsel net */
+    .ev-hero.ev-bg-clear::after { background: linear-gradient(180deg, rgba(0, 0, 0, .18) 0%, rgba(0, 0, 0, .62) 100%); }
+    /* Arka plan: afişten bulanık */
+    .ev-hero.ev-bg-blur::before, .ev-hero.ev-bg-blur.is-placeholder::before { background-image: var(--ev-poster, var(--ev-hero)); filter: blur(38px) saturate(1.35); transform: scale(1.25); }
+    .ev-hero.ev-bg-blur::after { background: rgba(0, 0, 0, .42); }
+    /* Arka plan: düz renk / renk geçişi */
+    .ev-hero.ev-bg-color { background: var(--ev-bgc); }
+    .ev-hero.ev-bg-gradient { background: linear-gradient(135deg, var(--ev-bgc) 0%, var(--ev-grad2) 100%); }
+    .ev-hero.ev-bg-color::before, .ev-hero.ev-bg-gradient::before { display: none; }
+    .ev-hero.ev-bg-color::after, .ev-hero.ev-bg-gradient::after { background: radial-gradient(color-mix(in srgb, var(--ev-hero-ink) 20%, transparent) 1px, transparent 1.3px) 0 0 / 18px 18px; }
+    .ev-hero.ev-hero-light .ev-count div { border-color: color-mix(in srgb, #0C0C0D 30%, transparent); background: rgba(255, 255, 255, .35); }
+    .ev-skin.has-acc .ev-hero.ev-hero-light .ev-count div { border-color: var(--ev-acc); }
+    .ev-hero.ev-hero-light .ev-back-top { color: #0C0C0D; background: rgba(255, 255, 255, .45); border-color: rgba(0, 0, 0, .2); }
+    .ev-hero.ev-hero-light .ev-bar { background: #0C0C0D; }
+    .ev-skin.has-acc .ev-hero.ev-hero-light .ev-bar { background: var(--ev-acc); }
+    /* Başlık stilleri */
+    .ev-hero.ev-title-left { text-align: left; }
+    .ev-hero.ev-title-left .ev-hero-in { justify-items: start; }
+    .ev-hero.ev-title-left .ev-hero-meta { justify-content: flex-start; }
+    .ev-hero.ev-title-left h1 { font-size: clamp(36px, 6vw, 78px); max-width: 16ch; }
+    .ev-hero.ev-title-compact h1 { font-size: clamp(24px, 3.2vw, 40px); font-weight: 800; letter-spacing: -0.02em; max-width: 32ch; }
+    .ev-hero.ev-title-outline h1 { color: transparent; -webkit-text-stroke: clamp(1px, .14vw, 2px) var(--ev-hero-ink, #fff); }
+    @supports not (-webkit-text-stroke: 1px #fff) { .ev-hero.ev-title-outline h1 { color: inherit; } }
+    .ev-hero.ev-title-caps h1 { text-transform: uppercase; font-weight: 800; letter-spacing: .05em; font-size: clamp(24px, 3.8vw, 48px); max-width: 26ch; }
+    .ev-hero.ev-title-hand h1 { font-family: 'Caveat', cursive; font-weight: 700; letter-spacing: 0; line-height: 1; font-size: clamp(44px, 6.6vw, 86px); }
     .ev-md a, .ev-map, .club-details-empty a, .kampus-selected-card .club-contact a, .club-contact-go,
     .outside-istanbul-back, .minimal-form .outside-istanbul-back, .minimal-form .university-results .university-city-action, .cal3-hint button { color: var(--ink) !important; text-decoration: underline; text-underline-offset: 3px; }
     .cal3-chip, .site-cal-v2-filter-chip { border-color: var(--border-strong); color: var(--ink); }
@@ -6569,7 +6753,7 @@
        ad (jenerik logo) anıt gibi büyük, sonrası sakin; etiket/numara/çizgi/gradyan/gölge yok,
        bölümler zemin tonuyla ayrılır, her bölüm kendi başlığıyla açılır ve komşusundan farklı dizilir. */
     .hf-page {
-        --hf-acc: #FF5A1F; --hf-dark: #0C0C0D; --hf-dark-2: #161618; --hf-light: #F2F1EE; --hf-ink: #0C0C0D;
+        --hf-acc: var(--brand-on-dark); --hf-grad: var(--brand-grad); --hf-dark: #0C0C0D; --hf-dark-2: #161618; --hf-light: #F2F1EE; --hf-ink: #0C0C0D;
         --hf-soft-d: #FFFFFFB8; --hf-soft-l: #0A0A0BB3;
         --hf-m: clamp(20px, 5vw, 64px);
         --hf-gap: clamp(28px, 5vw, 96px);
@@ -6600,11 +6784,11 @@
     .hf-stage.hf-done .hf-l-hack, .hf-stage.hf-done .hf-l-uni, .hf-stage.hf-done .hf-l-mix, .hf-stage.hf-done .hf-l-star { opacity: 0; animation: hfPartsOut .7s ease-out both; }
     /* Yıldız 27'nin arkasından, görünmezden görünüre süzülerek çıkar (katman olarak 27'nin altında). */
     @keyframes hfStar {
-        0% { opacity: 0; transform: translateX(-7%) scale(.7); filter: drop-shadow(0 0 0 #ff5a1f00); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
-        60% { opacity: 1; filter: drop-shadow(0 0 14px #ff5a1f99); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
-        100% { opacity: 1; transform: none; filter: drop-shadow(0 0 4px #ff5a1f55); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+        0% { opacity: 0; transform: translateX(-7%) scale(.7); filter: drop-shadow(0 0 0 color-mix(in srgb, var(--brand-on-dark) 0%, transparent)); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+        60% { opacity: 1; filter: drop-shadow(0 0 14px color-mix(in srgb, var(--brand-on-dark) 60%, transparent)); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+        100% { opacity: 1; transform: none; filter: drop-shadow(0 0 4px color-mix(in srgb, var(--brand-on-dark) 33%, transparent)); } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
     }
-    @keyframes hfFullIn { 0% { opacity: 0; filter: drop-shadow(0 0 0 #ff5a1f00) brightness(1.12); } 45% { opacity: 1; filter: drop-shadow(0 0 22px #ff5a1f55) brightness(1.06); } 100% { opacity: 1; filter: drop-shadow(0 0 0 #ff5a1f00) brightness(1); } } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
+    @keyframes hfFullIn { 0% { opacity: 0; filter: drop-shadow(0 0 0 color-mix(in srgb, var(--brand-on-dark) 0%, transparent)) brightness(1.12); } 45% { opacity: 1; filter: drop-shadow(0 0 22px color-mix(in srgb, var(--brand-on-dark) 33%, transparent)) brightness(1.06); } 100% { opacity: 1; filter: drop-shadow(0 0 0 color-mix(in srgb, var(--brand-on-dark) 0%, transparent)) brightness(1); } } /* taste-skill-ignore: jenerik logonun onaylı parıltısı (marka animasyonu) */
     @keyframes hfPartsOut { from { opacity: 1; } to { opacity: 0; } }
     @media (prefers-reduced-motion: reduce) { .hf-stage.hf-done .hf-l { animation: none; } }
     @keyframes hfHack {
@@ -6622,7 +6806,7 @@
     .hf-strip-in { display: flex; align-items: center; justify-content: space-between; gap: 18px 40px; flex-wrap: wrap; padding-top: clamp(24px, 3vw, 40px); padding-bottom: clamp(26px, 3vw, 42px); }
     .hf-date { margin: 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: var(--hf-h2); line-height: 1.02; letter-spacing: -0.035em; text-wrap: balance; }
     .hf-place { margin: 10px 0 0; max-width: 60ch; font-size: var(--hf-body); line-height: 1.5; color: var(--hf-soft-d); }
-    .hf-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 28px; border-radius: 999px; background: var(--hf-acc); color: var(--hf-ink); font-weight: 700; font-size: var(--hf-body); text-decoration: none; transition: background .2s ease, color .2s ease, transform .2s ease; }
+    .hf-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 28px; border-radius: 999px; background: var(--hf-grad); color: var(--brand-on-accent); font-weight: 700; font-size: var(--hf-body); text-decoration: none; transition: background .2s ease, color .2s ease, transform .2s ease; }
     .hf-btn:hover, .hf-btn:focus-visible { background: #fff; color: var(--hf-ink); transform: translateY(-2px); }
     .hf-btn:active { transform: translateY(0) scale(.98); }
 
@@ -6631,7 +6815,7 @@
     .hf-dark { background: var(--hf-dark); color: #fff; }
     .hf-dark + .hf-dark { background: var(--hf-dark-2); }
     .hf-light { background: var(--hf-light); color: var(--hf-ink); }
-    .hf-accent { background: var(--hf-acc); color: var(--hf-ink); }
+    .hf-accent { background: var(--hf-grad); color: var(--brand-on-accent); }
     .hf-h { margin: 0; max-width: 18ch; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: var(--hf-h2); line-height: 1.02; letter-spacing: -0.035em; text-wrap: balance; }
     .hf-lead { margin: 24px 0 0; max-width: 56ch; font-size: var(--hf-lead); line-height: 1.5; }
     .hf-text { margin: 24px 0 0; max-width: 62ch; font-size: var(--hf-body); line-height: 1.6; }
@@ -6832,7 +7016,7 @@
     .mx-strips[style*="height"] { bottom: auto; }
     .mx-strip { position: absolute; left: 50%; width: 190vmax; margin-left: -95vmax; height: clamp(76px, 13svh, 150px); display: flex; align-items: center; overflow: hidden; }
     .mx-strip span { display: block; white-space: nowrap; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(44px, 8.4svh, 104px); line-height: 1; letter-spacing: -0.04em; text-transform: uppercase; will-change: transform; }
-    .mx-s-acc { background: var(--hf-acc); color: var(--hf-ink); }
+    .mx-s-acc { background: var(--hf-grad); color: var(--brand-on-accent); }
     .mx-s-paper { background: var(--hf-light); color: var(--hf-ink); }
     .mx-s-ink { background: #1D1D20; color: #fff; }
     /* Son şerit: ortaya gelip dikilir; yazısı yukarı akar */
@@ -6881,6 +7065,8 @@
         .hf-pano img { transform: none; }
     }
     </style>
+    <meta name="unipakt-theme-baked" content="#8F244D,#A94B86|135">
+    <script src="/theme.js?v=1"></script>
 </head>
 <body>
     <script>
@@ -6984,6 +7170,7 @@
             <!-- Nedir bu pakt? -->
             <div class="section">
                 <div class="wrap">
+                    <p class="impact-slogan what-slogan script" data-reveal>What the pakt?</p>
                     <h2 class="what-title" data-reveal>Nedir bu pakt?</h2>
                     <div class="what-split">
                         <div class="fragment-stack" data-reveal-stagger>
@@ -7426,7 +7613,7 @@
             <div class="sp-hero" id="spHero">
                 <canvas class="sp-canvas" id="spCanvas" aria-hidden="true"></canvas>
                 <div class="wrap sp-hero-text">
-                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><img class="sp-logo-img sp-wordmark" src="/unipakt-logo-bg.png?v=3" alt="" aria-hidden="true"></p>
+                    <p class="sp-kicker" id="spKicker"><img class="sp-logo-img" id="spKickLogo" alt="UniPakt"><img data-tint="unipakt-logo-bg" class="sp-logo-img sp-wordmark" src="/unipakt-logo-bg.png?v=5" alt="" aria-hidden="true"></p>
                     <h1>Sponsorlar</h1>
                     <p class="sp-lead">UniPakt ağındaki etkinlikleri destekleyen kurumlar.</p>
                     <button type="button" class="sp-down" data-sp-down>Sponsor ol ↓</button>
@@ -7447,7 +7634,7 @@
                     <li class="sp-item">
                         <a class="sp-row" href="https://fmjapps.com" target="_blank" rel="noopener noreferrer sponsored">
                             <span class="sp-idx" data-no-i18n>01</span>
-                            <span class="sp-logo"><img class="sp-logo-raw" src="/sponsors/fmj-software.png" alt="FMJ Software" width="1200" height="197" loading="lazy" decoding="async"></span>
+                            <span class="sp-logo"><img class="sp-logo-raw" src="/sponsors/fmj-apps.png" alt="FMJ Apps" width="1758" height="354" loading="lazy" decoding="async"></span>
                             <span class="sp-role">Yazılım Sponsoru</span>
                             <span class="sp-arrow" aria-hidden="true">↗</span>
                         </a>
@@ -7476,11 +7663,11 @@
             <div class="hf-hero" id="hfHero">
                 <a class="hf-back" href="/sponsorlar/" data-route="sponsorlar">← Sponsorlar</a>
                 <div class="hf-stage" id="hfStage" role="img" aria-label="UniPakt HACKFEST27 MIXIT">
-                    <img class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp" alt="" width="1375" height="505" decoding="async">
+                    <img data-tint="logo-full" class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                    <img data-tint="logo-star" class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                    <img data-tint="logo-hackfest" class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                    <img data-tint="logo-unipakt" class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                    <img data-tint="logo-mixit" class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp?v=3" alt="" width="1375" height="505" decoding="async">
                 </div>
                 <div class="hf-strip">
                     <div class="hf-wrap hf-strip-in">
@@ -7706,7 +7893,7 @@
                     </div>
                     <div class="hf-close" data-reveal>
                         <a class="hf-btn" href="mailto:sponsorluk@unipakt.com?subject=HACKFEST27%3A%20MIXIT%20Sponsorlu%C4%9Fu">Sponsor olmak için yaz</a>
-                        <p><img src="/unipakt-logo-bg-white.png?v=3" alt="UniPakt" width="885" height="208" loading="lazy"><span>6–7 Mart 2027 · İstanbul Kongre Merkezi</span></p>
+                        <p><img data-tint="unipakt-logo-bg-white" src="/unipakt-logo-bg-white.png?v=5" alt="UniPakt" width="885" height="208" loading="lazy"><span>6–7 Mart 2027 · İstanbul Kongre Merkezi</span></p>
                     </div>
                 </div>
             </section>
@@ -7720,11 +7907,11 @@
         <section class="page hf-page mx-page" id="page-mixit" data-page="mixit">
             <div class="hf-hero mx-hero">
                 <div class="hf-stage" role="img" aria-label="UniPakt HACKFEST27 MIXIT">
-                    <img class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp" alt="" width="1375" height="505" decoding="async">
-                    <img class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp" alt="" width="1375" height="505" decoding="async">
+                    <img data-tint="logo-full" class="hf-l hf-l-full" src="/hackfest-media/logo-full.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                    <img data-tint="logo-star" class="hf-l hf-l-star" src="/hackfest-media/logo-star.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                    <img data-tint="logo-hackfest" class="hf-l hf-l-hack" src="/hackfest-media/logo-hackfest.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                    <img data-tint="logo-unipakt" class="hf-l hf-l-uni" src="/hackfest-media/logo-unipakt.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                    <img data-tint="logo-mixit" class="hf-l hf-l-mix" src="/hackfest-media/logo-mixit.webp?v=3" alt="" width="1375" height="505" decoding="async">
                 </div>
                 <h1 class="mx-sr">HACKFEST27: MIXIT, 6–7 Mart 2027, İstanbul Kongre Merkezi</h1>
                 <p class="mx-cue" aria-hidden="true">Kaydır <b>↓</b></p>
@@ -7735,8 +7922,8 @@
                     <div class="mx-end" id="mxEnd">
                         <div class="mx-end-top">
                             <span class="mx-end-logo" role="img" aria-label="HACKFEST27 MIXIT">
-                                <img src="/hackfest-media/logo-full-nostar.webp" alt="" width="1375" height="505" decoding="async">
-                                <img class="mx-end-star" src="/hackfest-media/logo-star.webp" alt="" width="1375" height="505" decoding="async">
+                                <img data-tint="logo-full-nostar" src="/hackfest-media/logo-full-nostar.webp?v=3" alt="" width="1375" height="505" decoding="async">
+                                <img data-tint="logo-star" class="mx-end-star" src="/hackfest-media/logo-star.webp?v=3" alt="" width="1375" height="505" decoding="async">
                             </span>
                             <p class="mx-end-meta">6–7 Mart 2027<br>İstanbul Kongre Merkezi</p>
                         </div>
@@ -8044,11 +8231,15 @@
             </div>
         </section>
 
+        <section class="page" id="page-kulup" data-page="kulup">
+            <div class="cl-page" id="clubPage"></div>
+        </section>
+
         <section class="page" id="page-kvkk" data-page="kvkk">
             <div class="section field-alt" style="padding-top: clamp(90px, 12vw, 130px);">
                 <article class="wrap legal">
                     <h1>KVKK Aydınlatma Metni</h1>
-                    <p class="legal-meta">Kişisel Verilerin İşlenmesine İlişkin Aydınlatma Metni · Son güncelleme: 13 Ekim 2026</p>
+                    <p class="legal-meta">Kişisel Verilerin İşlenmesine İlişkin Aydınlatma Metni · Son güncelleme: 31 Ekim 2026</p>
 
                     <h2>1. Veri Sorumlusu</h2>
                     <p>UniPakt, tüzel kişiliği bulunmayan bir öğrenci topluluğudur. 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında kişisel verileriniz, topluluğu yürüten Mehmet Emin Soyal tarafından veri sorumlusu sıfatıyla işlenir.</p>
@@ -8071,8 +8262,11 @@
                                 <tr><td>Destek talepleri (panel)</td><td>Talep konusu, mesajlar ve talebe eklenen dosyalar</td></tr>
                                 <tr><td>Görev kanıtları (panel)</td><td>Görevin yapıldığını gösteren dosyalar. Bu dosyalar fotoğraf ve fotoğraflarda görünen kişileri içerebilir.</td></tr>
                                 <tr><td>Etkinlik bilgileri (panel)</td><td>Etkinlik adı, açıklaması, tarihi, yeri, düzenleyen kulüp ve etkinlik afişleri</td></tr>
+                                <tr><td>Etkinlik kayıt formu</td><td>Ad soyad, e-posta adresi, etkinliği düzenleyen kulübün sorduğu sorulara verilen cevaplar, hatırlatma e-postası tercihi ve etkinlik girişinde kontrolün yapıldığı zaman</td></tr>
+                                <tr><td>Etkinlik görevlileri (panel)</td><td>Etkinlik girişinde kontrol yapan görevlinin adı soyadı ve e-posta adresi</td></tr>
+                                <tr><td>Kulüp ekibi hesapları (panel)</td><td>Kulüp başkanının panele davet ettiği ekip üyesinin adı soyadı, e-posta adresi, kulüpteki rolü ve panel yetkileri</td></tr>
                                 <tr><td>The Story bölümü</td><td>Ekip üyelerinin adı soyadı, fotoğrafı, görevi ve iletişim bilgileri (e-posta, LinkedIn)</td></tr>
-                                <tr><td>Ortak Kulüpler listesi</td><td>Kulübün adı, üniversitesi, kategorisi ve kulübün yayınlanmasına izin verdiği iletişim bilgileri (e-posta, sosyal medya hesapları, web sitesi)</td></tr>
+                                <tr><td>Ortak Kulüpler listesi ve kulüp sayfaları</td><td>Kulübün adı, üniversitesi, kategorisi, panelde eklediği logo ve kısa tanıtım yazısı, düzenlediği etkinlikler ve kulübün yayınlanmasına izin verdiği iletişim bilgileri (e-posta, sosyal medya hesapları, web sitesi)</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -8086,6 +8280,8 @@
                         <li>Kulüp başkanı hesaplarını oluşturmak, kimliği doğrulamak ve panele erişimi sağlamak</li>
                         <li>Panel üzerinden etkinlik ve duyuru başvurularını yönetmek ve onay süreçlerini yürütmek</li>
                         <li>Destek taleplerini yanıtlamak, görevlerin yapıldığını doğrulamak ve etkinlikleri afişleriyle birlikte sitede duyurmak</li>
+                        <li>Etkinliklere kayıt almak, kayıt olan kişiye giriş kodu vermek, etkinlik girişinde kontrol yapmak ve kayıtları etkinliği düzenleyen kulübe iletmek</li>
+                        <li>Etkinliği düzenleyen kulüp seçtiyse, kayıt olan kişiye etkinlikten önce (1 gün ya da 2 saat önce) hatırlatma e-postası göndermek. Hatırlatma yalnızca kayıt formundaki “Etkinlikten önce hatırlatma e-postası almak istiyorum” kutusunu işaretleyen kişiye gönderilir; kişi hatırlatma e-postasındaki “hatırlatmaları kapat” bağlantısıyla dilediği zaman vazgeçebilir. Hatırlatma e-postaları tanıtım ya da reklam içermez.</li>
                         <li>The Story bölümünde UniPakt ekibini tanıtmak</li>
                         <li>Ortak kulüplerin iletişim bilgilerini, kulübün izniyle sitede yayınlamak</li>
                         <li>Sitenin ve panelin güvenliğini sağlamak, yetkisiz erişimi ve kötüye kullanımı önlemek</li>
@@ -8094,7 +8290,7 @@
                     <h2>4. İşlemenin Hukuki Sebebi</h2>
                     <p>Verileriniz KVKK m.5 uyarınca şu hukuki sebeplere dayanılarak işlenir:</p>
                     <ul>
-                        <li><strong>m.5/2-c:</strong> Bir sözleşmenin kurulması veya ifasıyla doğrudan ilgili olması kaydıyla; UniPakt üyeliği kapsamında kulüp başkanı hesabının açılması, panel kullanımı ve panelde paylaşılan yetkili adı, destek talepleri ve ekleri, görev kanıtları ile etkinlik bilgileri ve afişleri için.</li>
+                        <li><strong>m.5/2-c:</strong> Bir sözleşmenin kurulması veya ifasıyla doğrudan ilgili olması kaydıyla; UniPakt üyeliği kapsamında kulüp başkanı ve başkanın davet ettiği ekip üyesi hesaplarının açılması, panel kullanımı ve panelde paylaşılan yetkili adı, destek talepleri ve ekleri, görev kanıtları ile etkinlik bilgileri ve afişleri için; ayrıca etkinlik kaydınızın alınması, bilet ve kulübün seçtiği hatırlatma e-postalarının gönderilmesi ve etkinlik girişinde kontrol edilmesi için.</li>
                         <li><strong>m.5/2-f:</strong> İlgili kişinin temel hak ve özgürlüklerine zarar vermemek kaydıyla veri sorumlusunun meşru menfaati için; mesajların yanıtlanması, başvuruların değerlendirilmesi, etkinliklerin sitede duyurulması ve güvenliğin sağlanması için.</li>
                         <li><strong>m.5/1 (açık rıza):</strong> The Story bölümündeki ekip fotoğrafları ve iletişim bilgileri, ekip üyelerinin açık rızasıyla; kulüp iletişim bilgileri, kulübün açık rızasıyla sitede yayınlanır. Rıza kayıt altına alınır ve her zaman geri çekilebilir; geri çekildiğinde ilgili bilgiler yayından kaldırılır.</li>
                     </ul>
@@ -8104,20 +8300,22 @@
                     <p>Verileriniz yalnızca hizmetin sunulması için gerektiği kadar aşağıdaki hizmet sağlayıcılara aktarılır:</p>
                     <ul>
                         <li><strong>Supabase (veri tabanı, kimlik doğrulama ve dosya depolama):</strong> Verileriniz Supabase'in Almanya'nın Frankfurt şehrindeki sunucularında saklanır.</li>
-                        <li><strong>Resend (bildirim e-postaları):</strong> Bildirim gönderilen kulüp ve yönetici hesaplarının e-posta adresleri ile bildirimlerin içeriği Resend'e iletilir. Resend, Amerika Birleşik Devletleri merkezli bir şirkettir; bu veriler AWS altyapısıyla korunan ABD, İrlanda, Brezilya ve Japonya'daki sunucularda saklanır. İletişim ve Bize Katıl formlarına girdiğiniz bilgiler Resend'e aktarılmaz; yalnızca yeni bir mesaj geldiğini bildiren, kişisel veri içermeyen bir e-posta gönderilir.</li>
+                        <li><strong>Resend (bildirim e-postaları):</strong> Bildirim gönderilen kulüp ve yönetici hesaplarının e-posta adresleri ile bildirimlerin içeriği Resend'e iletilir. Resend, Amerika Birleşik Devletleri merkezli bir şirkettir; bu veriler AWS altyapısıyla korunan ABD, İrlanda, Brezilya ve Japonya'daki sunucularda saklanır. İletişim ve Bize Katıl formlarına girdiğiniz bilgiler Resend'e aktarılmaz; yalnızca yeni bir mesaj geldiğini bildiren, kişisel veri içermeyen bir e-posta gönderilir. Etkinlik görevlilerine, giriş kontrol sayfasının bağlantısını ve erişim kodunu içeren e-posta da Resend üzerinden gönderilir; bu e-postada görevlinin adı, e-posta adresi ve etkinliğin bilgileri bulunur. Etkinliğe kayıt olanlara gönderilen doğrulama kodu, bilet (giriş kodu ve QR), bekleme listesi, yer teklifi, hatırlatma ve kayıt iptali e-postaları için de kişinin adı, e-posta adresi ve etkinliğin bilgileri Resend'e iletilir.</li>
                         <li><strong>GitHub Pages (site barındırma):</strong> Site, GitHub'ın ABD merkezli GitHub Pages hizmetiyle yayınlanır. Siteyi açtığınızda IP adresi ve tarayıcı bilgisi gibi bağlantı verileri, sayfanın size iletilmesi için GitHub tarafından işlenir.</li>
                     </ul>
                     <p>Sitenin yazı tipleri sitenin kendisinden yüklenir; Google Fonts gibi üçüncü taraf bir yazı tipi hizmeti kullanılmaz.</p>
                     <p>Bu hizmet sağlayıcıların sunucuları yurt dışında olduğu için verileriniz yurt dışına aktarılmış olur.</p>
-                    <p>Yasal bir zorunluluk bulunmadıkça verileriniz, bu hizmet sağlayıcılar dışında başka üçüncü kişilerle paylaşılmaz.</p>
+                    <p>Etkinlik kayıt formuyla verdiğiniz bilgiler yalnızca etkinliği düzenleyen kulüple paylaşılır: kulübün panel hesabı kayıtları görür, kulübün yetki verdiği giriş görevlileri ise yalnızca giriş kontrolü sırasında adınızı ve kaydınızın geçerli olup olmadığını görür.</p>
+                    <p>Yasal bir zorunluluk bulunmadıkça verileriniz, bu hizmet sağlayıcılar ve etkinliği düzenleyen kulüp dışında başka üçüncü kişilerle paylaşılmaz.</p>
 
                     <h2>6. Saklama Süresi ve Güvenlik Tedbirleri</h2>
                     <p>Verileriniz, işleme amacının gerektirdiği süre boyunca saklanır. Süre dolunca ya da talebiniz üzerine silinir, yok edilir veya anonim hale getirilir.</p>
-                    <p>Site formlarından gelen mesajlar en geç 12 ay sonra otomatik olarak silinir. Panel hesabı verileri hesap silinene kadar, kulüp iletişim bilgileri rıza geri çekilene kadar saklanır.</p>
+                    <p>Site formlarından gelen mesajlar en geç 12 ay sonra otomatik olarak silinir. Panel hesabı verileri hesap silinene kadar, panelde yapılan işlemlerin kaydı (kimin ne zaman ne yaptığı) 6 ay, kulüp iletişim bilgileri rıza geri çekilene kadar saklanır.</p>
+                    <p>Etkinlik kayıtları, etkinliğin bitişinden 6 ay sonra otomatik olarak silinir. Görevlilere gönderilen giriş kontrol bağlantıları etkinlik bitince geçersiz olur ve 30 gün sonra silinir; görevli listesi, kulüp görevliyi listeden çıkarana kadar saklanır.</p>
                     <p>KVKK m.12 uyarınca verilerin hukuka aykırı işlenmesini ve erişilmesini önlemek için teknik ve idari tedbirler alınır:</p>
                     <ul>
                         <li>Veri iletimi şifreli bağlantı (HTTPS) üzerinden yapılır.</li>
-                        <li>Veri tabanına erişim, yetkiye dayalı kurallarla sınırlandırılır; kulüp başkanı hesapları şifre ile korunur.</li>
+                        <li>Veri tabanına erişim, yetkiye dayalı kurallarla sınırlandırılır; kulüp başkanı ve ekip üyesi hesapları şifre ile korunur; ekip üyeleri yalnızca başkanın verdiği yetkileri kullanabilir.</li>
                         <li>Verilere yalnızca görevi gereği erişmesi gereken kişiler erişebilir.</li>
                     </ul>
 
@@ -8138,7 +8336,7 @@
                     <h2>8. Başvuru Yöntemi</h2>
                     <p>Yukarıdaki haklarınızı kullanmak için taleplerinizi <a href="mailto:iletisim@unipakt.com">iletisim@unipakt.com</a> adresine, bize daha önce bildirdiğiniz e-posta adresinizden gönderebilirsiniz. Talebinizde kimliğinizi ve talep konusunu açıkça belirtmeniz gerekir.</p>
                     <p>Taleplerinizi en geç otuz gün içinde yanıtlarız. Yanıtı yetersiz bulursanız ya da süresinde yanıt alamazsanız, Kişisel Verileri Koruma Kurulu'na şikayet hakkınız saklıdır.</p>
-                    <p>Bu metin, 13 Ekim 2026 tarihinde güncellenmiştir ve gerektiğinde yeniden güncellenebilir.</p>
+                    <p>Bu metin, 31 Ekim 2026 tarihinde güncellenmiştir ve gerektiğinde yeniden güncellenebilir.</p>
                     <p class="legal-meta">Bu metin Türkçe hazırlanmıştır. Çeviriler yalnızca bilgi amaçlıdır; çeviri ile Türkçe metin arasında farklılık olması halinde Türkçe metin esas alınır.</p>
                 </article>
             </div>
@@ -8264,6 +8462,7 @@
         if (!Array.isArray(rows))
             return null;
         return rows.filter(r => r && r.visible !== false && clubText(r.name) && clubText(r.university)).slice(0, 500).map(r => ({
+            id: /^[0-9a-f-]{36}$/i.test(String(r.id || '')) ? String(r.id).toLowerCase() : '',
             name: clubText(r.name, 120),
             uni: clubText(r.university, 120),
             cat: clubText(r.category, 40),
@@ -8409,7 +8608,8 @@
             text: UNIPAKT_EMAIL
         }, false);
         const note = rows.length ? '' : '<p class="club-contact-note">Kulübün iletişim bilgileri henüz eklenmedi, UniPakt üzerinden ulaşabilirsin.</p>';
-        return `<div class="club-contact-title">İletişim</div><div class="club-contact-tiles">${tiles}</div>${note}`;
+        const page = c.id ? `<a class="club-page-link" href="/kulup/?id=${esc(c.id)}">Kulüp sayfasına git <span aria-hidden="true">→</span></a>` : '';
+        return `<div class="club-contact-title">İletişim</div><div class="club-contact-tiles">${tiles}</div>${note}${page}`;
     }
 
     function renderClubList(container, list, {placeholder=false, expandable=false}={}) {
@@ -8754,19 +8954,44 @@
         function searchHtml() {
             return `<div class="cal3-search"><input class="site-cal-v2-search-input" id="siteCalSearch" data-no-i18n type="search" value="${esc(searchQuery)}" placeholder="${esc(ui.searchPlaceholder())}" aria-label="${esc(ui.search())}" autocomplete="off"></div>`;
         }
-        function resultsHtml() {
-            const list = filteredEvents();
-            if (list.length)
-                return `<div class="cal3-items">${list.map(eventRow).join('')}</div>`;
-            const msg = `<p class="site-cal-v2-empty">${esc(dayFilter ? ui.noDay() : (searchQuery ? ui.noSearch() : loaded ? ui.empty() : failed ? ui.failed() : ui.load()))}</p>`;
-            // Hiç etkinlik yokken (ya da yüklenemediğinde) boş liste yerine sıradaki büyük etkinlik gösterilir.
-            const bare = !dayFilter && !searchQuery && (loaded || failed) && !events.some(e => !e.gridOnly);
-            return bare ? msg + `<a class="cal-next" href="/mixit/" data-route="mixit">
+        // Sıradaki büyük etkinlik (MIXIT) kartı: gün seçili ya da arama yapılmıyorken listenin altında hep durur;
+        // festival bitince kendiliğinden kalkar.
+        function nextBigHtml() {
+            if (dayFilter || searchQuery.trim() || ymd(new Date()) > '2027-03-07') return '';
+            return `<a class="cal-next" href="/mixit/" data-route="mixit">
                     <span class="cal-next-kick">Sıradaki büyük etkinlik</span>
                     <strong class="cal-next-title" data-no-i18n>HACKFEST27: MIXIT</strong>
                     <span class="cal-next-meta">6–7 Mart 2027 · İstanbul Kongre Merkezi</span>
                     <span class="cal-next-go">Festivali incele <b aria-hidden="true">→</b></span>
-                </a>` : msg;
+                </a>`;
+        }
+        function resultsHtml() {
+            const list = filteredEvents();
+            if (list.length)
+                return `<div class="cal3-items">${list.map(eventRow).join('')}</div>` + nextBigHtml();
+            const msg = `<p class="site-cal-v2-empty">${esc(dayFilter ? ui.noDay() : (searchQuery ? ui.noSearch() : loaded ? ui.empty() : failed ? ui.failed() : ui.load()))}</p>`;
+            return (loaded || failed) ? msg + nextBigHtml() : msg;
+        }
+        // Geçmiş etkinlikler arşivi: son günü geçmiş etkinlikler, en yenisi önce (afiş, ad, tarih, organizatör).
+        let pastShown = 8;
+        function pastHtml() {
+            if (dayFilter || searchQuery.trim() || !loaded) return '';
+            const t = ymd(new Date());
+            const past = events.filter(e => !e.gridOnly && e.occurrences.length && e.occurrences.every(o => o.date < t))
+                .sort((a, b) => b.occurrences[b.occurrences.length - 1].date.localeCompare(a.occurrences[a.occurrences.length - 1].date));
+            if (!past.length) return '';
+            const card = (e) => {
+                const o = e.occurrences[e.occurrences.length - 1];
+                const img = e.poster_url ? `<img src="${esc(e.poster_url)}" alt="" loading="lazy" referrerpolicy="no-referrer">`
+                    : `<span class="cal-past-date" aria-hidden="true"><b>${parse(o.date).getDate()}</b><small>${esc(shortMonth(o.date))}</small></span>`;
+                return `<a class="cal-past-card" href="${e.href ? esc(e.href) : `/etkinlik/?id=${encodeURIComponent(e.id)}`}"><span class="cal-past-img">${img}</span>
+                    <span class="cal-past-text"><strong data-no-i18n>${esc(e.title)}</strong><small data-no-i18n>${esc([dateTime(o.date, ''), e.by].filter(Boolean).join(' · '))}</small></span></a>`;
+            };
+            return `<section class="cal-past" aria-labelledby="calPastTitle">
+                <div class="cal-past-head"><h2 class="site-cal-sub" id="calPastTitle">Geçmiş etkinlikler</h2><span class="cal-past-count" data-no-i18n>${past.length}</span></div>
+                <div class="cal-past-grid">${past.slice(0, pastShown).map(card).join('')}</div>
+                ${past.length > pastShown ? '<button type="button" class="btn-pill ghost cal-past-more" data-cal-past-more>Daha fazla göster</button>' : ''}
+            </section>`;
         }
         const monthKey = (y, m) => `${y}-${pad(m + 1)}-`;
         const monthHasEvents = (y, m) => events.some(e => e.occurrences.some(o => o.date.startsWith(monthKey(y, m))));
@@ -8818,7 +9043,7 @@
                     ${hint}
                 </aside>
                 <div class="cal3-list site-cal-v2-results">${resultsHtml()}</div>
-            </div>`;
+            </div>${pastHtml()}`;
             const input = host.querySelector('#siteCalSearch');
             // Yazarken yalnızca liste yeniden çizilir; imleç ve seçim korunur.
             input?.addEventListener('input', e => {
@@ -8826,9 +9051,16 @@
                 const results = host.querySelector('.site-cal-v2-results');
                 if (results)
                     results.innerHTML = resultsHtml();
+                const pastBox = host.querySelector('.cal-past');
+                if (searchQuery.trim()) pastBox?.remove();
             });
         }
         host.addEventListener('click', event => {
+            if (event.target.closest('[data-cal-past-more]')) {
+                pastShown += 8;
+                renderCalendar();
+                return;
+            }
             const tagBtn = event.target.closest('[data-search-tag]');
             if (tagBtn) {
                 searchOpen = true;
@@ -8904,6 +9136,15 @@
         });
     })();
 
+    // Etkinlik adresi: /etkinlik/<id>/ (paylaşılabilir, önizlemesi afişli) ya da eski /etkinlik/?id=<id>.
+    const EVENT_PATH_RE = /^\/etkinlik\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/?$/i;
+    window.unipaktEventId = (loc = location) => {
+        const q = new URLSearchParams(loc.search).get('id');
+        if (q) return q;
+        const m = String(loc.pathname || '').match(EVENT_PATH_RE);
+        return m ? m[1].toLowerCase() : '';
+    };
+    const eventPath = (id) => `/etkinlik/${encodeURIComponent(String(id).toLowerCase())}/`;
     /* ---------- Etkinlik sayfası: /etkinlik/?id=<uuid> ----------
                  Veri public_event(p_id) fonksiyonundan gelir: yalnızca yayındaki etkinlik,
                  gizli (takvimde görünmeyen) olsa da linkle açılır. Onay bekleyen ya da
@@ -8976,6 +9217,552 @@
         let timer = null;
         let loadingId = '';
 
+        /* ---- UniPakt üzerinden kayıt ----
+           public_event_registration(p_event) formu ve durumunu verir. Kayıt iki adımlı:
+           event-register fonksiyonu e-postaya 6 haneli doğrulama kodu gönderir; kod girilince
+           kayıt kesinleşir ve 6 karakterli giriş kodu + QR gösterilir. Kayıtlar bu tarayıcıda
+           da tutulur (aynı tarayıcıdan başkaları için de kayıt açılabilir).
+           QR içeriği: UP1:<etkinlik id>:<KOD>. */
+        const REG_FN = 'https://hcgotmcbwmleeklbvawb.supabase.co/functions/v1/event-register';
+        const REG_KEY = (id) => `unipakt-reg.${id}`;
+        const savedRegs = (id) => {
+            try {
+                let v = JSON.parse(localStorage.getItem(REG_KEY(id)) || '[]');
+                if (v && !Array.isArray(v)) v = [v];                         // eski biçim: tek kayıt
+                return (Array.isArray(v) ? v : []).filter((r) => r && /^[A-Z0-9]{6}$/.test(r.code));
+            } catch (_) { return []; }
+        };
+        const WAIT_KEY = (id) => `unipakt-wait.${id}`;
+        const savedWaits = (id) => { try { const v = JSON.parse(localStorage.getItem(WAIT_KEY(id)) || '[]'); return Array.isArray(v) ? v.filter((w) => w && w.email) : []; } catch (_) { return []; } };
+        const setSavedWaits = (id, list) => { try { localStorage.setItem(WAIT_KEY(id), JSON.stringify(list.slice(-20))); } catch (_) {} };
+        const removeSaved = (id, match) => {
+            try { localStorage.setItem(REG_KEY(id), JSON.stringify(savedRegs(id).filter((r) => !match(r)))); } catch (_) {}
+            setSavedWaits(id, savedWaits(id).filter((w) => !match(w)));
+        };
+        const addSavedReg = (id, reg) => {
+            setSavedWaits(id, savedWaits(id).filter((w) => w.email !== reg.email));   // listeden bilete geçti
+            const list = savedRegs(id).filter((r) => r.code !== reg.code);
+            list.push(reg);
+            try { localStorage.setItem(REG_KEY(id), JSON.stringify(list.slice(-20))); } catch (_) {}
+        };
+        const REG_REASON = { closed: 'Kayıtlar kapalı', deadline: 'Kayıt süresi doldu', full: 'Kontenjan doldu', ended: 'Etkinlik sona erdi' };
+        function regButtonHtml(e) {
+            const reg = e.reg && e.reg.enabled ? e.reg : null;
+            if (!reg) return e.registration ? `<a class="btn-pill ev-cta" href="${esc(e.registration)}" target="_blank" rel="noopener noreferrer">Kayıt ol ↗</a>` : '';
+            const mine = savedRegs(e.id);
+            const waits = savedWaits(e.id);
+            const show = (mine.length ? `<button type="button" class="btn-pill ${reg.open ? 'ghost ev-reg-mine' : 'ev-cta'}" data-ev-myreg>${mine.length > 1 ? `Kayıtlarım (<span data-no-i18n>${mine.length}</span>)` : 'Kaydını göster'}</button>` : '')
+                + (waits.length ? '<button type="button" class="btn-pill ghost ev-reg-mine" data-ev-mywait>Bekleme listesindesin</button>' : '');
+            const label = reg.full ? 'Bekleme listesine katıl' : mine.length || waits.length ? 'Yeni kayıt oluştur' : 'Kayıt ol';
+            if (reg.open) return `${show}<button type="button" class="btn-pill ev-cta" data-ev-register>${label}</button>`;
+            return `${show}<span class="ev-reg-closed">${esc(REG_REASON[reg.reason] || 'Kayıtlar kapalı')}</span>`;
+        }
+        function regNoteHtml(e) {
+            const reg = e.reg && e.reg.enabled && e.reg.open ? e.reg : null;
+            const cancel = e.reg && e.reg.enabled ? '<button type="button" class="reg-link ev-reg-cancel" data-ev-cancel>Kaydını iptal etmek mi istiyorsun?</button>' : '';
+            if (!reg) return cancel ? `<p class="ev-reg-note">${cancel}</p>` : '';
+            const parts = [];
+            if (reg.full) parts.push(`Kontenjan doldu${reg.waiting ? ` · bekleme listesinde <span data-no-i18n>${reg.waiting}</span> kişi` : ''}. Yer açılırsa sıradakine e-posta gider.`);
+            if (reg.deadline) {
+                const d = new Date(reg.deadline);
+                parts.push(`Son kayıt: <span data-no-i18n>${esc(d.toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }))}</span>`);
+            }
+            if (!reg.full && Number.isInteger(reg.remaining) && reg.remaining <= 30) parts.push(`Kalan kontenjan: <span data-no-i18n>${reg.remaining}</span>`);
+            parts.push(cancel);
+            return `<p class="ev-reg-note">${parts.filter(Boolean).join(' · ')}</p>`;
+        }
+        let qrModule = null;
+        const qrFor = async (eventId, code) => {
+            try { qrModule ||= await import('/assets/qr/qr-make.js'); return await qrModule.qrSvg(`UP1:${eventId}:${code}`); }
+            catch (_) { return ''; }
+        };
+        const regDialog = (inner) => {
+            document.querySelector('.reg-dialog')?.remove();
+            const dlg = document.createElement('dialog');
+            dlg.className = 'reg-dialog';
+            const skin = document.querySelector('.ev-skin.has-acc');   // kulübün rengi kayıt penceresine de geçsin
+            if (skin) { dlg.classList.add('ev-skin', 'has-acc'); dlg.style.cssText = skin.style.cssText; }
+            dlg.setAttribute('aria-labelledby', 'regTitle');
+            dlg.innerHTML = inner;
+            document.body.append(dlg);
+            dlg.addEventListener('close', () => dlg.remove());
+            dlg.addEventListener('click', (ev) => { if (ev.target === dlg || ev.target.closest('[data-reg-close]')) dlg.close(); });
+            dlg.showModal();
+            return dlg;
+        };
+        const regCall = async (payload) => {
+            const res = await fetch(REG_FN, { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) { const err = new Error(data.message || 'İşlem yapılamadı.'); err.data = data; throw err; }
+            return data;
+        };
+        const netError = (error) => (error.message === 'Failed to fetch' ? 'Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.' : error.message);
+        // Code + QR after registering (or "Kaydını göster"); several registrations → pick one.
+        async function showRegDone(e, saved, dlg, fresh = false) {
+            const all = savedRegs(e.id);
+
+            const html = `<div class="reg-in reg-done">
+                <div class="reg-head"><div style="text-align:left"><h2 id="regTitle">${fresh ? 'Kaydın tamam' : 'Kayıt'}</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                ${all.length > 1 ? `<div class="reg-people" role="tablist" aria-label="Bu tarayıcıdaki kayıtlar">${all.map((r) => `<button type="button" role="tab" class="reg-person" aria-selected="${r.code === saved.code}" data-reg-pick="${esc(r.code)}" data-no-i18n>${esc(r.name)}</button>`).join('')}</div>` : ''}
+                <div class="reg-qr" data-reg-qr aria-label="Giriş QR kodu"></div>
+                <div class="reg-code" data-no-i18n aria-label="Giriş kodu">${esc(saved.code)}</div>
+                <p class="reg-name" data-no-i18n>${esc(saved.name)}</p>
+                <p>Girişte bu QR kodu ya da 6 karakterli kodu göstereceksin. Biletin e-postana da gönderildi.</p>
+                <div class="reg-actions"><button type="button" class="btn-pill" data-reg-png>Bileti indir</button>${e.reg?.open ? '<button type="button" class="btn-pill ghost" data-reg-new>Başka biri için kayıt oluştur</button>' : ''}<button type="button" class="btn-pill ghost" data-reg-close>Kapat</button></div>
+                <button type="button" class="reg-link" data-reg-cancel>Kaydımı iptal et</button>
+            </div>`;
+            if (dlg) dlg.innerHTML = html; else dlg = regDialog(html);
+            const svg = await qrFor(e.id, saved.code);
+            const box = dlg.querySelector('[data-reg-qr]');
+            if (box) { if (svg) box.innerHTML = svg; else box.hidden = true; }
+            dlg.querySelector('[data-reg-png]')?.addEventListener('click', () => downloadTicketPng(e, saved, svg));
+            dlg.querySelector('[data-reg-cancel]')?.addEventListener('click', () => openRegCancel(e, { code: saved.code, name: saved.name }, dlg));
+            dlg.querySelector('[data-reg-new]')?.addEventListener('click', () => openRegForm(e, null, dlg));
+            dlg.querySelectorAll('[data-reg-pick]').forEach((b) => b.addEventListener('click', () => {
+                const r = all.find((x) => x.code === b.dataset.regPick); if (r) showRegDone(e, r, dlg);
+            }));
+        }
+        // Bilet (PNG): e-postadaki biletle aynı görünüm — koyu kart, turuncu nokta, delikli ayraç,
+        // beyaz QR kutusu, büyük kod ve katılımcı adı. Telefon galerisine kaydedilir.
+        function downloadTicketPng(e, saved, svg) {
+            if (!svg) return;
+            const img = new Image();
+            img.onload = async () => {
+                try { await document.fonts?.load('800 40px Archivo'); } catch (_) {}
+                const W = 1080, H = 1720, c = document.createElement('canvas'); c.width = W; c.height = H;
+                const x = c.getContext('2d');
+                const round = (px, py, w, h, r) => { x.beginPath(); x.moveTo(px + r, py); x.arcTo(px + w, py, px + w, py + h, r); x.arcTo(px + w, py + h, px, py + h, r); x.arcTo(px, py + h, px, py, r); x.arcTo(px, py, px + w, py, r); x.closePath(); };
+                const wrap = (text, maxW, font, maxLines) => {
+                    x.font = font; const words = String(text).split(/\s+/); const lines = []; let line = '';
+                    for (const w of words) { const test = line ? `${line} ${w}` : w; if (x.measureText(test).width > maxW && line) { lines.push(line); line = w; } else line = test; }
+                    if (line) lines.push(line);
+                    if (lines.length > maxLines) { lines.length = maxLines; lines[maxLines - 1] = lines[maxLines - 1].replace(/.{0,2}$/, '…'); }
+                    return lines;
+                };
+                x.fillStyle = '#0C0C0D'; x.fillRect(0, 0, W, H);
+                // dotted background
+                x.fillStyle = 'rgba(255,255,255,.07)';
+                for (let py = 12; py < H; py += 30) for (let px = 12; px < W; px += 30) { x.beginPath(); x.arc(px, py, 1.6, 0, Math.PI * 2); x.fill(); }
+                const M = 70, CW = W - M * 2, CY = 70, CH = H - 140;
+                round(M, CY, CW, CH, 44); x.fillStyle = '#161618'; x.fill();
+                x.strokeStyle = '#2a2a2d'; x.lineWidth = 2; x.stroke();
+                const L = M + 70;
+                x.fillStyle = '#F2F1EE'; x.font = '800 64px Archivo, Arial, sans-serif'; x.textBaseline = 'alphabetic';
+                x.fillText('UniPakt', L, CY + 130); const lw = x.measureText('UniPakt').width;
+                x.fillStyle = brandColor(); x.fillRect(L + lw + 6, CY + 116, 14, 14);
+                x.font = '700 26px Arial, sans-serif'; x.fillStyle = brandColor();
+                x.fillText('ETKİNLİK BİLETİ', L, CY + 178);
+                let y = CY + 270;
+                x.fillStyle = '#F2F1EE';
+                for (const ln of wrap(e.title, CW - 140, '800 58px Archivo, Arial, sans-serif', 3)) { x.font = '800 58px Archivo, Arial, sans-serif'; x.fillText(ln, L, y); y += 68; }
+                const first = (e.occurrences || [])[0];
+                const meta = [first ? `${dayText(first.date)}${first.time ? ` · ${first.time}` : ''}` : '', [e.place, e.city].filter(Boolean).join(', ')].filter(Boolean);
+                x.font = '400 32px Inter, Arial, sans-serif'; x.fillStyle = '#C9C8C4';
+                for (const ln of meta) { y += 6; for (const part of wrap(ln, CW - 140, '400 32px Inter, Arial, sans-serif', 2)) { x.fillText(part, L, y); y += 44; } }
+                // perforation
+                const PY = Math.max(y + 40, CY + 560);
+                x.fillStyle = '#0C0C0D';
+                x.beginPath(); x.arc(M, PY, 34, 0, Math.PI * 2); x.fill();
+                x.beginPath(); x.arc(M + CW, PY, 34, 0, Math.PI * 2); x.fill();
+                x.strokeStyle = '#3a3a3e'; x.lineWidth = 4; x.setLineDash([18, 14]);
+                x.beginPath(); x.moveTo(M + 52, PY); x.lineTo(M + CW - 52, PY); x.stroke(); x.setLineDash([]);
+                // QR
+                const QS = 560, QX = (W - QS) / 2, QY = PY + 70;
+                round(QX - 30, QY - 30, QS + 60, QS + 60, 36); x.fillStyle = '#FFFFFF'; x.fill();
+                x.drawImage(img, QX, QY, QS, QS);
+                // code
+                x.textAlign = 'center'; x.fillStyle = '#F2F1EE'; x.font = '800 96px Archivo, Arial, sans-serif';
+                const code = saved.code.split('').join(' ');
+                x.fillText(code, W / 2, QY + QS + 150);
+                x.font = '600 36px Inter, Arial, sans-serif'; x.fillStyle = '#F2F1EE';
+                x.fillText(String(saved.name || ''), W / 2, QY + QS + 214);
+                x.font = '400 26px Inter, Arial, sans-serif'; x.fillStyle = '#9A9995';
+                x.fillText('Girişte bu QR’ı ya da kodu göster · unipakt.com', W / 2, CY + CH - 60);
+                c.toBlob((blob) => {
+                    if (!blob) return;
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `UniPakt-bilet-${String(e.title).replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '')}-${saved.code}.png`;
+                    document.body.append(a); a.click(); a.remove();
+                    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+                }, 'image/png');
+            };
+            img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+        }
+        // Step 1: the form. `prefill` keeps what was typed when going back from the code step.
+        function openRegForm(e, prefill = null, dlg = null) {
+            const qs = Array.isArray(e.reg?.questions) ? e.reg.questions : [];
+            const pv = prefill || { name: '', email: '', answers: {}, reminders: false };
+            const qHtml = qs.map((q) => {
+                const multi = q.type === 'choice' && q.multiple === true;
+                const label = `<span data-no-i18n>${esc(q.label)}</span>${q.required ? '' : ' <em>(isteğe bağlı)</em>'}${multi ? ' <em>(birden fazla seçebilirsin)</em>' : ''}`;
+                const had = pv.answers[q.id];
+                if (q.type === 'choice') {
+                    const on = (o) => (multi ? Array.isArray(had) && had.includes(o) : had === o);
+                    const opts = (q.options || []).map((o) => `<label><input type="${multi ? 'checkbox' : 'radio'}" name="q_${esc(q.id)}" value="${esc(o)}" ${on(o) ? 'checked' : ''}><span data-no-i18n>${esc(o)}</span></label>`).join('');
+                    return `<fieldset class="reg-field" style="border:0;padding:0;margin:0"><span>${label}</span><div class="reg-choices">${opts}</div></fieldset>`;
+                }
+                return `<label class="reg-field"><span>${label}</span><input type="text" name="q_${esc(q.id)}" maxlength="1000" value="${esc(typeof had === 'string' ? had : '')}"></label>`;
+            }).join('');
+            const html = `<form class="reg-in" novalidate>
+                <div class="reg-head"><div><h2 id="regTitle">${e.reg?.full ? 'Bekleme listesine katıl' : savedRegs(e.id).length ? 'Yeni kayıt' : 'Kayıt ol'}</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                ${e.reg?.full ? '<p class="reg-lead">Kontenjan dolu. Bekleme listesine katılırsan yer açıldığında e-postana süreli bir onay bağlantısı gelir.</p>' : ''}
+                <label class="reg-field"><span>Ad soyad</span><input type="text" name="name" required maxlength="120" autocomplete="name" value="${esc(pv.name)}"></label>
+                <label class="reg-field"><span>E-posta</span><input type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email" value="${esc(pv.email)}"><small class="reg-hint">Bu adrese 6 haneli bir doğrulama kodu göndereceğiz.</small></label>
+                ${qHtml}
+                <input class="hp-field" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+                <label class="kvkk-consent reg-remind" style="margin:2px 0 0"><input type="checkbox" name="reminders" ${pv.reminders ? 'checked' : ''}><span>Etkinlikten önce hatırlatma e-postası almak istiyorum.</span></label>
+                <label class="kvkk-consent" style="margin:2px 0 0"><input type="checkbox" name="kvkk" required data-reg-kvkk ${prefill ? 'checked' : ''}><span><a href="/kvkk/" data-reg-kvkk-link>KVKK Aydınlatma Metni</a>'ni okudum.</span></label>
+                <p class="reg-error" data-reg-error role="alert"></p>
+                <button type="submit" class="btn-pill">Doğrulama kodu gönder</button>
+            </form>`;
+            if (dlg && dlg.open) dlg.innerHTML = html; else dlg = regDialog(html);
+            const form = dlg.querySelector('form');
+            const box = form.querySelector('[data-reg-kvkk]');
+            const openKvkk = () => { if (typeof window.unipaktKvkkOpen === 'function') { window.unipaktKvkkOpen(box); return true; } return false; };
+            box.addEventListener('click', (ev) => { if (box.checked && openKvkk()) ev.preventDefault(); });
+            form.querySelector('[data-reg-kvkk-link]').addEventListener('click', (ev) => { if (openKvkk()) ev.preventDefault(); });
+            form.querySelector('[name="name"]').focus();
+            form.addEventListener('submit', async (ev) => {
+                ev.preventDefault();
+                const err = form.querySelector('[data-reg-error]');
+                const button = form.querySelector('button[type="submit"]');
+                const fd = new FormData(form);
+                const name = String(fd.get('name') || '').trim(), email = String(fd.get('email') || '').trim();
+                if (name.length < 2) { err.textContent = 'Ad soyadını yaz.'; return; }
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Geçerli bir e-posta adresi yaz.'; return; }
+                const answers = {};
+                for (const q of qs) {
+                    if (q.type === 'choice' && q.multiple === true) {
+                        const picked = fd.getAll(`q_${q.id}`).map(String);
+                        if (!picked.length && q.required) { err.textContent = `“${q.label}” sorusu zorunlu.`; return; }
+                        if (picked.length) answers[q.id] = picked;
+                        continue;
+                    }
+                    const v = String(fd.get(`q_${q.id}`) || '').trim();
+                    if (!v && q.required) { err.textContent = `“${q.label}” sorusu zorunlu.`; return; }
+                    if (v) answers[q.id] = v;
+                }
+                if (!box.checked) { err.textContent = 'Devam etmek için KVKK Aydınlatma Metni’ni okuduğunu işaretle.'; return; }
+                err.textContent = ''; button.disabled = true; button.classList.add('is-loading'); button.setAttribute('aria-busy', 'true');
+                try {
+                    const reminders = fd.get('reminders') === 'on';   // hatırlatma yalnızca isteyene gider
+                    const data = await regCall({ action: 'start', event_id: e.id, full_name: name, email, answers, consent: true, no_reminders: !reminders, hp: String(fd.get('_honey') || '') });
+                    openRegVerify(e, { name, email, answers, reminders }, data, dlg);
+                } catch (error) {
+                    err.textContent = netError(error);
+                    button.disabled = false; button.classList.remove('is-loading'); button.removeAttribute('aria-busy');
+                }
+            });
+        }
+        // Step 2: the 6-digit code from the e-mail.
+        function openRegVerify(e, typed, started, dlg) {
+            const pendingId = started.pending_id;
+            dlg.innerHTML = `<form class="reg-in reg-verify" novalidate>
+                <div class="reg-head"><div><h2 id="regTitle">E-postanı doğrula</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                <p class="reg-lead">${started.waitlist ? 'Kontenjan dolu; doğrulayınca bekleme listesine alınacaksın. ' : ''}<b data-no-i18n>${esc(started.email || typed.email)}</b> adresine 6 haneli bir kod gönderdik. Kodu buraya yaz; gelmediyse gereksiz (spam) klasörüne de bak.</p>
+                <label class="reg-field"><span>Doğrulama kodu</span><input class="reg-otp" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" placeholder="••••••" aria-describedby="regVerifyErr"></label>
+                <p class="reg-error" id="regVerifyErr" data-reg-error role="alert"></p>
+                <button type="submit" class="btn-pill">Kaydı tamamla</button>
+                <div class="reg-links"><button type="button" class="reg-link" data-reg-resend disabled>Kodu tekrar gönder</button><button type="button" class="reg-link" data-reg-back>E-postayı düzelt</button></div>
+            </form>`;
+            const form = dlg.querySelector('form');
+            const input = form.querySelector('[name="code"]');
+            const err = form.querySelector('[data-reg-error]');
+            const resend = form.querySelector('[data-reg-resend]');
+            let timer = null;
+            const countdown = (s) => {
+                clearInterval(timer);
+                let left = Math.max(0, Number(s) || 0);
+                const draw = () => { resend.disabled = left > 0; resend.textContent = left > 0 ? `Kodu tekrar gönder (${left})` : 'Kodu tekrar gönder'; };
+                draw();
+                timer = setInterval(() => { left -= 1; draw(); if (left <= 0) clearInterval(timer); }, 1000);
+            };
+            countdown(started.resend_in || 60);
+            dlg.addEventListener('close', () => clearInterval(timer), { once: true });
+            input.focus();
+            input.addEventListener('input', () => {
+                input.value = input.value.replace(/\D/g, '').slice(0, 6);
+                if (input.value.length === 6) form.requestSubmit();
+            });
+            form.querySelector('[data-reg-back]').addEventListener('click', () => { clearInterval(timer); openRegForm(e, typed, dlg); });
+            resend.addEventListener('click', async () => {
+                resend.disabled = true; err.textContent = '';
+                try { const d = await regCall({ action: 'resend', pending_id: pendingId }); countdown(d.resend_in || 60); err.textContent = 'Yeni kod gönderildi.'; }
+                catch (error) {
+                    if (error.data?.error === 'wait') countdown(error.data.resend_in);
+                    else if (error.data?.error === 'gone') { err.textContent = netError(error); setTimeout(() => openRegForm(e, typed, dlg), 1600); }
+                    else { err.textContent = netError(error); resend.disabled = false; }
+                }
+            });
+            form.addEventListener('submit', async (ev) => {
+                ev.preventDefault();
+                const button = form.querySelector('button[type="submit"]');
+                const code = input.value.replace(/\D/g, '');
+                if (code.length !== 6) { err.textContent = 'E-postadaki 6 haneli kodu yaz.'; return; }
+                if (button.disabled) return;
+                err.textContent = ''; button.disabled = true; button.classList.add('is-loading'); button.setAttribute('aria-busy', 'true');
+                try {
+                    const data = await regCall({ action: 'verify', pending_id: pendingId, code });
+                    clearInterval(timer);
+                    if (data.status === 'waitlist') {
+                        setSavedWaits(e.id, [...savedWaits(e.id).filter((w) => w.email !== typed.email), { name: data.full_name || typed.name, email: typed.email, at: new Date().toISOString() }]);
+                        showWaitDone(e, { name: data.full_name || typed.name, email: typed.email, position: data.position }, dlg);
+                        if (e.reg) e.reg.waiting = (e.reg.waiting || 0) + 1;
+                        render(e);
+                        return;
+                    }
+                    const saved = { code: data.code, name: data.full_name || typed.name, email: typed.email, at: new Date().toISOString() };
+                    addSavedReg(e.id, saved);
+                    await showRegDone(e, saved, dlg, true);
+                    render(e);   // the buttons become "Kaydını göster" + "Yeni kayıt oluştur"
+                } catch (error) {
+                    err.textContent = netError(error);
+                    input.select();
+                    if (error.data?.error === 'gone') setTimeout(() => openRegForm(e, typed, dlg), 1600);
+                    button.disabled = false; button.classList.remove('is-loading'); button.removeAttribute('aria-busy');
+                }
+            });
+        }
+
+        function showWaitDone(e, w, dlg) {
+            const html = `<div class="reg-in reg-done">
+                <div class="reg-head"><div style="text-align:left"><h2 id="regTitle">Bekleme listesindesin</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                <p class="reg-name" data-no-i18n>${esc(w.name)}</p>
+                <p>${w.position ? `Sıran: <b data-no-i18n>${esc(w.position)}</b>. ` : ''}Yer açılınca <b data-no-i18n>${esc(w.email)}</b> adresine süreli bir onay bağlantısı gelecek; onaylayınca biletin e-postayla gönderilir.</p>
+                <div class="reg-actions"><button type="button" class="btn-pill ghost" data-reg-close>Tamam</button></div>
+                <button type="button" class="reg-link" data-reg-cancel>Bekleme listesinden çık</button>
+            </div>`;
+            if (dlg && dlg.open) dlg.innerHTML = html; else dlg = regDialog(html);
+            dlg.querySelector('[data-reg-cancel]').addEventListener('click', () => openRegCancel(e, { email: w.email, name: w.name }, dlg));
+        }
+        // İptal: kayıtlı e-postaya kod gider, kodla onaylanır. who = { code } (bu tarayıcıdaki kayıt) ya da { email }.
+        function openRegCancel(e, who, dlg) {
+            const ask = !who || (!who.code && !who.email);
+            const html = `<form class="reg-in" novalidate>
+                <div class="reg-head"><div><h2 id="regTitle">Kaydı iptal et</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                ${ask ? `<p class="reg-lead">Kayıtlı e-posta adresini yaz; kaydın varsa iptal kodu bu adrese gelir.</p>
+                <label class="reg-field"><span>E-posta</span><input type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email"></label>`
+                : `<p class="reg-lead">${who.name ? `<b data-no-i18n>${esc(who.name)}</b> kaydını` : `<b data-no-i18n>${esc(who.code || '')}</b> kodlu kaydını`} iptal etmek için kayıtlı e-postaya bir kod göndereceğiz. İptal edilince giriş kodu geçersiz olur${e.reg?.waiting ? ', yerin bekleme listesindeki sıradakine geçer' : ''}.</p>`}
+                <p class="reg-error" data-reg-error role="alert"></p>
+                <button type="submit" class="btn-pill">İptal kodu gönder</button>
+            </form>`;
+            if (dlg && dlg.open) dlg.innerHTML = html; else dlg = regDialog(html);
+            const form = dlg.querySelector('form');
+            form.querySelector('input')?.focus();
+            form.addEventListener('submit', async (ev) => {
+                ev.preventDefault();
+                const err = form.querySelector('[data-reg-error]'), button = form.querySelector('button[type="submit"]');
+                const email = ask ? String(new FormData(form).get('email') || '').trim() : (who.email || '');
+                if (ask && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Geçerli bir e-posta adresi yaz.'; return; }
+                button.disabled = true; err.textContent = '';
+                try {
+                    const d = await regCall({ action: 'cancel_start', event_id: e.id, ...(who?.code ? { code: who.code } : { email }) });
+                    openCancelVerify(e, who || { email }, email, d, dlg);
+                } catch (error) { err.textContent = netError(error); button.disabled = false; }
+            });
+        }
+        function openCancelVerify(e, who, email, started, dlg) {
+            dlg.innerHTML = `<form class="reg-in" novalidate>
+                <div class="reg-head"><div><h2 id="regTitle">İptal kodunu gir</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                <p class="reg-lead">${started.email ? `<b data-no-i18n>${esc(started.email)}</b> adresine` : 'Kayıtlı e-postana'} 6 haneli bir iptal kodu gönderdik${who.code ? '' : ' (bu adresle bir kayıt varsa)'}.</p>
+                <label class="reg-field"><span>İptal kodu</span><input class="reg-otp" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"></label>
+                <p class="reg-error" data-reg-error role="alert"></p>
+                <button type="submit" class="btn-pill reg-danger">Kaydımı iptal et</button>
+                <div class="reg-links"><button type="button" class="reg-link" data-reg-resend disabled>Kodu tekrar gönder</button><button type="button" class="reg-link" data-reg-close>Vazgeç</button></div>
+            </form>`;
+            const form = dlg.querySelector('form'), input = form.querySelector('[name="code"]'), err = form.querySelector('[data-reg-error]'), resend = form.querySelector('[data-reg-resend]');
+            let timer = null;
+            const countdown = (s) => { clearInterval(timer); let left = Math.max(0, Number(s) || 0); const draw = () => { resend.disabled = left > 0; resend.textContent = left > 0 ? `Kodu tekrar gönder (${left})` : 'Kodu tekrar gönder'; }; draw(); timer = setInterval(() => { left -= 1; draw(); if (left <= 0) clearInterval(timer); }, 1000); };
+            countdown(started.resend_in || 60);
+            dlg.addEventListener('close', () => clearInterval(timer), { once: true });
+            input.focus();
+            input.addEventListener('input', () => { input.value = input.value.replace(/\D/g, '').slice(0, 6); });
+            resend.addEventListener('click', async () => {
+                resend.disabled = true;
+                try { const d = await regCall({ action: 'cancel_resend', cancel_id: started.cancel_id }); countdown(d.resend_in || 60); err.textContent = 'Yeni kod gönderildi.'; }
+                catch (error) { if (error.data?.error === 'wait') countdown(error.data.resend_in); else { err.textContent = netError(error); resend.disabled = false; } }
+            });
+            form.addEventListener('submit', async (ev) => {
+                ev.preventDefault();
+                const button = form.querySelector('button[type="submit"]');
+                const code = input.value.replace(/\D/g, '');
+                if (code.length !== 6) { err.textContent = 'E-postadaki 6 haneli kodu yaz.'; return; }
+                button.disabled = true; err.textContent = '';
+                try {
+                    await regCall({ action: 'cancel_verify', cancel_id: started.cancel_id, code });
+                    clearInterval(timer);
+                    removeSaved(e.id, (r) => (who.code && r.code === who.code) || (email && r.email && r.email.toLowerCase() === email.toLowerCase()));
+                    dlg.innerHTML = `<div class="reg-in reg-done"><div class="reg-head"><div style="text-align:left"><h2 id="regTitle">Kaydın iptal edildi</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                        <p>Giriş kodun artık geçersiz. Fikrini değiştirirsen kayıtlar açıkken yeniden kayıt olabilirsin.</p><div class="reg-actions"><button type="button" class="btn-pill ghost" data-reg-close>Kapat</button></div></div>`;
+                    reloadReg(e);
+                } catch (error) { err.textContent = netError(error); button.disabled = false; input.select(); }
+            });
+        }
+        async function reloadReg(e) {
+            try {
+                const res = await fetch(RPC + 'public_event_registration', { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_event: e.id }) });
+                if (res.ok) e.reg = await res.json();
+            } catch (_) {}
+            if (current === e) render(e);
+        }
+        // E-postadaki bağlantılar: #bilet=… (bileti her cihazda açar), #teklif=… (bekleme listesinde yer teklifi)
+        // ve #iptal=KOD (hatırlatma e-postasındaki "kaydını iptal et"; iptal yine e-postaya gelen kodla onaylanır).
+        async function handleRegHash(e) {
+            const nr = (location.hash || '').match(/^#hatirlatma=([0-9a-f-]{36})\.([0-9a-f]{32})$/i);
+            if (nr) {
+                history.replaceState(history.state, '', location.pathname + location.search);
+                const box = (title, text) => regDialog(`<div class="reg-in reg-done"><div class="reg-head"><div style="text-align:left"><h2 id="regTitle">${title}</h2><small data-no-i18n>${esc(e.title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div><p>${text}</p><div class="reg-actions"><button type="button" class="btn-pill ghost" data-reg-close>Kapat</button></div></div>`);
+                try {
+                    await regCall({ action: 'no_reminders', registration_id: nr[1].toLowerCase(), sig: nr[2].toLowerCase() });
+                    box('Hatırlatmalar kapatıldı', 'Bu etkinlik için artık hatırlatma e-postası almayacaksın. Kaydın ve giriş kodun aynen geçerli.');
+                } catch (error) { box('Hatırlatmalar kapatılamadı', esc(netError(error))); }
+                return;
+            }
+            const c = (location.hash || '').match(/^#iptal=([A-Za-z0-9]{6})$/);
+            if (c) {
+                history.replaceState(history.state, '', location.pathname + location.search);
+                openRegCancel(e, { code: c[1].toUpperCase(), name: '' });
+                return;
+            }
+            const m = (location.hash || '').match(/^#(bilet|teklif)=([A-Za-z0-9_-]{10,100})$/);
+            if (!m) return;
+            history.replaceState(history.state, '', location.pathname + location.search);
+            const [, kind, token] = m;
+            if (kind === 'bilet') {
+                try {
+                    const d = await regCall({ action: 'ticket', token });
+                    if (d.event_id !== e.id) return;
+                    if (d.status !== 'confirmed') { regDialog(`<div class="reg-in reg-done"><div class="reg-head"><div style="text-align:left"><h2 id="regTitle">Kaydın kesinleşmedi</h2></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div><p>Bu kayıt şu an bekleme listesinde.</p></div>`); return; }
+                    const saved = { code: d.code, name: d.full_name, at: new Date().toISOString() };
+                    addSavedReg(e.id, saved); render(e); showRegDone(e, saved);
+                } catch (error) { regDialog(`<div class="reg-in reg-done"><div class="reg-head"><div style="text-align:left"><h2 id="regTitle">Bilet açılamadı</h2></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div><p>${esc(netError(error))}</p></div>`); }
+                return;
+            }
+            let offer;
+            try { offer = await regCall({ action: 'offer', token }); }
+            catch (error) { regDialog(`<div class="reg-in reg-done"><div class="reg-head"><div style="text-align:left"><h2 id="regTitle">Teklif geçerli değil</h2></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div><p>${esc(netError(error))}</p></div>`); return; }
+            const until = new Date(offer.expires_at).toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+            const dlg = regDialog(`<div class="reg-in reg-done">
+                <div class="reg-head"><div style="text-align:left"><h2 id="regTitle">Yer açıldı!</h2><small data-no-i18n>${esc(offer.event_title)}</small></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div>
+                <p class="reg-name" data-no-i18n>${esc(offer.full_name)}</p>
+                <p>Bekleme listesinde sıra sana geldi. Yerini <b data-no-i18n>${esc(until)}</b> tarihine kadar onaylarsan biletin hemen hazır olur.</p>
+                <p class="reg-error" data-reg-error role="alert"></p>
+                <div class="reg-actions"><button type="button" class="btn-pill" data-offer-yes>Yerimi onayla</button><button type="button" class="btn-pill ghost" data-offer-no>Yeri bırak</button></div>
+            </div>`);
+            const err = dlg.querySelector('[data-reg-error]');
+            dlg.querySelector('[data-offer-yes]').addEventListener('click', async (ev) => {
+                ev.target.disabled = true;
+                try {
+                    const d = await regCall({ action: 'offer_accept', token });
+                    const saved = { code: d.code, name: d.full_name, at: new Date().toISOString() };
+                    setSavedWaits(e.id, savedWaits(e.id).filter((w) => w.name !== d.full_name));
+                    addSavedReg(e.id, saved); await showRegDone(e, saved, dlg, true); reloadReg(e);
+                } catch (error) { err.textContent = netError(error); ev.target.disabled = false; }
+            });
+            dlg.querySelector('[data-offer-no]').addEventListener('click', async (ev) => {
+                if (!confirm('Yerini bırakırsan sıradaki kişiye geçer ve bu teklif geri gelmez. Emin misin?')) return;
+                ev.target.disabled = true;
+                try {
+                    await regCall({ action: 'offer_decline', token });
+                    setSavedWaits(e.id, savedWaits(e.id).filter((w) => w.name !== offer.full_name));
+                    dlg.innerHTML = `<div class="reg-in reg-done"><div class="reg-head"><div style="text-align:left"><h2 id="regTitle">Yerini bıraktın</h2></div><button type="button" class="reg-x" data-reg-close aria-label="Kapat">×</button></div><p>Yer sıradaki kişiye teklif edildi. Teşekkürler!</p></div>`;
+                    reloadReg(e);
+                } catch (error) { err.textContent = netError(error); ev.target.disabled = false; }
+            });
+        }
+
+        // Etkinlik ve kulüp sayfalarında kulübün rengi sayfanın tamamına (üst menüdeki "Bize Katıl" dahil) geçer;
+        // sayfadan çıkınca site rengine dönülür. Kulüp vurgu rengi seçmeyip yalnızca renkli arka plan seçtiyse
+        // o renk kullanılır (siyah/gri gibi renksiz tonlar yerine her zaman en canlı olan seçilir).
+        window.unipaktPageAccent = window.unipaktPageAccent || (() => {
+            const lum = (hex) => { const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+            const ink = (hex) => (lum(hex) > 0.42 ? '#0C0C0D' : '#FFFFFF');
+            const read = (hex) => {
+                const rgb = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+                for (let k = 0; k <= 20; k++) { const out = '#' + rgb.map((v) => Math.round(v + (255 - v) * k / 20).toString(16).padStart(2, '0')).join(''); if ((lum(out) + 0.05) / (lum('#0C0C0D') + 0.05) >= 3) return out.toUpperCase(); }
+                return '#FFFFFF';
+            };
+            const vivid = (hex) => { const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255); return Math.max(...c) - Math.min(...c); };
+            const ok = (h) => /^#[0-9a-f]{6}$/i.test(h || '');
+            return {
+                read, ink,
+                // Önce kulübün seçtiği vurgu; o renksizse (siyah, gri, beyaz) arka plan rengi.
+                pick(accent, background) {
+                    if (ok(accent) && (vivid(accent) >= 0.15 || !ok(background) || vivid(background) < 0.15)) return accent;
+                    return ok(background) && vivid(background) >= 0.15 ? background : (ok(accent) ? accent : '');
+                },
+                apply(hex) {
+                    const st = document.documentElement.style;
+                    if (!ok(hex)) { ['--accent', '--accent-grad', '--on-accent'].forEach((p) => st.removeProperty(p)); return; }
+                    const r = read(hex);
+                    st.setProperty('--accent', r); st.setProperty('--accent-grad', `linear-gradient(${r}, ${r})`); st.setProperty('--on-accent', ink(r));
+                },
+            };
+        })();
+        // Sayfa tasarımı (panelde kulübün seçtiği): vurgu rengi, üst alan arka planı, başlık stili.
+        // Yalnızca bilinen değerler uygulanır; boş tasarım = varsayılan görünüm.
+        const HEX_RE = /^#[0-9a-f]{6}$/i;
+        const LOGO_RE = /^https:\/\/hcgotmcbwmleeklbvawb\.supabase\.co\/storage\/v1\/object\/public\/profile-logos\/[^\s"'<>()\\]+$/;
+        const DESIGN_BG = ['default', 'clear', 'blur', 'color', 'gradient'];
+        const DESIGN_TITLE = ['default', 'left', 'compact', 'outline', 'caps', 'hand'];
+        function cleanDesign(d) {
+            d = d && typeof d === 'object' ? d : {};
+            return {
+                accent: HEX_RE.test(d.accent || '') ? d.accent : '',
+                bg: DESIGN_BG.includes(d.bg) ? d.bg : 'default',
+                bgColor: HEX_RE.test(d.bgColor || '') ? d.bgColor : '#0C0C0D',
+                title: DESIGN_TITLE.includes(d.title) ? d.title : 'default',
+            };
+        }
+        const luminance = (hex) => {
+            const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+            return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+        };
+        const inkOn = (hex) => (luminance(hex) > 0.42 ? '#0C0C0D' : '#FFFFFF');
+        // Kulübün rengi koyu zeminde (#0C0C0D) okunmuyorsa okunana kadar beyaza doğru açılır (en az 3:1 kontrast).
+        const readableOnDark = (hex) => {
+            const ratio = (h) => (luminance(h) + 0.05) / (luminance('#0C0C0D') + 0.05);
+            const rgb = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+            for (let k = 0; k <= 20; k++) {
+                const t = k / 20;
+                const out = '#' + rgb.map((v) => Math.round(v + (255 - v) * t).toString(16).padStart(2, '0')).join('');
+                if (ratio(out) >= 3) return out.toUpperCase();
+            }
+            return '#FFFFFF';
+        };
+        function designAttrs(e) {
+            const d = e.design || cleanDesign();
+            const vars = [];
+            const acc = window.unipaktPageAccent.pick(d.accent, (d.bg === 'color' || d.bg === 'gradient') ? d.bgColor : '');
+            if (acc) { const read = readableOnDark(acc); vars.push(`--ev-acc:${acc}`, `--ev-on-acc:${inkOn(acc)}`, `--ev-acc-read:${read}`, `--ev-on-acc-read:${inkOn(read)}`); }
+            let ink = '#FFFFFF';
+            if (d.bg === 'color' || d.bg === 'gradient') {
+                const second = d.bg === 'gradient' ? (d.accent || brandColor()) : d.bgColor;
+                ink = (luminance(d.bgColor) + luminance(second)) / 2 > 0.42 ? '#0C0C0D' : '#FFFFFF';
+                vars.push(`--ev-bgc:${d.bgColor}`, `--ev-grad2:${second}`);
+            }
+            vars.push(`--ev-hero-ink:${ink}`);
+            if (e.poster) vars.push(`--ev-poster:url('${esc(e.poster).replace(/'/g, '%27')}')`);
+            return { accent: acc, skin: `ev-skin${acc ? ' has-acc' : ''}`, hero: ` ev-bg-${d.bg} ev-title-${d.title}${ink === '#0C0C0D' ? ' ev-hero-light' : ''}`, style: vars.join(';') };
+        }
+
+        // Konuşmacılar: yalnızca linkedin.com bağlantıları tıklanabilir olur.
+        const LINKEDIN_RE = /^https:\/\/([a-z]{2,3}\.)?(www\.)?linkedin\.com\/[^\s"'<>]+$/i;
+        const LINKEDIN_SVG = '<svg class="ev-sp-in" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 3.8A2.1 2.1 0 1 1 5 8a2.1 2.1 0 0 1 0-4.2zM3.3 9.5h3.4V21H3.3V9.5zm5.5 0h3.3v1.6h.1c.5-.9 1.7-1.9 3.6-1.9 3.8 0 4.5 2.5 4.5 5.8V21h-3.4v-5.3c0-1.3 0-3.1-1.9-3.1s-2.2 1.5-2.2 3V21H8.8V9.5z"/></svg>';
+        function cleanSpeakers(list) {
+            return (Array.isArray(list) ? list : []).slice(0, 30).map((s) => ({
+                name: txt(s && s.name, 120),
+                linkedin: s && typeof s.linkedin === 'string' && LINKEDIN_RE.test(s.linkedin) ? s.linkedin : '',
+            })).filter((s) => s.name);
+        }
+        function speakersHtml(list) {
+            if (!list || !list.length) return '';
+            return `<section class="ev-card"><h2>Konuşmacılar</h2><ul class="ev-rules ev-speakers" data-no-i18n>${list.map((s) => `<li>${icon('arrow')}<span>${s.linkedin
+                ? `<a class="ev-sp-link" href="${esc(s.linkedin)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(s.name)} — LinkedIn profili">${esc(s.name)}${LINKEDIN_SVG}</a>`
+                : esc(s.name)}</span></li>`).join('')}</ul></section>`;
+        }
+
         function normalize(r) {
             let occ = [];
             try { occ = Array.isArray(r.occurrences) ? r.occurrences : JSON.parse(r.occurrences || '[]'); } catch (_) {}
@@ -9010,7 +9797,8 @@
         const nextStart = (e) => e.occurrences.find((o) => at(o.date, o.time) > new Date()) || null;
         const feeText = (e) => (e.feeType === 'paid' && e.feeAmount != null ? `${Number(e.feeAmount).toLocaleString('tr-TR', { maximumFractionDigits: 2 })} TL` : 'Ücretsiz');
         const when = (date, time) => `<span>${esc(dayText(date))}</span>${time ? ` · ${esc(time)}` : ''}`;
-        const pageUrl = (e) => `https://unipakt.com/etkinlik/?id=${encodeURIComponent(e.id)}`;
+        // Paylaşım adresi: /etkinlik/<id>/ önizlemede etkinliğin adını ve afişini gösterir (tools/build_pages.py).
+        const pageUrl = (e) => `https://unipakt.com/etkinlik/${encodeURIComponent(String(e.id).toLowerCase())}/`;
         const mapUrl = (e) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([e.place, e.address, e.city].filter(Boolean).join(', '))}`;
 
         function countdownHtml(e) {
@@ -9042,17 +9830,23 @@
             const placeLine = [e.place, e.city].filter(Boolean).join(', ');
             const endDay = e.endDate || (e.endTime && first ? (e.occurrences.length === 1 ? e.occurrences[0].date : first.date) : '');
             const others = e.occurrences.length > 1 ? e.occurrences.map((o) => `<div>${when(o.date, o.time)}</div>`).join('') : '';
-            const org = e.organizerId
-                ? `<a href="/kulupler/" class="ev-org" data-ev-club="${esc(e.organizerName)}" data-no-i18n>${esc(e.organizerName)}</a>`
+            const orgLogo = e.organizerId ? e.orgLogo : '/apple-touch-icon.png';
+            const orgName = e.organizerId
+                ? `<a href="/kulup/?id=${esc(e.organizerId)}" class="ev-org" data-no-i18n>${esc(e.organizerName)}</a>`
                 : '<span data-no-i18n>UniPakt</span>';
+            const org = orgLogo
+                ? `<span class="ev-org-line"><img class="ev-org-logo" src="${esc(orgLogo)}" alt="" width="32" height="32" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">${orgName}</span>`
+                : orgName;
+            const look = designAttrs(e);
+            window.unipaktPageAccent.apply(look.accent);
             const partners = e.partners.length ? `<div class="ev-sub"><span>Ortak kulüpler:</span> <span data-no-i18n>${e.partners.map(esc).join(', ')}</span></div>` : '';
             const placeVal = (e.place || e.address || e.city)
                 ? `<span data-no-i18n>${[e.place, e.address, e.city].filter(Boolean).map(esc).join('<br>')}</span>${e.address || e.place ? `<a class="ev-map" href="${esc(mapUrl(e))}" target="_blank" rel="noopener noreferrer">Haritada aç ↗</a>` : ''}`
                 : '';
             const social = e.social.length ? `<div class="ev-social">${e.social.map(([k, label, url]) => `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(label)}" title="${esc(label)}">${icon(k)}</a>`).join('')}</div>` : '';
             const rules = String(e.rules || '').split(/\r?\n/).map((l) => l.replace(/^\s*[-•]\s*/, '').trim()).filter(Boolean);
-            host.innerHTML = `
-                <header class="ev-hero${e.banner ? '' : ' is-placeholder'}" style="--ev-hero:url('${esc(hero).replace(/'/g, '%27')}')">
+            host.innerHTML = `<div class="${look.skin}" style="${look.style}">
+                <header class="ev-hero${e.banner ? '' : ' is-placeholder'}${look.hero}" style="--ev-hero:url('${esc(hero).replace(/'/g, '%27')}')">
                     <div class="wrap ev-hero-top"><button type="button" class="ev-back ev-back-top" data-ev-back>← Takvime dön</button></div>
                     <div class="wrap ev-hero-in">
                         <h1 data-no-i18n>${esc(e.title)}</h1><i class="ev-bar" aria-hidden="true"></i>
@@ -9064,9 +9858,10 @@
                     <div class="ev-ticket">
                         <b class="ev-fee">${e.feeType === 'paid' && e.feeAmount != null ? `<span data-no-i18n>${esc(feeText(e))}</span>` : 'Ücretsiz'}</b>
                         <div class="ev-ticket-act">
-                            ${e.registration ? `<a class="btn-pill ev-cta" href="${esc(e.registration)}" target="_blank" rel="noopener noreferrer">Kayıt ol ↗</a>` : ''}
+                            ${regButtonHtml(e)}
                             ${e.biletimgo ? `<a class="ev-biletimgo" href="${esc(e.biletimgo)}" target="_blank" rel="noopener noreferrer sponsored" aria-label="biletimGO'da aç"><img src="/sponsors/biletimgo.png" alt="biletimGO" width="754" height="120"></a>` : ''}
                         </div>
+                        ${regNoteHtml(e)}
                     </div>
                     <div class="ev-grid">
                         <div class="ev-main">
@@ -9092,6 +9887,7 @@
                         <button type="button" class="ev-act" data-ev-copy>${icon('copy')}<span>Linki kopyala</span></button>
                         <span class="ev-copied" data-ev-copied role="status" aria-live="polite"></span>
                     </div>
+                    ${speakersHtml(e.speakers)}
                     ${rules.length ? `<section class="ev-card"><h2>Etkinlik Kuralları</h2><ul class="ev-rules" data-no-i18n>${rules.map((r) => `<li>${icon('arrow')}<span>${esc(r)}</span></li>`).join('')}</ul></section>` : ''}
                     <section class="ev-card">
                         <h2>Etkinlik Koşulları ve Sorumluluk Bilgisi</h2>
@@ -9104,7 +9900,7 @@
                         </ul>
                         <button type="button" class="btn-pill ev-feedback" data-ev-feedback>Geri Bildirim Ver</button>
                     </section>
-                </div>`;
+                </div></div>`;
             if (host.querySelector('[data-ev-count]')) { tick(); timer = setInterval(tick, 1000); }
         }
 
@@ -9204,7 +10000,7 @@
 
         /* ---- Yükleme ---- */
         async function load() {
-            const id = new URLSearchParams(location.search).get('id') || '';
+            const id = window.unipaktEventId();
             if (current && current.id === id) { render(current); return; }
             if (loadingId === id) return;
             current = null;
@@ -9213,6 +10009,10 @@
             loadingId = id;
             host.innerHTML = '<div class="wrap ev-body ev-msg"><p>Etkinlik yükleniyor…</p></div>';
             try {
+                const pageReq = fetch(RPC + 'public_event_page', { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_id: id }) })
+                    .then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+                const regInfo = fetch(RPC + 'public_event_registration', { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_event: id }) })
+                    .then((r) => (r.ok ? r.json() : null)).catch(() => null);
                 const res = await fetch(RPC + 'public_event', { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_id: id }) });
                 const rows = res.ok ? await res.json() : null;
                 if (loadingId !== id) return;
@@ -9220,7 +10020,14 @@
                 const r = Array.isArray(rows) ? rows[0] : null;
                 if (!r || !txt(r.title, 120)) { host.innerHTML = messageHtml('Etkinlik bulunamadı'); return; }
                 current = normalize(r);
+                current.reg = await regInfo;
+                const extra = (await pageReq) || {};
+                current.speakers = cleanSpeakers(extra.speakers);
+                current.design = cleanDesign(extra.design);
+                current.orgLogo = typeof extra.organizer_logo === 'string' && LOGO_RE.test(extra.organizer_logo) ? extra.organizer_logo : '';
+                if (loadingId !== id) return;
                 render(current);
+                handleRegHash(current);
                 document.title = `${current.title} — UniPakt`;
                 if (commentWrap) commentWrap.hidden = false;
                 loadComments(current.id);
@@ -9245,6 +10052,10 @@
                 return;
             }
             if (!current) return;
+            if (ev.target.closest('[data-ev-register]')) { openRegForm(current); return; }
+            if (ev.target.closest('[data-ev-myreg]')) { const mine = savedRegs(current.id); if (mine.length) showRegDone(current, mine[mine.length - 1]); return; }
+            if (ev.target.closest('[data-ev-mywait]')) { const w = savedWaits(current.id); if (w.length) showWaitDone(current, w[w.length - 1]); return; }
+            if (ev.target.closest('[data-ev-cancel]')) { openRegCancel(current, null); return; }
             if (ev.target.closest('[data-ev-ics]')) { downloadIcs(current); return; }
             if (ev.target.closest('[data-ev-copy]')) {
                 const out = host.querySelector('[data-ev-copied]');
@@ -9261,15 +10072,128 @@
         });
 
         const isActive = () => section.classList.contains('active');
-        window.addEventListener('unipakt:route', () => { if (isActive()) load(); else { clearInterval(timer); timer = null; } });
+        window.addEventListener('unipakt:route', () => { if (isActive()) { if (current) window.unipaktPageAccent.apply(designAttrs(current).accent); load(); } else { clearInterval(timer); timer = null; window.unipaktPageAccent.apply(''); } });
         if (isActive()) load();
 
         // Sitedeki bir linkten açılış: adres /etkinlik/?id=… olur, geri tuşu önceki sayfaya döner.
         return (id) => {
-            try { history.pushState({ route: 'etkinlik', fromSite: true }, '', `/etkinlik/?id=${encodeURIComponent(id)}`); } catch (_) {}
+            try { history.pushState({ route: 'etkinlik', fromSite: true }, '', `/etkinlik/${encodeURIComponent(String(id).toLowerCase())}/`); } catch (_) {}
             showRoute('etkinlik');
             syncRouteMeta('etkinlik');
         };
+    })();
+
+    /* ---------- Kulüp sayfası (/kulup/?id=…) ----------
+       public_club_page: ad, üniversite, kategori, logo, kısa tanıtım, (KVKK onayı varsa)
+       iletişim ve kulübün düzenlediği / ortak olduğu yayındaki etkinlikler. */
+    (function initClubPage() {
+        const section = document.getElementById('page-kulup');
+        const host = document.getElementById('clubPage');
+        if (!section || !host) return;
+        const RPC_URL = 'https://hcgotmcbwmleeklbvawb.supabase.co/rest/v1/rpc/public_club_page';
+        const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        const LOGO = /^https:\/\/hcgotmcbwmleeklbvawb\.supabase\.co\/storage\/v1\/object\/public\/profile-logos\/[^\s"'<>()\\]+$/;
+        const IMG = /^https:\/\/[a-z0-9.-]+\.supabase\.co\/storage\/v1\/object\/public\/[^\s"'<>()\\]+$/i;
+        const MONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+        const SHORT = ['OCA', 'ŞUB', 'MAR', 'NİS', 'MAY', 'HAZ', 'TEM', 'AĞU', 'EYL', 'EKİ', 'KAS', 'ARA'];
+        const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+        // Kulübün panelde seçtiği sayfa tasarımı (panel › Profil › Kulüp sayfası). Yalnızca bilinen değerler uygulanır.
+        const BANNER = /^https:\/\/hcgotmcbwmleeklbvawb\.supabase\.co\/storage\/v1\/object\/public\/profile-logos\/[0-9a-f-]{36}\/banner(\?v=\d+)?$/;
+        const HEX = /^#[0-9a-f]{6}$/i;
+        const lumOf = (hex) => { const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+        const inkFor = (hex) => (lumOf(hex) > 0.42 ? '#0C0C0D' : '#FFFFFF');
+        const readOnDark = (hex) => {
+            const rgb = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+            for (let k = 0; k <= 20; k++) { const out = '#' + rgb.map((v) => Math.round(v + (255 - v) * k / 20).toString(16).padStart(2, '0')).join(''); if ((lumOf(out) + 0.05) / (lumOf('#0C0C0D') + 0.05) >= 3) return out.toUpperCase(); }
+            return '#FFFFFF';
+        };
+        const clubLook = (c) => {
+            const d = c.design && typeof c.design === 'object' ? c.design : {};
+            const banner = typeof c.banner === 'string' && BANNER.test(c.banner) ? c.banner : '';
+            let bg = ['default', 'clear', 'blur', 'color', 'gradient'].includes(d.bg) ? d.bg : 'default';
+            if ((bg === 'clear' || bg === 'blur') && !banner) bg = 'default';
+            const bgColor = HEX.test(d.bgColor || '') ? d.bgColor : '#0C0C0D';
+            const accent = window.unipaktPageAccent.pick(HEX.test(d.accent || '') ? d.accent : '', (bg === 'color' || bg === 'gradient') ? bgColor : '');
+            const title = ['default', 'left', 'compact', 'outline', 'caps', 'hand'].includes(d.title) ? d.title : 'default';
+            const vars = [];
+            if (accent) { const read = readOnDark(accent); vars.push(`--ev-acc:${accent}`, `--ev-on-acc:${inkFor(accent)}`, `--ev-acc-read:${read}`, `--ev-on-acc-read:${inkFor(read)}`); }
+            let ink = '#FFFFFF';
+            if (bg === 'color' || bg === 'gradient') {
+                const second = bg === 'gradient' ? (HEX.test(d.accent || '') ? d.accent : '#2A2A2D') : bgColor;
+                ink = (lumOf(bgColor) + lumOf(second)) / 2 > 0.42 ? '#0C0C0D' : '#FFFFFF';
+                vars.push(`--cl-bgc:${bgColor}`, `--cl-grad2:${second}`);
+            }
+            vars.push(`--cl-ink:${ink}`);
+            if (banner) vars.push(`--cl-banner:url('${banner.replace(/'/g, '%27')}')`);
+            return { accent, skin: accent ? 'ev-skin has-acc' : '', hero: `cl-bg-${bg}${banner && bg === 'default' ? ' cl-has-banner' : ''} cl-title-${title}${ink === '#0C0C0D' ? ' cl-hero-light' : ''}`, style: vars.join(';') };
+        };
+        let loadedId = '', lastAccent = '';
+        const message = (title, text) => `<div class="wrap ev-body ev-msg"><h1>${esc(title)}</h1><p>${esc(text)}</p><a class="btn-pill" href="/kulupler/">Tüm kulüpler</a></div>`;
+        const eventRow = (ev) => {
+            const [y, m, d] = String(ev.date || '').split('-').map(Number);
+            const meta = [y ? `${d} ${MONTHS[m - 1]} ${y}${ev.time ? ` · ${String(ev.time).slice(0, 5)}` : ''}` : '', [ev.place, ev.city].filter(Boolean).join(', ')].filter(Boolean).join(' · ');
+            return `<a class="cl-ev" href="/etkinlik/?id=${esc(ev.id)}">
+                <span class="cl-ev-date"><b>${y ? d : ''}</b><small>${y ? SHORT[m - 1] : ''}</small></span>
+                <span class="cl-ev-text"><strong data-no-i18n>${esc(ev.title)}</strong><small data-no-i18n>${esc(meta)}</small></span>
+                ${ev.role === 'partner' ? '<span class="cl-ev-tag">Ortak</span>' : ''}<span class="cl-ev-go" aria-hidden="true">→</span></a>`;
+        };
+        function render(c) {
+            const contact = c.contact && typeof c.contact === 'object' ? c.contact : null;
+            const fake = { name: c.name, uni: c.university, cat: c.category, contact: contact ? Object.fromEntries(Object.entries(contact).map(([k, v]) => [k, typeof v === 'string' ? v : ''])) : {} };
+            const events = Array.isArray(c.events) ? c.events.filter((ev) => ev && UUID.test(String(ev.id || ''))) : [];
+            const t = today();
+            const upcoming = events.filter((ev) => (ev.end_date || ev.date) >= t).reverse();
+            const past = events.filter((ev) => (ev.end_date || ev.date) < t).slice(0, 12);
+            const logo = typeof c.logo === 'string' && LOGO.test(c.logo) ? c.logo : '';
+            const initial = String(c.name || '?').trim().charAt(0).toLocaleUpperCase('tr-TR');
+            const look = clubLook(c);
+            lastAccent = look.accent;
+            window.unipaktPageAccent.apply(look.accent);
+            host.innerHTML = `<div class="cl-skin ${look.skin}" style="${esc(look.style)}">
+                <header class="cl-hero ${look.hero}">
+                    <div class="wrap cl-hero-in">
+                        <button type="button" class="ev-back ev-back-top cl-back" data-cl-back>← Kulüpler</button>
+                        <div class="cl-logo">${logo ? `<img src="${esc(logo)}" alt="" width="120" height="120" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}<span aria-hidden="true">${esc(initial)}</span></div>
+                        <h1 data-no-i18n>${esc(c.name)}</h1>
+                        <p class="cl-sub"><span data-no-i18n>${esc(c.university || '')}</span>${c.category ? ` · <span>${esc(c.category)}</span>` : ''}</p>
+                    </div>
+                </header>
+                <div class="wrap ev-body cl-body">
+                    ${c.bio ? `<section class="ev-card"><h2>Hakkında</h2><p class="cl-bio" data-no-i18n>${esc(String(c.bio).slice(0, 500))}</p></section>` : ''}
+                    <div class="cl-grid">
+                        <section class="ev-card"><h2>Yaklaşan etkinlikler</h2>${upcoming.length ? `<div class="cl-evs">${upcoming.map(eventRow).join('')}</div>` : '<p class="cl-empty">Şu an yaklaşan etkinlik yok.</p>'}</section>
+                        <aside class="ev-card cl-contact">${clubContactMarkup(fake)}</aside>
+                    </div>
+                    ${past.length ? `<section class="ev-card"><h2>Geçmiş etkinlikler</h2><div class="cl-evs past">${past.map(eventRow).join('')}</div></section>` : ''}
+                </div></div>`;
+            document.title = `${c.name} — UniPakt`;
+        }
+        async function load() {
+            const id = (new URLSearchParams(location.search).get('id') || '').toLowerCase();
+            if (id === loadedId && host.childElementCount) return;
+            loadedId = id;
+            if (!UUID.test(id)) { host.innerHTML = message('Kulüp bulunamadı', 'Bu bağlantı bir kulübe ait değil.'); return; }
+            host.innerHTML = '<div class="wrap ev-body ev-msg"><p>Kulüp yükleniyor…</p></div>';
+            try {
+                const res = await fetch(RPC_URL, { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_id: id }) });
+                const c = res.ok ? await res.json() : null;
+                if (loadedId !== id) return;
+                if (!c || !c.name) { host.innerHTML = message('Kulüp bulunamadı', 'Bu kulüp artık listede değil.'); return; }
+                render(c);
+            } catch (_) {
+                if (loadedId === id) { host.innerHTML = message('Kulüp şu an yüklenemedi', 'Biraz sonra tekrar dene.'); loadedId = ''; }
+            }
+        }
+        host.addEventListener('click', (ev) => {
+            if (ev.target.closest('[data-cl-back]')) {
+                if (history.state && history.state.fromSite) history.back(); else navigateTo('kulupler');
+            }
+        });
+        window.addEventListener('unipakt:route', () => {
+            if (section.classList.contains('active')) { window.unipaktPageAccent.apply(lastAccent); load(); }
+            else if (!document.getElementById('page-etkinlik')?.classList.contains('active')) window.unipaktPageAccent.apply('');
+        });
+        if (section.classList.contains('active')) load();
     })();
 
     // Ortak Kulüpler listesindeki satırları sadece bu liste içinde aç/kapat.
@@ -9716,6 +10640,35 @@
         goToUniversityInClubList(university);
     });
 
+    /* ---------- The Story ekip fotoğrafları ----------
+       Ekip üyesinin @unipakt.com adresli panel hesabında profil fotoğrafı varsa kartta o görünür
+       (panel › Profil'den değiştirince sitede de değişir). Yoksa sayfadaki fotoğraf kalır. */
+    (function initTeamPhotos() {
+        const PHOTO = /^https:\/\/hcgotmcbwmleeklbvawb\.supabase\.co\/storage\/v1\/object\/public\/profile-logos\/[0-9a-f-]{36}\/logo(\?v=\d+)?$/;
+        let done = false;
+        const load = async () => {
+            if (done || !document.getElementById('storyTeam')) return;
+            done = true;
+            try {
+                const res = await fetch('https://hcgotmcbwmleeklbvawb.supabase.co/rest/v1/rpc/public_team_photos', { method: 'POST', headers: { apikey: CLUBS_KEY, 'Content-Type': 'application/json' }, body: '{}' });
+                const rows = res.ok ? await res.json() : [];
+                const byEmail = new Map((Array.isArray(rows) ? rows : []).filter((r) => r && PHOTO.test(String(r.photo || ''))).map((r) => [String(r.email).toLowerCase(), r.photo]));
+                document.querySelectorAll('#storyTeam .story-card').forEach((card) => {
+                    const mail = card.querySelector('a[href^="mailto:"]')?.getAttribute('href').slice(7).toLowerCase();
+                    const img = card.querySelector('.story-person img');
+                    const photo = mail && byEmail.get(mail);
+                    if (!img || !photo) return;
+                    const next = new Image();
+                    next.onload = () => { img.src = photo; };   // yalnızca yüklenince değiştir; hata olursa eski fotoğraf kalır
+                    next.src = photo;
+                });
+            } catch (_) { done = false; }
+        };
+        const maybe = () => { if (document.getElementById('page-story')?.classList.contains('active') || document.querySelector('#storyTeam')?.getBoundingClientRect().height) load(); };
+        window.addEventListener('unipakt:route', maybe);
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', maybe); else maybe();
+    })();
+
     /* ---------- The Story interaction ---------- */
     (function initStoryPage() {
         const stage = document.getElementById('storyStage');
@@ -10042,7 +10995,7 @@
     const routeLinks = document.querySelectorAll('[data-route]');
     const menuToggle = document.getElementById('menuToggle');
     const navLinks = document.getElementById('navLinks');
-    const validRoutes = ['ana-sayfa', 'kulupler', 'hakkimizda', 'story', 'takvim', 'iletisim', 'katil', 'kvkk', 'etkinlik', 'sponsorlar', 'hackfest27', 'mixit'];
+    const validRoutes = ['ana-sayfa', 'kulupler', 'hakkimizda', 'story', 'takvim', 'iletisim', 'katil', 'kvkk', 'etkinlik', 'kulup', 'sponsorlar', 'hackfest27', 'mixit'];
 
     function showRoute(route) {
         if (!validRoutes.includes(route))
@@ -10108,13 +11061,15 @@
         katil: 'Bize Katıl',
         kvkk: 'KVKK Aydınlatma Metni',
         etkinlik: 'Etkinlik',
+        kulup: 'Kulüp',
         sponsorlar: 'Sponsorlar',
         hackfest27: 'HACKFEST27: MIXIT · Sponsorluk',
         mixit: 'HACKFEST27: MIXIT'
     };
     function syncRouteMeta(route) {
-        const eventId = route === 'etkinlik' ? new URLSearchParams(location.search).get('id') : '';
-        const url = SITE_ORIGIN + routePath(route) + (eventId ? `?id=${encodeURIComponent(eventId)}` : '');
+        const eventId = route === 'etkinlik' ? window.unipaktEventId() : route === 'kulup' ? new URLSearchParams(location.search).get('id') : '';
+        const url = route === 'etkinlik' && eventId ? SITE_ORIGIN + eventPath(eventId)
+            : SITE_ORIGIN + routePath(route) + (eventId ? `?id=${encodeURIComponent(eventId)}` : '');
         document.querySelector('link[rel="canonical"]')?.setAttribute('href', url);
         document.querySelector('meta[property="og:url"]')?.setAttribute('content', url);
         // The language switcher reads syncRouteMeta.title and translates it (see initLanguages).
@@ -10126,10 +11081,14 @@
             route = 'ana-sayfa';
         // Etkinlik sayfasının ?id= parametresi başka sayfalara taşınmaz.
         const params = new URLSearchParams(location.search);
-        if (route !== 'etkinlik')
+        if (route !== 'etkinlik' && route !== 'kulup')
             params.delete('id');
         const query = params.toString();
-        const url = routePath(route) + (query ? `?${query}` : '');
+        // E-postadaki bilet / yer teklifi bağlantıları (#bilet=… / #teklif=…) etkinlik sayfası okuyana kadar kalır.
+        const keepHash = route === 'etkinlik' && /^#(bilet|teklif|iptal)=/.test(location.hash) ? location.hash : '';
+        const evId = route === 'etkinlik' ? window.unipaktEventId() : '';
+        // Adres çubuğu her zaman paylaşılabilir biçimde: /etkinlik/<id>/ (bağlantı önizlemesinde afiş görünür).
+        const url = evId ? eventPath(evId) + keepHash : routePath(route) + (query ? `?${query}` : '') + keepHash;
         const current = location.pathname + location.search + location.hash;
         try {
             if (options.replace)
@@ -10156,12 +11115,18 @@
         }
         if (url.origin !== location.origin || url.hash)
             return;
-        const segment = url.pathname.replace(/^\/+|\/+$/g, '') || 'ana-sayfa';
+        const evMatch = url.pathname.match(EVENT_PATH_RE);
+        const segment = evMatch ? 'etkinlik' : url.pathname.replace(/^\/+|\/+$/g, '') || 'ana-sayfa';
         if (!validRoutes.includes(segment))
             return;
         event.preventDefault();
         if (segment === 'etkinlik') {
-            openSiteEvent(url.searchParams.get('id') || '');
+            openSiteEvent(evMatch ? evMatch[1].toLowerCase() : url.searchParams.get('id') || '');
+            return;
+        }
+        if (segment === 'kulup') {
+            try { history.pushState({ route: 'kulup', fromSite: true }, '', `/kulup/?id=${encodeURIComponent(url.searchParams.get('id') || '')}`); } catch (_) {}
+            showRoute('kulup'); syncRouteMeta('kulup');
             return;
         }
         navigateTo(segment);
@@ -10780,7 +11745,7 @@
         const ctx = canvas.getContext('2d');
         const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         let nodes = [], links = [], raf = 0, t0 = 0, w = 0, h = 0, dpr = 1, maxDraw = 120;
-        const ACCENT = '#F04A0F';
+        const ACCENT = brandColor();
         const ease = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
         const hubPoint = () => (w <= 720 ? { x: w * 0.5, y: h * 0.74 } : { x: w * 0.72, y: h * 0.58 });
 
@@ -10873,9 +11838,9 @@
             });
             if (ptr) {
                 const near = nodes.map((n) => ({ n, d: Math.hypot(n.px - cursor.x, n.py - cursor.y) })).sort((x, y) => x.d - y.d).slice(0, 2);
-                ctx.strokeStyle = 'rgba(240,74,15,.75)'; ctx.lineWidth = 1.5;
+                ctx.strokeStyle = brandColor(.75); ctx.lineWidth = 1.5;
                 near.forEach(({ n, d }) => { if (d > 260) return; ctx.beginPath(); ctx.moveTo(cursor.x, cursor.y); ctx.lineTo(n.px, n.py); ctx.stroke(); });
-                ctx.strokeStyle = 'rgba(240,74,15,.35)'; ctx.lineWidth = 1.2;
+                ctx.strokeStyle = brandColor(.35); ctx.lineWidth = 1.2;
                 ctx.beginPath(); ctx.arc(cursor.x, cursor.y, 13 + Math.sin(t * 3) * 3, 0, Math.PI * 2); ctx.stroke();
                 ctx.fillStyle = ACCENT;
                 ctx.beginPath(); ctx.arc(cursor.x, cursor.y, 5, 0, Math.PI * 2); ctx.fill();
@@ -10978,7 +11943,7 @@
         if (logoLink && logoBase) {
             logoAlt = document.createElement('img');
             logoAlt.className = 'logo-img logo-alt';
-            logoAlt.src = '/unipakt-logo-bg.png?v=3';
+            logoAlt.dataset.tint = 'unipakt-logo-bg'; logoAlt.src = '/unipakt-logo-bg.png?v=5';
             logoAlt.alt = '';
             logoAlt.setAttribute('aria-hidden', 'true');
             logoLink.appendChild(logoAlt);
@@ -11037,7 +12002,7 @@
             if (still) { kicker.classList.add('is-word'); return; }
             const STEPS = 22, STEP = 50;
             let n = 0;
-            const split = (amt) => `drop-shadow(${-amt}px 0 rgba(240,74,15,.85)) drop-shadow(${amt}px 0 rgba(0,200,255,.75))`;
+            const split = (amt) => `drop-shadow(${-amt}px 0 ${brandColor(.85)}) drop-shadow(${amt}px 0 rgba(10,10,10,.45))`;
             const tick = () => {
                 if (!active()) { kickReset(); return; }
                 if (n >= STEPS) { kickReset(); kicker.classList.add('is-word'); return; }
@@ -11091,7 +12056,7 @@
         if (navLogo && !navLogo.querySelector('.logo-mx')) {
             const mx = document.createElement('img');
             mx.className = 'logo-img logo-mx'; mx.alt = ''; mx.setAttribute('aria-hidden', 'true');
-            mx.src = '/hackfest-media/logo-hf27.webp'; mx.width = 680; mx.height = 106; mx.decoding = 'async';
+            mx.dataset.tint = 'logo-hf27'; mx.src = '/hackfest-media/logo-hf27.webp?v=3'; mx.width = 680; mx.height = 106; mx.decoding = 'async';
             navLogo.appendChild(mx);
         }
         let swapTimer = 0;
@@ -11417,7 +12382,7 @@
     const FORM_RPC = 'https://hcgotmcbwmleeklbvawb.supabase.co/rest/v1/rpc/';
     // Okunduğu işaretlenen KVKK Aydınlatma Metni'nin sürümü (metindeki "Son güncelleme" tarihi).
     // Metin değişince bu tarih ve /kvkk/ sayfasındaki tarih birlikte güncellenir.
-    const KVKK_VERSION = '2026-10-13';
+    const KVKK_VERSION = '2026-10-31';
     const FORM_TIMEOUT_MS = 15000;
 
     function fieldValue(id) {
@@ -11557,6 +12522,8 @@
             requestAnimationFrame(update);   // metin kısa kalırsa (kaydırma yoksa) hemen açılır
         };
 
+        // The event registration form is built later, so it opens the text through this.
+        window.unipaktKvkkOpen = open;
         body.addEventListener('scroll', update, { passive: true });
         window.addEventListener('resize', () => { if (dlg.open) update(); });
         ok.addEventListener('click', () => {

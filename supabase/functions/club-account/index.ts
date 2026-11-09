@@ -16,6 +16,15 @@ const cors = {
 const reply = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
+// The JWT's session_id; a 2FA account's session must have been verified (see the `mfa` function).
+const sessionIdOf = (jwt: string) => {
+  try {
+    const part = jwt.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(atob(part + "=".repeat((4 - (part.length % 4)) % 4)));
+    return /^[0-9a-f-]{36}$/i.test(String(payload.session_id ?? "")) ? String(payload.session_id) : "00000000-0000-0000-0000-000000000000";
+  } catch { return "00000000-0000-0000-0000-000000000000"; }
+};
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return reply(405, { message: "Yalnızca POST." });
@@ -30,6 +39,8 @@ Deno.serve(async (req) => {
   if (!caller?.user) return reply(401, { message: "Oturum geçersiz." });
   const { data: me } = await admin.from("profiles").select("role").eq("id", caller.user.id).maybeSingle();
   if (me?.role !== "admin") return reply(403, { message: "Bu işlem yalnızca UniPakt yetkilisine açık." });
+  const { data: mfaOk } = await admin.rpc("mfa_session_ok", { p_user: caller.user.id, p_session: sessionIdOf(token) });
+  if (!mfaOk) return reply(403, { message: "Önce iki adımlı doğrulamayı tamamla.", mfa_required: true });
 
   let body: Record<string, unknown>;
   try { body = await req.json(); } catch { return reply(400, { message: "Geçersiz istek." }); }
@@ -52,7 +63,8 @@ Deno.serve(async (req) => {
   const { data: existing } = await admin.from("profiles").select("id").eq("club_id", clubId).eq("role", "club");
 
   if (action === "remove") {
-    for (const row of existing ?? []) {
+    const { data: team } = await admin.from("profiles").select("id").eq("club_id", clubId).eq("role", "member");
+    for (const row of [...(team ?? []), ...(existing ?? [])]) {
       const { error } = await admin.auth.admin.deleteUser(row.id);   // profil satırı da birlikte silinir
       if (error) return reply(500, { message: error.message });
     }
