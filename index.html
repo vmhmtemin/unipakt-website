@@ -6671,6 +6671,8 @@
     .cl-skin.has-acc .cl-contact .club-contact-tile:hover { border-color: var(--ev-acc-read); }
     /* ---- Etkinlik sayfası tasarımı (kulübün panelde seçtiği; boşsa yukarıdaki varsayılan) ---- */
     .ev-org-line { display: inline-flex; align-items: center; gap: 10px; }
+    .ev-orgs { display: grid; gap: 12px; justify-items: start; }
+    .ev-org-ini { display: inline-grid; place-items: center; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 12px; letter-spacing: .02em; color: var(--ink); }
     .ev-org-logo { width: 32px; height: 32px; flex: none; border-radius: 50%; object-fit: cover; background: var(--paper); border: 1px solid var(--border-strong); }
     /* Kulübün vurgu rengi bu sayfadaki (ve kayıt penceresindeki) bütün düğme ve vurgulu yazılara geçer.
        --ev-acc-read: koyu zeminde okunacak kadar açılmış hâli (designAttrs hesaplar). */
@@ -9781,7 +9783,7 @@
                 feeType: r.fee_type === 'paid' ? 'paid' : 'free', feeAmount: r.fee_amount,
                 capacity: Number.isInteger(cap) && cap > 0 ? cap : null,
                 organizerId: r.organizer_id || '', organizerName: txt(r.organizer_name, 180) || 'UniPakt',
-                partners: partners.map((p) => txt(p && p.name, 180)).filter(Boolean),
+                partners: partners.map((p) => ({ id: UUID.test(String(p && p.id || '')) ? String(p.id) : '', name: txt(p && p.name, 180) })).filter((p) => p.name),
                 endDate: /^\d{4}-\d{2}-\d{2}$/.test(r.end_date || '') ? r.end_date : '', endTime: timeOnly(r.end_time),
                 occurrences: occ
             };
@@ -9834,12 +9836,15 @@
             const orgName = e.organizerId
                 ? `<a href="/kulup/?id=${esc(e.organizerId)}" class="ev-org" data-no-i18n>${esc(e.organizerName)}</a>`
                 : '<span data-no-i18n>UniPakt</span>';
-            const org = orgLogo
-                ? `<span class="ev-org-line"><img class="ev-org-logo" src="${esc(orgLogo)}" alt="" width="32" height="32" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">${orgName}</span>`
-                : orgName;
+            // Organizatör ve onaylı ortak kulüpler aynı biçimde: logo (yoksa baş harfler) + kulüp sayfasına bağlantı.
+            const initials = (n) => String(n || '').replace(/kulübü|kulubu|topluluğu/gi, '').trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toLocaleUpperCase('tr') || '•';
+            const orgItem = (logo, nameHtml, name) => `<span class="ev-org-line">${logo
+                ? `<img class="ev-org-logo" src="${esc(logo)}" alt="" width="32" height="32" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`
+                : `<span class="ev-org-logo ev-org-ini" aria-hidden="true" data-no-i18n>${esc(initials(name))}</span>`}${nameHtml}</span>`;
+            const org = `<div class="ev-orgs">${orgLogo ? orgItem(orgLogo, orgName, e.organizerName) : orgItem('', orgName, e.organizerName)}${e.partners.map((p) => orgItem(p.logo,
+                p.id ? `<a href="/kulup/?id=${esc(p.id)}" class="ev-org" data-no-i18n>${esc(p.name)}</a>` : `<span data-no-i18n>${esc(p.name)}</span>`, p.name)).join('')}</div>`;
             const look = designAttrs(e);
             window.unipaktPageAccent.apply(look.accent);
-            const partners = e.partners.length ? `<div class="ev-sub"><span>Ortak kulüpler:</span> <span data-no-i18n>${e.partners.map(esc).join(', ')}</span></div>` : '';
             const placeVal = (e.place || e.address || e.city)
                 ? `<span data-no-i18n>${[e.place, e.address, e.city].filter(Boolean).map(esc).join('<br>')}</span>${e.address || e.place ? `<a class="ev-map" href="${esc(mapUrl(e))}" target="_blank" rel="noopener noreferrer">Haritada aç ↗</a>` : ''}`
                 : '';
@@ -9873,7 +9878,7 @@
                             ${first ? row('start', 'Başlangıç', when(first.date, first.time)) : ''}
                             ${endDay || e.endTime ? row('end', 'Bitiş', when(endDay || first.date, e.endTime)) : ''}
                             ${others ? row('dates', 'Tüm tarihler', others) : ''}
-                            ${row('org', 'Organizatör', org + partners)}
+                            ${row('org', e.partners.length ? 'Organizatörler' : 'Organizatör', org)}
                             ${e.category ? row('cat', 'Kategori', esc(e.category)) : ''}
                             ${row('place', 'Yer', placeVal)}
                             ${row('link', 'Etkinlik sayfaları', social)}
@@ -10025,6 +10030,8 @@
                 current.speakers = cleanSpeakers(extra.speakers);
                 current.design = cleanDesign(extra.design);
                 current.orgLogo = typeof extra.organizer_logo === 'string' && LOGO_RE.test(extra.organizer_logo) ? extra.organizer_logo : '';
+                const pl = extra.partner_logos && typeof extra.partner_logos === 'object' ? extra.partner_logos : {};
+                current.partners.forEach((p) => { const u = p.id && pl[p.id]; p.logo = typeof u === 'string' && LOGO_RE.test(u) ? u : ''; });
                 if (loadingId !== id) return;
                 render(current);
                 handleRegHash(current);

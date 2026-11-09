@@ -492,6 +492,7 @@
 "Metroyla geliyorsan M2 hattında": "Coming by metro? Get off the M2 line at",
 "ya da": "or",
 "’de in; mekân yürüme mesafesinde. Kabataş’tan geliyorsan F1 füniküleriyle Taksim’e çık, oradan yürü.": "; the venue is within walking distance. Coming from Kabataş? Take the F1 funicular up to Taksim and walk from there.",
+"Organizatörler": "Organizers",
 "Etkinliğin de bu takvimde olsun": "Put your event on this calendar",
 "UniPakt ağındaki kulüplerin etkinlikleri burada, binlerce öğrencinin önünde yer alır. Kulübünüzü ağa dahil edin.": "Events from clubs in the UniPakt network appear here, in front of thousands of students. Bring your club into the network.",
 "Sıradaki büyük etkinlik": "Next big event",
