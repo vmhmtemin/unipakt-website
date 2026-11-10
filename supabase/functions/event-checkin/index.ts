@@ -191,11 +191,12 @@ Deno.serve(async (req) => {
       .select("id, staff_id, event_id, access_code_hash, failed_attempts, expires_at").eq("link_token_hash", tokenHash).maybeSingle();
     if (!grant) return reply(404, { error: "link", message: "Bu bağlantı artık geçerli değil. Kulübünden yeni yetki iste." });
     if (new Date(grant.expires_at).getTime() <= Date.now()) return reply(403, { error: "expired", message: "Bu etkinlik için kontrol yetkinin süresi doldu." });
-    if (grant.failed_attempts >= MAX_FAILED) return reply(403, { error: "locked", message: "Çok fazla hatalı erişim kodu girildi. Kulübünden yeni yetki iste." });
+    // Deneme hakkı veritabanında tek adımda düşülür (claim_code_attempt); doğru kodda sayaç sıfırlanır.
+    const { data: failed, error: claimError } = await supabase.rpc("claim_code_attempt", { p_kind: "checkin", p_id: grant.id, p_max: MAX_FAILED });
+    if (claimError) throw claimError;
+    if (failed === null) return reply(403, { error: "locked", message: "Çok fazla hatalı erişim kodu girildi. Kulübünden yeni yetki iste." });
     if (accessCode.length !== 6 || grant.access_code_hash !== await codeHash(tokenHash, accessCode)) {
-      const failed = grant.failed_attempts + 1;
-      await supabase.from("event_staff_grants").update({ failed_attempts: failed }).eq("id", grant.id);
-      const remaining = MAX_FAILED - failed;
+      const remaining = Math.max(0, MAX_FAILED - failed);
       return reply(401, { error: remaining > 0 ? "wrong" : "locked", remaining,
         message: remaining > 0 ? `Erişim kodu yanlış. ${remaining} deneme hakkın kaldı.` : "Çok fazla hatalı erişim kodu girildi. Kulübünden yeni yetki iste." });
     }

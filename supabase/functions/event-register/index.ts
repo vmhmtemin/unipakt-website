@@ -25,7 +25,8 @@
 //   { action: "sweep", event_id? }  expired offers out, freed seats offered (cron every 10 min);
 //        without event_id also sends the due reminder e-mails (1 day / 2 hours before, per club setting)
 //
-// Limits: the code lives 15 minutes, 5 wrong tries end it, a new code at most every
+// Limits: the code lives 15 minutes, 5 tries end it (counted atomically in the database,
+// see claim_code_attempt), a new code at most every
 // 60 seconds and 5 codes per registration. start_event_registration (database)
 // also limits attempts per network (hashed IP) and per event.
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -400,10 +401,11 @@ Deno.serve(async (req) => {
       }
       const code = String(body.code ?? "").replace(/\D/g, "");
       if (new Date(c.expires_at).getTime() <= Date.now()) return reply(410, { error: "expired", message: "Kodun süresi doldu. Yeni kod iste." });
-      if (c.attempts >= MAX_WRONG) return reply(429, { error: "locked", message: "Çok fazla yanlış kod girildi. Yeni kod iste." });
+      // Deneme hakkı veritabanında tek adımda düşülür: aynı anda gelen istekler sınırı aşamaz.
+      const { data: attempts, error: claimError } = await supabase.rpc("claim_code_attempt", { p_kind: "cancel", p_id: c.id, p_max: MAX_WRONG });
+      if (claimError) throw claimError;
+      if (attempts === null) return reply(429, { error: "locked", message: "Çok fazla yanlış kod girildi. Yeni kod iste." });
       if (code.length !== 6 || !c.code_hash || c.code_hash !== await codeHash(c.id, code)) {
-        const attempts = c.attempts + 1;
-        await supabase.from("event_registration_cancels").update({ attempts }).eq("id", c.id);
         const remaining = Math.max(0, MAX_WRONG - attempts);
         return reply(401, { error: "wrong", remaining, message: remaining ? `Kod yanlış. ${remaining} deneme hakkın kaldı.` : "Kod yanlış. Yeni kod iste." });
       }
@@ -429,10 +431,11 @@ Deno.serve(async (req) => {
     if (action === "verify") {
       const code = String(body.code ?? "").replace(/\D/g, "");
       if (new Date(p.expires_at).getTime() <= Date.now()) return reply(410, { error: "expired", message: "Kodun süresi doldu. “Kodu tekrar gönder” ile yeni kod iste." });
-      if (p.attempts >= MAX_WRONG) return reply(429, { error: "locked", message: "Çok fazla yanlış kod girildi. “Kodu tekrar gönder” ile yeni kod iste." });
+      // Deneme hakkı veritabanında tek adımda düşülür: aynı anda gelen istekler sınırı aşamaz.
+      const { data: attempts, error: claimError } = await supabase.rpc("claim_code_attempt", { p_kind: "register", p_id: p.id, p_max: MAX_WRONG });
+      if (claimError) throw claimError;
+      if (attempts === null) return reply(429, { error: "locked", message: "Çok fazla yanlış kod girildi. “Kodu tekrar gönder” ile yeni kod iste." });
       if (code.length !== 6 || !p.code_hash || p.code_hash !== await codeHash(p.id, code)) {
-        const attempts = p.attempts + 1;
-        await supabase.from("event_registration_pending").update({ attempts }).eq("id", p.id);
         const remaining = Math.max(0, MAX_WRONG - attempts);
         return reply(401, { error: "wrong", remaining, message: remaining ? `Kod yanlış. ${remaining} deneme hakkın kaldı.` : "Kod yanlış. Yeni kod iste." });
       }

@@ -13,7 +13,8 @@
 //          "login"   — verify a new session of a 2FA account
 //          "disable" — turn 2FA off (needs a verified session)
 //
-// Codes: 6 digits, valid for 10 minutes, 5 attempts, stored only as a hash.
+// Codes: 6 digits, valid for 10 minutes, 5 attempts (counted atomically in the database,
+// see claim_code_attempt), stored only as a hash.
 // Sending: at most one code per 45 seconds and 8 per hour per account.
 // Mail goes out from destek@auth.unipakt.com through Resend (RESEND_API_KEY).
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -222,15 +223,20 @@ Deno.serve(async (req) => {
         .eq("user_id", user.id).eq("session_id", sessionId).eq("purpose", purpose).is("used_at", null)
         .order("created_at", { ascending: false }).limit(1).maybeSingle();
       if (!row || new Date(row.expires_at).getTime() < Date.now()) return reply(400, { error: "expired", message: "Kodun süresi doldu. Yeni kod iste." });
-      if (row.attempts >= MAX_ATTEMPTS) return reply(400, { error: "locked", message: "Çok fazla yanlış deneme. Yeni kod iste." });
+      // Deneme hakkı veritabanında tek adımda düşülür (claim_code_attempt): aynı anda gelen
+      // istekler sınırı aşamaz. Hak kalmadıysa kod hiç karşılaştırılmaz.
+      const { data: attempts, error: claimError } = await supabase.rpc("claim_code_attempt", { p_kind: "mfa", p_id: row.id, p_max: MAX_ATTEMPTS });
+      if (claimError) throw claimError;
+      if (attempts === null) return reply(400, { error: "locked", message: "Çok fazla yanlış deneme. Yeni kod iste." });
       if (row.code_hash !== await sha256(`${user.id}:${purpose}:${code}`)) {
-        const attempts = row.attempts + 1;
-        await supabase.from("mfa_codes").update({ attempts, ...(attempts >= MAX_ATTEMPTS ? { used_at: new Date().toISOString() } : {}) }).eq("id", row.id);
-        const remaining = MAX_ATTEMPTS - attempts;
+        if (attempts >= MAX_ATTEMPTS) await supabase.from("mfa_codes").update({ used_at: new Date().toISOString() }).eq("id", row.id);
+        const remaining = Math.max(0, MAX_ATTEMPTS - attempts);
         return reply(400, { error: remaining > 0 ? "wrong" : "locked", remaining,
           message: remaining > 0 ? `Kod yanlış. ${remaining} deneme hakkın kaldı.` : "Çok fazla yanlış deneme. Yeni kod iste." });
       }
-      await supabase.from("mfa_codes").update({ used_at: new Date().toISOString() }).eq("id", row.id);
+      // Kod bir kez kullanılır: aynı kodla gelen ikinci istek burada elenir.
+      const { data: usedNow } = await supabase.from("mfa_codes").update({ used_at: new Date().toISOString() }).eq("id", row.id).is("used_at", null).select("id");
+      if (!usedNow || !usedNow.length) return reply(400, { error: "expired", message: "Kodun süresi doldu. Yeni kod iste." });
 
       if (purpose === "disable") {
         await supabase.from("mfa_settings").delete().eq("user_id", user.id);
