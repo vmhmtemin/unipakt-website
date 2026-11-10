@@ -9400,6 +9400,9 @@
             };
             img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
         }
+        // Yalnızca sitede görünen seçenek metni; kaydedilen değer (panelde görünen) aynı kalır.
+        // Cyber Detective: "CTD+Konuşmacı" yazım hatası. Etkinlik bitince kaldırılabilir.
+        const OPTION_SHOWN = { 'CTD+Konuşmacı': 'CTF+Konuşmacı' };
         // Step 1: the form. `prefill` keeps what was typed when going back from the code step.
         function openRegForm(e, prefill = null, dlg = null) {
             const qs = Array.isArray(e.reg?.questions) ? e.reg.questions : [];
@@ -9410,7 +9413,7 @@
                 const had = pv.answers[q.id];
                 if (q.type === 'choice') {
                     const on = (o) => (multi ? Array.isArray(had) && had.includes(o) : had === o);
-                    const opts = (q.options || []).map((o) => `<label><input type="${multi ? 'checkbox' : 'radio'}" name="q_${esc(q.id)}" value="${esc(o)}" ${on(o) ? 'checked' : ''}><span data-no-i18n>${esc(o)}</span></label>`).join('');
+                    const opts = (q.options || []).map((o) => `<label><input type="${multi ? 'checkbox' : 'radio'}" name="q_${esc(q.id)}" value="${esc(o)}" ${on(o) ? 'checked' : ''}><span data-no-i18n>${esc(OPTION_SHOWN[o] || o)}</span></label>`).join('');
                     return `<fieldset class="reg-field" style="border:0;padding:0;margin:0"><span>${label}</span><div class="reg-choices">${opts}</div></fieldset>`;
                 }
                 return `<label class="reg-field"><span>${label}</span><input type="text" name="q_${esc(q.id)}" maxlength="1000" value="${esc(typeof had === 'string' ? had : '')}"></label>`;
