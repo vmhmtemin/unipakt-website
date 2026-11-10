@@ -159,7 +159,9 @@
   /* Logo görseli: asıl UniPakt logosu, noktası turuncu kare (koyu panelde beyaz yazılı). */
   .wordmark-img { display: block; height: .9em; width: auto; }
   .wordmark:hover { opacity: .8; }
-  .kicker { font: 700 22px/1 'Caveat', cursive; color: var(--accent); }
+  /* El yazısı harfler kutudan taşar; renk kutuya kırpıldığı için (background-clip: text) son harf
+     kesiliyordu. Sağda ve dikeyde pay bırakılır. */
+  .kicker { font: 700 22px/1 'Caveat', cursive; color: var(--accent); padding: .1em .35em .1em 0; }
 
   /* ---- Buttons ---- */
   .btn {
@@ -804,14 +806,16 @@
   dialog .lead { opacity: .75; }
   .field { display: grid; gap: 7px; }
   .field > span { font-size: 13px; font-weight: 600; opacity: .8; }
-  .field input, .field textarea, .field select, .toolbar select, .act-filters input, .act-filters select {
+  .field input, .field textarea, .field select, .toolbar select, .act-filters input, .act-filters select,
+  .support-admin-toolbar input, .support-admin-toolbar select {
     width: 100%; padding: 12px 16px; border-radius: 14px;
     background: color-mix(in srgb, var(--ink) 4%, transparent); border: 1px solid var(--border-strong); outline: none;
     transition: border-color .2s ease, box-shadow .2s ease;
   }
   .toolbar select { width: auto; padding: 9px 14px; border-radius: 999px; }
   .field textarea { min-height: 110px; resize: vertical; }
-  .field input:focus, .field textarea:focus, .field select:focus, .toolbar select:focus, .act-filters input:focus, .act-filters select:focus {
+  .field input:focus, .field textarea:focus, .field select:focus, .toolbar select:focus, .act-filters input:focus, .act-filters select:focus,
+  .support-admin-toolbar input:focus, .support-admin-toolbar select:focus {
     border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);
   }
   .field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }

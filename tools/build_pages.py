@@ -52,7 +52,9 @@ UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]
 SAFE_IMG = re.compile(r"^https://[A-Za-z0-9.-]+\.supabase\.co/storage/v1/object/public/[^\s\"'<>]+$")
 
 # Never published: source-only files.
-SKIP = {".git", ".github", ".gitignore", "_site", "supabase", "tools", "README.md", "tests", "docs", "node_modules", "package.json", "pnpm-lock.yaml"}
+# Yalnızca kaynak olan, sitede işi olmayan dosyalar yayın klasörüne kopyalanmaz.
+SKIP = {".git", ".github", ".gitignore", "_site", "supabase", "tools", "README.md", "tests", "docs", "node_modules", "package.json", "pnpm-lock.yaml",
+        "src", "matrix-server", "vite.matrix.config.js", "vite.qr.config.js", "KOD-KURULUM.md", "SQL-CALISTIRMA-SIRASI.md"}
 SKIP_SUFFIXES = {".code-workspace"}
 
 

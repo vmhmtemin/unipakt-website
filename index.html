@@ -6266,6 +6266,8 @@
     .ev-poster { display: block; width: auto; height: auto; max-width: 100%; max-height: min(85vh, 960px); border-radius: 20px; border: 1px solid var(--border); background: var(--paper-soft); } /* afiş kendi oranında, kırpılmadan; çerçeve görseli sarar */
     .ev-detail h2, .ev-card h2 { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(20px, 2.2vw, 24px); letter-spacing: -0.02em; margin: 0 0 14px; display: flex; align-items: center; gap: 10px; }
     .ev-detail h2::before, .ev-card h2::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-grad); flex: none; }
+    /* Yorumlar gizliyken (etkinlik bulunamadı / yükleniyor) açık renkli boş bant kalmasın. */
+    .ev-body.field-alt:has(> #evComments[hidden]) { display: none; }
     .ev-md { line-height: 1.7; overflow-wrap: anywhere; }
     .ev-md p { margin: 0 0 12px; }
     .ev-md ul { margin: 0 0 12px; padding-left: 20px; }
@@ -8660,6 +8662,7 @@
 
     // Category chips + paging for the full club list.
     const CLUB_PAGE = 12;
+    const CLUB_MORE_MIN = 3;   // bundan az kulüp kaldıysa düğme çıkmaz, hepsi listelenir
     let clubCategory = '';
     let clubShown = CLUB_PAGE;
     const clubChips = document.createElement('div');
@@ -8694,6 +8697,8 @@
                 return false;
             return !query || normalizeClubSearch(`${c.name} ${c.uni} ${c.cat}`).includes(query);
         });
+        // Geriye yalnızca birkaç kulüp kalıyorsa "Daha fazla göster" düğmesi yerine hepsi gösterilir.
+        if (filteredClubs.length - clubShown <= CLUB_MORE_MIN) clubShown = Math.max(clubShown, filteredClubs.length);
         renderClubList(fullClubList, filteredClubs.slice(0, clubShown), {
             placeholder: true,
             expandable: true
@@ -8936,8 +8941,12 @@
             const thumb = e.poster_url
                 ? `<img src="${esc(e.poster_url)}" alt="" loading="lazy" referrerpolicy="no-referrer">`
                 : `<span class="cal3-date" aria-hidden="true"><b>${o.date ? parse(o.date).getDate() : '–'}</b><small>${o.date ? esc(shortMonth(o.date)) : ''}</small></span>`;
-            const by = e.by && !(e.place || '').toLocaleLowerCase('tr-TR').includes(e.by.toLocaleLowerCase('tr-TR')) ? e.by : '';
-            const meta = [dateTime(o.date, o.time), e.place, by, feeFor(e)].filter(Boolean).join(' · ');
+            // Yer ve organizatör aynı adı taşıyorsa (ör. ikisi de üniversite adı) tekrar yazılmaz:
+            // kısa olan, onu içeren uzun olanın yanında gösterilmez.
+            const lower = (v) => (v || '').toLocaleLowerCase('tr-TR');
+            const by = e.by && !lower(e.place).includes(lower(e.by)) ? e.by : '';
+            const place = e.place && by && lower(by).includes(lower(e.place)) ? '' : e.place;
+            const meta = [dateTime(o.date, o.time), place, by, feeFor(e)].filter(Boolean).join(' · ');
             return `<a class="cal3-row" href="${e.href ? esc(e.href) : `/etkinlik/?id=${encodeURIComponent(e.id)}`}" data-event-id="${esc(e.id)}" aria-label="${esc(ui.open())}"><span class="cal3-thumb">${thumb}</span><span class="cal3-text"><h3 data-no-i18n>${esc(e.title)}</h3><p class="cal3-meta" data-no-i18n>${esc(meta)}</p></span>${e.category ? `<span class="cal3-chip">${esc(e.category)}</span>` : ''}<span class="cal3-arrow" aria-hidden="true">→</span></a>`;
         }
         function matches(e, q) {
@@ -9184,7 +9193,7 @@
             const flush = () => { if (para.length) { out.push(`<p>${para.join('<br>')}</p>`); para = []; } };
             const endList = () => { if (list) { out.push(`<ul>${list.join('')}</ul>`); list = null; } };
             String(src || '').split(/\r?\n/).forEach((line) => {
-                const m = line.match(/^\s*[-•]\s+(.*)$/);
+                const m = line.match(/^\s*[-•*]\s+(.*)$/);   // "- ", "• " ya da "* " ile başlayan satır madde olur
                 if (m) { flush(); (list ||= []).push(`<li>${mdInline(m[1])}</li>`); return; }
                 endList();
                 if (!line.trim()) { flush(); return; }
